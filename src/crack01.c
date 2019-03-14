@@ -140,6 +140,7 @@ void tryPermutations(int permutationStart, int permutationEnd)
     int             count;
 //    int             maxCount;
     long            counting;
+    long            prevCounting;
     int             w;
     long            currentTime;
     long            diffTime;
@@ -153,9 +154,10 @@ void tryPermutations(int permutationStart, int permutationEnd)
     placeSteckers(enigma, "ze");
     placeUmkehrWaltze(enigma, "UKW B");
 
-    counting=0;
+    counting        =0;
 //    maxCount=0;
-    prevTime=startTime;
+    prevTime        =startTime;
+    prevCounting    =0;
 
     w=permutationStart;
     while (w<permutationEnd)
@@ -167,13 +169,14 @@ void tryPermutations(int permutationStart, int permutationEnd)
         diffTime=currentTime-prevTime;
         if (diffTime>0)
         {
-            convPerSec=counting/diffTime;
+            convPerSec=(counting-prevCounting)/diffTime;
         }
         else
         {
             convPerSec=0;
         }
-        prevTime=currentTime;
+        prevTime        =currentTime;
+        prevCounting    =counting;
         
         printf("Processing waltzen %20s @ systemtime %ld seconds, %ld conversions per sec \n", waltzenString, currentTime, convPerSec);
         
