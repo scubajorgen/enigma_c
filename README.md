@@ -7,6 +7,12 @@ Therefore I wrote the software also in C and optimized for performance.
 On a simple low power Pentium it peforms 84000 encryptions (running on 3 threads), whereas the Java software on a I5 notebook 
 performs only 1000 or so.
 
+## Building
+Simply call make.
+It delivers two executable files:
+* enigma, which executes a brute force example
+* test, which execute module tests
+
 ## Usage
 
 Typical usage:
