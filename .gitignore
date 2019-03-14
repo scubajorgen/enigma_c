@@ -1,3 +1,5 @@
 *.o
 enigma
 test
+enigma.exe
+test.exe
