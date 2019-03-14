@@ -247,7 +247,7 @@ void *threadFunction(void *vargp)
 
     params=(ThreadParam*)vargp;
 
-    printf("Starting thread %ld\n", params->threadId);
+    printf("Starting thread %ld\n", (long)params->threadId);
   
     tryPermutations(params->start, params->end);
     
