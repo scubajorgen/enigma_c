@@ -3,6 +3,7 @@
 #include <ctype.h>
 
 #include "enigma.h"
+#include "toolbox.h"
 
 /**************************************************************************************************\
 * 
@@ -43,13 +44,66 @@ void assertIntEquals(char* test, int testCase, int expected, int result)
 * 
 * 
 \**************************************************************************************************/
+void assertLongNotEquals(char* test, int testCase, long notExpected, long result)
+{
+    if (notExpected!=result)
+    {
+        printf("Test %10s %3d: Passed!\n", test, testCase);
+    }
+    else
+    {
+        printf("Test %10s %3d: Failed! Not expected %ld, result was %ld\n", test, testCase, notExpected, result);
+    }
+}
+
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
 void test01()
 {
+    LinkedList* list;
+    int         objects[5]={0, 1, 2, 3, 4};
+    int*        objectFromList;
+    int         i;
+    
     assertIntEquals("toolbox", 1, 4, stellungToPos('e'));
     assertIntEquals("toolbox", 2, 4, stellungToPos('E'));
     assertIntEquals("toolbox", 3, 4, stellungToPos(5));
     assertIntEquals("toolbox", 4, 9, charToPos('j'));
     assertIntEquals("toolbox", 5, 9, charToPos('J'));
+    
+    list=createLinkedList();
+    assertLongNotEquals("toolbox", 6, (long)NULL, (long)list);
+    
+    i=0;
+    while (i<5)
+    {
+        addObject(list, (void*)(objects+i));
+        i++;
+    }
+    
+    resetLinkedList(list);
+    i=0;
+    while (hasNext(list))
+    {
+        objectFromList  =(int*)nextLinkedListObject(list);
+        assertIntEquals("toolbox", 7+i, i, *objectFromList);
+        i++;
+    }
+    resetLinkedList(list);
+    i=0;
+    while (hasNext(list))
+    {
+        objectFromList  =(int*)nextLinkedListObject(list);
+        assertIntEquals("toolbox", 12+i, i, *objectFromList);
+        i++;
+    }
+    
+    destroyLinkedList(list);
+    
 }
 
 /**************************************************************************************************\

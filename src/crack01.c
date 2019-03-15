@@ -3,6 +3,7 @@
 #include <time.h>
 
 #include "enigma.h"
+#include "toolbox.h"
 
 typedef struct
 {

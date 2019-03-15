@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include "enigma.h"
+#include "toolbox.h"
 
 #define ROTATING_WALTZEN 3
 

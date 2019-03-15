@@ -1,4 +1,6 @@
+#include <malloc.h>
 
+#include "toolbox.h"
 
 
 /**************************************************************************************************\
@@ -54,4 +56,131 @@ int charToPos(char theChar)
     }    
     
     return pos;
+}
+
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+LinkedList* createLinkedList()
+{
+    LinkedList* list;
+    
+    list                =malloc(sizeof(LinkedList));
+    list->firstElement  =NULL;
+    list->lastElement   =NULL;
+    list->length        =0;
+    list->next          =NULL;
+    
+    return list;
+}
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+void addObject(LinkedList* list, void* newObject)
+{
+    LinkedListElement* newElement;
+    LinkedListElement* listEnd;
+    
+    newElement=malloc(sizeof(LinkedListElement));
+    
+    newElement->object=newObject;
+    newElement->next        =NULL;
+    
+    // Check if list is empty
+    if (list->firstElement==NULL)
+    {
+        // empty: add first element
+        newElement->previous    =NULL;
+        list->firstElement      =newElement;
+        list->lastElement       =newElement;
+        list->next              =newElement;
+    }
+    else
+    {
+        listEnd                 =list->lastElement;
+        newElement->previous    =listEnd;
+        listEnd->next           =newElement;
+        list->lastElement       =newElement;
+    }
+    list->length++;
+        
+}
+
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+void destroyLinkedList(LinkedList* list)
+{
+    LinkedListElement* element;
+    LinkedListElement* nextElement;
+    
+    element=list->lastElement;
+    while (element!=NULL)
+    {
+        nextElement=element->previous;
+        free(element);
+        element=nextElement;
+    }
+    free(list);
+}
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+void resetLinkedList(LinkedList* list)
+{
+    list->next=list->firstElement;
+}
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+void* nextLinkedListObject(LinkedList* list)
+{
+    LinkedListElement*  nextElement;
+    void*               object;
+    
+    nextElement =list->next;
+    object      =NULL;
+    
+    if (nextElement!=NULL)
+    {
+        object      =nextElement->object;
+        list->next  =nextElement->next;
+    }
+    
+    return object;
+}
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+int hasNext(LinkedList* list)
+{
+    int hasNext;
+    
+    if (list->next==NULL)
+    {
+        hasNext=0;
+    }
+    else
+    {
+        hasNext=1;
+    }
+    return hasNext;
 }

@@ -30,6 +30,7 @@ typedef struct
 
 
 
+
 Enigma*     createEnigmaM3          ();
 void        destroyEnigma           (Enigma* enigma);
 void        setText                 (Enigma* engima, char text[]);
@@ -45,7 +46,6 @@ void        encodeDecode            (Enigma* enigma);
 char*       toString                (Enigma* enigma);
 
 
-int         stellungToPos           (int stellung);
-int         charToPos               (char theChar);
+
 
 #endif

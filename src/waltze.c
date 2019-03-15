@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "enigma.h"
+#include "toolbox.h"
 
 #define ROTORS          10
 #define MAX_ROTORNAME   10
