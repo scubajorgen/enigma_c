@@ -1,10 +1,26 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <malloc.h>
 
 #include "enigma.h"
 #include "toolbox.h"
 
+int permutations[12][2]=
+{
+    {1, 2},
+    {1, 3},
+    {1, 4},
+    {2, 1},
+    {2, 3},
+    {2, 4},
+    {3, 2},
+    {3, 1},
+    {3, 4},
+    {4, 2},
+    {4, 3},
+    {4, 1}
+};
 /**************************************************************************************************\
 * 
 * 
@@ -66,8 +82,11 @@ void test01()
 {
     LinkedList* list;
     int         objects[5]={0, 1, 2, 3, 4};
+    int         permutationElements[4]={1, 2, 3, 4};
+    int*        permutation;
     int*        objectFromList;
     int         i;
+    int         j;
     
     assertIntEquals("toolbox", 1, 4, stellungToPos('e'));
     assertIntEquals("toolbox", 2, 4, stellungToPos('E'));
@@ -103,6 +122,31 @@ void test01()
     }
     
     destroyLinkedList(list);
+    
+    
+    list=createLinkedList();
+    permute(list, permutationElements, 4, 2, 0);
+    
+    assertIntEquals("toolbox", 17, 12, linkedListLength(list));   
+    
+    resetLinkedList(list);
+    i=0;
+    while (hasNext(list))
+    {
+        permutation=(int*)nextLinkedListObject(list);
+        j=0;
+        while (j<2)
+        {
+            assertIntEquals("toolbox", 18+i*2+j, permutations[i][j], permutation[j]);
+            j++;
+        }
+        free((void *)permutation);
+        i++;
+    }
+    
+    destroyLinkedList(list);
+    
+    
     
 }
 

@@ -26,3 +26,6 @@ void        addObject               (LinkedList* list, void* newObject);
 void        resetLinkedList         (LinkedList* list);
 void*       nextLinkedListObject    (LinkedList* list);
 int         hasNext                 (LinkedList* list);
+int         linkedListLength        (LinkedList* list);
+
+void        permute                 (LinkedList* permutations, int elements[], int elementArraySize, int number, int start);

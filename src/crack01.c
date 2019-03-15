@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <time.h>
+#include <malloc.h>
 
 #include "enigma.h"
 #include "toolbox.h"
+
+#define NUMBER_OF_THREADS   3
 
 typedef struct
 {
@@ -12,73 +15,13 @@ typedef struct
     pthread_t   threadId;
 } ThreadParam;
 
-int permutations[60][3]=
-{
-    {0, 1, 2},
-    {0, 1, 3},
-    {0, 1, 4},
-    {0, 2, 1},
-    {0, 2, 3},
-    {0, 2, 4},
-    {0, 3, 2},
-    {0, 3, 1},
-    {0, 3, 4},
-    {0, 4, 2},
-    {0, 4, 3},
-    {0, 4, 1},
-    {1, 0, 2},
-    {1, 0, 3},
-    {1, 0, 4},
-    {1, 2, 0},
-    {1, 2, 3},
-    {1, 2, 4},
-    {1, 3, 2},
-    {1, 3, 0},
-    {1, 3, 4},
-    {1, 4, 2},
-    {1, 4, 3},
-    {1, 4, 0},
-    {2, 1, 0},
-    {2, 1, 3},
-    {2, 1, 4},
-    {2, 0, 1},
-    {2, 0, 3},
-    {2, 0, 4},
-    {2, 3, 0},
-    {2, 3, 1},
-    {2, 3, 4},
-    {2, 4, 0},
-    {2, 4, 3},
-    {2, 4, 1},
-    {3, 1, 2},
-    {3, 1, 0},
-    {3, 1, 4},
-    {3, 2, 1},
-    {3, 2, 0},
-    {3, 2, 4},
-    {3, 0, 2},
-    {3, 0, 1},
-    {3, 0, 4},
-    {3, 4, 2},
-    {3, 4, 0},
-    {3, 4, 1},
-    {4, 1, 2},
-    {4, 1, 3},
-    {4, 1, 0},
-    {4, 2, 1},
-    {4, 2, 3},
-    {4, 2, 0},
-    {4, 3, 2},
-    {4, 3, 1},
-    {4, 3, 0},
-    {4, 0, 2},
-    {4, 0, 3},
-    {4, 0, 1}    
-};    
 
-char waltzen[5][4]={"I", "II", "III", "IV", "V"};
+int         waltzenIndices[8]  ={0, 1, 2, 3, 4, 5, 6, 7};
+char        waltzen[8][4]      ={"I", "II", "III", "IV", "V", "VI", "VII", "VIII"};
 
-char waltzenString[80];
+char        waltzenString[80];
+
+LinkedList* permutations;
 
 ThreadParam params[4];
  
@@ -168,13 +111,15 @@ void tryPermutations(int permutationStart, int permutationEnd)
 //    int             maxCount;
     long            counting;
     long            prevCounting;
-    int             w;
     long            currentTime;
     long            diffTime;
     long            prevTime;
     long            convPerSec;
     int             limit;
+
+    int*            permutation;
     
+  
   
 
     enigma=createEnigmaM3(); 
@@ -188,11 +133,11 @@ void tryPermutations(int permutationStart, int permutationEnd)
     prevTime        =startTime;
     prevCounting    =0;
 
-    w=permutationStart;
-    while (w<permutationEnd)
+    resetLinkedList(permutations);
+    while (hasNext(permutations))
     {
-        sprintf(waltzenString,"%s %s %s", waltzen[permutations[w][0]], waltzen[permutations[w][1]], waltzen[permutations[w][2]]);
-        
+        permutation=(int*)nextLinkedListObject(permutations);
+        sprintf(waltzenString,"%s %s %s", waltzen[permutation[0]], waltzen[permutation[1]], waltzen[permutation[2]]);
         
         currentTime=(long)time(NULL)-(long)startTime;
         diffTime=currentTime-prevTime;
@@ -208,10 +153,11 @@ void tryPermutations(int permutationStart, int permutationEnd)
         prevCounting    =counting;
         
         printf("Processing waltzen %20s @ systemtime %ld seconds, %ld conversions per sec \n", waltzenString, currentTime, convPerSec);
+       
         
-        placeWaltze(enigma, 1, waltzen[permutations[w][0]]);
-        placeWaltze(enigma, 2, waltzen[permutations[w][1]]);
-        placeWaltze(enigma, 3, waltzen[permutations[w][2]]);
+        placeWaltze(enigma, 1, waltzen[permutation[0]]);
+        placeWaltze(enigma, 2, waltzen[permutation[1]]);
+        placeWaltze(enigma, 3, waltzen[permutation[2]]);
         
         for (g1=1; g1<=26; g1++)
         {
@@ -243,16 +189,16 @@ void tryPermutations(int permutationStart, int permutationEnd)
                                        r1, r2, r3, g1, g2, g3, toString(enigma));
                             }
 
-
-
                             counting++;
                         }
                     }
                 }
             }
         }
-        w++;
+       
+        free(permutation);
     }
+    destroyLinkedList(permutations);
 }   
     
 /**************************************************************************************************\
@@ -283,16 +229,30 @@ void *threadFunction(void *vargp)
 void crackExample()
 {
     int         i; 
+    int         numberOfPermutations;
 
+    permutations=createLinkedList();
+    permute(permutations, waltzenIndices, 8, 3, 0);
+    
+    numberOfPermutations=linkedListLength(permutations);
+    printf("Waltzen permutations %d\n", numberOfPermutations);
 
     startTime=time(NULL);  
     // Let us create three threads 
-    for (i = 0; i < 3; i++) 
+    for (i = 0; i < NUMBER_OF_THREADS; i++) 
     {
-        params[i].start=i*20;
-        params[i].end=i*20+20;
+        
+        params[i].start=i*(numberOfPermutations/NUMBER_OF_THREADS);
+        params[i].end=(i+1)*(numberOfPermutations/NUMBER_OF_THREADS);
+
         pthread_create(&(params[i].threadId), NULL, threadFunction, (void *)(params+i)); 
     }
+    
+    if (i*(numberOfPermutations/NUMBER_OF_THREADS)!=numberOfPermutations)
+    {
+        printf("Oops! Permutations not divisible by number of threads\n");
+    }
+    
     pthread_exit(NULL); 
   
 }

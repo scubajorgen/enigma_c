@@ -184,3 +184,53 @@ int hasNext(LinkedList* list)
     }
     return hasNext;
 }
+
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+
+void permute(LinkedList* permutations, int elements[], int elementArraySize, int number, int start)
+{
+    int*    permutation;
+    int     i;
+    int     temp;
+    
+    if (start == number) 
+    {
+        permutation=malloc(number*sizeof(int));
+        for (i = 0; i < number; i++) 
+        {
+            permutation[i]=elements[i];
+        }
+        addObject(permutations, permutation);
+    } 
+    else 
+    {
+        for (i = start; i < elementArraySize; i++) 
+        {
+            temp = elements[start];
+            elements[start] = elements[i];
+            elements[i] = temp;
+
+            permute(permutations, elements, elementArraySize, number, start + 1);
+
+            temp = elements[start];
+            elements[start] = elements[i];
+            elements[i] = temp;
+        }
+    }    
+}
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+
+int linkedListLength(LinkedList* list)
+{
+    return list->length;
+}
