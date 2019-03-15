@@ -96,33 +96,31 @@ char text[]=
     "tglndscqxpyszqseblswatibtizwlbcwatiddgzypsdwnpgslidwldlqrhwc" 
     "dglebd";   
 
+
+
+/*
+I II III, RingStellungen 1 1 1, Grundstellungen 1 5 3, UKW B
+Nadat eerst de Poolse en nadien, tijdens de Tweede Wereldoorlog, 
+de Britse inlichtingendienst erin slaagde de Enigmacodes te breken, 
+bleek het toestel een goudmijn van informatie over de Duitse oorlogsmachine. 
+Deze informatie, verkregen door ontcijfering van de geheime Duitse 
+berichten, kreeg de codenaam "Ultra" en speelde een uiterst belangrijke 
+rol in het verloop van de Tweede Wereldoorlog, vooral in de U-bootoorlog 
+in de Atlantische Oceaan, de veldslagen in Afrika en de landing in Normandië.
+*/
+char text_test[]=
+"qwifp pcdip norty hdunw acgoq mxlio wddwx eewkx qxrsj onkjk hbxjx "
+"cqnjf iupjk jfqsf vguvr uxplb bjsni vbkcl fdzek qgzfh rvkqw fqjsc "
+"wlxln yyqcc chtsi rakgh xkhcz uvusk mowjp lrdmm irmie fkjxm nxclw "
+"ndovx djqba jnomd worqg ouvnt qsyiz uoffs yaots kyjwm rlwcx gqwfw "
+"suclm qrxva iavhu pvvop tixfn wzpae hjpdc ndwop glisd yzhes zklpv "
+"xozgj rffbx gspvq xlpup hssnp wkevj nmyzc xkpyo dvjtm efcnw rpbsw "
+"ytwpd mydlc ykbnb cttsy pcypm cokfs brynx uimac jsjom mixxi sxufp "
+"zlbfz byjtc uqqkz zhcpw emsgx mez";
+
     time_t          startTime;
 
 
-/**************************************************************************************************\
-* 
-* Count letter 'e', which is the most frequent letter in Dutch
-* 
-\**************************************************************************************************/
-int countEes(Enigma* enigma)
-{
-    int i;
-    int max;
-    int count;
-    
-    count=0;
-    max=enigma->textSize;
-    i=0;
-    while (i<max)
-    {
-        if (enigma->conversion[i]==4)
-        {
-            count++;
-        }
-        i++;
-    }
-    return count;
-}
 
 /**************************************************************************************************\
 * 
@@ -174,16 +172,18 @@ void tryPermutations(int permutationStart, int permutationEnd)
     long            diffTime;
     long            prevTime;
     long            convPerSec;
+    int             limit;
     
   
 
     enigma=createEnigmaM3(); 
     setText(enigma, text);
+    // Letter frequency in dutch: e - 19%, n - 10%. Choose 12 % as limit
+    limit=enigma->textSize*12/100;
     placeSteckers(enigma, "ze");
     placeUmkehrWaltze(enigma, "UKW B");
 
     counting        =0;
-//    maxCount=0;
     prevTime        =startTime;
     prevCounting    =0;
 
@@ -218,41 +218,33 @@ void tryPermutations(int permutationStart, int permutationEnd)
             {
                 for (g3=1; g3<=26; g3++)
                 {
-                    for (r1=1; r1<=26; r1++)
+                    // The RingStellung of the 1st ring has no function
+                    r1=1;
+                    for (r2=1; r2<=26; r2++)
                     {
-                        for (r2=1; r2<=26; r2++)
+                        for (r3=1; r3<=26; r3++)
                         {
-                            for (r3=1; r3<=26; r3++)
+                            setRingStellung(enigma, 1, r1);
+                            setRingStellung(enigma, 2, r2);
+                            setRingStellung(enigma, 3, r3);
+
+                            setGrundStellung(enigma, 1, g1);
+                            setGrundStellung(enigma, 2, g2);
+                            setGrundStellung(enigma, 3, g3);
+                            
+                            encodeDecode(enigma);
+
+                            count=countLetter(enigma, 'E');
+
+                            if (count>limit)
                             {
-                                setRingStellung(enigma, 1, r1);
-                                setRingStellung(enigma, 2, r2);
-                                setRingStellung(enigma, 3, r3);
-
-                                setGrundStellung(enigma, 1, g1);
-                                setGrundStellung(enigma, 2, g2);
-                                setGrundStellung(enigma, 3, g3);
-                                
-                                encodeDecode(enigma);
-
-                                count=countEes(enigma);
-/*                                
-                                if (count>maxCount)
-                                {
-                                    maxCount=count;
-                                    printf("Found: %s\n\n", toString(enigma));
-                                }
-*/
-
-                                // expected letter e: 137 occurrences, letter n: 72 
-                                if (count>100)
-                                {
-                                    printf("Found: %s\n\n", toString(enigma));
-                                }
-
-
-
-                                counting++;
+                                printf("Found @ Ringstellungen %d %d %d Grundstellungen %d %d %d\n %s\n\n", 
+                                       r1, r2, r3, g1, g2, g3, toString(enigma));
                             }
+
+
+
+                            counting++;
                         }
                     }
                 }
