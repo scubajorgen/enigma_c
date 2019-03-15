@@ -118,6 +118,7 @@ void tryPermutations(int permutationStart, int permutationEnd)
     int             limit;
 
     int*            permutation;
+    int             w;
     
   
   
@@ -127,78 +128,83 @@ void tryPermutations(int permutationStart, int permutationEnd)
     // Letter frequency in dutch: e - 19%, n - 10%. Choose 12 % as limit
     limit=enigma->textSize*12/100;
     placeSteckers(enigma, "ze");
-    placeUmkehrWaltze(enigma, "UKW B");
+    placeUmkehrWaltze(enigma, "UKW C");
 
     counting        =0;
     prevTime        =startTime;
     prevCounting    =0;
-
+    w               =0;
     resetLinkedList(permutations);
     while (hasNext(permutations))
     {
         permutation=(int*)nextLinkedListObject(permutations);
-        sprintf(waltzenString,"%s %s %s", waltzen[permutation[0]], waltzen[permutation[1]], waltzen[permutation[2]]);
         
-        currentTime=(long)time(NULL)-(long)startTime;
-        diffTime=currentTime-prevTime;
-        if (diffTime>0)
+        if (w>=permutationStart && w<permutationEnd)
         {
-            convPerSec=(counting-prevCounting)/diffTime;
-        }
-        else
-        {
-            convPerSec=0;
-        }
-        prevTime        =currentTime;
-        prevCounting    =counting;
-        
-        printf("Processing waltzen %20s @ systemtime %ld seconds, %ld conversions per sec \n", waltzenString, currentTime, convPerSec);
-       
-        
-        placeWaltze(enigma, 1, waltzen[permutation[0]]);
-        placeWaltze(enigma, 2, waltzen[permutation[1]]);
-        placeWaltze(enigma, 3, waltzen[permutation[2]]);
-        
-        for (g1=1; g1<=26; g1++)
-        {
-            for (g2=1; g2<=26; g2++)
+
+            sprintf(waltzenString,"%s %s %s", waltzen[permutation[0]], waltzen[permutation[1]], waltzen[permutation[2]]);
+            
+            currentTime=(long)time(NULL)-(long)startTime;
+            diffTime=currentTime-prevTime;
+            if (diffTime>0)
             {
-                for (g3=1; g3<=26; g3++)
+                convPerSec=(counting-prevCounting)/diffTime;
+            }
+            else
+            {
+                convPerSec=0;
+            }
+            prevTime        =currentTime;
+            prevCounting    =counting;
+            
+            printf("Processing waltzen %20s @ systemtime %ld seconds, %ld conversions per sec \n", waltzenString, currentTime, convPerSec);
+           
+            
+            placeWaltze(enigma, 1, waltzen[permutation[0]]);
+            placeWaltze(enigma, 2, waltzen[permutation[1]]);
+            placeWaltze(enigma, 3, waltzen[permutation[2]]);
+            
+            for (g1=1; g1<=26; g1++)
+            {
+                for (g2=1; g2<=26; g2++)
                 {
-                    // The RingStellung of the 1st ring has no function
-                    r1=1;
-                    for (r2=1; r2<=26; r2++)
+                    for (g3=1; g3<=26; g3++)
                     {
-                        for (r3=1; r3<=26; r3++)
+                        // The RingStellung of the 1st ring has no function
+                        r1=1;
+                        for (r2=1; r2<=26; r2++)
                         {
-                            setRingStellung(enigma, 1, r1);
-                            setRingStellung(enigma, 2, r2);
-                            setRingStellung(enigma, 3, r3);
-
-                            setGrundStellung(enigma, 1, g1);
-                            setGrundStellung(enigma, 2, g2);
-                            setGrundStellung(enigma, 3, g3);
-                            
-                            encodeDecode(enigma);
-
-                            count=countLetter(enigma, 'E');
-
-                            if (count>limit)
+                            for (r3=1; r3<=26; r3++)
                             {
-                                printf("Found @ Ringstellungen %d %d %d Grundstellungen %d %d %d\n %s\n\n", 
-                                       r1, r2, r3, g1, g2, g3, toString(enigma));
-                            }
+                                setRingStellung(enigma, 1, r1);
+                                setRingStellung(enigma, 2, r2);
+                                setRingStellung(enigma, 3, r3);
 
-                            counting++;
+                                setGrundStellung(enigma, 1, g1);
+                                setGrundStellung(enigma, 2, g2);
+                                setGrundStellung(enigma, 3, g3);
+                                
+                                encodeDecode(enigma);
+
+                                count=countLetter(enigma, 'E');
+
+                                if (count>limit)
+                                {
+                                    printf("Found @ Ringstellungen %d %d %d Grundstellungen %d %d %d\n %s\n\n", 
+                                           r1, r2, r3, g1, g2, g3, toString(enigma));
+                                }
+
+                                counting++;
+                            }
                         }
                     }
                 }
             }
+             
+            free(permutation);
         }
-       
-        free(permutation);
+        w++;
     }
-    destroyLinkedList(permutations);
 }   
     
 /**************************************************************************************************\
@@ -242,8 +248,8 @@ void crackExample()
     for (i = 0; i < NUMBER_OF_THREADS; i++) 
     {
         
-        params[i].start=i*(numberOfPermutations/NUMBER_OF_THREADS);
-        params[i].end=(i+1)*(numberOfPermutations/NUMBER_OF_THREADS);
+        params[i].start =i*(numberOfPermutations/NUMBER_OF_THREADS);
+        params[i].end   =(i+1)*(numberOfPermutations/NUMBER_OF_THREADS);
 
         pthread_create(&(params[i].threadId), NULL, threadFunction, (void *)(params+i)); 
     }
