@@ -124,6 +124,34 @@ int countEes(Enigma* enigma)
     return count;
 }
 
+/**************************************************************************************************\
+* 
+* Count letter
+\**************************************************************************************************/
+int countLetter(Enigma* enigma, char letter)
+{
+    int i;
+    int max;
+    int count;
+    int letterPos;
+    
+    letterPos=charToPos(letter);
+    
+    count=0;
+    max=enigma->textSize;
+    i=0;
+    while (i<max)
+    {
+        if (enigma->conversion[i]==letterPos)
+        {
+            count++;
+        }
+        i++;
+    }
+    return count;
+}
+
+
 
     
 
