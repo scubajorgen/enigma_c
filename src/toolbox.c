@@ -234,3 +234,32 @@ int linkedListLength(LinkedList* list)
 {
     return list->length;
 }
+
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+
+void* elementAt(LinkedList* list, int index)
+{
+    LinkedListElement*  element;
+    void*               object;
+    int                 i;
+    
+    object=NULL;
+    
+    if (index>=0 && index<list->length)
+    {
+        element=list->firstElement;
+        i=0;
+        while (i<index)
+        {
+            element=element->next;
+            i++;
+        }
+        object=element->object;
+    }
+    return object;
+}

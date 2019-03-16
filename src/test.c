@@ -43,6 +43,23 @@ void assertStringEquals(char* test, int testCase, char* expected, char* result)
 * 
 * 
 \**************************************************************************************************/
+void assertIntIsNull(char* test, int testCase, int* result)
+{
+    if (result==NULL)
+    {
+        printf("Test %10s %3d: Passed!\n", test, testCase);
+    }
+    else
+    {
+        printf("Test %10s %3d: Failed! Expected NULL, result was %ld\n", test, testCase, (long)result);
+    }
+}
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
 void assertIntEquals(char* test, int testCase, int expected, int result)
 {
     if (expected==result)
@@ -54,6 +71,8 @@ void assertIntEquals(char* test, int testCase, int expected, int result)
         printf("Test %10s %3d: Failed! Expected %d, result was %d\n", test, testCase, expected, result);
     }
 }
+
+
 
 /**************************************************************************************************\
 * 
@@ -94,6 +113,7 @@ void test01()
     assertIntEquals("toolbox", 4, 9, charToPos('j'));
     assertIntEquals("toolbox", 5, 9, charToPos('J'));
     
+    // Linked list
     list=createLinkedList();
     assertLongNotEquals("toolbox", 6, (long)NULL, (long)list);
     
@@ -120,14 +140,30 @@ void test01()
         assertIntEquals("toolbox", 12+i, i, *objectFromList);
         i++;
     }
+
+    objectFromList=(int *)elementAt(list, 4);
+    assertIntEquals("toolbox", 17, 4, *objectFromList);
+
+
+    objectFromList=(int *)elementAt(list, 2);
+    assertIntEquals("toolbox", 18, 2, *objectFromList);
+    
+    objectFromList=(int *)elementAt(list, 0);
+    assertIntEquals("toolbox", 19, 0, *objectFromList);
+    
+    objectFromList=(int *)elementAt(list, 6);
+    assertIntIsNull("toolbox", 20, objectFromList);
+    
+    
     
     destroyLinkedList(list);
     
-    
+
+    // Permutaions
     list=createLinkedList();
     permute(list, permutationElements, 4, 2, 0);
     
-    assertIntEquals("toolbox", 17, 12, linkedListLength(list));   
+    assertIntEquals("toolbox", 21, 12, linkedListLength(list));   
     
     resetLinkedList(list);
     i=0;

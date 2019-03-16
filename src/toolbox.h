@@ -27,5 +27,5 @@ void        resetLinkedList         (LinkedList* list);
 void*       nextLinkedListObject    (LinkedList* list);
 int         hasNext                 (LinkedList* list);
 int         linkedListLength        (LinkedList* list);
-
+void*       elementAt               (LinkedList* list, int index);
 void        permute                 (LinkedList* permutations, int elements[], int elementArraySize, int number, int start);
