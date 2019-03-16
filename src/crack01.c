@@ -16,12 +16,17 @@ typedef struct
 } ThreadParam;
 
 
-int         waltzenIndices[8]  ={0, 1, 2, 3, 4, 5, 6, 7};
-char        waltzen[8][4]      ={"I", "II", "III", "IV", "V", "VI", "VII", "VIII"};
+int                 waltzenIndices[8]  ={0, 1, 2, 3, 4, 5, 6, 7};
+char                waltzen[8][4]      ={"I", "II", "III", "IV", "V", "VI", "VII", "VIII"};
 
-char        waltzenString[80];
+char                waltzenString[80];
 
-LinkedList* permutations;
+LinkedList*         permutations;
+int                 threadsRunning;
+
+pthread_mutex_t     mutex;
+
+
 
 ThreadParam params[4];
  
@@ -120,29 +125,34 @@ void tryPermutations(int permutationStart, int permutationEnd)
     int*            permutation;
     int             w;
     
-  
-  
+    
+    pthread_mutex_lock(&mutex);
+    threadsRunning++;
+    pthread_mutex_unlock(&mutex);    
 
     enigma=createEnigmaM3(); 
     setText(enigma, text);
     // Letter frequency in dutch: e - 19%, n - 10%. Choose 12 % as limit
-    limit=enigma->textSize*12/100;
+    limit=enigma->textSize*11/100;
     placeSteckers(enigma, "ze");
     placeUmkehrWaltze(enigma, "UKW C");
 
     counting        =0;
     prevTime        =startTime;
     prevCounting    =0;
-    w               =0;
-    resetLinkedList(permutations);
-    while (hasNext(permutations))
-    {
-        permutation=(int*)nextLinkedListObject(permutations);
-        
-        if (w>=permutationStart && w<permutationEnd)
-        {
+    w               =permutationStart;
 
+    while (w<permutationEnd)
+    {
+        pthread_mutex_lock(&mutex);
+        permutation=(int*)elementAt(permutations, w);
+        pthread_mutex_unlock(&mutex);        
+        
+        if (permutation!=NULL)
+        {
+            pthread_mutex_lock(&mutex);
             sprintf(waltzenString,"%s %s %s", waltzen[permutation[0]], waltzen[permutation[1]], waltzen[permutation[2]]);
+            pthread_mutex_unlock(&mutex);        
             
             currentTime=(long)time(NULL)-(long)startTime;
             diffTime=currentTime-prevTime;
@@ -157,7 +167,9 @@ void tryPermutations(int permutationStart, int permutationEnd)
             prevTime        =currentTime;
             prevCounting    =counting;
             
-            printf("Processing waltzen %20s @ systemtime %ld seconds, %ld conversions per sec \n", waltzenString, currentTime, convPerSec);
+            printf("Processing waltzen permutation (%3d, %3d, %3d) %3d:%15s @ systemtime %ld seconds, %ld conv per sec \n", 
+                   permutation[0], permutation[3], permutation[2], w, waltzenString, currentTime, convPerSec);
+            fflush(stdout);
            
             
             placeWaltze(enigma, 1, waltzen[permutation[0]]);
@@ -192,7 +204,8 @@ void tryPermutations(int permutationStart, int permutationEnd)
                                 {
                                     printf("Found @ Ringstellungen %d %d %d Grundstellungen %d %d %d\n %s\n\n", 
                                            r1, r2, r3, g1, g2, g3, toString(enigma));
-                                }
+                                    fflush(stdout);
+                            }
 
                                 counting++;
                             }
@@ -203,8 +216,21 @@ void tryPermutations(int permutationStart, int permutationEnd)
              
             free(permutation);
         }
+        else
+        {
+            printf("Error!! Permutation is NULL");
+            fflush(stdout);
+        }
         w++;
     }
+    pthread_mutex_lock(&mutex);
+    threadsRunning--;
+    if (threadsRunning==0)
+    {
+        destroyLinkedList(permutations);
+    }
+    pthread_mutex_unlock(&mutex);    
+    
 }   
     
 /**************************************************************************************************\
@@ -220,7 +246,7 @@ void *threadFunction(void *vargp)
 
     params=(ThreadParam*)vargp;
 
-    printf("Starting thread %ld\n", (long)params->threadId);
+    printf("Starting thread %ld processing pemutations %3d to %3d\n", (long)params->threadId, params->start, params->end);
   
     tryPermutations(params->start, params->end);
     
@@ -237,12 +263,26 @@ void crackExample()
     int         i; 
     int         numberOfPermutations;
 
+
     permutations=createLinkedList();
     permute(permutations, waltzenIndices, 8, 3, 0);
+    
+/*    
+    int*        permutation;
+    i=0;
+    while (i<permutations->length)
+    {
+        permutation=elementAt(permutations, i);
+        printf("|%3d %3d %3d \n", permutation[0], permutation[1], permutation[2]);
+        i++;
+    }
+    printf("\n");
+*/    
     
     numberOfPermutations=linkedListLength(permutations);
     printf("Waltzen permutations %d\n", numberOfPermutations);
 
+    threadsRunning=0;
     startTime=time(NULL);  
     // Let us create three threads 
     for (i = 0; i < NUMBER_OF_THREADS; i++) 
