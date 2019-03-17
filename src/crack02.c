@@ -1,7 +1,25 @@
 #include <stdio.h>
+#include <malloc.h>
+#include <string.h>
 
 #include "enigma.h"
 #include "crack.h"
+#include "toolbox.h"
+
+
+char text01[]=
+"MUUQ JZVQ LORV MCOL YKXE"
+"PMCD CWGH NTQV MEHG ECOE"
+"ULBU LBOC ZPGB IXIF WCYX"
+"ZKZK LYAE VCJD GXJZ QKQG"
+"VXSO RRQN ZMAT PZDO EXIT"
+"XFIU VJFI ZUAY LIJW VVGF"
+"YXGR DQKA GUUW BNUU OUXQ"
+"QUCX KUXP TYUI IXPA YXRL"
+"TZPZ QRNL OPAO DDUS VFWM"
+"ILZE OBVO PIPW HXVY ADCO"
+"RXPI IEUZ VTXB RJRE CTGL"
+"CPKQ AJDA MI"; 
 
 char text04[]=
 "KGBJN TWBQY FFJWQ KKCTN ZJVRK"  
@@ -17,6 +35,140 @@ char text04[]=
 "XDYCY PWSZJ WVZAK IRMSQ DZKTF"
 "DDEUX WKXMN PDMKD RKASA ORATL"
 "JAEHW INMVR SWASF";
+
+char text05[]=
+"ACINZ CRVFJ RPETN UGAVD ZIHXF"
+"WTPKK TTVXZ JTAYN XRQMA JKKFI"
+"WUXTN HFCMZ PUUYP PKILQ YBYRD"
+"MHFBM HPGYL CEIJU NMWGQ OKGHM"
+"DLGJW BQBZB VWDTS UWHGX ZRFUX"
+"WQTHT RHYPT PJZRO FTCNM XCKSD"
+"DNHIW YSUGQ RZUIY IUOTD ZPQRT"
+"CXVQX PMZGJ BWLHX ULWLU NLWPW"
+"NTONB QUFMM IKNTV WNK";
+
+char text06_1[]=
+"OLDTO GVQQY DCOZN NVUMD FJIOC"
+"JVaAZ MZJRE GOBDI VNYRF TUAZS"
+"RUDPO HWZRL LKHMC CJUKR YRJMR"
+"TXMGA UJMKG IENYA ZKXSS OTGWO"
+"DHUQP YILYG CSJHV QNILS ITWQY"
+"XBFNA GTSWM XJTSM OTVMG HVDZB"
+"SQBDL SHaaE ZUHMP GGGMX HIJFY"
+"IHWBJ WJAKO TCOKO VCPNR QJPKN"
+"IRPYP TFWPB MUPHO HPIBR KRQNA"
+"OYHHS BYPBB XPKAF aJIFX GOUPZ";
+
+char text06_2[]=
+"DQHFX QVZSX RJJYJ KKGWU QaaIU"
+"LIXBO EMFQX AALQX CUYKO KPPVV"
+"SGVBG RUAER DDOFA OWCGP PCUSW"
+"IQQKK EHGXO CVYFQ TZICT JKOOF"
+"QQJLH DXMDX TKCTC IMIaH YKJQQ" 
+"IDEGK RAXQT UELIS PWGJC OGHES"
+"ZBILO UISLS OKVIO LHZSR HEXUJ"
+"AYITW DQNKO HVERX WNMJZ TBSBP"
+"SMMCM TGaaa UIZKN VDWDD VEHHN"
+"EUPCN GJDLN DOZXS VZBYD UPCTI";
+
+char text06_3[]=
+"DQCaa aTHQP LAEIS ZHDJE OFQVA"
+"AXXWN GUTIM MXSNA ORBRO WKDTH"
+"MOCUI MZJNZ SWTLU OYCAQ XAKGD"
+"AMVWS GFYMF PFJXH GCHAS LLHIM"
+"OMSZE ZBRLL JM";
+
+char text07_1[]=
+ "MLETW NNJZJ ECTHJ JUUVD DBAZS"
+ "XBVOF SEWLR MLSBX GNLNL LLIGO"
+ "IMYMU HBGRI HZTFG TXKCT CRPJN"
+ "BHZMQ QWGUA KBJXJ BITQI BFXMZ"
+ "MHHWK OBSSD OGELQ UWQXG IMLVG"
+ "YJQSL PIQNZ VQVFN LGQXN PUJEZ"
+ "MPUNC MLETS JIXZP HUNBN AGVCB"
+ "SAAIN IIHJV CWISA NHEMW JOEIY"
+ "MXSFE JAEPU FJLIT VUZYS HYWYP"
+ "XTAYJ CARWI YORFI VANOM BXWDT";
+ 
+char text07_2[]= 
+ "EWGYY LDFBK IBHZA CZZZP ABUCX"
+ "BLLZF KPVAX ZDJXJ GGZZQ RWURS"
+ "LFLBV KAQTJ PMUXH NIPUC IWSFY"
+ "ROEIQ QHNFO TPVAF RFNLQ OAXRE"
+ "GZPJR WYYIL BGZSP PBVTL BRIGO"
+ "QXION BZSZX ANZES UJTEN ZVWRS"
+ "VRJPP OZLWV IMCKO YQFWY FTCPT"
+ "ZSERJ DBPTA UUJGM ";
+
+char text08_1[]=
+ "SIAZK QGEML IVDBI YWAKC AMPYK"
+ "CFLOP QDCWP VMITC WAYWK BRUJA"
+ "VGRYY CISIJ ZSGRM TZEKG EQLWU"
+ "XIXYP MQLUH ODQFP NRKBZ DISWX"
+ "PHYDB NEQHJ UZJRZ FWWMV TGIXF"
+ "SFCQI BVMHG ENWKN KYXMQ RYSMA"
+ "WCMBW FHYPN WJEBV YBZEZ RCUFZ"
+ "YLIFF JCQFK GOGBY GXMDJ LUJMM"
+ "KZDLN NNJIY EAOYU VDFRF CCUVP"
+ "WYPJH WFSGG RLXQD FFOKL SKGXZ";
+ 
+char text08_2[]=
+ "YNDXI HNTJY ETDDJ VBPCA PORBP"
+ "PASUK HYHTH ETMFG JNPUF WAMEB"
+ "FIKQB ZGGFZ ZXJMU YNJDW XJXZD"
+ "MEEVP YRDGP YMAXW TWHUG DQZTM"
+ "JWKYQ RDQXK VGTZY IIMPB VDJPQ"
+ "VJLOI OSXQE NZZHC NTWCQ YQYMH"
+ "COXPN TDXMT ZWABT WRVYI GMJEI"
+ "CMHXH HEITF PKXEF WMICO VTIVI"
+ "BIEAC PFVXZ ILJXW TBRVB EFENE"
+ "WQZTC CDMWV WGLDZ TXGUD JWSTR";
+
+char text08_3[]=
+ "BKWVQ ICHPW RRYJD AXQEI QJKQQ"
+ "YMLTP VAKYC JZZTD AODOL STOKL"
+ "SSXJR TQCKI KGRRD RJZYZ WWJPT"
+ "ABZJE OWGRU KLASP PBMKZ BJRHI"
+ "OKPAK YFZPC OUAAX DMZQM TLDFN"
+ "NKEZD GRNUZ QA"; 
+
+char text09[]=
+" INAVH YMVHI AGMJO PKVJH SGJYY"  
+" KNHLF KRZWH WLAKK EGGHZ FEAKV"
+" VIDDS YYVEY QFQJP VYHLF UZESA"
+" OLGNH TXTTB DZJVO AGEAW HBBWC"
+" ADYYT HSLRX MPEDI CATSM ALBZY"
+" LBPZM QDSXZ HPFSX VYCBK GEBTG"
+" QGZII DQJDB YDACS WJGXU CUXLT"
+" RTMZH HWXZP ESSYE EPFCQ AOWOS"
+" PLUZU CVOKY JXCPY GNJHS PNCFS"
+" WTLLM SGACQ BSUTP SAVGU YFVKS"
+" UBSQE GVZKV NRLXF IXZQW FKSXC"
+" PPFRI MWQHT QSB";
+
+char text10[]=
+ "KYYUG IWKSE YPQDF YPIJN TGNDI" 
+ "AHNBR OXDIK EKPTM OUHBE JRRJP"
+ "VBAOC UZRDF SAZDC NUNNM RPCCM"
+ "CHJBW STIKZ IREBB VJQAX ZARIY"
+ "VANIJ VOLDN BUMXX FNZVR QEGOY"
+ "XEVVN MPWEB SKEUT JJOKP BKLHI"
+ "YWGNF FPXKI EWSNT LMDKY IDMOF"
+ "PTDFJ AZOHV VQETN IPVZG TUMYJ"
+ "CMSEA KTYEL PZUNH EYFCL AADYP"
+ "EEXMH QMVAV ZZDOI MGLER BBLAT"
+ "HQJIY CBSUP VVTRA DCRDD STYIX"
+ "YFEAF ZYLNZ ZDPNN XXZJN RCWEX"
+ "MTYRJ OIAOE KNRXG XPNMT DGKFZ"
+ "DSYHM UJAPO BGANC RCZTM EPXES"
+ "DZTTJ ZGNGQ RMKNC ZNAFM DAXXT"
+ "JSRTA ZTZKR TOXHA HTNPE VNAAV"
+ "UZMHL PXLMS TWELS OBCTM BKGCJ"
+ "KMDPD QQGCZ HMIOC GRPDJ EZTYV"
+ "DQGNP UKCGK FFWMN KWPSC LENWH"
+ "UEYCL YVHZN KNVSC ZXUXD PZBDP"
+ "SYODL QRLCG HARLF MMTPO CUMOQ"
+ "LGJJA VXHZZ VBFLX HNNEJ XS";
 
 
 /*
@@ -52,7 +204,50 @@ char text04_test2[]=
 
 
 
-char textBuf[1000];
+char buffer1[1000];
+char buffer2[1000];
+
+
+
+void message01()
+{
+    Enigma* enigma;
+    char*   decoded;
+    
+    enigma=createEnigmaM3(); 
+
+    placeWaltze(enigma, 1, "VIII");
+    placeWaltze(enigma, 2, "II");
+    placeWaltze(enigma, 3, "IV");
+    placeSteckers(enigma, "bd co ei gl js kt nv pm qr wz");
+    placeUmkehrWaltze(enigma, "UKW B");
+    
+    setRingStellung(enigma, 1, 19);    
+    setRingStellung(enigma, 2,  7);    
+    setRingStellung(enigma, 3, 12);
+      
+    setGrundStellung(enigma, 1, 'W');
+    setGrundStellung(enigma, 2, 'T');
+    setGrundStellung(enigma, 3, 'G');
+
+    setText(enigma, "PLT");
+    encodeDecode(enigma);
+    
+    decoded=toString(enigma);
+    
+    setGrundStellung(enigma, 1, decoded[0]);
+    setGrundStellung(enigma, 2, decoded[1]);
+    setGrundStellung(enigma, 3, decoded[2]);
+
+    setText(enigma, text01);
+    
+    encodeDecode(enigma);
+    
+    printf("Message 01: %s", toString(enigma));
+    
+}
+
+
 
 void message04()
 {
@@ -61,7 +256,6 @@ void message04()
     int     r1;
     int     count;
 	int     limit;
-	int     dummyChars;
 
     printf("Message 04\n");
     enigma=createEnigmaM3(); 
@@ -77,43 +271,566 @@ void message04()
     setRingStellung(enigma, 2, 3);    
     setRingStellung(enigma, 3, 21);    
 
-    setGrundStellung(enigma, 2, 'K');    
-    setGrundStellung(enigma, 3, 'E');    
 
     
-    dummyChars=0;
-    while (dummyChars!=30)
+
+    setText(enigma, text04);
+    // Frequence e=18%, n=10%. Therefore we put the limit on 14%
+    limit=enigma->textSize*10/100;		
+    
+    g1=1;
+    while (g1<=MAX_POSITIONS)
     {
-        // add some dummy chars
-		sprintf(textBuf+dummyChars, "%s", text04);
-        setText(enigma, textBuf);
-        // Frequence e=18%, n=10%. Therefore we put the limit on 14%
-        limit=enigma->textSize*10/100;		
-		
-		g1=1;
-		while (g1<=MAX_POSITIONS)
-		{
-			r1=1;
-			while (r1<=MAX_POSITIONS)
-			{
-				setRingStellung (enigma, 1, r1);    
-				setGrundStellung(enigma, 1, g1);
+        r1=1;
+        while (r1<=MAX_POSITIONS)
+        {
+            setGrundStellung(enigma, 2, 'K');    
+            setGrundStellung(enigma, 3, 'E');    
+            setRingStellung (enigma, 1, r1);    
+            setGrundStellung(enigma, 1, g1);
 
-				encodeDecode(enigma);
-				
-				count=countLetter(enigma, 'E');
-				
-				if (count>limit)
-				{
-					printf("Found %d %d: %s\n", dummyChars, count, toString(enigma));
-				}
-				
-				r1++;
-			}
-			g1++;
-		}
-        dummyChars++;
-	}
+            encodeDecode(enigma);
+            
+            count=countLetter(enigma, 'E');
+            
+            if (count>limit)
+            {
+                printf("Found R %d G %d count %d:\n%s\n\n", r1, g1, count, toString(enigma));
+            }
+            
+            r1++;
+        }
+        g1++;
+    }
+
+    
+}
+
+void message05()
+{
+    Enigma*     enigma;
+    int         g1;
+    int         r1;
+    int         count;
+	int         limit;
+    char        possibleWaltzen[3][4]={"I","III","V"};
+    int         w;
+
+    printf("Message 05\n");
+    enigma=createEnigmaM3(); 
+
+    placeWaltze(enigma, 1, "II");
+    placeWaltze(enigma, 2, "IV");
+
+    placeSteckers(enigma, "AS CK DE FV GJ LU MW OT PX RZ");
+    placeUmkehrWaltze(enigma, "UKW B");
+    
+    setRingStellung(enigma, 1, 9);    
+    setRingStellung(enigma, 2, 2);    
+
+
+    w=0;
+    while (w<3)
+    {
+        placeWaltze(enigma, 3, possibleWaltzen[w]);
+        
+        setText(enigma, text05);
+        // Frequence e=18%, n=10%. 10 gives a good result 
+        limit=enigma->textSize*12/100;		
+        
+        g1=1;
+        while (g1<=MAX_POSITIONS)
+        {
+            r1=1;
+            while (r1<=MAX_POSITIONS)
+            {
+                setGrundStellung(enigma, 1, 'E');    
+                setGrundStellung(enigma, 2, 'F');    
+                setRingStellung (enigma, 3, r1);    
+                setGrundStellung(enigma, 3, g1);
+
+                encodeDecode(enigma);
+                
+                count=countLetter(enigma, 'E');
+                
+                if (count>22)
+                {
+                    printf("Found %s R %d G %d count%d limit %d:\n%s\n", 
+                           possibleWaltzen[w], r1, g1, count, limit, toString(enigma));
+                }
+                
+                r1++;
+            }
+            g1++;
+        }
+        w++;
+    }
+    
+}
+
+
+void message06()
+{
+    Enigma* enigma;
+    char*   decoded;
+    char    test1;
+    char    test2;
+    int     limit;
+    int     count;
+    
+    enigma=createEnigmaM3(); 
+
+    placeWaltze(enigma, 1, "V");
+    placeWaltze(enigma, 2, "I");
+    placeWaltze(enigma, 3, "II");
+    placeSteckers(enigma, "cq du en fr gx is jp ko ty vz");
+    placeUmkehrWaltze(enigma, "UKW C");
+    
+    setRingStellung(enigma, 1, 10);    
+    setRingStellung(enigma, 2, 12);    
+    setRingStellung(enigma, 3, 14);
+      
+
+
+    test1=0;
+    while (test1<MAX_POSITIONS)
+    {
+        setGrundStellung(enigma, 1, 'A');
+        setGrundStellung(enigma, 2, 'C');
+        setGrundStellung(enigma, 3, 'E');
+
+        buffer1[0]='A'+test1;
+        sprintf(buffer1+1, "WE");
+        setText(enigma, buffer1);
+        encodeDecode(enigma);
+        
+        decoded=toString(enigma);
+        
+        setGrundStellung(enigma, 1, decoded[0]);
+        setGrundStellung(enigma, 2, decoded[1]);
+        setGrundStellung(enigma, 3, decoded[2]);
+
+        setText(enigma, text06_1);
+        limit=enigma->textSize*9/100;
+        
+        encodeDecode(enigma);
+        
+        count=countLetter(enigma, 'E');
+        if (count>limit)
+        {
+            decoded=toString(enigma);
+            printf("Message 06-1: %s\n", decoded); 
+        }            
+        test1++;
+    }
+    
+    test1=0;
+    while (test1<MAX_POSITIONS)
+    {
+        test2=0;
+        while (test2<MAX_POSITIONS)
+        {
+            setGrundStellung(enigma, 1, 'S');
+            setGrundStellung(enigma, 2, 'E');
+            setGrundStellung(enigma, 3, 'D');
+
+            buffer1[0]='A';
+            buffer1[1]='A'+test1;
+            buffer1[2]='A'+test2;
+            buffer1[3]='\0';
+            setText(enigma, buffer1);
+            encodeDecode(enigma);
+            
+            decoded=toString(enigma);
+            
+            setGrundStellung(enigma, 1, decoded[0]);
+            setGrundStellung(enigma, 2, decoded[1]);
+            setGrundStellung(enigma, 3, decoded[2]);
+
+            setText(enigma, text06_2);
+            limit=enigma->textSize*6/100;
+            
+            encodeDecode(enigma);
+            
+            count=countLetter(enigma, 'E');
+            decoded=toString(enigma);
+            if (count>limit/*decoded[0]=='N' && decoded[1]=='S'*/)
+            {
+                printf("Message 06-2: %s\n", toString(enigma)); 
+            }            
+            test2++;
+        }
+        test1++;
+    }    
+
+    setGrundStellung(enigma, 1, 'H');
+    setGrundStellung(enigma, 2, 'I');
+    setGrundStellung(enigma, 3, 'P');
+
+    setText(enigma, "PYX");
+    encodeDecode(enigma);
+    
+    decoded=toString(enigma);
+    
+    setGrundStellung(enigma, 1, decoded[0]);
+    setGrundStellung(enigma, 2, decoded[1]);
+    setGrundStellung(enigma, 3, decoded[2]);
+
+    setText(enigma, text06_3);
+    
+    encodeDecode(enigma);
+    
+    printf("Message 06-3: %s\n", toString(enigma)); 
+
+}
+
+
+void message07()
+{
+    Enigma*         enigma;
+    char*           decoded;
+    int*            permutation;
+    LinkedList*     permutations;
+    int             i;
+    int             found;
+    
+    int             limit;
+    int             count;
+    
+    char            waltzen[5][6]       ={"I", "II", "III", "IV", "V"};
+    int             permElements[5]     ={0, 1, 2, 3, 4};
+    
+    enigma=createEnigmaM3(); 
+
+    placeSteckers(enigma, "au cm dp ev hl iz jw no qx st");
+    placeUmkehrWaltze(enigma, "UKW B");
+    
+    setRingStellung(enigma, 1, 5);    
+    setRingStellung(enigma, 2, 22);    
+    setRingStellung(enigma, 3, 11);
+      
+    permutations=createLinkedList();
+    permute(permutations, permElements, 5, 3, 0);
+
+    found=0;
+    i=0;
+    while ((i<linkedListLength(permutations)) && !found)
+    {
+        permutation=(int*)elementAt(permutations, i);
+        
+        printf("%d %d %d: %s-%s-%s\n", permutation[0], permutation[1], permutation[2], waltzen[permutation[0]], waltzen[permutation[1]], waltzen[permutation[2]]);
+        
+        placeWaltze(enigma, 1, waltzen[permutation[0]]);
+        placeWaltze(enigma, 2, waltzen[permutation[1]]);
+        placeWaltze(enigma, 3, waltzen[permutation[2]]);
+
+        setGrundStellungen(enigma, "A E G");
+
+        setText(enigma, "GJW");
+        encodeDecode(enigma);
+        
+        decoded=toString(enigma);
+        
+        setGrundStellung(enigma, 1, decoded[0]);
+        setGrundStellung(enigma, 2, decoded[1]);
+        setGrundStellung(enigma, 3, decoded[2]);
+
+        setText(enigma, text07_1);
+        limit=enigma->textSize*9/100;
+        
+        encodeDecode(enigma);
+        
+        count=countLetter(enigma, 'E');
+        if (count>limit)
+        {
+            decoded=toString(enigma);
+            printf("Message 06-1: %s\n", decoded); 
+            found=1;
+        }   
+        free(permutation);
+        i++;
+    }
+
+    setGrundStellungen(enigma, "V S F");
+
+    setText(enigma, "DNA");
+    encodeDecode(enigma);
+    
+    decoded=toString(enigma);
+    
+    setGrundStellung(enigma, 1, decoded[0]);
+    setGrundStellung(enigma, 2, decoded[1]);
+    setGrundStellung(enigma, 3, decoded[2]);
+
+    setText(enigma, text07_2);
+    
+    encodeDecode(enigma);
+    decoded=toString(enigma);
+    printf("Message 06-2: %s\n", decoded);     
+
+    destroyEnigma(enigma);
+    destroyLinkedList(permutations);
+}
+
+
+void message08()
+{
+    Enigma*     enigma;
+    char*       decoded;
+    LinkedList* permutations;
+    int*        permutation;
+    int         i;
+    int         found;
+
+    
+    char letters[12]={'a', 'c', 'e', 'f', 'g', 'h', 'i', 'j', 'o', 'q', 'w', 'y'};
+    int  digits[12]={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    
+    permutations=createLinkedList();
+    permute(permutations, digits, 12, 6, 0);
+    
+    printf("Permutations: %d\n", linkedListLength(permutations));
+    
+    enigma=createEnigmaM3(); 
+
+    placeWaltze(enigma, 1, "II");
+    placeWaltze(enigma, 2, "I");
+    placeWaltze(enigma, 3, "III");
+    placeUmkehrWaltze(enigma, "UKW B");
+    
+    setRingStellung(enigma, 1, 26);    
+    setRingStellung(enigma, 2,  3);    
+    setRingStellung(enigma, 3, 16);
+
+    found=0;
+    i=0;
+    while (i<linkedListLength(permutations) && !found)
+    {
+        permutation=(int*)elementAt(permutations, i);
+        
+        sprintf(buffer1, "bm dv kt ln rs up xz ?? ?? ??");
+        buffer1[21]=letters[permutation[0]];
+        buffer1[22]=letters[permutation[1]];
+        buffer1[24]=letters[permutation[2]];
+        buffer1[25]=letters[permutation[3]];
+        buffer1[27]=letters[permutation[4]];
+        buffer1[28]=letters[permutation[5]];
+        
+        placeSteckers(enigma, buffer1);
+
+        setGrundStellungen(enigma, "BKL");
+
+        setText(enigma, "UPR");
+        encodeDecode(enigma);    
+
+        decoded=toString(enigma);
+        
+        setGrundStellung(enigma, 1, decoded[0]);
+        setGrundStellung(enigma, 2, decoded[1]);
+        setGrundStellung(enigma, 3, decoded[2]);
+
+        setText(enigma, text08_1);
+       
+        encodeDecode(enigma);
+
+        decoded=toString(enigma);
+        strncpy(buffer2, decoded, 13);
+
+        
+        if (strncmp(buffer2, "VONGRUPPEWEST", 13)==0)
+        {
+            decoded=toString(enigma);
+            printf("Message 08-1 @ %s\n%s\n", buffer1, decoded); 
+            found=1;
+        }
+
+        free(permutation);
+        
+        i++;
+    }   
     
     
+    setGrundStellungen(enigma, "SPL");
+
+    setText(enigma, "BKK");
+    encodeDecode(enigma);    
+
+    decoded=toString(enigma);
+    
+    setGrundStellung(enigma, 1, decoded[0]);
+    setGrundStellung(enigma, 2, decoded[1]);
+    setGrundStellung(enigma, 3, decoded[2]);
+
+    setText(enigma, text08_2);
+   
+    encodeDecode(enigma);
+
+    decoded=toString(enigma);
+    printf("%s\n", decoded);
+    
+    setGrundStellungen(enigma, "DVB");
+
+    setText(enigma, "LTK");
+    encodeDecode(enigma);    
+
+    decoded=toString(enigma);
+    
+    setGrundStellung(enigma, 1, decoded[0]);
+    setGrundStellung(enigma, 2, decoded[1]);
+    setGrundStellung(enigma, 3, decoded[2]);
+
+    setText(enigma, text08_3);
+   
+    encodeDecode(enigma);
+    decoded=toString(enigma);
+    printf("%s\n", decoded);    
+
+
+    destroyEnigma(enigma);
+    destroyLinkedList(permutations);
+}
+
+
+void message09()
+{
+    Enigma*     enigma;
+    char*       decoded;
+    int         g1, g2, g3;
+    int         limit;
+    int         count;
+
+    
+    enigma=createEnigmaM3(); 
+
+    placeWaltze(enigma, 1, "IV");
+    placeWaltze(enigma, 2, "III");
+    placeWaltze(enigma, 3, "I");
+    placeUmkehrWaltze(enigma, "UKW C");
+    
+    setRingStellung(enigma, 1,  7);    
+    setRingStellung(enigma, 2, 24);    
+    setRingStellung(enigma, 3, 15);
+    placeSteckers(enigma, "AT BG DV EW FR HN IQ JX KZ LU");
+
+    setText(enigma, text09);
+    limit=enigma->textSize*12/100;
+
+
+    g1=1;
+    while (g1<MAX_POSITIONS)
+    {
+        g2=1;
+        while (g2<MAX_POSITIONS)
+        {
+            g3=1;
+            while (g3<MAX_POSITIONS)
+            {
+                setGrundStellung(enigma, 1, g1);
+                setGrundStellung(enigma, 2, g2);
+                setGrundStellung(enigma, 3, g3);
+                
+                encodeDecode(enigma);
+
+                count=countLetter(enigma, 'E');
+                if (count>limit)
+                {
+                    decoded=toString(enigma);
+                    printf("Message 09: %s\n", decoded); 
+                }                  
+                g3++;
+            }
+            
+            g2++;
+        }
+
+        g1++;
+    }
+    destroyEnigma(enigma);
+    
+}
+
+// UNFINISHED
+void message10()
+{
+    Enigma*     enigma;
+    char*       decoded;
+    int         r1, r2, r3;
+    int         limit;
+    int         count;
+    char        waltzen[5][5]={"I", "II", "III", "IV", "V"};
+    int         indices[5]={0, 1, 2, 3, 4};
+    LinkedList* permutations;
+    int*        permutation;
+    int         w;
+    
+    
+    
+    permutations=createLinkedList();
+    permute(permutations, indices, 5, 3, 0);
+    
+    enigma=createEnigmaM3(); 
+
+    placeUmkehrWaltze(enigma, "UKW B");
+    
+    clearSteckerBrett(enigma);
+//    placeSteckers(enigma, "AT BG DV EW FR HN IQ JX KZ LU");
+    
+
+    setText(enigma, text10);
+    limit=enigma->textSize*10/100;
+
+    w=0;
+    while (w<linkedListLength(permutations))
+    {
+        permutation=(int*)elementAt(permutations, w);
+
+        placeWaltze(enigma, 1, waltzen[permutation[0]]);
+        placeWaltze(enigma, 1, waltzen[permutation[1]]);
+        placeWaltze(enigma, 1, waltzen[permutation[2]]);
+
+        printf("Trying %s %s %s\n", waltzen[permutation[0]], waltzen[permutation[1]], waltzen[permutation[2]]);
+
+        r1=1;
+        while (r1<MAX_POSITIONS)
+        {
+            r2=1;
+            while (r2<MAX_POSITIONS)
+            {
+                r3=1;
+                while (r3<MAX_POSITIONS)
+                {
+                    setRingStellung(enigma, 1, r1);
+                    setRingStellung(enigma, 2, r2);
+                    setRingStellung(enigma, 3, r3);
+
+                    setGrundStellungen(enigma, "EDF");
+
+                    setText(enigma, "GXT");
+                    encodeDecode(enigma);    
+
+                    decoded=toString(enigma);
+                    
+                    setGrundStellung(enigma, 1, decoded[0]);
+                    setGrundStellung(enigma, 2, decoded[1]);
+                    setGrundStellung(enigma, 3, decoded[2]);
+                    
+                    encodeDecode(enigma);
+
+                    count=countLetter(enigma, 'E');
+                    if (count>limit)
+                    {
+                        decoded=toString(enigma);
+                        printf("Message 10: %s\n", decoded); 
+                    }                  
+                    r3++;
+                }
+                
+                r2++;
+            }
+
+            r1++;
+        }
+        w++;
+    }
+    destroyEnigma(enigma);    
 }
