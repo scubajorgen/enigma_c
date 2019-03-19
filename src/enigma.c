@@ -95,6 +95,106 @@ void advance(Enigma* enigma)
     }
 }
 
+
+/**************************************************************************************************\
+* 
+* Advance the rotors the indicated number of steps
+* 
+\**************************************************************************************************/
+void advances(Enigma* enigma, int steps)
+{
+    int i;
+    
+    i=0;
+    while (i<steps)
+    {
+        advance(enigma);
+        i++;
+    }
+}
+
+
+/**************************************************************************************************\
+* 
+* Encode character
+* 
+\**************************************************************************************************/
+
+int encodeCharacter(Enigma* enigma, int theCharacter)
+{
+    int intermediate;
+    int rotor;
+    int realPosition;
+    int entry;
+    int exit;
+    
+    // Via switchboard
+    intermediate=enigma->steckerBrett[theCharacter];
+    
+    // right to left through the rotors
+    rotor=0;
+    while (rotor<enigma->numberOfRotors)
+    {
+        realPosition=enigma->grundStellung[rotor]-enigma->ringStellung[rotor];
+        
+        if (realPosition<0)
+        {
+            realPosition+=MAX_POSITIONS;
+        }
+        entry=realPosition+intermediate;
+        if (entry>=MAX_POSITIONS)
+        {
+            entry-=MAX_POSITIONS;
+        }
+        exit=enigma->rotorFunction[rotor][entry];
+        
+        intermediate=exit-realPosition;
+        
+        if (intermediate<0)
+        {
+            intermediate+=MAX_POSITIONS;
+        }
+        rotor++;
+    }
+    
+    // Reflector
+    intermediate=enigma->umkehrWaltzeFunction[intermediate];
+   
+    // left to right through the rotors
+    rotor=enigma->numberOfRotors-1;
+    while (rotor>=0)
+    {
+        realPosition=enigma->grundStellung[rotor]-enigma->ringStellung[rotor];
+        
+        if (realPosition<0)
+        {
+            realPosition+=MAX_POSITIONS;
+        }
+        entry=realPosition+intermediate;
+        if (entry>=MAX_POSITIONS)
+        {
+            entry-=MAX_POSITIONS;
+        }
+        exit=enigma->rotorInverseFunction[rotor][entry];
+        
+        intermediate=exit-realPosition;
+        
+        if (intermediate<0)
+        {
+            intermediate+=MAX_POSITIONS;
+        }
+        
+        rotor--;
+    }       
+
+    // Via switchboard
+    intermediate=enigma->steckerBrett[intermediate];
+
+
+    return intermediate;
+}
+
+
 /**************************************************************************************************\
 * 
 * The function to encode or decode the text
@@ -102,86 +202,14 @@ void advance(Enigma* enigma)
 \**************************************************************************************************/
 void encodeDecode(Enigma* enigma)
 {
-    int intermediate;
     int charIndex;
-    int rotor;
-    int realPosition;
-    int entry;
-    int exit;
-
-
     
     charIndex=0;
     while (charIndex<enigma->textSize)
     {
         advance(enigma);
-        
-        // Character to process
-        intermediate=enigma->text[charIndex];
-        
-        // Via switchboard
-        intermediate=enigma->steckerBrett[intermediate];
-        
-        // right to left through the rotors
-        rotor=0;
-        while (rotor<enigma->numberOfRotors)
-        {
-            realPosition=enigma->grundStellung[rotor]-enigma->ringStellung[rotor];
-            
-            if (realPosition<0)
-            {
-                realPosition+=MAX_POSITIONS;
-            }
-            entry=realPosition+intermediate;
-            if (entry>=MAX_POSITIONS)
-            {
-                entry-=MAX_POSITIONS;
-            }
-            exit=enigma->rotorFunction[rotor][entry];
-            
-            intermediate=exit-realPosition;
-            
-            if (intermediate<0)
-            {
-                intermediate+=MAX_POSITIONS;
-            }
-            rotor++;
-        }
-        
-        // Reflector
-        intermediate=enigma->umkehrWaltzeFunction[intermediate];
-       
-        // left to right through the rotors
-        rotor=enigma->numberOfRotors-1;
-        while (rotor>=0)
-        {
-            realPosition=enigma->grundStellung[rotor]-enigma->ringStellung[rotor];
-            
-            if (realPosition<0)
-            {
-                realPosition+=MAX_POSITIONS;
-            }
-            entry=realPosition+intermediate;
-            if (entry>=MAX_POSITIONS)
-            {
-                entry-=MAX_POSITIONS;
-            }
-            exit=enigma->rotorInverseFunction[rotor][entry];
-            
-            intermediate=exit-realPosition;
-            
-            if (intermediate<0)
-            {
-                intermediate+=MAX_POSITIONS;
-            }
-            
-            rotor--;
-        }       
 
-        // Via switchboard
-        intermediate=enigma->steckerBrett[intermediate];
-
-        enigma->conversion[charIndex]=intermediate;
+        enigma->conversion[charIndex]=encodeCharacter(enigma, enigma->text[charIndex]);
         
         charIndex++;
     }
@@ -205,5 +233,32 @@ char* toString(Enigma* enigma)
     return enigma->string;
 }
 
+/**************************************************************************************************\
+* 
+* Count occurences of specified letter
+* 
+\**************************************************************************************************/
+int countLetter(Enigma* enigma, char letter)
+{
+    int i;
+    int max;
+    int count;
+    int letterPos;
+    
+    letterPos=charToPos(letter);
+    
+    count=0;
+    max=enigma->textSize;
+    i=0;
+    while (i<max)
+    {
+        if (enigma->conversion[i]==letterPos)
+        {
+            count++;
+        }
+        i++;
+    }
+    return count;
+}
 
 

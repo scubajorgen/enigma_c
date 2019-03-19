@@ -28,9 +28,11 @@ typedef struct
 } Enigma;
 
 
+// Functions that come in handy for cracking codes
+void        advances                (Enigma* enigma, int steps);
+int         encodeCharacter         (Enigma* enigma, int theCharacter);
 
-
-
+// Main functions for encoding/decoding
 Enigma*     createEnigmaM3          ();
 void        destroyEnigma           (Enigma* enigma);
 void        setText                 (Enigma* engima, char text[]);
@@ -44,7 +46,7 @@ void        clearSteckerBrett       (Enigma* engima);
 void        placeSteckers           (Enigma* engima, char steckers[]);
 void        encodeDecode            (Enigma* enigma);
 char*       toString                (Enigma* enigma);
-
+int         countLetter             (Enigma* enigma, char letter);
 
 
 
