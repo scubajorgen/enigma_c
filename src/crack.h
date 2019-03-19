@@ -1,8 +1,6 @@
 
 
-int     countLetter     (Enigma* enigma, char letter);
-void    crackExample    ();
-
+void    swap            ();
 
 void    message01       ();
 void    message04       ();
@@ -14,3 +12,6 @@ void    message09       ();
 void    message10       ();
 
 void    theThirdProblem ();
+
+void    turingProve     ();
+void    turingCrack     ();
