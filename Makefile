@@ -29,7 +29,7 @@ SRCOBJ	        = enigma.o \
                   steckerbrett.o\
                   toolbox.o
 
-MAINOBJ         = main.o crack01.o crack02.o crack03.o
+MAINOBJ         = main.o crack01.o crack02.o crack03.o turing.o
 
 TESTOBJ         = test.o
 
