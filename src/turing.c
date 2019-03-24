@@ -12,34 +12,13 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <malloc.h>
+#include <string.h>     
 
 #include "toolbox.h"
 #include "enigma.h"
+#include "turing.h"
 
 #define NUMBER_OF_THREADS   1
-#define MAX_CIRCLE          12
-#define MAX_CIRCLE_SIZE     12
-
-// Crib circle definition.
-typedef struct
-{
-    int     circleSize;                     // Number of steps in the circle
-    int     advances[MAX_CIRCLE_SIZE];      // Advances of the rotors per step
-    char    originalChar[MAX_CIRCLE_SIZE];  // Entry char
-    char    foundChars[MAX_CIRCLE_SIZE];    // Steckered chars 
-}
-CribCircle;
-
-
-// Set of crib circles or loops that start and end with the same letter
-typedef struct
-{
-    int             numOfCircles;
-    CribCircle      cribCircles[MAX_CIRCLE];
-    char            startChar;
-    char            foundChar;
-} CribCirlceSet;
-
 
 
 
@@ -56,7 +35,7 @@ char testSteckers[]     ="bq cr di ej kw mt os px uz gh";
 
 
 #define numOfSets 2
-CribCirlceSet cribCircleSet[numOfSets]=
+CribCircleSet cribCircleSet[numOfSets]=
 {
     {
         4, 
@@ -81,8 +60,9 @@ CribCirlceSet cribCircleSet[numOfSets]=
 };
 */
 // TEST CASE 2
-char decoded[]="wettervorhersagebiskayaunddonnerwetter";
-char cypher[] ="rpvpzildgrnopplofznrualxkhexldmqycdfaq";
+//char crib[]   ="WETTERVORHERSAGEBISKAYAUNDDONNERWETTER";
+char turingCrib[]   ="WETTERVORHERSAGEBISKAYA";
+char turingCypher[] ="RPVPZILDGRNOPPLOFZNRUALXKHEXLDMQYCDFAQ";
 
 char testGrundStellung[]="01 17 12";
 char testRingStellung []="06 24 03";
@@ -92,42 +72,7 @@ char testSteckers[]     ="bq cr di ej kw mt os px uz gh";
 
 
 #define numOfSets 3
-CribCirlceSet cribCircleSet[numOfSets]=
-{
-    {
-        5, 
-        {
-            {9, { 5, 18,  6,  9, 15, 7,  3,  4,  2} , "EZIRGLVTPE"   , ""},
-            {5, {16, 12,  6, 18, 5}                 , "EBTSE"        , ""},
-            {4, {11, 19, 13,  2}                    , "ENSPE"        , ""},
-            {8, { 5, 18,  6,  9, 15, 23, 14, 2}     , "EZIRGLAPE"    , ""},
-            {6, { 5, 18,  6, 20, 25, 11}            , "EZIRKNE"      , ""},
-        },
-        'E'
-    },
-    {
-        4, 
-        {
-            {5, {14, 23,  7,  3, 4}                 , "PALVTP"      , ""},
-            {8, { 2, 16, 12,  9, 15,  7,  3,  4 }   , "PEORGLVT"    , ""},
-            {6, {14, 21, 24, 28, 16,  2 }           , "PAUXOEP"     , ""},
-            {4, {13, 19, 11,  2}                    , "PSNEP"       , ""} 
-        },
-        'P'
-    },
-    {
-        3, 
-        {
-            {4, {26, 10, 12, 8}                     , "DHROD"       , ""},
-            {7, {26, 10,  6, 18,  5, 16, 8}         , "DHRIZEOD"    , ""},
-            {3, { 8, 16, 27}                        , "DOED"        , ""} 
-        },
-        'D'
-    },
-    
-
-};
-
+CribCircleSet cribCircleSet[MAX_POSITIONS];
 
 
 // THE REAL THING
@@ -154,6 +99,249 @@ ThreadParam         params[4];
 
 time_t              startTime;
 
+LinkedLetters       links[MAX_POSITIONS];
+
+int                 mallocs=0;
+
+CribCircleSet*      theSet;
+CribCircle*         theCircle;
+
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+CribCircle* createCircle()
+{
+    CribCircle*  circle;
+    circle              =malloc(sizeof(CribCircle));
+    circle->circleSize  =0;
+    
+    mallocs++;
+    
+    return circle;
+}
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+void freeCircle(CribCircle* circle)
+{
+    free(circle);
+    mallocs--;
+}
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+
+void dumpSets()
+{
+    int s;
+    int c;
+    int l;
+    s=0;
+    while (s<MAX_POSITIONS)
+    {
+        theSet=&cribCircleSet[s];
+        printf("SET %c - %d\n", theSet->startChar, theSet->numOfCircles);
+        c=0;
+        while (c<theSet->numOfCircles)
+        {
+            theCircle=&theSet->cribCircles[c];
+            if (theCircle->circleSize>0)
+            {
+                l=0;
+                while (l<theCircle->circleSize)
+                {
+                    printf("%c (%d) ", theCircle->orgChars[l], theCircle->advances[l]);
+                    l++;
+                }
+                printf("...\n");
+            }
+            c++;
+        }
+        s++;
+    }
+}
+
+/**************************************************************************************************\
+* 
+* Makes an inventory of the links between any two letters in the text and crib
+* 
+\**************************************************************************************************/
+void turingGenerateLetterLinks(char* text, char* crib)
+{
+    int pos;
+    int index1;
+    int index2;
+    
+    // Reset links
+    pos=0;
+    while (pos<MAX_POSITIONS)
+    {
+        links[pos].letter       ='A'+pos;
+        links[pos].numOfLinks   =0;
+        pos++;
+    }
+    
+    pos=0;
+    while (pos<strlen(crib))
+    {
+        index1=text[pos]-'A';
+        index2=crib[pos]-'A';
+        
+        links[index1].links[links[index1].numOfLinks].letter    =crib[pos];
+        links[index1].links[links[index1].numOfLinks].position  =pos+1;
+        links[index1].numOfLinks++;
+        links[index2].links[links[index2].numOfLinks].letter    =text[pos];
+        links[index2].links[links[index2].numOfLinks].position  =pos+1;
+        links[index2].numOfLinks++;
+        pos++;
+    }
+}
+
+
+/**************************************************************************************************\
+* 
+* Recursive function that find all loops starting from one character.
+* For longer cribs this method will result in stack overflow.
+* TO DO: remove double loops
+* 
+\**************************************************************************************************/
+
+
+void followLoop(char startChar, LetterLink* currentLink, int step, CribCircle* circle)
+{
+    int             l;
+    int             c;
+    int             found;
+    int             circleSize;
+    int             nextLetter;
+    LinkedLetters*  nextLinks;
+    CribCircle*     nextCircle;
+    
+    if (step==MAX_POSITIONS)
+    {
+        // Fall back to prevent endless loops
+        // End 1: no link found
+        printf("Endless loop\n");
+    }
+    else
+    {
+        if (currentLink==NULL || circle==NULL)
+        {
+            // Special case: currentLink==NULL: first character
+            nextLetter  =startChar;
+            nextLinks   =&links[nextLetter-'A'];
+            l=0;
+            while (l<nextLinks->numOfLinks)
+            {
+                // Create the first circle
+                nextCircle                      =createCircle();
+                circleSize                      =nextCircle->circleSize;
+                // Add next link to circle
+                nextCircle->advances[circleSize]=nextLinks->links[l].position;
+                nextCircle->orgChars[circleSize]=nextLetter;
+                nextCircle->circleSize++;
+                // Iterate
+                followLoop(startChar, &nextLinks->links[l], step+1, nextCircle);
+                freeCircle(nextCircle);
+                l++;
+            }
+        }
+        else
+        {
+            nextLetter  =currentLink->letter;
+            if (nextLetter==startChar)
+            {
+                circle->orgChars[circle->circleSize]=startChar;         // finish character string
+                circle->orgChars[circle->circleSize+1]='\0';
+                theSet      =&cribCircleSet[(int)startChar-'A'];        // Add circle to set
+                theCircle   =&theSet->cribCircles[theSet->numOfCircles];
+                *theCircle  =*circle; // Copy
+                theSet->numOfCircles++;
+            }
+            else
+            {
+                nextLinks   =&links[nextLetter-'A'];
+                l           =0;
+                while (l<nextLinks->numOfLinks)
+                {
+                    // Make sure the next position not already
+                    // occurs in the circle: only allowed once
+                    c       =0;
+                    found   =0;
+                    while (c<circle->circleSize && !found)
+                    {
+                        if (circle->advances[c]==nextLinks->links[l].position)
+                        {
+                            found=1;
+                        }
+                        c++;
+                    }
+                    if (nextLinks->links[l].position!=currentLink->position && !found)
+                    {
+                        // Copy circle
+                        nextCircle                      =createCircle();
+                        *nextCircle                     =*circle;
+                        // Add next link to circle
+                        circleSize                      =nextCircle->circleSize;
+                        nextCircle->advances[circleSize]=nextLinks->links[l].position;
+                        nextCircle->orgChars[circleSize]=nextLetter;
+                        nextCircle->circleSize++;
+                        followLoop(startChar, &nextLinks->links[l], step+1, nextCircle);
+                        freeCircle(nextCircle);
+
+                    }
+
+                    l++;
+                }
+            }
+        }
+    }
+
+//    printf("Mallocs %d\n", mallocs);
+}
+
+
+/**************************************************************************************************\
+* 
+* This method transfers a text and a crib into a list of crib circles; assumes the crib length
+* is smaller than or equal to text length
+* 
+\**************************************************************************************************/
+void turingFindLoops(char* text, char* crib)
+{
+    int c;
+    
+    if (strlen(text)>=strlen(crib))
+    {
+        turingGenerateLetterLinks(text, crib);
+        
+        c=0;
+        while (c<MAX_POSITIONS)
+        {
+            cribCircleSet[c].numOfCircles   =0;
+            cribCircleSet[c].startChar      ='A'+c;
+            followLoop('A'+c, NULL, 0, NULL);
+            c++;
+        }
+    }
+    else
+    {
+        printf("Invalid crib length\n");
+    }
+}
+
+
+
+
 
 /**************************************************************************************************\
 * 
@@ -171,6 +359,10 @@ void turingProve()
     int         set;
     CribCircle*     cribCircle;
     
+    
+    turingFindLoops(turingCypher, turingCrib);
+    
+    
     enigma=createEnigmaM3();
     
     placeWaltze         (enigma, 1, testWaltzen[0]);
@@ -186,15 +378,15 @@ void turingProve()
     decoded=NULL;
     
     set=0;
-    while (set<numOfSets)
+    while (set<MAX_POSITIONS)
     {
         circle=0;
         while (circle<cribCircleSet[set].numOfCircles)
         {
             cribCircle=&cribCircleSet[set].cribCircles[circle];
             
-            temp[0]=cribCircle->originalChar[0];
-            printf("Circle %i: Input: %s, ", circle, temp);
+            temp[0]=cribCircle->orgChars[0];
+            printf("Letter %c, Circle %02i: Input: %s, ", cribCircleSet[set].startChar, circle, temp);
      
             step=0;
             while (step<cribCircle->circleSize)
@@ -223,7 +415,8 @@ void turingProve()
 
 /**************************************************************************************************\
 * 
-* Simulates the Turing solution by 
+* Simulates the Turing solution: finds the rotors, RingStellungen and GrundStellungen based
+* on a 'crib'
 * 
 \**************************************************************************************************/
 void turingFind(int permutationStart, int permutationEnd)
@@ -262,6 +455,7 @@ void turingFind(int permutationStart, int permutationEnd)
     prevCounting    =0;
     w               =permutationStart;
 
+    // Parse the rotor permutations
     while (w<permutationEnd)
     {
         pthread_mutex_lock(&mutex);
@@ -291,11 +485,12 @@ void turingFind(int permutationStart, int permutationEnd)
                    permutation[0], permutation[1], permutation[2], w, waltzenString, currentTime, convPerSec);
             fflush(stdout);
            
-            
+            // Set the rotor
             placeWaltze(enigma, 1, waltzen[permutation[0]]);
             placeWaltze(enigma, 2, waltzen[permutation[1]]);
             placeWaltze(enigma, 3, waltzen[permutation[2]]);
             
+            // GrundStellungen
             for (g1=1; g1<=26; g1++)
             {
                 for (g2=1; g2<=26; g2++)
@@ -303,7 +498,7 @@ void turingFind(int permutationStart, int permutationEnd)
                     for (g3=1; g3<=26; g3++)
                     {
                         // The RingStellung of the 1st ring has no function
-                        r1=1; r2=1; r3=1;
+                        r1=1;
             
                         for (r2=1; r2<=26; r2++)
                         {
@@ -320,51 +515,57 @@ void turingFind(int permutationStart, int permutationEnd)
                                 // Parse the sets
                                 found=1;
                                 set=0;
-                                while (set<numOfSets && found)
+                                while (set<MAX_POSITIONS && found)
                                 {
-                                    // Choose a character c and check whether
-                                    // the output of each circle in th set results 
-                                    // in the same character c (hypothesis)
-                                    c       =0;
-                                    found   =0;
-                                    while (c<MAX_POSITIONS && !found)
+                                    theSet=&cribCircleSet[set];
+                                    
+                                    if (theSet->numOfCircles>0)
                                     {
-                                        // Try the circles. If one circle fails
-                                        // hypothesis is rejected, proceed to next char
-                                        circle  =0;
-                                        found   =1;
-                                        while (circle<cribCircleSet[set].numOfCircles && found)
+                                        // Choose a character c and check whether
+                                        // the output of each circle in th set results 
+                                        // in the same character c (hypothesis)
+                                        c       =0;
+                                        found   =0;
+                                        while (c<MAX_POSITIONS && !found)
                                         {
-                                            cribCircle=&cribCircleSet[set].cribCircles[circle];
-                                            theChar =c;
-                                            e       =0;
-                                            while (e<cribCircle->circleSize)
+                                            // Try the circles. If one circle fails
+                                            // hypothesis is rejected, proceed to next char
+                                            circle  =0;
+                                            found   =1;
+                                            theSet=&cribCircleSet[set];
+                                            while (circle<theSet->numOfCircles && found)
                                             {
+                                                cribCircle=&theSet->cribCircles[circle];
+                                                theChar =c;
+                                                e       =0;
+                                                while (e<cribCircle->circleSize)
+                                                {
+                                                    cribCircle->foundChars[e]=theChar+'A';
+                                                    setGrundStellung(enigma, 1, g1);
+                                                    setGrundStellung(enigma, 2, g2);
+                                                    setGrundStellung(enigma, 3, g3);
+                                                    
+                                                    advances(enigma, cribCircle->advances[e]);
+                                                    theChar=encodeCharacter(enigma, theChar);
+                                                    e++;
+                                                }
                                                 cribCircle->foundChars[e]=theChar+'A';
-                                                setGrundStellung(enigma, 1, g1);
-                                                setGrundStellung(enigma, 2, g2);
-                                                setGrundStellung(enigma, 3, g3);
+                                                cribCircle->foundChars[e+1]='\0';
+                                                if (theChar!=c)
+                                                {
+                                                    found=0;
+                                                }
                                                 
-                                                advances(enigma, cribCircle->advances[e]);
-                                                theChar=encodeCharacter(enigma, theChar);
-                                                e++;
+                                                circle++;
                                             }
-                                            cribCircle->foundChars[e]=theChar+'A';
-                                            cribCircle->foundChars[e+1]='\0';
-                                            if (theChar!=c)
+                                            // Store the character c that works
+                                            // for all circles in the set
+                                            if (found)
                                             {
-                                                found=0;
+                                                theSet->foundChar=c+'A';
                                             }
-                                            
-                                            circle++;
+                                            c++;
                                         }
-                                        // Store the character c that works
-                                        // for all circles in the set
-                                        if (found)
-                                        {
-                                            cribCircleSet[set].foundChar=c+'A';
-                                        }
-                                        c++;
                                     }
                                     set++;
                                 }
@@ -372,19 +573,23 @@ void turingFind(int permutationStart, int permutationEnd)
                                 {
                                     printf("Solution found: R %d %d %d, G %d %d %d\n",
                                            r1, r2, r3, g1, g2, g3);
+                                    
                                     set=0;
-                                    while (set<numOfSets)
+                                    while (set<MAX_POSITIONS)
                                     {
-                                        circle=0;
-                                        while (circle<cribCircleSet[set].numOfCircles)
+                                        if (cribCircleSet[set].numOfCircles>0)
                                         {
-                                            cribCircle=&cribCircleSet[set].cribCircles[circle];
-                                            printf("Circle %d: %s - %c - %s \n", 
-                                                   circle, 
-                                                   cribCircle->originalChar, 
-                                                   cribCircleSet[set].foundChar,
-                                                   cribCircle->foundChars);
-                                            circle++;
+                                            circle=0;
+                                            while (circle</*cribCircleSet[set].numOfCircles*/1)
+                                            {
+                                                cribCircle=&cribCircleSet[set].cribCircles[circle];
+                                                printf("Circle %d: %s - %c - %s \n", 
+                                                       circle, 
+                                                       cribCircle->orgChars, 
+                                                       cribCircleSet[set].foundChar,
+                                                       cribCircle->foundChars);
+                                                circle++;
+                                            }
                                         }
                                         set++;
                                     }
@@ -446,15 +651,21 @@ void *threadFunction(void *vargp)
    
 /**************************************************************************************************\
 * 
-* Brute force crack using threads
+* Implements the Turing Bombe
+* cypher        : cypher string, upper case!!
+* crib          : crib, upper case. Length must be shorter than cypher and not to long 
+*                 to prevent stack overflow
+* numOfThreads  : Use multiple threads to use multi processor cores. Rotor combinations are 
+*                 split up amongst the threads
 * 
 \**************************************************************************************************/
 
-void turingCrack()
+void turingBombe(char* cypher, char* crib, int numOfThreads)
 {
     int         i; 
     int         numberOfPermutations;
 
+    turingFindLoops(cypher, crib);
 
     permutations        =createLinkedList();
     
@@ -483,5 +694,16 @@ void turingCrack()
     
     pthread_exit(NULL); 
   
+}
+
+
+/**************************************************************************************************\
+* 
+* An example
+* 
+\**************************************************************************************************/
+void turingExample()
+{
+    turingBombe(turingCypher, turingCrib, 1);
 }
 

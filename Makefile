@@ -27,9 +27,10 @@ SRCOBJ	        = enigma.o \
                   waltze.o\
                   umkehrwaltze.o\
                   steckerbrett.o\
+                  turing.o\
                   toolbox.o
 
-MAINOBJ         = main.o crack01.o crack02.o crack03.o turing.o
+MAINOBJ         = main.o crack01.o crack02.o crack03.o
 
 TESTOBJ         = test.o
 

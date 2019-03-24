@@ -3,6 +3,8 @@
 void    swap            ();
 
 void    message01       ();
+void    message02       ();
+void    message03       ();
 void    message04       ();
 void    message05       ();
 void    message06       ();
@@ -13,5 +15,3 @@ void    message10       ();
 
 void    theThirdProblem ();
 
-void    turingProve     ();
-void    turingCrack     ();

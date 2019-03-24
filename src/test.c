@@ -4,6 +4,7 @@
 #include <malloc.h>
 
 #include "enigma.h"
+#include "turing.h"
 #include "toolbox.h"
 
 int permutations[12][2]=
@@ -351,17 +352,36 @@ void test05(void)
 
     result=toString(enigma);
     assertStringEquals("enigma", 3, "YYTHXJLXTEUXAJGMUWMGWAFQLUFTHQMFYEXMGCZDUQGPNNFEHRUUWNGMFMQADFLWZNQVVWQWGXHBGGNXHWFLCOUZPDZAPTUBQHEOQIMFTQJQDKDEFPPUBAGWZZXSCJYXPPWUPSTHNVKAMNACPYAPROEEZFZCTNCHQJUMIELXPUZFTHHYIPAOLYXWXOWQZJQNJLYI", result);
-
-
     
     destroyEnigma(enigma);  
-
-
-    
-    
 }
 
+void test06()
+{
+    LinkedLetters* link;
+    
+    turingGenerateLetterLinks("ENIGMAP","NIEMAGE");
+    
+    link=&links['E'-'A'];
+    assertIntEquals("turing",  1,   3, link->numOfLinks);
+    assertIntEquals("turing",  2,   1, link->links[0].position);
+    assertIntEquals("turing",  3, 'N', link->links[0].letter);
+    assertIntEquals("turing",  4,   3, link->links[1].position);
+    assertIntEquals("turing",  5, 'I', link->links[1].letter);
+    assertIntEquals("turing",  6,   7, link->links[2].position);
+    assertIntEquals("turing",  7, 'P', link->links[2].letter);
+     
+    // ENIGMAPN
+    // NPPMAGEI
+    turingFindLoops("ENIGMAPN","NPPMAGEI"); 
+    assertIntEquals("turing",  8, 2, cribCircleSet['A'-'A'].numOfCircles);
+    assertIntEquals("turing",  9, 0, cribCircleSet['B'-'A'].numOfCircles);
+    assertIntEquals("turing", 10, 4, cribCircleSet['E'-'A'].numOfCircles);
 
+    assertStringEquals("turing", 11, "AMGA", cribCircleSet['A'-'A'].cribCircles[0].orgChars);
+    assertStringEquals("turing", 12, "AGMA", cribCircleSet['A'-'A'].cribCircles[1].orgChars);
+        
+}
 
 
 /**************************************************************************************************\
@@ -381,6 +401,7 @@ int main()
     test03();
     test04();
     test05();
+    test06();
     
     return 0;
 }
