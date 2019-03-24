@@ -1,7 +1,7 @@
 
-#define MAX_CIRCLES         50
-#define MAX_CIRCLE_SIZE     26
-#define MAX_CRIB_SIZE       50
+#define MAX_CIRCLES         256
+#define MAX_CIRCLE_SIZE     512 
+#define MAX_CRIB_SIZE       256
 
 typedef struct
 {
@@ -24,9 +24,9 @@ typedef struct
 typedef struct CribCircle
 {
     int                 circleSize;                     // Number of steps in the circle
-    int                 advances    [MAX_POSITIONS];    // Advances of the rotors per step
-    char                orgChars    [MAX_POSITIONS];    // Original chars as in the text/crib
-    char                foundChars  [MAX_POSITIONS];    // Steckered chars 
+    int                 advances    [MAX_CIRCLE_SIZE];    // Advances of the rotors per step
+    char                orgChars    [MAX_CIRCLE_SIZE+4];    // Original chars as in the text/crib
+    char                foundChars  [MAX_CIRCLE_SIZE+4];    // Steckered chars 
 } CribCircle;
 
 

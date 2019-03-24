@@ -18,64 +18,20 @@
 #include "enigma.h"
 #include "turing.h"
 
-#define NUMBER_OF_THREADS   1
 
-
-
-// TEST CASE 1
-/*
-char decoded[]="wettervorhersagebiskayaundonnerwetter";
-char cypher[] ="gzsuxqbbefsahpolvbmckzqsvahqmbkepbbrp";
-
-char testRingStellung []="01 13 01";
-char testGrundStellung[]="02 02 03";
-char testWaltzen[3][5]  ={"I", "II", "III"};
-char testUkw[]          ="UKW B";
-char testSteckers[]     ="bq cr di ej kw mt os px uz gh";
-
-
-#define numOfSets 2
-CribCircleSet cribCircleSet[numOfSets]=
-{
-    {
-        4, 
-        {
-            {5, {30, 8, 15, 1, 32}, "EBOGWE", ""},  // eb bo og gw we
-            {4, {30, 34, 3, 11},    "EBTSE" , ""},  // eb bt ts se
-            {4, {30, 35, 3, 11},    "EBTSE" , ""},  // eb bt ts se
-            {2, {36, 9},            "ERE"   , ""}   // er re
-        },
-        'E'
-    },
-    {
-        4, 
-        {
-            {2, {36, 9},            "RER"   , ""},  // er re
-            {3, {6, 23, 12},        "RQAR"  , ""},  // rq qa ar
-            {3, {12, 21, 31},       "RAKR"  , ""},  // ra ak kr
-            {3, {37, 14, 12},       "RPAR"  , ""},  // rp pa ar        
-        },
-        'R'
-    }
-};
-*/
-// TEST CASE 2
-//char crib[]   ="WETTERVORHERSAGEBISKAYAUNDDONNERWETTER";
-char turingCrib[]   ="WETTERVORHERSAGEBISKAYA";
+// EXAMPLE SET
+char turingCrib[]   ="WETTERVORHERSAGEBISKAYAUNDDONNERWETTER";
 char turingCypher[] ="RPVPZILDGRNOPPLOFZNRUALXKHEXLDMQYCDFAQ";
 
-char testGrundStellung[]="01 17 12";
-char testRingStellung []="06 24 03";
+char testGrundStellung[]="22 17 12";
+char testRingStellung []="01 24 03";
 char testWaltzen[3][5]  ={"I", "II", "III"};
 char testUkw[]          ="UKW B";
 char testSteckers[]     ="bq cr di ej kw mt os px uz gh";
 
 
-#define numOfSets 3
-CribCircleSet cribCircleSet[MAX_POSITIONS];
 
 
-// THE REAL THING
 
 typedef struct
 {
@@ -101,11 +57,14 @@ time_t              startTime;
 
 LinkedLetters       links[MAX_POSITIONS];
 
+CribCircleSet       cribCircleSet[MAX_POSITIONS];
+
 int                 mallocs=0;
 
 CribCircleSet*      theSet;
 CribCircle*         theCircle;
 
+int                 stepMax=0;
 
 /**************************************************************************************************\
 * 
@@ -132,6 +91,49 @@ void freeCircle(CribCircle* circle)
 {
     free(circle);
     mallocs--;
+}
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+void dumpLinks()
+{
+    int c;
+    int l;
+    c=0;
+    while (c<MAX_POSITIONS)
+    {
+        printf("Link %c: %d - ", links[c].letter, links[c].numOfLinks);
+        l=0;
+        while (l<links[c].numOfLinks)
+        {
+            printf("%c ", links[c].links[l].letter);
+            l++;
+        }
+        printf("\n");
+        c++;
+    }
+}
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+
+void dumpCircle(CribCircle* circle)
+{
+    int c;
+    
+    c=0;
+    while (c<circle->circleSize)
+    {
+        printf("%c (%d)", circle->orgChars[c], circle->advances[c]);
+        c++;
+    }
+    printf("\n");
 }
 
 /**************************************************************************************************\
@@ -226,17 +228,25 @@ void followLoop(char startChar, LetterLink* currentLink, int step, CribCircle* c
     LinkedLetters*  nextLinks;
     CribCircle*     nextCircle;
     
-    if (step==MAX_POSITIONS)
+    // Recursion depth
+    if (step>stepMax)
+    {
+        stepMax=step;
+    }
+    
+    if (step>MAX_POSITIONS)
     {
         // Fall back to prevent endless loops
-        // End 1: no link found
+        // Should never happen
         printf("Endless loop\n");
     }
     else
     {
+        // On the 1st call the currentLink and circle are set to NULL
         if (currentLink==NULL || circle==NULL)
         {
-            // Special case: currentLink==NULL: first character
+            // Special case: currentLink==NULL: use the start character 
+            // as starting point and add all its links
             nextLetter  =startChar;
             nextLinks   =&links[nextLetter-'A'];
             l=0;
@@ -244,7 +254,7 @@ void followLoop(char startChar, LetterLink* currentLink, int step, CribCircle* c
             {
                 // Create the first circle
                 nextCircle                      =createCircle();
-                circleSize                      =nextCircle->circleSize;
+                circleSize                      =nextCircle->circleSize; // =0
                 // Add next link to circle
                 nextCircle->advances[circleSize]=nextLinks->links[l].position;
                 nextCircle->orgChars[circleSize]=nextLetter;
@@ -260,6 +270,7 @@ void followLoop(char startChar, LetterLink* currentLink, int step, CribCircle* c
             nextLetter  =currentLink->letter;
             if (nextLetter==startChar)
             {
+                // Yes! we found a loop
                 circle->orgChars[circle->circleSize]=startChar;         // finish character string
                 circle->orgChars[circle->circleSize+1]='\0';
                 theSet      =&cribCircleSet[(int)startChar-'A'];        // Add circle to set
@@ -324,6 +335,7 @@ void turingFindLoops(char* text, char* crib)
     {
         turingGenerateLetterLinks(text, crib);
         
+        stepMax=0;
         c=0;
         while (c<MAX_POSITIONS)
         {
@@ -332,6 +344,7 @@ void turingFindLoops(char* text, char* crib)
             followLoop('A'+c, NULL, 0, NULL);
             c++;
         }
+        printf("Recursion depth: %d\n", stepMax);
     }
     else
     {
@@ -583,11 +596,13 @@ void turingFind(int permutationStart, int permutationEnd)
                                             while (circle</*cribCircleSet[set].numOfCircles*/1)
                                             {
                                                 cribCircle=&cribCircleSet[set].cribCircles[circle];
-                                                printf("Circle %d: %s - %c - %s \n", 
+                                                printf("Circle %d: %c%c %s -> %s\n", 
                                                        circle, 
-                                                       cribCircle->orgChars, 
+                                                       cribCircleSet[set].startChar,
                                                        cribCircleSet[set].foundChar,
-                                                       cribCircle->foundChars);
+                                                       cribCircle->orgChars,
+                                                       cribCircle->foundChars                                                     
+                                                     );
                                                 circle++;
                                             }
                                         }
@@ -656,7 +671,8 @@ void *threadFunction(void *vargp)
 * crib          : crib, upper case. Length must be shorter than cypher and not to long 
 *                 to prevent stack overflow
 * numOfThreads  : Use multiple threads to use multi processor cores. Rotor combinations are 
-*                 split up amongst the threads
+*                 split up amongst the threads. Number of permutations should be divisable by 
+*                 this number
 * 
 \**************************************************************************************************/
 
@@ -678,16 +694,16 @@ void turingBombe(char* cypher, char* crib, int numOfThreads)
     threadsRunning=0;
     startTime=time(NULL);  
     // Let us create three threads 
-    for (i = 0; i < NUMBER_OF_THREADS; i++) 
+    for (i = 0; i < numOfThreads; i++) 
     {
         
-        params[i].start =i*(numberOfPermutations/NUMBER_OF_THREADS);
-        params[i].end   =(i+1)*(numberOfPermutations/NUMBER_OF_THREADS);
+        params[i].start =i*(numberOfPermutations/numOfThreads);
+        params[i].end   =(i+1)*(numberOfPermutations/numOfThreads);
 
         pthread_create(&(params[i].threadId), NULL, threadFunction, (void *)(params+i)); 
     }
     
-    if (i*(numberOfPermutations/NUMBER_OF_THREADS)!=numberOfPermutations)
+    if (i*(numberOfPermutations/numOfThreads)!=numberOfPermutations)
     {
         printf("Oops! Permutations not divisible by number of threads\n");
     }
