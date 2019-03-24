@@ -21,6 +21,38 @@ char text01[]=
 "RXPI IEUZ VTXB RJRE CTGL"
 "CPKQ AJDA MI"; 
 
+char text02_1[]=  
+" RGOXT IVDHR FWGIK PUKXK CTISB"
+" GRIKM MYAAA SMQFH ZGLBU ZGOFG"
+" MGOJF BOPYU KMPPX VGIBT FYGKO"
+" LISPX CLRRE QXOUQ OMXIJ OKWYQ"
+" NHHQX SYCOJ QGYDU NTPMI LYDOO"
+" BPLFV JQTIZ FHHUW GXACF TTHGI"
+" SJHXS RWOPP CCMUA CJFNV VUBGV"
+" QFDET VS";
+
+char text02_2[]=  
+" NGWTV VGTHG ZPQGF EXSWN FKSXH"
+" POJCM PGHLL CAJCP UVIQU UZLQW"
+" AVOTS CPZFA BNUOR ZZAFM CJPGP"
+" TGTDR GWTZA XNQRY JCBMQ ZVCQU"
+" CQOCO JGNYN UCAVO MA";
+
+char text03[]=   
+" ZJTPL TJNET NLLGO PQVSW XSRHC"
+" OSHUT FGUSH HTVPO UMBMV GKLAA"
+" FDUBN UVCUV POCFJ XDMIQ CCAUC"
+" BQOKP HUMCI ZAJVI QESVG CFHDT"
+" ISREH FCMBP JCRTW TTMXC NOIEU"
+" WRPOM CEMSU NBBCT WZZRB LFLUF"
+" IFBNY OYJGX UMNKP TCQHT GVYWS"
+" QDFFM SWVEC IDWIL ZBYLI PRXYI"
+" CFCLP DQZNO ZWSKV NJURT GKMWU"
+" NFPNL EPOFQ LJMED EFNML RRRRJ"
+" YTBVR KBQQG SUWVA WAFUU WFLMP"
+" KPHLD ML";
+
+
 char text04[]=
 "KGBJN TWBQY FFJWQ KKCTN ZJVRK"  
 "BWPQO FZQTB LCYCM WCWTR XSGKA"
@@ -245,6 +277,93 @@ void message01()
     
     printf("Message 01: %s", toString(enigma));
     
+}
+
+void message02()
+{
+    Enigma* enigma;
+    char*   decoded;
+    
+    enigma=createEnigmaM3(); 
+
+
+    placeWaltze(enigma, 1, "III");
+    placeWaltze(enigma, 2, "V");
+    placeWaltze(enigma, 3, "I");
+    placeSteckers(enigma, "BL CK DG FP IR MO QW ST VY UZ");
+    placeUmkehrWaltze(enigma, "UKW B");
+    
+    setRingStellungen(enigma, "25 03 07");
+      
+    setGrundStellungen(enigma, "X L T");
+    setText(enigma, "VPM");
+    encodeDecode(enigma);
+    
+    decoded=toString(enigma);
+    
+    setGrundStellung(enigma, 1, decoded[0]);
+    setGrundStellung(enigma, 2, decoded[1]);
+    setGrundStellung(enigma, 3, decoded[2]);
+
+    setText(enigma, text02_1);
+    
+    encodeDecode(enigma);
+    
+    printf("Message 02/1: %s\n", toString(enigma));
+    
+    setGrundStellungen(enigma, "H N B");
+    setText(enigma, "SFA");
+    encodeDecode(enigma);
+    
+    decoded=toString(enigma);
+    
+    setGrundStellung(enigma, 1, decoded[0]);
+    setGrundStellung(enigma, 2, decoded[1]);
+    setGrundStellung(enigma, 3, decoded[2]);
+
+    setText(enigma, text02_2);
+    
+    encodeDecode(enigma);
+    
+    printf("Message 02/2: %s\n", toString(enigma));
+    
+    destroyEnigma(enigma);
+}
+
+
+void message03()
+{
+    Enigma* enigma;
+    char*   decoded;
+    
+    enigma=createEnigmaM3(); 
+
+
+    placeWaltze(enigma, 1, "III");
+    placeWaltze(enigma, 2, "II");
+    placeWaltze(enigma, 3, "V");
+    placeSteckers(enigma, "AL FP HX JO KT NV QR SU WY CE");
+    placeUmkehrWaltze(enigma, "UKW C");
+    
+    setRingStellungen(enigma, "08 19 03");
+      
+    setGrundStellungen(enigma, "A S T");
+    setText(enigma, "SGT");
+    encodeDecode(enigma);
+    
+    decoded=toString(enigma);
+    
+    setGrundStellung(enigma, 1, decoded[0]);
+    setGrundStellung(enigma, 2, decoded[1]);
+    setGrundStellung(enigma, 3, decoded[2]);
+
+    setText(enigma, text03);
+    
+    encodeDecode(enigma);
+    
+    printf("Message 03: %s\n", toString(enigma));
+    
+    destroyEnigma(enigma);    
 }
 
 
