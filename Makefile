@@ -30,7 +30,7 @@ SRCOBJ	        = enigma.o \
                   turing.o\
                   toolbox.o
 
-MAINOBJ         = main.o crack01.o crack02.o crack03.o
+MAINOBJ         = main.o crack02.o crack03.o
 
 TESTOBJ         = test.o
 
