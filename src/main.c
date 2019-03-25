@@ -4,16 +4,8 @@
 #include "crack.h"
 
 
-
-
-
-
-int main()
+void enigmaExample()
 {
-    printf("###############################################################\n");
-    printf("ENIGMA SIMULATION\n");
-    printf("###############################################################\n");
-    
     char  encoded[]="vztuq ordcb sirgg pnwrl lwxvp";
     char* decoded;
         
@@ -39,7 +31,18 @@ int main()
     printf("Encoded: %s \nDecoded %s\n", encoded, decoded);
     
     destroyEnigma(enigma);
-   
+
+}
+
+
+
+int main()
+{
+    printf("###############################################################\n");
+    printf("ENIGMA SIMULATION\n");
+    printf("###############################################################\n");
+    
+    enigmaExample();   
     
     return 0;
 }
