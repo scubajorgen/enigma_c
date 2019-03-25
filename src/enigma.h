@@ -34,6 +34,7 @@ int         encodeCharacter         (Enigma* enigma, int theCharacter);
 
 // Main functions for encoding/decoding
 Enigma*     createEnigmaM3          ();
+Enigma*     createEnigmaM4          ();
 void        destroyEnigma           (Enigma* enigma);
 void        setText                 (Enigma* engima, char text[]);
 void        placeWaltze             (Enigma* enigma, int waltze, char rotorName[]);

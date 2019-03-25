@@ -24,6 +24,7 @@ LIBS		= -L/usr/lib -lpthread
 
 SRCOBJ	        = enigma.o \
                   enigmaM3.o \
+                  enigmaM4.o \
                   waltze.o\
                   umkehrwaltze.o\
                   steckerbrett.o\
