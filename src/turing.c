@@ -20,8 +20,7 @@
 
 
 // EXAMPLE SET
-//char turingCrib[]   ="WETTERVORHERSAGEBISKAYAUNDDONNERWETTER";
-char turingCrib[]   ="WETTERVORHERSAGEBISKAYAUND";
+char turingCrib[]   ="WETTERVORHERSAGEBISKAYA";
 char turingCypher[] ="RPVPZILDGRNOPPLOFZNRUALXKHEXLDMQYCDFAQ";
 
 char testGrundStellung[]="22 17 12";
@@ -342,6 +341,7 @@ void turingFindLoops(char* text, char* crib)
         {
             cribCircleSet[c].numOfCircles   =0;
             cribCircleSet[c].startChar      ='A'+c;
+            cribCircleSet[c].foundChar      ='?';
             followLoop('A'+c, NULL, 0, NULL);
             c++;
         }
@@ -451,7 +451,7 @@ void turingFind(int permutationStart, int permutationEnd)
     int             theChar;
     int             found;
     int             circle;
-    int             set;
+    int             set, set2;
     CribCircle*     cribCircle;
     
     pthread_mutex_lock(&mutex);
@@ -494,7 +494,7 @@ void turingFind(int permutationStart, int permutationEnd)
             prevTime        =currentTime;
             prevCounting    =counting;
             
-            printf("Processing waltzen permutation (%3d, %3d, %3d) %3d:%15s @ systemtime %ld seconds, %ld conv per sec \n", 
+            printf("Processing waltzen permutation (%3d, %3d, %3d) %3d:%15s @ systemtime %ld seconds, %ld settings per sec \n", 
                    permutation[0], permutation[1], permutation[2], w, waltzenString, currentTime, convPerSec);
             fflush(stdout);
            
@@ -587,6 +587,44 @@ void turingFind(int permutationStart, int permutationEnd)
                                     }
                                     set++;
                                 }
+                                
+                                if (found)
+                                {
+                                    // Now we found a potential engima settings
+                                    // Check for inconsistencies in the steckered letters.
+                                    // This means: steckered letters may not appear more than once
+                                    // unless mutual
+                                    set=0;
+                                    while (set<MAX_POSITIONS && found)
+                                    {
+                                        set2=set+1;
+                                        while (set2<MAX_POSITIONS && found)
+                                        {
+                                            if ((cribCircleSet[set].foundChar==cribCircleSet[set2].startChar) &&
+                                                (cribCircleSet[set2].foundChar!=cribCircleSet[set].startChar) &&
+                                                (cribCircleSet[set2].foundChar!='?'))                                             
+                                                 
+                                            {
+                                                found=0;
+                                            }
+                                            if ((cribCircleSet[set].foundChar!='?') &&
+                                                (cribCircleSet[set].startChar==cribCircleSet[set2].foundChar) &&
+                                                (cribCircleSet[set].foundChar!=cribCircleSet[set2].startChar))
+                                            {
+                                                found=0;
+                                            }
+                                            if ((cribCircleSet[set].foundChar!='?') &&
+                                                (cribCircleSet[set2].foundChar!='?') &&
+                                                (cribCircleSet[set].foundChar==cribCircleSet[set2].foundChar))
+                                            {
+                                                found=0;
+                                            }
+                                            set2++;
+                                        }
+                                        set++;
+                                    }
+                                }                                    
+                                
                                 if (found)
                                 {
                                     printf("Solution found: R %d %d %d, G %d %d %d\n",
