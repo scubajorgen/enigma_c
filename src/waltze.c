@@ -84,6 +84,13 @@ void placeWaltze(Enigma* enigma, int waltze, char rotorName[])
         if (!strcmp(rotorName, rotorNames[index]))
         {
             found=1;
+            
+            if ((index==8 || index==9) && 
+                (enigma->numberOfRotors<4 || (enigma->numberOfRotors==4 && waltze!=1)))
+            {
+                printf("Beta and Gamma rotors are only allowed on position 1 of Enigma M4\n");
+            }
+            
             j=0;
             while (j<MAX_POSITIONS)
             {
