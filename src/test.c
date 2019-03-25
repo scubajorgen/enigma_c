@@ -362,7 +362,7 @@ void test06()
     
     turingGenerateLetterLinks("ENIGMAP","NIEMAGE");
     
-    link=&links['E'-'A'];
+    link=&menu['E'-'A'];
     assertIntEquals("turing",  1,   3, link->numOfLinks);
     assertIntEquals("turing",  2,   1, link->links[0].position);
     assertIntEquals("turing",  3, 'N', link->links[0].letter);

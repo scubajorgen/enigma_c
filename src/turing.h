@@ -1,7 +1,7 @@
 
-#define MAX_CIRCLES         256
-#define MAX_CIRCLE_SIZE     512 
-#define MAX_CRIB_SIZE       256
+#define MAX_CIRCLES         1024
+#define MAX_CIRCLE_SIZE     26 
+#define MAX_CRIB_SIZE       30
 
 typedef struct
 {
@@ -39,7 +39,7 @@ typedef struct
     char            foundChar;
 } CribCircleSet;
 
-extern LinkedLetters       links[MAX_POSITIONS];
+extern LinkedLetters       menu[MAX_POSITIONS];
 extern CribCircleSet       cribCircleSet[MAX_POSITIONS];
 
 

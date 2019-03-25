@@ -20,7 +20,8 @@
 
 
 // EXAMPLE SET
-char turingCrib[]   ="WETTERVORHERSAGEBISKAYAUNDDONNERWETTER";
+//char turingCrib[]   ="WETTERVORHERSAGEBISKAYAUNDDONNERWETTER";
+char turingCrib[]   ="WETTERVORHERSAGEBISKAYAUND";
 char turingCypher[] ="RPVPZILDGRNOPPLOFZNRUALXKHEXLDMQYCDFAQ";
 
 char testGrundStellung[]="22 17 12";
@@ -55,7 +56,7 @@ ThreadParam         params[4];
 
 time_t              startTime;
 
-LinkedLetters       links[MAX_POSITIONS];
+LinkedLetters       menu[MAX_POSITIONS];
 
 CribCircleSet       cribCircleSet[MAX_POSITIONS];
 
@@ -98,18 +99,18 @@ void freeCircle(CribCircle* circle)
 * 
 * 
 \**************************************************************************************************/
-void dumpLinks()
+void dumpMenu()
 {
     int c;
     int l;
     c=0;
     while (c<MAX_POSITIONS)
     {
-        printf("Link %c: %d - ", links[c].letter, links[c].numOfLinks);
+        printf("Link %c: %d - ", menu[c].letter, menu[c].numOfLinks);
         l=0;
-        while (l<links[c].numOfLinks)
+        while (l<menu[c].numOfLinks)
         {
-            printf("%c ", links[c].links[l].letter);
+            printf("%c ", menu[c].links[l].letter);
             l++;
         }
         printf("\n");
@@ -187,8 +188,8 @@ void turingGenerateLetterLinks(char* text, char* crib)
     pos=0;
     while (pos<MAX_POSITIONS)
     {
-        links[pos].letter       ='A'+pos;
-        links[pos].numOfLinks   =0;
+        menu[pos].letter       ='A'+pos;
+        menu[pos].numOfLinks   =0;
         pos++;
     }
     
@@ -198,12 +199,12 @@ void turingGenerateLetterLinks(char* text, char* crib)
         index1=text[pos]-'A';
         index2=crib[pos]-'A';
         
-        links[index1].links[links[index1].numOfLinks].letter    =crib[pos];
-        links[index1].links[links[index1].numOfLinks].position  =pos+1;
-        links[index1].numOfLinks++;
-        links[index2].links[links[index2].numOfLinks].letter    =text[pos];
-        links[index2].links[links[index2].numOfLinks].position  =pos+1;
-        links[index2].numOfLinks++;
+        menu[index1].links[menu[index1].numOfLinks].letter      =crib[pos];
+        menu[index1].links[menu[index1].numOfLinks].position    =pos+1;
+        menu[index1].numOfLinks++;
+        menu[index2].links[menu[index2].numOfLinks].letter      =text[pos];
+        menu[index2].links[menu[index2].numOfLinks].position    =pos+1;
+        menu[index2].numOfLinks++;
         pos++;
     }
 }
@@ -248,7 +249,7 @@ void followLoop(char startChar, LetterLink* currentLink, int step, CribCircle* c
             // Special case: currentLink==NULL: use the start character 
             // as starting point and add all its links
             nextLetter  =startChar;
-            nextLinks   =&links[nextLetter-'A'];
+            nextLinks   =&menu[nextLetter-'A'];
             l=0;
             while (l<nextLinks->numOfLinks)
             {
@@ -280,7 +281,7 @@ void followLoop(char startChar, LetterLink* currentLink, int step, CribCircle* c
             }
             else
             {
-                nextLinks   =&links[nextLetter-'A'];
+                nextLinks   =&menu[nextLetter-'A'];
                 l           =0;
                 while (l<nextLinks->numOfLinks)
                 {
@@ -344,7 +345,6 @@ void turingFindLoops(char* text, char* crib)
             followLoop('A'+c, NULL, 0, NULL);
             c++;
         }
-        printf("Recursion depth: %d\n", stepMax);
     }
     else
     {
@@ -511,10 +511,15 @@ void turingFind(int permutationStart, int permutationEnd)
                     for (g3=1; g3<=26; g3++)
                     {
                         // The RingStellung of the 1st ring has no function
-                        r1=1;
-            
+                        // In theory the 2nd ring should be taken into account. However
+                        // For short cribs most of the times taking one value is sufficient
+                        // It must be taken into account when the if the notch position of
+                        // the second rotor is reached after a few rotations...
+                        r1=1; r2=1;
+/*            
                         for (r2=1; r2<=26; r2++)
                         {
+*/                            
                             for (r3=1; r3<=26; r3++)
                             {
 
@@ -614,8 +619,9 @@ void turingFind(int permutationStart, int permutationEnd)
                                 counting++;
                                 
                             }
+/*                            
                         }
-
+*/
                     }
 
                 }
@@ -720,6 +726,19 @@ void turingBombe(char* cypher, char* crib, int numOfThreads)
 \**************************************************************************************************/
 void turingExample()
 {
+    printf("\n");
+    printf("#####################################################################################\n");
+    printf("# TURING BOMBE\n");
+    printf("# Cypher                    : %s\n", turingCypher);
+    printf("# Crib                      : %s\n", turingCrib);
+    printf("# Original Waltzen          : %s %s %s\n", testWaltzen[0], testWaltzen[1], testWaltzen[2]);
+    printf("# Original RingStellungen   : %s\n", testRingStellung);
+    printf("# Original GrundStellungen  : %s\n", testGrundStellung);
+    printf("# Original Steckers         : %s\n", testSteckers);
+    printf("#####################################################################################\n");
+
+//    turingProve();
+    
     turingBombe(turingCypher, turingCrib, 1);
 }
 

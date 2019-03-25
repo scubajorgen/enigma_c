@@ -1,13 +1,19 @@
 #include <stdio.h>
 
 #include "enigma.h"
-#include "crack.h"
+#include "turing.h"
 
 
 void enigmaExample()
 {
-    char  encoded[]="vztuq ordcb sirgg pnwrl lwxvp";
-    char* decoded;
+    char    someText[]="TEST MESSAGE ENCODED ON ENIMA";
+    char*   cypher; 
+    char*   plain;
+
+    printf("#####################################################################################\n");
+    printf("# ENIGMA ENCODE/DECODE EXAMPLE\n");
+    printf("#####################################################################################\n");
+
         
     Enigma* enigma;
     
@@ -22,13 +28,23 @@ void enigmaExample()
     placeSteckers       (enigma, "bq cr di ej kw mt os px uz gh");
     placeUmkehrWaltze   (enigma, "UKW B");
     
-    setText             (enigma, encoded);
+    setText             (enigma, someText);
     
     encodeDecode(enigma);
     
-    decoded=toString(enigma);
+    cypher=toString(enigma);
     
-    printf("Encoded: %s \nDecoded %s\n", encoded, decoded);
+    printf("Original  : %s \nCypher    : %s\n\n", someText, cypher);
+
+    setText             (enigma, cypher);
+    
+    setGrundStellungen  (enigma, "01 02 03");
+    
+    encodeDecode(enigma);
+
+    plain=toString(enigma);
+    
+    printf("Plain text: %s\n", plain);
     
     destroyEnigma(enigma);
 
@@ -38,11 +54,15 @@ void enigmaExample()
 
 int main()
 {
-    printf("###############################################################\n");
-    printf("ENIGMA SIMULATION\n");
-    printf("###############################################################\n");
+    printf("#####################################################################################\n");
+    printf("# ENIGMA SIMULATION\n");
+    printf("#####################################################################################\n");
     
     enigmaExample();   
     
+//    turingProve();
+   
+    turingExample();
+
     return 0;
 }
