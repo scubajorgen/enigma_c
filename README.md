@@ -17,11 +17,10 @@ It delivers two executable files:
 
 ## Turing method
 
-The software implements the method used by Alan Turing to crack the German
-encoded messages. It assumes a piece of plaintext that corresponds to part
-of the cypher text..
+The software implements the method used by Alan Turing to crack the German encoded messages. It assumes a piece of plain text (the crib) that corresponds to part of the cypher text. The software creates the letter links (the menu) and finds all loops in it. It then finds the rotor settings and start position that fullfills the loops.
+Refer to http://www.rutherfordjournal.org/article030108.html for a good description.
 
-## Usage
+## Usage of the software
 
 Typical usage:
     
@@ -56,16 +55,16 @@ The Turing Bombe crack:
 
     turingBombe("CYPHERTEXT", "CRIB", 1);
 
-
-Pass the cypher text and the crib as uppercase! Its lenght must be smaller
-than or equal to the cypher text length. The crib start must correspond to
-position 0 of the cypher. To use multi core processors increase the number
-of threads to 2, 3 or 4.
-The routine parses all 60 permutations of 5 rotors.
+Note:
+* Pass the cypher text and the crib as uppercase! 
+* Crib length shall not exceed cypher text length. 
+* Crib size should not exceed 26 characters or the loop number will explode. Space is not allocated dynamically, so arrays will get out of bounds
+* The crib start must correspond to position 0 of the cypher. 
+* To use multi core processors increase the number of threads to 2, 3 or 4. The routine parses all 60 permutations of 5 rotors and subdivides the work amongst the threads.
 
 Or simply, for a working example:
 
     turingExample();
 
-
+The software results in all rotor settings that result in the loops defined by the cypher en crib.
 
