@@ -36,8 +36,14 @@ typedef struct
     int             numOfCircles;
     CribCircle      cribCircles[MAX_CIRCLES];
     char            startChar;
-    char            foundChar;
+//    char            foundChar;
 } CribCircleSet;
+
+typedef struct
+{
+    char            startChar;
+    char            foundChar;
+} SteckeredChars;
 
 extern LinkedLetters       menu[MAX_POSITIONS];
 extern CribCircleSet       cribCircleSet[MAX_POSITIONS];
