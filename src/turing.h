@@ -26,7 +26,7 @@ typedef struct CribCircle
     int                 circleSize;                     // Number of steps in the circle
     int                 advances    [MAX_CIRCLE_SIZE];    // Advances of the rotors per step
     char                orgChars    [MAX_CIRCLE_SIZE+4];    // Original chars as in the text/crib
-    char                foundChars  [MAX_CIRCLE_SIZE+4];    // Steckered chars 
+//    char                foundChars  [MAX_CIRCLE_SIZE+4];    // Steckered chars 
 } CribCircle;
 
 
