@@ -261,4 +261,25 @@ int countLetter(Enigma* enigma, char letter)
     return count;
 }
 
+/**************************************************************************************************\
+* 
+* Set the Enigma key based on settings array
+* 
+\**************************************************************************************************/
 
+void setEnigma(Enigma* enigma, EnigmaSettings* settings)
+{
+    int i;
+    
+    enigma->numberOfRotors=settings->numberOfRotors;
+    i=0;
+    while (i<settings->numberOfRotors)
+    {
+        placeWaltze         (enigma, i+1, settings->rotors[i]);
+        setRingStellung     (enigma, i+1, settings->ringStellungen[i]);
+        setGrundStellung    (enigma, i+1, settings->grundStellungen[i]);
+        i++;
+    }
+    placeUmkehrWaltze       (enigma, settings->ukw);
+    placeSteckers           (enigma, settings->steckers);
+}

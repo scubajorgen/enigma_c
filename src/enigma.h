@@ -2,11 +2,23 @@
 
 #define ENIGMA
 
-#define MAX_POSITIONS   26
-#define MAX_ROTORS      4
-#define MAX_REFLECTIONS 13
-#define MAX_TEXT        1024
-#define MAX_NOTCHES     2
+#define MAX_POSITIONS           26
+#define MAX_ROTORS              4
+#define MAX_ROTOR_NAME          5
+#define MAX_STECKER_STRING      41
+#define MAX_REFLECTIONS         13
+#define MAX_TEXT                1024
+#define MAX_NOTCHES             2
+
+typedef struct
+{
+    int     numberOfRotors;
+    char    rotors[MAX_ROTORS][MAX_ROTOR_NAME];
+    char    ukw[MAX_ROTOR_NAME];
+    int     ringStellungen[MAX_ROTORS];
+    int     grundStellungen[MAX_ROTORS];
+    char    steckers[MAX_STECKER_STRING];
+} EnigmaSettings;
 
 typedef struct 
 {
