@@ -238,7 +238,7 @@ void test03(void)
 {
     Enigma*     enigma;
     
-    enigma=createEnigmaM3();
+    enigma=createEnigmaM4();
     
     placeUmkehrWaltze(enigma, "UKW B");
 
