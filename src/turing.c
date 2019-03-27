@@ -76,6 +76,8 @@ CribCircleSet       cribCircleSet[MAX_POSITIONS];
 int                 mallocs=0;
 int                 stepMax=0;
 
+char*               turingBombeCypher;
+
 /**************************************************************************************************\
 * 
 * 
@@ -576,17 +578,25 @@ int turingValidateTheSteckeredValues(SteckeredChars* chars)
 * Helper: Print a found solution
 * 
 \**************************************************************************************************/
-void turingPrintSolution(EnigmaSettings settings)
+void turingPrintSolution(EnigmaSettings* settings)
 {
+    Enigma* enigma;
+    
     printf("Solution found: %s - %s %s %s R %d %d %d, G %d %d %d, %s\n",
-           settings.ukw,
-           settings.rotors[0], settings.rotors[1], settings.rotors[2],
-           settings.ringStellungen[0], settings.ringStellungen[1], settings.ringStellungen[2],
-           settings.grundStellungen[0], settings.grundStellungen[1], settings.grundStellungen[2],
-           settings.steckers);
+           settings->ukw,
+           settings->rotors[0], settings->rotors[1], settings->rotors[2],
+           settings->ringStellungen[0], settings->ringStellungen[1], settings->ringStellungen[2],
+           settings->grundStellungen[0], settings->grundStellungen[1], settings->grundStellungen[2],
+           settings->steckers);
 
 
     fflush(stdout);
+    
+    enigma=createEnigmaM3();
+    setEnigma(enigma, settings);
+    setText(enigma, turingBombeCypher);
+    encodeDecode(enigma);
+    printf("%s\n", toString(enigma));
 }
 
 /**************************************************************************************************\
@@ -752,8 +762,8 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
                                         }
                                         c++;
                                     }
-                                    settings.steckers[s*3]='\0';
-                                    turingPrintSolution(settings);
+                                    settings.steckers[s*3-1]='\0';
+                                    turingPrintSolution(&settings);
                                             
                                 }
 
@@ -860,8 +870,10 @@ void turingBombe(char* cypher, char* crib, int numOfThreads)
     int         numberOfPermutations;
     int         workItems;
 
+    turingBombeCypher=cypher;
+
     turingFindLoops(cypher, crib);
-    
+   
     permutations        =createLinkedList();
     
     // Use first 5 Waltzen
@@ -875,7 +887,6 @@ void turingBombe(char* cypher, char* crib, int numOfThreads)
     w=0;
     while (w<workItems)
     {
-        printf("Create %d\n", w);
         work[w  ].permutationStart  =(w/2)*numberOfPermutations/numOfThreads;
         work[w  ].permutationEnd    =(w/2+1)*numberOfPermutations/numOfThreads;
         strncpy(work[w  ].ukw, "UKW B", MAX_UKW_STRING);
@@ -894,7 +905,6 @@ void turingBombe(char* cypher, char* crib, int numOfThreads)
         
         params[i].start =i*2;
         params[i].end   =(i+1)*2;
-  
 
         pthread_create(&(params[i].threadId), NULL, threadFunction, (void *)(params+i)); 
     }
@@ -941,6 +951,6 @@ void turingExample2()
 {
     // II IV I, UKW C, R 1 3 21 G 3 11 5, bd cv el gn iz jo kw mt pr sx
     turingBombe("KGBJNTWBQYFFJWQKKCTNZJVRKBWPQOFZQTBLCYCMWCWTRXSGKA",
-                "VONBDUXPLANUNGOPERATIONJP", 3);    
+                "VONBDUXPLANUNGOPERATIONJPAUKENSCH", 3);    
 }
 
