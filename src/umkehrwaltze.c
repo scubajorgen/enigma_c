@@ -51,13 +51,13 @@ void placeUmkehrWaltze(Enigma* enigma, char name[])
     found=0;
     while (index<UMKEHR_WALTZEN && !found)
     {
-        if ((index==3 || index==4) && (enigma->numberOfRotors<4))
-        {
-            printf("UKW B2 an C2 are only allowed on Engima M4\n");
-        }
         
         if (!strcmp(name, umkehrWaltzeNames[index]))
         {
+            if ((index==3 || index==4) && (enigma->numberOfRotors<4))
+            {
+                printf("UKW B2 an C2 are only allowed on Engima M4\n");
+            }
             found=1;
             j=0;
             while (j<MAX_POSITIONS)
@@ -71,7 +71,7 @@ void placeUmkehrWaltze(Enigma* enigma, char name[])
     }  
     if (!found)
     {
-        printf("ERROR: invalid umkehrwaltze\n");
+        printf("ERROR: invalid umkehrwaltze %s\n", name);
     }
     
 }
