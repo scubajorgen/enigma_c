@@ -302,8 +302,14 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
                     found   =0;
                     while (c<circle->circleSize && !found)
                     {
-//                        if (circle->advances[c]==nextLinks->links[l].position)
-                        if (circle->orgChars[c]==nextLetter)
+                        // This one allows only simple loops, like a - b - c - a 
+                        // Limits the number of loops; advantageous for large crib sizes
+                        if (circle->advances[c]==nextLinks->links[l].position)
+
+                        // This one allows also complicated loops, like a - b - c - b - a
+                        // increasing the number of loops exponentially; advantageous for 
+                        // not to large crib sizes (up to ~25 chars)
+//                        if (circle->orgChars[c]==nextLetter)
                         {
                             found=1;
                         }
@@ -449,12 +455,21 @@ void turingProve()
 * subset of loops there is a steckered character that when following the loops results in the 
 * same output char; the subset is characterized that they start and end with the same 
 * unsteckered character 
+*
+* TO DO: it is possible that more than one character fullfills a set of loops (fc>1); 
+* in that case only the last found value is stored. In that case the method
+* turingValidateTheSteckeredValues() may reject the solution and the right solution may not
+* be seen. 
+* Work-around: sufficiently long crib to generate enough loops in the set reducing the chance
+* on multiple chars fulfilling the set...
 * 
 \**************************************************************************************************/
 int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredChars* chars)
 {
+    int             theFound;
     int             found;
     int             c;
+    int             fc;
     int             e;
     int             set;
     int             circle;
@@ -467,19 +482,22 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
     // all circles in the set. 
     // Parse the sets
     found=1;
+    theFound=1;
     set=0;
-    while (set<MAX_POSITIONS && found)
+    while (set<MAX_POSITIONS && theFound)
     {
         theSet=&cribCircleSet[set];
         
-        if (theSet->numOfCircles>0)
+        if (theSet->numOfCircles>2)
         {
             // Choose a character c and check whether
             // the output of each circle in th set results 
             // in the same character c (hypothesis)
             c       =0;
+            fc      =0;
             found   =0;
-            while (c<MAX_POSITIONS && !found)
+            theFound=0;
+            while (c<MAX_POSITIONS/* && !found*/)
             {
                 // Try the circles. If one circle fails
                 // hypothesis is rejected, proceed to next char
@@ -513,6 +531,12 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
                 if (found)
                 {
                     chars[set].foundChar=c+'A';
+                    fc++;
+                    if (fc>1)
+                    {
+                        printf("Found multiple %d - %c->%c circles %d\n", fc, theSet->startChar, c+'A', theSet->numOfCircles);
+                    }
+                    theFound=1;
                 }
                 c++;
             }
@@ -521,7 +545,7 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
     }
 
     
-    return found;
+    return theFound;
 }
 
 
