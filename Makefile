@@ -29,6 +29,7 @@ SRCOBJ	        = enigma.o \
                   umkehrwaltze.o\
                   steckerbrett.o\
                   turing.o\
+                  coincidence.o \
                   toolbox.o
 
 MAINOBJ         = main.o crack02.o crack03.o
