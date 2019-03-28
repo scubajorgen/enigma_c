@@ -5,7 +5,7 @@
 #include "enigma.h"
 #include "crack.h"
 #include "toolbox.h"
-
+#include "coincidence.h"
 
 char text01[]=
 "MUUQ JZVQ LORV MCOL YKXE"
@@ -868,88 +868,8 @@ void message09()
     
 }
 
-// UNFINISHED
+
 void message10()
 {
-    Enigma*     enigma;
-    char*       decoded;
-    int         r1, r2, r3;
-    int         limit;
-    int         count;
-    char        waltzen[5][5]={"I", "II", "III", "IV", "V"};
-    int         indices[5]={0, 1, 2, 3, 4};
-    LinkedList* permutations;
-    int*        permutation;
-    int         w;
-    
-    
-    
-    permutations=createLinkedList();
-    permute(permutations, indices, 5, 3, 0);
-    
-    enigma=createEnigmaM3(); 
-
-    placeUmkehrWaltze(enigma, "UKW B");
-    
-    clearSteckerBrett(enigma);
-//    placeSteckers(enigma, "AT BG DV EW FR HN IQ JX KZ LU");
-    
-
-    setText(enigma, text10);
-    limit=enigma->textSize*10/100;
-
-    w=0;
-    while (w<linkedListLength(permutations))
-    {
-        permutation=(int*)elementAt(permutations, w);
-
-        placeWaltze(enigma, 1, waltzen[permutation[0]]);
-        placeWaltze(enigma, 1, waltzen[permutation[1]]);
-        placeWaltze(enigma, 1, waltzen[permutation[2]]);
-
-        printf("Trying %s %s %s\n", waltzen[permutation[0]], waltzen[permutation[1]], waltzen[permutation[2]]);
-
-        r1=1;
-        while (r1<MAX_POSITIONS)
-        {
-            r2=1;
-            while (r2<MAX_POSITIONS)
-            {
-                r3=1;
-                while (r3<MAX_POSITIONS)
-                {
-                    setRingStellung(enigma, 1, r1);
-                    setRingStellung(enigma, 2, r2);
-                    setRingStellung(enigma, 3, r3);
-
-                    setGrundStellungen(enigma, "EDF");
-
-                    setText(enigma, "GXT");
-                    encodeDecode(enigma);    
-
-                    decoded=toString(enigma);
-                    
-                    setGrundStellung(enigma, 1, decoded[0]);
-                    setGrundStellung(enigma, 2, decoded[1]);
-                    setGrundStellung(enigma, 3, decoded[2]);
-                    
-                    encodeDecode(enigma);
-
-                    count=countLetter(enigma, 'E');
-                    if (count>limit)
-                    {
-                        decoded=toString(enigma);
-                        printf("Message 10: %s\n", decoded); 
-                    }                  
-                    r3++;
-                }
-                
-                r2++;
-            }
-
-            r1++;
-        }
-        w++;
-    }
-    destroyEnigma(enigma);    
+    ioc_decodeText(text10);
 }

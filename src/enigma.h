@@ -60,6 +60,7 @@ void        placeSteckers           (Enigma* engima, char steckers[]);
 void        encodeDecode            (Enigma* enigma);
 char*       toString                (Enigma* enigma);
 int         countLetter             (Enigma* enigma, char letter);
+int         countConvertedChar      (Enigma* enigma, char letter);
 void        setEnigma               (Enigma* enigma, EnigmaSettings* settings);
 
 

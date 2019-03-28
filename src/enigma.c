@@ -261,6 +261,32 @@ int countLetter(Enigma* enigma, char letter)
     return count;
 }
 
+
+/**************************************************************************************************\
+* 
+* Count occurences of specified letter, where the letter is passed as 0-25
+* 
+\**************************************************************************************************/
+int countConvertedChar(Enigma* enigma, char letter)
+{
+    int i;
+    int max;
+    int count;
+    
+    count=0;
+    max=enigma->textSize;
+    i=0;
+    while (i<max)
+    {
+        if (enigma->conversion[i]==letter)
+        {
+            count++;
+        }
+        i++;
+    }
+    return count;
+}
+
 /**************************************************************************************************\
 * 
 * Set the Enigma key based on settings array
