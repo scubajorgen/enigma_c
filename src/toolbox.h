@@ -17,6 +17,12 @@ typedef struct LinkedList
 }
 LinkedList;
 
+// Permutations of rotors/waltzen
+extern int                 waltzenIndices[8];
+extern char                waltzen[8][4];
+
+
+
 int         stellungToPos           (int stellung);
 int         charToPos               (char theChar);
 
@@ -29,3 +35,4 @@ int         hasNext                 (LinkedList* list);
 int         linkedListLength        (LinkedList* list);
 void*       elementAt               (LinkedList* list, int index);
 void        permute                 (LinkedList* permutations, int elements[], int elementArraySize, int number, int start);
+LinkedList* createRotorPermutations (int numberOfWaltzen, int numberToChooseFrom);

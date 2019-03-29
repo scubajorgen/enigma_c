@@ -51,10 +51,6 @@ typedef struct
 } ThreadParam;
 
 
-// Permutations of rotors/waltzen
-int                 waltzenIndices[8]  ={0, 1, 2, 3, 4, 5, 6, 7};
-char                waltzen[8][4]      ={"I", "II", "III", "IV", "V", "VI", "VII", "VIII"};
-LinkedList*         permutations;
 int                 threadsRunning;
 
 char                waltzenString[80];
@@ -72,11 +68,14 @@ LinkedLetters       menu[MAX_POSITIONS];
 // Defines the crib circle loops
 CribCircleSet       cribCircleSet[MAX_POSITIONS];
 
+LinkedList* permutations;
+
 // Consistency parameters
 int                 mallocs=0;
 int                 stepMax=0;
 
 char*               turingBombeCypher;
+
 
 /**************************************************************************************************\
 * 
@@ -304,12 +303,12 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
                     {
                         // This one allows only simple loops, like a - b - c - a 
                         // Limits the number of loops; advantageous for large crib sizes
-                        if (circle->advances[c]==nextLinks->links[l].position)
+//                        if (circle->advances[c]==nextLinks->links[l].position)
 
                         // This one allows also complicated loops, like a - b - c - b - a
                         // increasing the number of loops exponentially; advantageous for 
                         // not to large crib sizes (up to ~25 chars)
-//                        if (circle->orgChars[c]==nextLetter)
+                        if (circle->orgChars[c]==nextLetter)
                         {
                             found=1;
                         }
@@ -897,11 +896,9 @@ void turingBombe(char* cypher, char* crib, int numOfThreads)
     turingBombeCypher=cypher;
 
     turingFindLoops(cypher, crib);
-   
-    permutations        =createLinkedList();
-    
-    // Use first 5 Waltzen
-    permute(permutations, waltzenIndices, 5, 3, 0);
+
+    // Choose from the 5 wehrmacht waltzen   
+    permutations=createRotorPermutations(3, 5);
     
     numberOfPermutations=linkedListLength(permutations);
     printf("Waltzen permutations %d\n", numberOfPermutations);
