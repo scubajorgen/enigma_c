@@ -18,6 +18,7 @@ typedef struct
     int     ringStellungen[MAX_ROTORS];
     int     grundStellungen[MAX_ROTORS];
     char    steckers[MAX_STECKER_STRING];
+    char    cypher[MAX_TEXT];
 } EnigmaSettings;
 
 typedef struct 
@@ -33,7 +34,7 @@ typedef struct
     int     steckerBrett[MAX_POSITIONS];
 
     int     textSize;
-	int     text[MAX_TEXT];
+    int     text[MAX_TEXT];
     int     conversion[MAX_TEXT];
     char    string[MAX_TEXT];
     

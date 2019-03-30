@@ -307,5 +307,14 @@ void setEnigma(Enigma* enigma, EnigmaSettings* settings)
         i++;
     }
     placeUmkehrWaltze       (enigma, settings->ukw);
-    placeSteckers           (enigma, settings->steckers);
+    if (strncmp(settings->steckers, "", MAX_STECKER_STRING)==0)
+    {
+        clearSteckerBrett(enigma);
+    }
+    else
+    {
+        placeSteckers           (enigma, settings->steckers);
+    }
+    setText(enigma, settings->cypher);
 }
+
