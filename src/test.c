@@ -183,7 +183,22 @@ void test01()
     
     destroyLinkedList(list);
     
+    list=createRotorPermutations(3, 5);
+    assertIntEquals("toolbox", 42, 60, linkedListLength(list));
     
+    permutation=elementAt(list, 0);
+    
+    assertStringEquals("toolbox", 43, "I", waltzen[permutation[0]]);
+    assertStringEquals("toolbox", 44, "II", waltzen[permutation[1]]);
+    assertStringEquals("toolbox", 45, "III", waltzen[permutation[2]]);
+
+    permutation=elementAt(list, 59);
+    
+    assertStringEquals("toolbox", 46, "V", waltzen[permutation[0]]);
+    assertStringEquals("toolbox", 47, "I", waltzen[permutation[1]]);
+    assertStringEquals("toolbox", 48, "II", waltzen[permutation[2]]);
+    
+    destroyLinkedList(list);
     
 }
 
