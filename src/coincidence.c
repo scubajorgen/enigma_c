@@ -2,7 +2,9 @@
 * 
 * This module implents the index-of-coincidence method of James Gillogly
 * (http://web.archive.org/web/20060720040135/http://members.fortunecity.com/jpeschel/gillog1.htm)
-* 
+* Different from the original article, this software tries all rotor settings, 
+* RingStellungen included 
+*
 \**************************************************************************************************/
 
 #include <stdio.h>
@@ -20,7 +22,7 @@
 #define TOP_RESULTS_SIZE    10
 #define MAX_THREADS         4
 #define MAX_WORK_ITEMS      12
-
+#define MAX_TRIPLETS        10
 
 typedef struct
 {
@@ -102,6 +104,37 @@ IocResults	iocExampleResults=
     }
 };
 
+char iocTriplets1[MAX_TRIPLETS][5]=
+{
+    "EIN",
+    "INS",
+    "FUE",
+    "ZWO",
+    "ULL",
+    "IER",
+    "NUL",
+    "UNG",
+    "ENF",
+    "VIE"
+};
+
+char iocTriplets2[MAX_TRIPLETS][4]=
+{
+    "SCH",
+    "DIE",
+    "NDE",
+    "CHE",
+    "UND",
+    "ICH",
+    "TEN",
+    "DEN",
+    "EIN",
+    "END"
+};
+
+int iocTripletCount[MAX_TRIPLETS];
+
+
 /**************************************************************************************************\
 * FUNCTIONS
 \**************************************************************************************************/
@@ -136,6 +169,27 @@ float iocIndexOfCoincidence(Enigma* enigma)
     return ioc;
 }
 
+
+/**************************************************************************************************\
+* 
+* Counts the occurrences of the most occurring triplets
+* 
+\**************************************************************************************************/
+int iocCountTriplets(Enigma* enigma)
+{
+    int i;
+    int count;
+    
+    count=0;
+    i=0;
+    while (i<MAX_TRIPLETS)
+    {
+        count+=countTriplet(enigma, iocTriplets2[i]);
+        i++;
+    }
+    
+    return count;
+}
 
 /**************************************************************************************************\
 * 
@@ -392,6 +446,8 @@ void iocFindSteckeredChars(IocResults* results)
     float ioc;
     int   numOfSteckers;
     int   found;
+    int   triplets;
+    int   maxTriplets;
 
     // Initialise stecker brett table: no steckers
     s1=0;
@@ -400,13 +456,14 @@ void iocFindSteckeredChars(IocResults* results)
         steckerTable[s1]=s1;
         s1++;
     }
-    
+  
     enigma=createEnigmaM3();
     
     setEnigma(enigma, &results->settings);
     
-    numOfSteckers=10;
-    maxIoc=results->indexOfCoincidence;
+    numOfSteckers   =10;
+    maxIoc          =results->indexOfCoincidence;
+    maxTriplets     =0;
     
     s=0;
     found=1;
@@ -436,11 +493,16 @@ void iocFindSteckeredChars(IocResults* results)
                     
                     encodeDecode(enigma);
                     ioc=iocIndexOfCoincidence(enigma);
-                    
+
+                    triplets=iocCountTriplets(enigma);                   
+
+                    if (triplets>maxTriplets)
+                    {
+                        maxTriplets=triplets;
+                    }
+                   
                     if (ioc>maxIoc)
                     {
-                        printf("Found steckerd chars %c-%c\n", s1+'A', s2+'A');
-                        fflush(stdout);
                         maxIoc=ioc;
                         s1Max=s1;
                         s2Max=s2;
@@ -459,6 +521,8 @@ void iocFindSteckeredChars(IocResults* results)
         }
         if (found)
         {
+            printf("Found steckered chars %c-%c : ioc %f triplets %d\n", s1Max+'A', s2Max+'A', ioc, maxTriplets);
+            fflush(stdout);
             steckerTable[s1Max]=s2Max;
             steckerTable[s2Max]=s1Max;
         }
@@ -509,7 +573,7 @@ void *iocThreadFunction(void *vargp)
     params      =(IocThreadParams*)vargp;
     permutations=params->permutations;
     cypher      =params->cypher;
-    id          =params->threadId;
+    id          =(long)params->threadId;
    
     
     done=0;
@@ -611,7 +675,6 @@ void iocDecodeText(char* cypher, int numOfThreads)
     i=0;
     while (i<numOfThreads)
     {
-        threadParams[i].threadId    =i;
         threadParams[i].permutations=permutations;
         threadParams[i].cypher      =cypher;
         pthread_create(&(threadParams[i].threadId), 
@@ -621,6 +684,9 @@ void iocDecodeText(char* cypher, int numOfThreads)
     }
     pthread_exit(NULL);     
 }
+
+
+
 
 
 /**************************************************************************************************\
