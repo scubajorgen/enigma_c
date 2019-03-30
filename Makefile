@@ -57,4 +57,4 @@ install:
 
 
 clean:
-	rm -f *.o enigma
+	 rm -f *.o enigma test enigma.exe test.exe
