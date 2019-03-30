@@ -2,7 +2,8 @@
 
 #include "enigma.h"
 #include "turing.h"
-
+#include "coincidence.h"
+#include "crack.h"
 
 void enigmaExample()
 {
@@ -63,6 +64,8 @@ int main()
 //    turingProve();
    
     turingExample();
+
+    iocExample();
 
     return 0;
 }
