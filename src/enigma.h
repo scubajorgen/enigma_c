@@ -62,7 +62,9 @@ void        encodeDecode            (Enigma* enigma);
 char*       toString                (Enigma* enigma);
 int         countLetter             (Enigma* enigma, char letter);
 int         countConvertedChar      (Enigma* enigma, char letter);
+int         countTriplet            (Enigma* enigma, char* triplet);
 void        setEnigma               (Enigma* enigma, EnigmaSettings* settings);
+void        dumpDecoded             (EnigmaSettings* settings);
 
 
 

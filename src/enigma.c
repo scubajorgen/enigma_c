@@ -289,6 +289,33 @@ int countConvertedChar(Enigma* enigma, char letter)
 
 /**************************************************************************************************\
 * 
+* Count occurences of specified triplet, where the triplet is passed as string, like "EIN"
+* 
+\**************************************************************************************************/
+int countTriplet(Enigma* enigma, char* triplet)
+{
+    int i;
+    int count;
+    
+    count=0;
+    i=0;
+    while (i<enigma->textSize-2)
+    {
+        if ((enigma->conversion[i  ]==triplet[0]-'A') &&
+            (enigma->conversion[i+1]==triplet[1]-'A') &&
+            (enigma->conversion[i+2]==triplet[2]-'A'))
+        {
+            count++;
+        }
+        i++;
+    }
+    
+    return count;
+}
+
+
+/**************************************************************************************************\
+* 
 * Set the Enigma key based on settings array
 * 
 \**************************************************************************************************/
@@ -318,3 +345,13 @@ void setEnigma(Enigma* enigma, EnigmaSettings* settings)
     setText(enigma, settings->cypher);
 }
 
+void dumpDecoded(EnigmaSettings* settings)
+{
+    Enigma* enigma;
+    
+    enigma=createEnigmaM3();
+    setEnigma(enigma, settings);
+    encodeDecode(enigma);
+    printf("%s", toString(enigma));
+    destroyEnigma(enigma);
+}
