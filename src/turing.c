@@ -617,7 +617,6 @@ void turingPrintSolution(EnigmaSettings* settings)
     
     enigma=createEnigmaM3();
     setEnigma(enigma, settings);
-    setText(enigma, turingBombeCypher);
     encodeDecode(enigma);
     printf("%s\n", toString(enigma));
 }
@@ -672,7 +671,7 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
     int             c;
     int             s;
     int             found;
-    EnigmaSettings  settings;
+    EnigmaSettings  settings; // TO DO: put on heap iso. stack
 
     
     
@@ -758,6 +757,7 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
                                 if (found)
                                 {
                                     settings.numberOfRotors     =3;
+                                    strncpy(settings.cypher, turingBombeCypher, MAX_TEXT);
                                     strncpy(settings.rotors[0], w1, MAX_ROTOR_NAME);
                                     strncpy(settings.rotors[1], w2, MAX_ROTOR_NAME);
                                     strncpy(settings.rotors[2], w3, MAX_ROTOR_NAME);
