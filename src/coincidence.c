@@ -19,7 +19,7 @@
 * DEFINES
 \**************************************************************************************************/
 
-#define TOP_RESULTS_SIZE    10
+#define TOP_RESULTS_SIZE    50
 #define MAX_THREADS         4
 #define MAX_WORK_ITEMS      12
 #define MAX_TRIPLETS        10
@@ -521,7 +521,7 @@ void iocFindSteckeredChars(IocResults* results)
         }
         if (found)
         {
-            printf("Found steckered chars %c-%c : ioc %f triplets %d\n", s1Max+'A', s2Max+'A', ioc, maxTriplets);
+            printf("Found steckered chars %c-%c : ioc %f triplets %d\n", s1Max+'A', s2Max+'A', maxIoc, maxTriplets);
             fflush(stdout);
             steckerTable[s1Max]=s2Max;
             steckerTable[s2Max]=s1Max;
