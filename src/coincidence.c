@@ -293,6 +293,7 @@ void iocEvaluateEngimaSettings(LinkedList* permutations, IocWorkItem* work, char
                 waltzen[permutation[0]], 
                 waltzen[permutation[1]], 
                 waltzen[permutation[2]]);
+        fflush(stdout);
 
         // The Ringstellung of the 1st Waltze has no meaning
         r1=1;
@@ -438,6 +439,8 @@ void iocFindSteckeredChars(IocResults* results)
                     
                     if (ioc>maxIoc)
                     {
+                        printf("Found steckerd chars %c-%c\n", s1+'A', s2+'A');
+                        fflush(stdout);
                         maxIoc=ioc;
                         s1Max=s1;
                         s2Max=s2;
@@ -535,6 +538,8 @@ void *iocThreadFunction(void *vargp)
         {
             printf("Thread %ld starting work item: %d-%d, %s\n", 
                    id, item->startPermutation, item->endPermutation, item->ukw);
+            fflush(stdout);
+
             iocEvaluateEngimaSettings(permutations, item, cypher);
         }
     }
