@@ -871,5 +871,5 @@ void message09()
 
 void message10()
 {
-    ioc_decodeText(text10);
+    iocDecodeText(text10, 4);
 }

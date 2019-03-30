@@ -1,4 +1,5 @@
 
 
 
-void ioc_decodeText(char* text);
+void    iocDecodeText       (char* cypher, int numOfThreads);
+void    iocExample          ();
