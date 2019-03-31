@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <string.h>
 #include <pthread.h>
+#include <time.h>
 
 #include "enigma.h"
 #include "toolbox.h"
@@ -752,7 +753,7 @@ void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, 
     char*       ukw;
     long        startTime;
     long        count;
-    
+    time_t      now;
     
     results     =malloc(sizeof(IocResults));
     
@@ -763,6 +764,7 @@ void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, 
     clearSteckerBrett(enigma);
 
     setText(enigma, cypher);
+    
 
     start       =work->startPermutation;
     end         =work->endPermutation;
@@ -783,6 +785,8 @@ void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, 
         placeWaltze(enigma, 2, waltzen[permutation[1]]);
         placeWaltze(enigma, 3, waltzen[permutation[2]]);
 
+        time(&now);
+        printf("%s", ctime(&now)); 
         printf("Trying permutation %d: %s - %s %s %s\n", 
                 w,
                 ukw,
@@ -792,16 +796,16 @@ void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, 
         fflush(stdout);
 
         // The Ringstellung of the 1st Waltze has no meaning
-        r1=1; r2=1; r3=4;
+        r1=1; r2=1;
 /*
         r2=1;
         while (r2<=MAX_POSITIONS)
         {
-            
+*/            
             r3=1;
             while (r3<=MAX_POSITIONS)
             {
-*/                
+                
                 g1=1;
                 while (g1<=MAX_POSITIONS)
                 {
@@ -846,9 +850,10 @@ void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, 
                     }
                     g1++;
                 }
-/*             
+            
                 r3++;
             }
+/* 
             r2++;
         }
 */
@@ -915,7 +920,7 @@ void *iocThreadFunction(void *vargp)
                    id, item->startPermutation, item->endPermutation, item->ukw);
             fflush(stdout);
 
-            iocEvaluateEngimaSettings(permutations, item, cypher);
+            iocEvaluateEngimaSettingsDeep(permutations, item, cypher);
         }
     }
     // Decrease the number of threads running
@@ -934,6 +939,7 @@ void *iocThreadFunction(void *vargp)
     // If this is the last thread, finish the job
     if (lastManStanding)
     {
+/*
         printf("Last man standing: %ld\n", id);
         // Now we have got the Top 10 best results, try to find the 
         // Stecker Positions for each of them
@@ -943,6 +949,7 @@ void *iocThreadFunction(void *vargp)
             iocFindSteckeredChars(&iocTopTenResults[i]);
             i++;
         }
+*/
         iocDumpTopTenResults(1);
 
         destroyLinkedList(permutations);
@@ -969,20 +976,18 @@ void iocDecodeText(char* cypher, int numOfThreads)
     
     // Create the stack of work for the trheads
     iocNumberOfWorkItems=numOfThreads*2;
-iocNumberOfWorkItems=numOfThreads;
+
     i=0;
     while (i<numOfThreads)
     {
-//        iocWorkItems[i*2].startPermutation  =i*length/numOfThreads;
-//        iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads;
-//        strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
-iocWorkItems[i].startPermutation  =45+i*2;
-iocWorkItems[i].endPermutation    =46+i*2;
-strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
+        iocWorkItems[i*2].startPermutation  =i*length/numOfThreads;
+        iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads;
+        strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
+
         
-//        iocWorkItems[i*2+1].startPermutation=i*length/numOfThreads;
-//        iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads;
-//        strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
+        iocWorkItems[i*2+1].startPermutation=i*length/numOfThreads;
+        iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads;
+        strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
         i++;
     }
 
