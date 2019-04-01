@@ -19,12 +19,15 @@
 
 typedef struct
 {
-    int     state;
-    int     startPermutation;
-    int     endPermutation;
-    int     startR2;
-    int     endR2;
-    char    ukw[MAX_ROTOR_NAME];
+    int     	state;
+	char*       cypher;
+	LinkedList* permutations;
+    int     	startPermutation;		// Permutation start
+    int     	endPermutation;
+    int     	startR2;
+    int     	endR2;
+	int			maxCypherChars;
+    char    	ukw[MAX_ROTOR_NAME];
 } IocWorkItem;
 
 
@@ -43,6 +46,6 @@ extern int                 iocNumberOfWorkItems;
 
 
 void    iocDecodeText       (char* cypher, int numOfThreads, int isDeep);
-void    iocExecuteWorkItems (LinkedList* permutations, char* cypher, int numOfThreads, int isDeep);
+void    iocExecuteWorkItems (int numOfThreads, int isDeep, LinkedList* permutations);
 void    iocExample          ();
 void    iocExampleDeep      ();

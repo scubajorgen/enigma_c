@@ -873,20 +873,19 @@ void message10()
 {
     int             i;
     LinkedList*     permutations;
-    int             length;
 	int				numOfThreads;
     
 	
 	numOfThreads=6;
 	
     permutations=createRotorPermutations(3, 5);
-    length=linkedListLength(permutations);
 
 	
 	// STEP 1: INITIAL TRY: TRY ALL ROTOR POSTIONS
     // Start with 5 Wehrmacht rotors
 /*	
 
+    int length=linkedListLength(permutations);
    
     // Create the stack of work for the trheads
     iocNumberOfWorkItems=numOfThreads*2;
@@ -894,22 +893,28 @@ void message10()
     i=0;
     while (i<numOfThreads)
     {
+		iocWorkItems[i*2].cypher            =text10;
+        iocWorkItems[i*2].permutations      =permutations;
         iocWorkItems[i*2].startPermutation  =i*length/numOfThreads;
         iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads;
         iocWorkItems[i*2].startR2           =1;
         iocWorkItems[i*2].endR2             =2;
+        iocWorkItems[i*2].maxCypherChars    =250;
         strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
 
         
+		iocWorkItems[i*2+1].cypher          =text10;
+        iocWorkItems[i*2+1].permutations    =permutations;
         iocWorkItems[i*2+1].startPermutation=i*length/numOfThreads;
         iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads;
         iocWorkItems[i*2+1].startR2         =1;
         iocWorkItems[i*2+1].endR2           =2;
+        iocWorkItems[i*2+1].maxCypherChars  =250;
         strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
         i++;
     }
 
-	iocExecuteWorkItems(permutations, text10, 6, 1);	
+	iocExecuteWorkItems(6, 1, permutations);	
 */	
 	
 	// THIS RESULTS IN THE BEST SOLUTION:
@@ -923,16 +928,19 @@ void message10()
     i=0;
     while (i<numOfThreads)
     {
-        iocWorkItems[i].startPermutation  =23;
-        iocWorkItems[i].endPermutation    =24;
-        iocWorkItems[i].startR2           =i*MAX_POSITIONS/numOfThreads;
-        iocWorkItems[i].endR2             =(i+1)*MAX_POSITIONS/numOfThreads;
+		iocWorkItems[i].cypher              =text10;
+        iocWorkItems[i].permutations        =permutations;
+        iocWorkItems[i].startPermutation    =23;
+        iocWorkItems[i].endPermutation      =24;
+        iocWorkItems[i].startR2             =i*(MAX_POSITIONS-1)/numOfThreads+1;
+        iocWorkItems[i].endR2               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
+        iocWorkItems[i].maxCypherChars      =MAX_TEXT;
         strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
 
         i++;
     }
 
-	iocExecuteWorkItems(permutations, text10, numOfThreads, 1);	
+	iocExecuteWorkItems(numOfThreads, 1, permutations);	
 	
 	
 }

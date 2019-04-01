@@ -36,7 +36,6 @@ typedef struct
 {
     pthread_t       threadId;
     LinkedList*     permutations;
-    char*           cypher;
     int             isDeep;           // 0 for simple method, 1 for deep method
 } IocThreadParams;
 
@@ -367,7 +366,7 @@ void iocDumpTopTenResults(int withDecode)
 * also the R2 setting. Takes more time, but all settings are tried
 * 
 \**************************************************************************************************/
-void iocEvaluateEngimaSettings(LinkedList* permutations, IocWorkItem* work, char* cypher)
+void iocEvaluateEngimaSettings(IocWorkItem* work)
 {
     Enigma*     enigma;
     int         r1, r2, r3;
@@ -384,23 +383,30 @@ void iocEvaluateEngimaSettings(LinkedList* permutations, IocWorkItem* work, char
     char*       ukw;
     long        startTime;
     long        count;
-    
+    LinkedList* permutations;
+    char*       cypher;
+
+
+    // The work item
+    cypher      =work->cypher;
+    permutations=work->permutations;
+    start       =work->startPermutation;
+    end         =work->endPermutation;
+    startR2     =work->startR2;
+    endR2       =work->endR2;
+    ukw         =work->ukw;
+
     
     results     =malloc(sizeof(IocResults));
     
     enigma      =createEnigmaM3(); 
 
-    placeUmkehrWaltze(enigma, work->ukw);
+    placeUmkehrWaltze(enigma, ukw);
         
     clearSteckerBrett(enigma);
 
     setText(enigma, cypher);
 
-    start   =work->startPermutation;
-    end     =work->endPermutation;
-    startR2 =work->startR2;
-    endR2   =work->endR2;
-    ukw     =work->ukw;
 
     count       =0;
     startTime   =time(NULL);
@@ -724,7 +730,7 @@ void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int 
 * Works for short messages and >5 steckers
 * 
 \**************************************************************************************************/
-void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, char* cypher)
+void iocEvaluateEngimaSettingsDeep(IocWorkItem* work)
 {
     Enigma*     enigma;
     int         r1, r2, r3;
@@ -742,23 +748,39 @@ void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, 
     long        startTime;
     long        count;
     time_t      now;
+    LinkedList* permutations;
+    char*       cypher;
+    int         maxCypherChars;
+
+
+    // The work item
+    cypher          =work->cypher;
+    maxCypherChars  =work->maxCypherChars;
+    permutations    =work->permutations;
+    start           =work->startPermutation;
+    end             =work->endPermutation;
+    ukw             =work->ukw;
+    startR2         =work->startR2;
+    endR2           =work->endR2;
+    
     
     results     =malloc(sizeof(IocResults));
     
     enigma      =createEnigmaM3(); 
 
-    placeUmkehrWaltze(enigma, work->ukw);
+    placeUmkehrWaltze(enigma, ukw);
         
     clearSteckerBrett(enigma);
 
     setText(enigma, cypher);
-    
 
-    start       =work->startPermutation;
-    end         =work->endPermutation;
-    ukw         =work->ukw;
-    startR2     =work->startR2;
-    endR2       =work->endR2;
+	// limit number of cypher characters to speed up work
+	// 250 will do
+    if (enigma->textSize>maxCypherChars)
+	{
+		enigma->textSize=maxCypherChars;
+	}
+
 
     count       =0;
     startTime   =time(NULL);
@@ -874,14 +896,12 @@ void *iocThreadFunction(void *vargp)
     int                 lastManStanding;
     IocWorkItem*        item;
     LinkedList*         permutations;
-    char*               cypher;
     IocThreadParams*    params;
     long                id;
     int                 isDeep;
     
     params      =(IocThreadParams*)vargp;
     permutations=params->permutations;
-    cypher      =params->cypher;
     id          =(long)params->threadId;
     isDeep      =params->isDeep;
    
@@ -910,16 +930,16 @@ void *iocThreadFunction(void *vargp)
         // process the item
         if (!done)
         {
-            printf("Thread %ld starting work item: %d-%d, %s\n", 
-                   id, item->startPermutation, item->endPermutation, item->ukw);
+            printf("Thread %ld starting work item: %d-%d, %s, R2 %d-%d\n", 
+                   id, item->startPermutation, item->endPermutation, item->ukw, item->startR2, item->endR2);
             fflush(stdout);
             if (isDeep)
             {
-                iocEvaluateEngimaSettingsDeep(permutations, item, cypher);
+                iocEvaluateEngimaSettingsDeep(item);
             }
             else
             {
-                iocEvaluateEngimaSettings(permutations, item, cypher);
+                iocEvaluateEngimaSettings(item);
             }
         }
     }
@@ -960,7 +980,10 @@ void *iocThreadFunction(void *vargp)
 		printf("FOUND SOLUTIONS: \n");
         iocDumpTopTenResults(1);
 
-        destroyLinkedList(permutations);
+        if (permutations!=NULL)
+        {
+            destroyLinkedList(permutations);
+        }
     }
     fflush(stdout);
     return NULL;
@@ -980,7 +1003,7 @@ void *iocThreadFunction(void *vargp)
 * Assumes the work items and work items number have been defined
 * 
 \**************************************************************************************************/
-void iocExecuteWorkItems (LinkedList* permutations, char* cypher, int numOfThreads, int isDeep)
+void iocExecuteWorkItems (int numOfThreads, int isDeep, LinkedList* permutations)
 {
     int             i;
 
@@ -989,7 +1012,6 @@ void iocExecuteWorkItems (LinkedList* permutations, char* cypher, int numOfThrea
     while (i<numOfThreads)
     {
         threadParams[i].permutations=permutations;
-        threadParams[i].cypher      =cypher;
         threadParams[i].isDeep      =isDeep;
         pthread_create(&(threadParams[i].threadId), 
                        NULL, iocThreadFunction, 
@@ -1024,22 +1046,28 @@ void iocDecodeText(char* cypher, int numOfThreads, int isDeep)
     i=0;
     while (i<numOfThreads)
     {
+		iocWorkItems[i*2].cypher            =cypher;
+        iocWorkItems[i*2].permutations      =permutations;
         iocWorkItems[i*2].startPermutation  =i*length/numOfThreads;
         iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads;
         iocWorkItems[i*2].startR2           =1;
         iocWorkItems[i*2].endR2             =MAX_POSITIONS;
+        iocWorkItems[i*2].maxCypherChars    =MAX_TEXT;
         strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
 
         
+		iocWorkItems[i*2+1].cypher          =cypher;
+        iocWorkItems[i*2+1].permutations    =permutations;
         iocWorkItems[i*2+1].startPermutation=i*length/numOfThreads;
         iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads;
         iocWorkItems[i*2+1].startR2         =1;
         iocWorkItems[i*2+1].endR2           =MAX_POSITIONS;
+        iocWorkItems[i*2+1].maxCypherChars  =MAX_TEXT;
         strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
         i++;
     }
 
-	iocExecuteWorkItems(permutations, cypher, numOfThreads, isDeep);
+	iocExecuteWorkItems(numOfThreads, isDeep, permutations);
 }
 
 
@@ -1103,11 +1131,17 @@ void iocExampleDeep()
     // Start with 5 Wehrmacht rotors
     permutations=createRotorPermutations(3, 5);
 
+    iocWorkItems[0].cypher            =iocExampleCypher3;
+    iocWorkItems[0].permutations      =permutations;
     iocWorkItems[0].startPermutation  =45;
     iocWorkItems[0].endPermutation    =46;
+	iocWorkItems[0].startR2           =1;
+	iocWorkItems[0].endR2             =MAX_POSITIONS;
+
+	
     strncpy(iocWorkItems[0].ukw, "UKW B", MAX_ROTOR_NAME);
 
-    iocEvaluateEngimaSettingsDeep(permutations, &iocWorkItems[0], iocExampleCypher3);
+    iocEvaluateEngimaSettingsDeep(&iocWorkItems[0]);
 
     iocDumpTopTenResults(1);
 
