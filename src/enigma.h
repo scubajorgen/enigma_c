@@ -1,3 +1,10 @@
+/**************************************************************************************************\
+* 
+* This module implents the Enigma machine. It is optimized for performance required for cracking
+* enigma cyphers. All settings (A-Z, a-z) are tranlated to positions from 0-25 in tables, 
+* encoding/decoding consists merely of lookup in tables
+*
+\**************************************************************************************************/
 #ifndef ENIGMA
 
 #define ENIGMA
@@ -60,11 +67,12 @@ void        clearSteckerBrett       (Enigma* engima);
 void        placeSteckers           (Enigma* engima, char steckers[]);
 void        encodeDecode            (Enigma* enigma);
 char*       toString                (Enigma* enigma);
+void        setEnigma               (Enigma* enigma, EnigmaSettings* settings);
+void        dumpDecoded             (EnigmaSettings* settings);
+
 int         countLetter             (Enigma* enigma, char letter);
 int         countConvertedChar      (Enigma* enigma, char letter);
 int         countTrigram            (Enigma* enigma, char* trigram);
-void        setEnigma               (Enigma* enigma, EnigmaSettings* settings);
-void        dumpDecoded             (EnigmaSettings* settings);
 
 
 
