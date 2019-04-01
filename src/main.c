@@ -59,13 +59,19 @@ int main()
     printf("# ENIGMA SIMULATION\n");
     printf("#####################################################################################\n");
     
+	
+	// Simple encode/decode example
     enigmaExample();   
     
+	// The Turing method: find the crib loops and show they work
 //    turingProve();
    
+    // The Turing method: working example
     turingExample();
 
+	// The James Gillogly method example
     iocExample();
+
 
     return 0;
 }
