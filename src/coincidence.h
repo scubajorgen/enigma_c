@@ -19,15 +19,15 @@
 
 typedef struct
 {
-    int     	state;
-	char*       cypher;
-	LinkedList* permutations;
-    int     	startPermutation;		// Permutation start
-    int     	endPermutation;
-    int     	startR2;
-    int     	endR2;
-	int			maxCypherChars;
-    char    	ukw[MAX_ROTOR_NAME];
+    int         state;
+    char*       cypher;
+    LinkedList* permutations;
+    int         startPermutation;       // Permutation start
+    int         endPermutation;
+    int         startR2;
+    int         endR2;
+    int         maxCypherChars;
+    char        ukw[MAX_ROTOR_NAME];
 } IocWorkItem;
 
 
