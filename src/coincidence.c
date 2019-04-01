@@ -250,9 +250,6 @@ float iocStoreResults(IocResults* results)
     int i;
     int index;
     
-    
-    
-    
     // Find the position to fit the results in, if any
     // Check if the ioc surpasses any ioc in the list
     i       =0;
@@ -776,15 +773,13 @@ void iocEvaluateEngimaSettingsDeep(IocWorkItem* work)
 
     // limit number of cypher characters to speed up work
     // 250 will do
-    if (enigma->textSize>maxCypherChars)
+    if (enigma->textSize > maxCypherChars)
     {
         enigma->textSize=maxCypherChars;
     }
 
-
     count       =0;
     startTime   =time(NULL);
-
 
     iocMax      =0.0;
     // Parse the Waltzen permutations assigned
@@ -817,7 +812,6 @@ void iocEvaluateEngimaSettingsDeep(IocWorkItem* work)
             r3=1;
             while (r3<=MAX_POSITIONS)
             {
-            
                 
                 g1=1;
                 while (g1<=MAX_POSITIONS)
@@ -1001,6 +995,8 @@ void *iocThreadFunction(void *vargp)
 * isDeep=1: For each rotor position the steckers are tried
 *
 * Assumes the work items and work items number have been defined
+* Pass pointer to permutations if the permutations must be cleaned up after finishing. Leave NULL
+* if not
 * 
 \**************************************************************************************************/
 void iocExecuteWorkItems (int numOfThreads, int isDeep, LinkedList* permutations)
