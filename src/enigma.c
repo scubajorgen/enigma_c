@@ -289,10 +289,10 @@ int countConvertedChar(Enigma* enigma, char letter)
 
 /**************************************************************************************************\
 * 
-* Count occurences of specified triplet, where the triplet is passed as string, like "EIN"
+* Count occurences of specified trigram, where the trigram is passed as string, like "EIN"
 * 
 \**************************************************************************************************/
-int countTriplet(Enigma* enigma, char* triplet)
+int countTrigram(Enigma* enigma, char* trigram)
 {
     int i;
     int count;
@@ -301,9 +301,9 @@ int countTriplet(Enigma* enigma, char* triplet)
     i=0;
     while (i<enigma->textSize-2)
     {
-        if ((enigma->conversion[i  ]==triplet[0]-'A') &&
-            (enigma->conversion[i+1]==triplet[1]-'A') &&
-            (enigma->conversion[i+2]==triplet[2]-'A'))
+        if ((enigma->conversion[i  ]==trigram[0]-'A') &&
+            (enigma->conversion[i+1]==trigram[1]-'A') &&
+            (enigma->conversion[i+2]==trigram[2]-'A'))
         {
             count++;
         }

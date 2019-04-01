@@ -4,7 +4,7 @@
 
 #define MAX_POSITIONS           26
 #define MAX_ROTORS              4
-#define MAX_ROTOR_NAME          5
+#define MAX_ROTOR_NAME          6
 #define MAX_STECKER_STRING      41
 #define MAX_REFLECTIONS         13
 #define MAX_TEXT                1024
@@ -62,7 +62,7 @@ void        encodeDecode            (Enigma* enigma);
 char*       toString                (Enigma* enigma);
 int         countLetter             (Enigma* enigma, char letter);
 int         countConvertedChar      (Enigma* enigma, char letter);
-int         countTriplet            (Enigma* enigma, char* triplet);
+int         countTrigram            (Enigma* enigma, char* trigram);
 void        setEnigma               (Enigma* enigma, EnigmaSettings* settings);
 void        dumpDecoded             (EnigmaSettings* settings);
 
