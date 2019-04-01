@@ -14,15 +14,13 @@
 #include <time.h>
 
 #include "enigma.h"
+#include "coincidence.h"
 #include "toolbox.h"
 
 /**************************************************************************************************\
 * DEFINES
 \**************************************************************************************************/
 
-#define TOP_RESULTS_SIZE    10
-#define MAX_THREADS         8
-#define MAX_WORK_ITEMS      12
 #define MAX_TRIGRAMS        10
 
 typedef struct
@@ -32,15 +30,7 @@ typedef struct
     int             steckerTable[MAX_POSITIONS];
 } IocResults;
 
-typedef struct
-{
-    int     state;
-    int     startPermutation;
-    int     endPermutation;
-    int     startR2;
-    int     endR2;
-    char    ukw[MAX_ROTOR_NAME];
-} IocWorkItem;
+
 
 typedef struct
 {
@@ -787,12 +777,13 @@ void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, 
 
         time(&now);
         printf("%s", ctime(&now)); 
-        printf("Trying permutation %d: %s - %s %s %s\n", 
+        printf("Trying permutation %d: %s - %s %s %s - R2 %d-%d\n", 
                 w,
                 ukw,
                 waltzen[permutation[0]], 
                 waltzen[permutation[1]], 
-                waltzen[permutation[2]]);
+                waltzen[permutation[2]],
+				startR2, endR2);
         fflush(stdout);
 
         // The Ringstellung of the 1st Waltze has no meaning
@@ -872,7 +863,7 @@ void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, 
 
 /**************************************************************************************************\
 * 
-* Thread function
+* Thread function. Executes the next available work item at the end of the list
 * 
 \**************************************************************************************************/
 
@@ -932,6 +923,7 @@ void *iocThreadFunction(void *vargp)
             }
         }
     }
+	
     // Decrease the number of threads running
     pthread_mutex_lock(&iocMutex);
     iocThreadsRunning--;
@@ -964,6 +956,8 @@ void *iocThreadFunction(void *vargp)
             }
         }
         
+		// Show the final result 
+		printf("FOUND SOLUTIONS: \n");
         iocDumpTopTenResults(1);
 
         destroyLinkedList(permutations);
@@ -974,6 +968,36 @@ void *iocThreadFunction(void *vargp)
 
 
 
+
+
+/**************************************************************************************************\
+* 
+* Tries to decode a cypher only text. Two methods are supported by means of isDeep.
+* isDeep=0: First the rotor positions are detected, then the steckered positions. Works op to 
+*           5-6 steckers
+* isDeep=1: For each rotor position the steckers are tried
+*
+* Assumes the work items and work items number have been defined
+* 
+\**************************************************************************************************/
+void iocExecuteWorkItems (LinkedList* permutations, char* cypher, int numOfThreads, int isDeep)
+{
+    int             i;
+
+    // create the threads
+    i=0;
+    while (i<numOfThreads)
+    {
+        threadParams[i].permutations=permutations;
+        threadParams[i].cypher      =cypher;
+        threadParams[i].isDeep      =isDeep;
+        pthread_create(&(threadParams[i].threadId), 
+                       NULL, iocThreadFunction, 
+                       (void *)(threadParams+i)); 
+        i++;
+    }
+    pthread_exit(NULL);     
+}
 
 
 /**************************************************************************************************\
@@ -1015,23 +1039,8 @@ void iocDecodeText(char* cypher, int numOfThreads, int isDeep)
         i++;
     }
 
-    // create the threads
-    i=0;
-    while (i<numOfThreads)
-    {
-        threadParams[i].permutations=permutations;
-        threadParams[i].cypher      =cypher;
-        threadParams[i].isDeep      =isDeep;
-        pthread_create(&(threadParams[i].threadId), 
-                       NULL, iocThreadFunction, 
-                       (void *)(threadParams+i)); 
-        i++;
-    }
-    pthread_exit(NULL);     
+	iocExecuteWorkItems(permutations, cypher, numOfThreads, isDeep);
 }
-
-
-
 
 
 /**************************************************************************************************\
@@ -1060,13 +1069,13 @@ void iocExample()
     printf("# Original Steckers         : %s\n", settings->steckers);
     printf("#####################################################################################\n");
 
-    iocDecodeText(iocExampleCypher, 3, 0);
+    iocDecodeText(iocExampleCypher, 6, 0);
 }
 
 
 /**************************************************************************************************\
 * 
-* Example from the original James Gillogly article
+* Example to play with short messages
 * 
 \**************************************************************************************************/
 void iocExampleDeep()

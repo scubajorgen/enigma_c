@@ -871,6 +871,68 @@ void message09()
 
 void message10()
 {
-    // Decode text 10 using 4 threads and the deep method
-    iocDecodeText(text10, 4, 1);
+    int             i;
+    LinkedList*     permutations;
+    int             length;
+	int				numOfThreads;
+    
+	
+	numOfThreads=6;
+	
+    permutations=createRotorPermutations(3, 5);
+    length=linkedListLength(permutations);
+
+	
+	// STEP 1: INITIAL TRY: TRY ALL ROTOR POSTIONS
+    // Start with 5 Wehrmacht rotors
+/*	
+
+   
+    // Create the stack of work for the trheads
+    iocNumberOfWorkItems=numOfThreads*2;
+
+    i=0;
+    while (i<numOfThreads)
+    {
+        iocWorkItems[i*2].startPermutation  =i*length/numOfThreads;
+        iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads;
+        iocWorkItems[i*2].startR2           =1;
+        iocWorkItems[i*2].endR2             =2;
+        strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
+
+        
+        iocWorkItems[i*2+1].startPermutation=i*length/numOfThreads;
+        iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads;
+        iocWorkItems[i*2+1].startR2         =1;
+        iocWorkItems[i*2+1].endR2           =2;
+        strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
+        i++;
+    }
+
+	iocExecuteWorkItems(permutations, text10, 6, 1);	
+*/	
+	
+	// THIS RESULTS IN THE BEST SOLUTION:
+	//  1: UKW B  II   V   I R  1  1 18 G 21  6 24 - AO BV DS EX FT HZ IQ JW KU PR - 0.071839
+
+	// STEP 2: NOW TRY THIS ROTOR SETTINGS AND VARY ALL R2
+   
+    // Create the stack of work for the trheads
+    iocNumberOfWorkItems=numOfThreads;
+
+    i=0;
+    while (i<numOfThreads)
+    {
+        iocWorkItems[i].startPermutation  =23;
+        iocWorkItems[i].endPermutation    =24;
+        iocWorkItems[i].startR2           =i*MAX_POSITIONS/numOfThreads;
+        iocWorkItems[i].endR2             =(i+1)*MAX_POSITIONS/numOfThreads;
+        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
+
+        i++;
+    }
+
+	iocExecuteWorkItems(permutations, text10, numOfThreads, 1);	
+	
+	
 }
