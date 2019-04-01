@@ -21,9 +21,9 @@
 \**************************************************************************************************/
 
 #define TOP_RESULTS_SIZE    10
-#define MAX_THREADS         4
+#define MAX_THREADS         8
 #define MAX_WORK_ITEMS      12
-#define MAX_TRIPLETS        10
+#define MAX_TRIGRAMS        10
 
 typedef struct
 {
@@ -37,6 +37,8 @@ typedef struct
     int     state;
     int     startPermutation;
     int     endPermutation;
+    int     startR2;
+    int     endR2;
     char    ukw[MAX_ROTOR_NAME];
 } IocWorkItem;
 
@@ -45,6 +47,7 @@ typedef struct
     pthread_t       threadId;
     LinkedList*     permutations;
     char*           cypher;
+    int             isDeep;           // 0 for simple method, 1 for deep method
 } IocThreadParams;
 
 /**************************************************************************************************\
@@ -145,7 +148,21 @@ IocResults	iocExampleResults2=
 };
 
 
-char iocTriplets1[MAX_TRIPLETS][5]=
+char iocExampleCypher3[]=
+" INAVH YMVHI AGMJO PKVJH SGJYY"  
+" KNHLF KRZWH WLAKK EGGHZ FEAKV"
+" VIDDS YYVEY QFQJP VYHLF UZESA"
+" OLGNH TXTTB DZJVO AGEAW HBBWC"
+" ADYYT HSLRX MPEDI CATSM ALBZY"
+" LBPZM QDSXZ HPFSX VYCBK GEBTG"
+" QGZII DQJDB YDACS WJGXU CUXLT"
+" RTMZH HWXZP ESSYE EPFCQ AOWOS"
+" PLUZU CVOKY JXCPY GNJHS PNCFS"
+" WTLLM SGACQ BSUTP SAVGU YFVKS"
+" UBSQE GVZKV NRLXF IXZQW FKSXC"
+" PPFRI MWQHT QSB";
+
+char ioctrigrams1[MAX_TRIGRAMS][5]=
 {
     "EIN",
     "INS",
@@ -159,7 +176,7 @@ char iocTriplets1[MAX_TRIPLETS][5]=
     "VIE"
 };
 
-char iocTriplets2[MAX_TRIPLETS][4]=
+char ioctrigrams2[MAX_TRIGRAMS][4]=
 {
     "SCH",
     "DIE",
@@ -173,7 +190,7 @@ char iocTriplets2[MAX_TRIPLETS][4]=
     "END"
 };
 
-int iocTripletCount[MAX_TRIPLETS];
+int ioctrigramCount[MAX_TRIGRAMS];
 
 
 /**************************************************************************************************\
@@ -213,19 +230,19 @@ float iocIndexOfCoincidence(Enigma* enigma)
 
 /**************************************************************************************************\
 * 
-* Counts the occurrences of the most occurring triplets
+* Counts the occurrences of the most occurring trigrams
 * 
 \**************************************************************************************************/
-int iocCountTriplets(Enigma* enigma)
+int iocCounttrigrams(Enigma* enigma)
 {
     int i;
     int count;
     
     count=0;
     i=0;
-    while (i<MAX_TRIPLETS)
+    while (i<MAX_TRIGRAMS)
     {
-        count+=countTriplet(enigma, iocTriplets2[i]);
+        count+=countTrigram(enigma, ioctrigrams2[i]);
         i++;
     }
     
@@ -290,7 +307,7 @@ float iocStoreResults(IocResults* results)
 
 /**************************************************************************************************\
 * 
-* 
+* Show the top 10 results. En passant, translate the found steckertable into stecker pairs
 * 
 \**************************************************************************************************/
 
@@ -310,7 +327,7 @@ void iocDumpTopTenResults(int withDecode)
         results=&iocTopTenResults[i];
         settings=&results->settings;
 
-        // Convert the stecker positions to a stecker brett string
+        // Convert the stecker positions to a stecker brett string of pairs
         s1=0;
         s2=0;
         while (s1<MAX_POSITIONS)
@@ -355,6 +372,9 @@ void iocDumpTopTenResults(int withDecode)
 * 
 * This method processes the indicated Waltzen permutations with UKW. It looks for the best 
 * index of coincidence. The best solutions are stored in the Top 10. 
+* Whereas the original James Gillogly method fixed the R2 setting and tries to find the 
+* best R2 setting after the rotor settings have been found, this function varies
+* also the R2 setting. Takes more time, but all settings are tried
 * 
 \**************************************************************************************************/
 void iocEvaluateEngimaSettings(LinkedList* permutations, IocWorkItem* work, char* cypher)
@@ -369,6 +389,8 @@ void iocEvaluateEngimaSettings(LinkedList* permutations, IocWorkItem* work, char
     IocResults* results;
     int         start;
     int         end;
+    int         startR2;
+    int         endR2;
     char*       ukw;
     long        startTime;
     long        count;
@@ -386,6 +408,8 @@ void iocEvaluateEngimaSettings(LinkedList* permutations, IocWorkItem* work, char
 
     start   =work->startPermutation;
     end     =work->endPermutation;
+    startR2 =work->startR2;
+    endR2   =work->endR2;
     ukw     =work->ukw;
 
     count       =0;
@@ -414,8 +438,8 @@ void iocEvaluateEngimaSettings(LinkedList* permutations, IocWorkItem* work, char
         // The Ringstellung of the 1st Waltze has no meaning
         r1=1;
 
-        r2=1;
-        while (r2<=MAX_POSITIONS)
+        r2=startR2;
+        while (r2<=endR2)
         {
             r3=1;
             while (r3<=MAX_POSITIONS)
@@ -462,7 +486,7 @@ void iocEvaluateEngimaSettings(LinkedList* permutations, IocWorkItem* work, char
                                 pthread_mutex_lock(&iocMutex);
                                 iocMax=iocStoreResults(results);
                                 pthread_mutex_unlock(&iocMutex);
-                                //iocDumpTopTenResults(0);
+                                iocDumpTopTenResults(0);
                             }
                             count++;
                             g3++;
@@ -491,7 +515,7 @@ void iocEvaluateEngimaSettings(LinkedList* permutations, IocWorkItem* work, char
 
 /**************************************************************************************************\
 * 
-* 
+* After the rotor settings have been found, this method finds the steckers. 
 * 
 \**************************************************************************************************/
 void iocFindSteckeredChars(IocResults* results)
@@ -507,8 +531,6 @@ void iocFindSteckeredChars(IocResults* results)
     float   ioc;
     int     numOfSteckers;
     int     found;
-    int     triplets;
-    int     maxTriplets;
 
     // Initialise stecker brett table: no steckers
     s1=0;
@@ -524,7 +546,6 @@ void iocFindSteckeredChars(IocResults* results)
     
     numOfSteckers   =10;
     maxIoc          =results->indexOfCoincidence;
-    maxTriplets     =0;
     
     s=0;
     found=1;
@@ -555,13 +576,6 @@ void iocFindSteckeredChars(IocResults* results)
                     encodeDecode(enigma);
                     ioc=iocIndexOfCoincidence(enigma);
 
-                    triplets=iocCountTriplets(enigma);                   
-
-                    if (triplets>maxTriplets)
-                    {
-                        maxTriplets=triplets;
-                    }
-                   
                     if (ioc>maxIoc)
                     {
                         maxIoc=ioc;
@@ -582,7 +596,7 @@ void iocFindSteckeredChars(IocResults* results)
         }
         if (found)
         {
-            printf("Found steckered chars %c-%c : ioc %f triplets %d\n", s1Max+'A', s2Max+'A', maxIoc, maxTriplets);
+            printf("Found steckered chars %c-%c : ioc %f\n", s1Max+'A', s2Max+'A', maxIoc);
             fflush(stdout);
             steckerTable[s1Max]=s2Max;
             steckerTable[s2Max]=s1Max;
@@ -592,7 +606,7 @@ void iocFindSteckeredChars(IocResults* results)
 
     // Store the raw stecker table
     memcpy(results->steckerTable, steckerTable, MAX_POSITIONS*sizeof(int));
-/*
+
     // Convert the stecker positions to a stecker brett string
     s1=0;
     s2=0;
@@ -611,7 +625,7 @@ void iocFindSteckeredChars(IocResults* results)
         }
         s1++;
     }
-*/    
+    
     destroyEnigma(enigma);
     fflush(stdout);
         
@@ -623,7 +637,7 @@ void iocFindSteckeredChars(IocResults* results)
 
 /**************************************************************************************************\
 * 
-* 
+* This method is meant to try to find best stecker settings for each rotor setting. 
 * 
 \**************************************************************************************************/
 void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int g2, int g3)
@@ -638,8 +652,6 @@ void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int 
     float   ioc;
     int     numOfSteckers;
     int     found;
-    int     triplets;
-    int     maxTriplets;
 
     // Initialise stecker brett table: no steckers
     s1=0;
@@ -651,7 +663,6 @@ void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int 
     
     numOfSteckers   =10;
     maxIoc          =0;
-    maxTriplets     =0;
     
     s=0;
     found=1;
@@ -680,8 +691,8 @@ void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int 
                     setGrundStellung(enigma, 3, g3);
                     
                     encodeDecode(enigma);
-                    ioc=iocIndexOfCoincidence(enigma);
 
+                    ioc=iocIndexOfCoincidence(enigma);
                     if (ioc>maxIoc)
                     {
                         maxIoc=ioc;
@@ -708,26 +719,7 @@ void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int 
     }     
     // Store the raw stecker table
     memcpy(results->steckerTable, steckerTable, MAX_POSITIONS*sizeof(int));
-/*
-    // Convert the stecker positions to a stecker brett string
-    s1=0;
-    s2=0;
-    while (s1<MAX_POSITIONS)
-    {
-        if (steckerTable[s1]>s1)
-        {
-            if (s2>0)
-            {
-                results->settings.steckers[3*s2-1]=' ';
-            }
-            results->settings.steckers[3*s2]=s1+'A';
-            results->settings.steckers[3*s2+1]=steckerTable[s1]+'A';
-            results->settings.steckers[3*s2+2]='\0';
-            s2++;
-        }
-        s1++;
-    }
-*/    
+   
     results->indexOfCoincidence=maxIoc;
         
 }
@@ -736,6 +728,10 @@ void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int 
 * 
 * This method processes the indicated Waltzen permutations with UKW. It looks for the best 
 * index of coincidence. The best solutions are stored in the Top 10. 
+* For each rotor setting the steckers are tried, which makes this very slow.
+* Best approach is to fix R2 to one setting, and try to find the best result. Then finalize 
+* by trying all R2 for the found rotor setting.
+* Works for short messages and >5 steckers
 * 
 \**************************************************************************************************/
 void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, char* cypher)
@@ -750,6 +746,8 @@ void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, 
     IocResults* results;
     int         start;
     int         end;
+    int         startR2;
+    int         endR2;
     char*       ukw;
     long        startTime;
     long        count;
@@ -769,6 +767,8 @@ void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, 
     start       =work->startPermutation;
     end         =work->endPermutation;
     ukw         =work->ukw;
+    startR2     =work->startR2;
+    endR2       =work->endR2;
 
     count       =0;
     startTime   =time(NULL);
@@ -796,15 +796,15 @@ void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, 
         fflush(stdout);
 
         // The Ringstellung of the 1st Waltze has no meaning
-        r1=1; r2=1;
-/*
-        r2=1;
-        while (r2<=MAX_POSITIONS)
+        r1=1;
+
+        r2=startR2;
+        while (r2<=endR2)
         {
-*/            
             r3=1;
             while (r3<=MAX_POSITIONS)
             {
+            
                 
                 g1=1;
                 while (g1<=MAX_POSITIONS)
@@ -815,6 +815,7 @@ void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, 
                         g3=1;
                         while (g3<=MAX_POSITIONS)
                         {
+                            
                             setRingStellung(enigma, 1, r1);
                             setRingStellung(enigma, 2, r2);
                             setRingStellung(enigma, 3, r3);
@@ -850,13 +851,13 @@ void iocEvaluateEngimaSettingsDeep(LinkedList* permutations, IocWorkItem* work, 
                     }
                     g1++;
                 }
+ 
             
                 r3++;
             }
-/* 
             r2++;
         }
-*/
+
 
         w++;
     }
@@ -885,11 +886,13 @@ void *iocThreadFunction(void *vargp)
     char*               cypher;
     IocThreadParams*    params;
     long                id;
+    int                 isDeep;
     
     params      =(IocThreadParams*)vargp;
     permutations=params->permutations;
     cypher      =params->cypher;
     id          =(long)params->threadId;
+    isDeep      =params->isDeep;
    
     
     done=0;
@@ -919,8 +922,14 @@ void *iocThreadFunction(void *vargp)
             printf("Thread %ld starting work item: %d-%d, %s\n", 
                    id, item->startPermutation, item->endPermutation, item->ukw);
             fflush(stdout);
-
-            iocEvaluateEngimaSettingsDeep(permutations, item, cypher);
+            if (isDeep)
+            {
+                iocEvaluateEngimaSettingsDeep(permutations, item, cypher);
+            }
+            else
+            {
+                iocEvaluateEngimaSettings(permutations, item, cypher);
+            }
         }
     }
     // Decrease the number of threads running
@@ -939,17 +948,22 @@ void *iocThreadFunction(void *vargp)
     // If this is the last thread, finish the job
     if (lastManStanding)
     {
-/*
+
         printf("Last man standing: %ld\n", id);
-        // Now we have got the Top 10 best results, try to find the 
-        // Stecker Positions for each of them
-        i=0;
-        while (i<iocNumberOfResults)
+        
+        if (!isDeep)
         {
-            iocFindSteckeredChars(&iocTopTenResults[i]);
-            i++;
+            // Now we have got the Top 10 best results, try to find the 
+            // Stecker Positions for each of them (only for the not deep method)
+            i=0;
+            while (i<iocNumberOfResults)
+            {
+                printf("Finding steckers for %d\n", i);
+                iocFindSteckeredChars(&iocTopTenResults[i]);
+                i++;
+            }
         }
-*/
+        
         iocDumpTopTenResults(1);
 
         destroyLinkedList(permutations);
@@ -959,12 +973,18 @@ void *iocThreadFunction(void *vargp)
 }
 
 
+
+
+
 /**************************************************************************************************\
 * 
-* 
+* Tries to decode a cypher only text. Two methods are supported by means of isDeep.
+* isDeep=0: First the rotor positions are detected, then the steckered positions. Works op to 
+*           5-6 steckers
+* isDeep=1: For each rotor position the steckers are tried
 * 
 \**************************************************************************************************/
-void iocDecodeText(char* cypher, int numOfThreads)
+void iocDecodeText(char* cypher, int numOfThreads, int isDeep)
 {
     int             i;
     LinkedList*     permutations;
@@ -973,7 +993,7 @@ void iocDecodeText(char* cypher, int numOfThreads)
     // Start with 5 Wehrmacht rotors
     permutations=createRotorPermutations(3, 5);
     length=linkedListLength(permutations);
-    
+   
     // Create the stack of work for the trheads
     iocNumberOfWorkItems=numOfThreads*2;
 
@@ -982,11 +1002,15 @@ void iocDecodeText(char* cypher, int numOfThreads)
     {
         iocWorkItems[i*2].startPermutation  =i*length/numOfThreads;
         iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads;
+        iocWorkItems[i*2].startR2           =1;
+        iocWorkItems[i*2].endR2             =MAX_POSITIONS;
         strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
 
         
         iocWorkItems[i*2+1].startPermutation=i*length/numOfThreads;
         iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads;
+        iocWorkItems[i*2+1].startR2         =1;
+        iocWorkItems[i*2+1].endR2           =MAX_POSITIONS;
         strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
         i++;
     }
@@ -997,6 +1021,7 @@ void iocDecodeText(char* cypher, int numOfThreads)
     {
         threadParams[i].permutations=permutations;
         threadParams[i].cypher      =cypher;
+        threadParams[i].isDeep      =isDeep;
         pthread_create(&(threadParams[i].threadId), 
                        NULL, iocThreadFunction, 
                        (void *)(threadParams+i)); 
@@ -1035,7 +1060,7 @@ void iocExample()
     printf("# Original Steckers         : %s\n", settings->steckers);
     printf("#####################################################################################\n");
 
-    iocDecodeText(iocExampleCypher, 3);
+    iocDecodeText(iocExampleCypher, 3, 0);
 }
 
 
@@ -1073,7 +1098,7 @@ void iocExampleDeep()
     iocWorkItems[0].endPermutation    =46;
     strncpy(iocWorkItems[0].ukw, "UKW B", MAX_ROTOR_NAME);
 
-    iocEvaluateEngimaSettingsDeep(permutations, &iocWorkItems[0], iocExampleCypher2);
+    iocEvaluateEngimaSettingsDeep(permutations, &iocWorkItems[0], iocExampleCypher3);
 
     iocDumpTopTenResults(1);
 

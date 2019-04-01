@@ -871,5 +871,6 @@ void message09()
 
 void message10()
 {
-    iocDecodeText(text10, 4);
+    // Decode text 10 using 4 threads and the deep method
+    iocDecodeText(text10, 4, 1);
 }
