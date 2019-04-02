@@ -26,6 +26,8 @@ typedef struct
     int         endPermutation;
     int         startR2;
     int         endR2;
+    int         startR3;
+    int         endR3;
     int         maxCypherChars;
     char        ukw[MAX_ROTOR_NAME];
 } IocWorkItem;

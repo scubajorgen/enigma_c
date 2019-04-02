@@ -377,6 +377,8 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     int         end;
     int         startR2;
     int         endR2;
+    int         startR3;
+    int         endR3;
     char*       ukw;
     long        startTime;
     long        count;
@@ -391,6 +393,8 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     end         =work->endPermutation;
     startR2     =work->startR2;
     endR2       =work->endR2;
+    startR3     =work->startR3;
+    endR3       =work->endR3;
     ukw         =work->ukw;
 
     
@@ -420,12 +424,13 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
         placeWaltze(enigma, 2, waltzen[permutation[1]]);
         placeWaltze(enigma, 3, waltzen[permutation[2]]);
 
-        printf("Trying permutation %d: %s - %s %s %s\n", 
+        printf("Trying permutation %d: %s - %s %s %s - R2 %d-%d R3 %d-%d\n", 
                 w,
                 ukw,
                 waltzen[permutation[0]], 
                 waltzen[permutation[1]], 
-                waltzen[permutation[2]]);
+                waltzen[permutation[2]],
+                startR2, endR2, startR3, endR3);
         fflush(stdout);
 
         // The Ringstellung of the 1st Waltze has no meaning
@@ -434,8 +439,8 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
         r2=startR2;
         while (r2<=endR2)
         {
-            r3=1;
-            while (r3<=MAX_POSITIONS)
+            r3=startR3;
+            while (r3<=endR3)
             {
                 
                 g1=1;
@@ -741,6 +746,8 @@ void iocEvaluateEngimaSettingsDeep(IocWorkItem* work)
     int         end;
     int         startR2;
     int         endR2;
+    int         startR3;
+    int         endR3;
     char*       ukw;
     long        startTime;
     long        count;
@@ -759,6 +766,8 @@ void iocEvaluateEngimaSettingsDeep(IocWorkItem* work)
     ukw             =work->ukw;
     startR2         =work->startR2;
     endR2           =work->endR2;
+    startR3         =work->startR3;
+    endR3           =work->endR3;
     
     
     results     =malloc(sizeof(IocResults));
@@ -794,13 +803,13 @@ void iocEvaluateEngimaSettingsDeep(IocWorkItem* work)
 
         time(&now);
         printf("%s", ctime(&now)); 
-        printf("Trying permutation %d: %s - %s %s %s - R2 %d-%d\n", 
+        printf("Trying permutation %d: %s - %s %s %s - R2 %d-%d R3 %d-%d\n", 
                 w,
                 ukw,
                 waltzen[permutation[0]], 
                 waltzen[permutation[1]], 
                 waltzen[permutation[2]],
-                startR2, endR2);
+                startR2, endR2, startR3, endR3);
         fflush(stdout);
 
         // The Ringstellung of the 1st Waltze has no meaning
@@ -809,8 +818,8 @@ void iocEvaluateEngimaSettingsDeep(IocWorkItem* work)
         r2=startR2;
         while (r2<=endR2)
         {
-            r3=1;
-            while (r3<=MAX_POSITIONS)
+            r3=startR3;
+            while (r3<=endR3)
             {
                 
                 g1=1;
@@ -924,8 +933,10 @@ void *iocThreadFunction(void *vargp)
         // process the item
         if (!done)
         {
-            printf("Thread %ld starting work item: %d-%d, %s, R2 %d-%d\n", 
-                   id, item->startPermutation, item->endPermutation, item->ukw, item->startR2, item->endR2);
+            printf("Thread %ld starting work item: %d-%d, %s, R2 %d-%d R3: %d-%d\n", 
+                   id, item->startPermutation, item->endPermutation, item->ukw, 
+                   item->startR2, item->endR2, 
+                   item->startR3, item->endR3);
             fflush(stdout);
             if (isDeep)
             {
@@ -1048,6 +1059,8 @@ void iocDecodeText(char* cypher, int numOfThreads, int isDeep)
         iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads;
         iocWorkItems[i*2].startR2           =1;
         iocWorkItems[i*2].endR2             =MAX_POSITIONS;
+        iocWorkItems[i*2].startR3           =1;
+        iocWorkItems[i*2].endR3             =MAX_POSITIONS;
         iocWorkItems[i*2].maxCypherChars    =MAX_TEXT;
         strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
 
@@ -1058,6 +1071,8 @@ void iocDecodeText(char* cypher, int numOfThreads, int isDeep)
         iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads;
         iocWorkItems[i*2+1].startR2         =1;
         iocWorkItems[i*2+1].endR2           =MAX_POSITIONS;
+        iocWorkItems[i*2+1].startR3         =1;
+        iocWorkItems[i*2+1].endR3           =MAX_POSITIONS;
         iocWorkItems[i*2+1].maxCypherChars  =MAX_TEXT;
         strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
         i++;
@@ -1133,6 +1148,8 @@ void iocExampleDeep()
     iocWorkItems[0].endPermutation    =46;
     iocWorkItems[0].startR2           =1;
     iocWorkItems[0].endR2             =MAX_POSITIONS;
+    iocWorkItems[0].startR3           =1;
+    iocWorkItems[0].endR3             =MAX_POSITIONS;
 
     
     strncpy(iocWorkItems[0].ukw, "UKW B", MAX_ROTOR_NAME);

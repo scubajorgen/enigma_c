@@ -898,7 +898,9 @@ void message10()
         iocWorkItems[i*2].startPermutation  =i*length/numOfThreads;
         iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads;
         iocWorkItems[i*2].startR2           =1;
-        iocWorkItems[i*2].endR2             =2;
+        iocWorkItems[i*2].endR2             =1;
+        iocWorkItems[i*2].startR3           =1;
+        iocWorkItems[i*2].endR3             =MAX_POSITIONS;
         iocWorkItems[i*2].maxCypherChars    =250;
         strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
 
@@ -908,7 +910,9 @@ void message10()
         iocWorkItems[i*2+1].startPermutation=i*length/numOfThreads;
         iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads;
         iocWorkItems[i*2+1].startR2         =1;
-        iocWorkItems[i*2+1].endR2           =2;
+        iocWorkItems[i*2+1].endR2           =1;
+        iocWorkItems[i*2+1].startR3         =1;
+        iocWorkItems[i*2+1].endR3           =MAX_POSITIONS;
         iocWorkItems[i*2+1].maxCypherChars  =250;
         strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
         i++;
@@ -934,6 +938,8 @@ void message10()
         iocWorkItems[i].endPermutation      =24;
         iocWorkItems[i].startR2             =i*(MAX_POSITIONS-1)/numOfThreads+1;
         iocWorkItems[i].endR2               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
+        iocWorkItems[i].startR3             =1;
+        iocWorkItems[i].endR3               =MAX_POSITIONS;
         iocWorkItems[i].maxCypherChars      =MAX_TEXT;
         strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
 
