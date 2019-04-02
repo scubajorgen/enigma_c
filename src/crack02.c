@@ -876,14 +876,14 @@ void message10()
 	int				numOfThreads;
     
 	
-	numOfThreads=6;
+	numOfThreads=4;
 	
     permutations=createRotorPermutations(3, 5);
 
 	
 	// STEP 1: INITIAL TRY: TRY ALL ROTOR POSTIONS
     // Start with 5 Wehrmacht rotors
-/*	
+	
 
     int length=linkedListLength(permutations);
    
@@ -918,9 +918,9 @@ void message10()
         i++;
     }
 
-	iocExecuteWorkItems(6, 1, permutations);	
-*/	
+	iocExecuteWorkItems(numOfThreads, 1, permutations);	
 	
+/*	
 	// THIS RESULTS IN THE BEST SOLUTION:
 	//  1: UKW B  II   V   I R  1  1 18 G 21  6 24 - AO BV DS EX FT HZ IQ JW KU PR - 0.071839
 
@@ -947,6 +947,6 @@ void message10()
     }
 
 	iocExecuteWorkItems(numOfThreads, 1, permutations);	
-	
+*/	
 	
 }
