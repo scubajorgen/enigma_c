@@ -352,6 +352,6 @@ void dumpDecoded(EnigmaSettings* settings)
     enigma=createEnigmaM3();
     setEnigma(enigma, settings);
     encodeDecode(enigma);
-    printf("%s", toString(enigma));
+    printf("Solution: %s\n", toString(enigma));
     destroyEnigma(enigma);
 }
