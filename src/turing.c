@@ -603,8 +603,6 @@ int turingValidateTheSteckeredValues(SteckeredChars* chars)
 \**************************************************************************************************/
 void turingPrintSolution(EnigmaSettings* settings)
 {
-    Enigma* enigma;
-    
     printf("Solution found: %s - %s %s %s R %d %d %d, G %d %d %d, %s\n",
            settings->ukw,
            settings->rotors[0], settings->rotors[1], settings->rotors[2],
@@ -615,10 +613,7 @@ void turingPrintSolution(EnigmaSettings* settings)
 
     fflush(stdout);
     
-    enigma=createEnigmaM3();
-    setEnigma(enigma, settings);
-    encodeDecode(enigma);
-    printf("%s\n", toString(enigma));
+    dumpDecoded(settings);
 }
 
 /**************************************************************************************************\
@@ -640,6 +635,49 @@ SteckeredChars* createSteckeredChars()
         c++;
     }
     return chars;
+    
+}
+
+/**************************************************************************************************\
+* 
+* Helper: Create array of steckered chars (per thread)
+* 
+\**************************************************************************************************/
+void convertSteckeredCharsToString(SteckeredChars* chars, char* string)
+{
+    int c;
+    int c2;
+    int found;
+    int s;
+    
+    c=0;
+    s=0;
+    while (c<MAX_POSITIONS)
+    {
+        if (chars[c].foundChar!=chars[c].startChar && 
+            chars[c].foundChar!='?')
+        {
+            found=0;
+            c2=0;
+            while (c2<s*3 && !found)
+            {
+                if (string[c2]==chars[c].foundChar)
+                {
+                    found=1;
+                }
+                c2++;
+            }
+            if (!found)
+            {
+                string[s*3]  =chars[c].startChar; 
+                string[s*3+1]=chars[c].foundChar; 
+                string[s*3+2]=' '; 
+                s++;
+            }
+        }
+        c++;
+    }
+    string[s*3-1]='\0';
     
 }
 
@@ -668,8 +706,6 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
     SteckeredChars* steckeredChars; 
     int*            permutation;
     int             w;
-    int             c;
-    int             s;
     int             found;
     EnigmaSettings  settings; // TO DO: put on heap iso. stack
 
@@ -769,23 +805,7 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
                                     settings.grundStellungen[2] =g3;
                                     strncpy(settings.ukw, ukw, MAX_ROTOR_NAME);
                                     
-                                    printf("Solution found: %s - %s %s %s - R %d %d %d G %d %d %d ",
-                                           ukw, w1, w2, w3, r1, r2, r3, g1, g2, g3);
-                                    c=0;
-                                    s=0;
-                                    while (c<MAX_POSITIONS)
-                                    {
-                                        if (steckeredChars[c].foundChar!=steckeredChars[c].startChar && 
-                                            steckeredChars[c].foundChar!='?')
-                                        {
-                                            settings.steckers[s*3]=steckeredChars[c].startChar; 
-                                            settings.steckers[s*3+1]=steckeredChars[c].foundChar; 
-                                            settings.steckers[s*3+2]=' '; 
-                                            s++;
-                                        }
-                                        c++;
-                                    }
-                                    settings.steckers[s*3-1]='\0';
+                                    convertSteckeredCharsToString(steckeredChars, settings.steckers);
                                     turingPrintSolution(&settings);
                                             
                                 }
