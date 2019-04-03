@@ -399,6 +399,45 @@ void test06()
 }
 
 
+void test07()
+{
+    Enigma* enigma;
+    
+    char trigram[3]="AZZ";
+    char bigram[2]="ZZ";
+    
+    enigma=createEnigmaM3();
+    
+    enigma->textSize=15;
+    enigma->conversion[0]='A'-'A';
+    enigma->conversion[1]='Z'-'A';
+    enigma->conversion[2]='Z'-'A';
+    enigma->conversion[3]='A'-'A';
+    enigma->conversion[4]='B'-'A';
+    enigma->conversion[5]='C'-'A';
+    enigma->conversion[6]='A'-'A';
+    enigma->conversion[7]='Z'-'A';
+    enigma->conversion[8]='Z'-'A';
+    enigma->conversion[9]='Z'-'A';
+    enigma->conversion[10]='B'-'A';
+    enigma->conversion[11]='P'-'A';
+    enigma->conversion[12]='A'-'A';
+    enigma->conversion[13]='Z'-'A';
+    enigma->conversion[14]='Z'-'A';
+    
+    assertIntEquals("count",  4, 4, countLetter(enigma, 'A'));   
+    assertIntEquals("count",  5, 2, countLetter(enigma, 'B'));   
+    assertIntEquals("count",  6, 4, countConvertedChar(enigma, 0));   
+    assertIntEquals("count",  7, 2, countConvertedChar(enigma, 1));   
+
+    assertIntEquals("count",  8, 3, countTrigram(enigma, trigram));   
+    assertIntEquals("count",  9, 4, countNgram(enigma, bigram, 2));   
+    
+
+    
+    destroyEnigma(enigma);
+}
+
 /**************************************************************************************************\
 * 
 * 
@@ -417,6 +456,7 @@ int main()
     test04();
     test05();
     test06();
+    test07();
     
     return 0;
 }

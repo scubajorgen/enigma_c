@@ -267,7 +267,7 @@ int countLetter(Enigma* enigma, char letter)
 * Count occurences of specified letter, where the letter is passed as 0-25
 * 
 \**************************************************************************************************/
-int countConvertedChar(Enigma* enigma, char letter)
+int countConvertedChar(Enigma* enigma, int letter)
 {
     int i;
     int max;
@@ -312,6 +312,44 @@ int countTrigram(Enigma* enigma, char* trigram)
     
     return count;
 }
+
+/**************************************************************************************************\
+* 
+* Count occurences of specified sequence
+* 
+\**************************************************************************************************/
+int countNgram(Enigma* enigma, char* ngram, int n)
+{
+    int i;
+    int j;
+    int found;
+    int count;
+    
+    count=0;
+    i=0;
+    while (i<enigma->textSize-(n-1))
+    {
+        j=0;
+        found=1;
+        while ((j<n) && found)
+        {
+            if (enigma->conversion[i+j]!=ngram[j]-'A')
+            {
+                found=0;
+            }
+            j++;
+        }
+        if (found)
+        {
+            count++;
+        }
+        
+        i++;
+    }
+    
+    return count;
+}
+
 
 
 /**************************************************************************************************\
