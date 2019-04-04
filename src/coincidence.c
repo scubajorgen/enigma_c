@@ -120,7 +120,7 @@ char iocExampleCypher2[]=
 
 IocResults  iocExampleResults2=
 {
-    0.0440,
+    0.067571,
     {
         3,
         {
