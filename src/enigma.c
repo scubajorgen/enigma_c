@@ -296,14 +296,19 @@ int countTrigram(Enigma* enigma, char* trigram)
 {
     int i;
     int count;
+    int tri0, tri1, tri2;
+    
+    tri0=trigram[0]-'A';
+    tri1=trigram[1]-'A';
+    tri2=trigram[2]-'A';
     
     count=0;
     i=0;
     while (i<enigma->textSize-2)
     {
-        if ((enigma->conversion[i  ]==trigram[0]-'A') &&
-            (enigma->conversion[i+1]==trigram[1]-'A') &&
-            (enigma->conversion[i+2]==trigram[2]-'A'))
+        if ((enigma->conversion[i  ]==tri0) &&
+            (enigma->conversion[i+1]==tri1) &&
+            (enigma->conversion[i+2]==tri2))
         {
             count++;
         }
