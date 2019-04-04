@@ -117,7 +117,7 @@ void theThirdProblem()
 		iocWorkItems[i].cypher            =textGC6ZZBB;
         iocWorkItems[i].permutations      =permutations;
         iocWorkItems[i].startPermutation  =i*length/numOfThreads;
-        iocWorkItems[i].endPermutation    =(i+1)*length/numOfThreads;
+        iocWorkItems[i].endPermutation    =(i+1)*length/numOfThreads-1;
         iocWorkItems[i].startR2           =1;
         iocWorkItems[i].endR2             =1;
         iocWorkItems[i].startR3           =1;
@@ -144,7 +144,7 @@ void theThirdProblem()
 		iocWorkItems[i].cypher              =text10;
         iocWorkItems[i].permutations        =permutations;
         iocWorkItems[i].startPermutation    =23;
-        iocWorkItems[i].endPermutation      =24;
+        iocWorkItems[i].endPermutation      =23;
         iocWorkItems[i].startR2             =i*(MAX_POSITIONS-1)/numOfThreads+1;
         iocWorkItems[i].endR2               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
         iocWorkItems[i].maxCypherChars      =MAX_TEXT;

@@ -854,7 +854,7 @@ void message09()
                 if (count>limit)
                 {
                     decoded=toString(enigma);
-                    printf("Message 09: %s\n", decoded); 
+                    printf("Message 09: G %d %d %d: %s\n", g1, g2, g3, decoded); 
                 }                  
                 g3++;
             }

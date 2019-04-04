@@ -19,17 +19,16 @@
 
 typedef struct
 {
-    int         state;
-    char*       cypher;
-    LinkedList* permutations;
+    char*       cypher;                 // The Cypher
+    LinkedList* permutations;           // List of Waltzen permutations
     int         startPermutation;       // Permutation start
-    int         endPermutation;
-    int         startR2;
-    int         endR2;
-    int         startR3;
-    int         endR3;
-    int         maxCypherChars;
-    char        ukw[MAX_ROTOR_NAME];
+    int         endPermutation;         // permutation end; end included
+    int         startR2;                // RingStellung 2 start
+    int         endR2;                  // RingStellung 2 end; end included
+    int         startR3;                // RingStellung 3 start
+    int         endR3;                  // RingStellung 3 end; end included
+    int         maxCypherChars;         // Part of the message to process; MAX_TEXT for full message
+    char        ukw[MAX_ROTOR_NAME];    // UKW to use
 } IocWorkItem;
 
 
@@ -50,4 +49,5 @@ extern int                 iocNumberOfWorkItems;
 void    iocDecodeText       (char* cypher, int numOfThreads, int isDeep);
 void    iocExecuteWorkItems (int numOfThreads, int isDeep, LinkedList* permutations);
 void    iocExample          ();
-void    iocExampleDeep      ();
+void    iocExampleDeep1     ();
+void    iocExampleDeep2     ();

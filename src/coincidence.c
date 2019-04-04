@@ -16,12 +16,13 @@
 #include "enigma.h"
 #include "coincidence.h"
 #include "toolbox.h"
+#include "ngrams.h"
 
 /**************************************************************************************************\
 * DEFINES
 \**************************************************************************************************/
 
-#define MAX_TRIGRAMS        10
+#define MAX_TRIGRAMS        54
 
 typedef struct
 {
@@ -38,6 +39,9 @@ typedef struct
     LinkedList*     permutations;
     int             isDeep;           // 0 for simple method, 1 for deep method
 } IocThreadParams;
+
+
+    
 
 /**************************************************************************************************\
 * VARIABLES
@@ -151,33 +155,28 @@ char iocExampleCypher3[]=
 " UBSQE GVZKV NRLXF IXZQW FKSXC"
 " PPFRI MWQHT QSB";
 
-char ioctrigrams1[MAX_TRIGRAMS][5]=
+IocResults  iocExampleResults3=
 {
-    "EIN",
-    "INS",
-    "FUE",
-    "ZWO",
-    "ULL",
-    "IER",
-    "NUL",
-    "UNG",
-    "ENF",
-    "VIE"
+    0.0440,
+    {
+        3,
+        {
+            "IV",
+            "III",
+            "I"
+        },
+        "UKW B",
+        {
+            7, 24, 15
+        },
+        {
+            11, 18, 9
+        },
+        "AT BG DV EW FR HN IQ JX KZ LU",
+        "cypher"
+    }
 };
 
-char ioctrigrams2[MAX_TRIGRAMS][4]=
-{
-    "SCH",
-    "DIE",
-    "NDE",
-    "CHE",
-    "UND",
-    "ICH",
-    "TEN",
-    "DEN",
-    "EIN",
-    "END"
-};
 
 int ioctrigramCount[MAX_TRIGRAMS];
 
@@ -222,16 +221,43 @@ float iocIndexOfCoincidence(Enigma* enigma)
 * Counts the occurrences of the most occurring trigrams
 * 
 \**************************************************************************************************/
-int iocCounttrigrams(Enigma* enigma)
+int iocCountTrigrams(Enigma* enigma)
 {
     int i;
     int count;
+    int length;
+    
+    length=sizeof(ioctrigrams3)/sizeof(NGram);
     
     count=0;
     i=0;
-    while (i<MAX_TRIGRAMS)
+    while (i<length)
     {
-        count+=countTrigram(enigma, ioctrigrams2[i]);
+        count+=countTrigram(enigma, ioctrigrams3[i].ngram)*ioctrigrams3[i].score;
+        i++;
+    }
+    
+    return count;
+}
+
+/**************************************************************************************************\
+* 
+* Counts the occurrences of the most occurring trigrams
+* 
+\**************************************************************************************************/
+int iocCountNgrams(Enigma* enigma)
+{
+    int i;
+    int count;
+    int length;
+    
+    length=sizeof(iocBiGrams)/sizeof(NGram);
+    
+    count=0;
+    i=0;
+    while (i<length)
+    {
+        count+=countNgram(enigma, iocBiGrams[i].ngram, 2)*iocBiGrams[i].score;
         i++;
     }
     
@@ -416,7 +442,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     iocMax=0.0;
     // Parse the Waltzen permutations assigned
     w=start;
-    while (w<end)
+    while (w<=end)
     {
         permutation=(int*)elementAt(permutations, w);
 
@@ -659,7 +685,7 @@ void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int 
         s1++;
     }
     
-    numOfSteckers   =10;
+    numOfSteckers   =13;
     maxIoc          =0;
     
     s=0;
@@ -690,7 +716,20 @@ void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int 
                     
                     encodeDecode(enigma);
 
+/*
+                    if (s>=4)
+                    {
+                        ioc=iocCountNgrams(enigma);
+                    }
+                    else
+                    {
+                        ioc=iocIndexOfCoincidence(enigma);
+                    }
+*/
                     ioc=iocIndexOfCoincidence(enigma);
+
+
+
                     if (ioc>maxIoc)
                     {
                         maxIoc=ioc;
@@ -793,7 +832,7 @@ void iocEvaluateEngimaSettingsDeep(IocWorkItem* work)
     iocMax      =0.0;
     // Parse the Waltzen permutations assigned
     w           =start;
-    while (w<end)
+    while (w<=end)
     {
         permutation=(int*)elementAt(permutations, w);
 
@@ -1056,7 +1095,7 @@ void iocDecodeText(char* cypher, int numOfThreads, int isDeep)
         iocWorkItems[i*2].cypher            =cypher;
         iocWorkItems[i*2].permutations      =permutations;
         iocWorkItems[i*2].startPermutation  =i*length/numOfThreads;
-        iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads;
+        iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads-1;
         iocWorkItems[i*2].startR2           =1;
         iocWorkItems[i*2].endR2             =MAX_POSITIONS;
         iocWorkItems[i*2].startR3           =1;
@@ -1068,7 +1107,7 @@ void iocDecodeText(char* cypher, int numOfThreads, int isDeep)
         iocWorkItems[i*2+1].cypher          =cypher;
         iocWorkItems[i*2+1].permutations    =permutations;
         iocWorkItems[i*2+1].startPermutation=i*length/numOfThreads;
-        iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads;
+        iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads-1;
         iocWorkItems[i*2+1].startR2         =1;
         iocWorkItems[i*2+1].endR2           =MAX_POSITIONS;
         iocWorkItems[i*2+1].startR3         =1;
@@ -1117,12 +1156,12 @@ void iocExample()
 * Example to play with short messages
 * 
 \**************************************************************************************************/
-void iocExampleDeep()
+void iocExampleDeep1()
 {
     EnigmaSettings* settings;
     LinkedList*     permutations;
     
-    settings=&iocExampleResults.settings;
+    settings=&iocExampleResults2.settings;
     
     printf("\n");
     printf("#####################################################################################\n");
@@ -1142,17 +1181,68 @@ void iocExampleDeep()
     // Start with 5 Wehrmacht rotors
     permutations=createRotorPermutations(3, 5);
 
-    iocWorkItems[0].cypher            =iocExampleCypher3;
+    iocWorkItems[0].cypher            =iocExampleCypher2;
     iocWorkItems[0].permutations      =permutations;
     iocWorkItems[0].startPermutation  =45;
-    iocWorkItems[0].endPermutation    =46;
-    iocWorkItems[0].startR2           =1;
-    iocWorkItems[0].endR2             =MAX_POSITIONS;
-    iocWorkItems[0].startR3           =1;
-    iocWorkItems[0].endR3             =MAX_POSITIONS;
+    iocWorkItems[0].endPermutation    =45;
+    iocWorkItems[0].startR2           =23;
+    iocWorkItems[0].endR2             =23;
+    iocWorkItems[0].startR3           =4;
+    iocWorkItems[0].endR3             =4;
+    iocWorkItems[0].maxCypherChars    =MAX_TEXT;
 
     
     strncpy(iocWorkItems[0].ukw, "UKW B", MAX_ROTOR_NAME);
+
+    iocEvaluateEngimaSettingsDeep(&iocWorkItems[0]);
+
+    iocDumpTopTenResults(1);
+
+    destroyLinkedList(permutations);    
+}
+
+/**************************************************************************************************\
+* 
+* Example to play with short messages
+* 
+\**************************************************************************************************/
+void iocExampleDeep2()
+{
+    EnigmaSettings* settings;
+    LinkedList*     permutations;
+    
+    settings=&iocExampleResults3.settings;
+    
+    printf("\n");
+    printf("#####################################################################################\n");
+    printf("# INDEX OF COINCIDENCE METHOD EXAMPLE\n");
+    printf("# Cypher                    : \n%s\n", iocExampleCypher3);
+    printf("# Original Waltzen          : %s %s %s\n", settings->rotors[0], settings->rotors[1], settings->rotors[2]);
+    printf("# Original UKW              : %s \n", settings->ukw);
+    printf("# Original RingStellungen   : %d %d %d\n", settings->ringStellungen[0], 
+                                                       settings->ringStellungen[1], 
+                                                       settings->ringStellungen[2]);
+    printf("# Original GrundStellungen  : %d %d %d\n", settings->grundStellungen[0],
+                                                       settings->grundStellungen[1],
+                                                       settings->grundStellungen[2]);
+    printf("# Original Steckers         : %s\n", settings->steckers);
+    printf("#####################################################################################\n");
+
+    // Start with 5 Wehrmacht rotors
+    permutations=createRotorPermutations(3, 5);
+
+    iocWorkItems[0].cypher            =iocExampleCypher3;
+    iocWorkItems[0].permutations      =permutations;
+    iocWorkItems[0].startPermutation  =40;
+    iocWorkItems[0].endPermutation    =40;
+    iocWorkItems[0].startR2           =24;
+    iocWorkItems[0].endR2             =24;
+    iocWorkItems[0].startR3           =15;
+    iocWorkItems[0].endR3             =15;
+    iocWorkItems[0].maxCypherChars    =MAX_TEXT;
+
+    
+    strncpy(iocWorkItems[0].ukw, "UKW C", MAX_ROTOR_NAME);
 
     iocEvaluateEngimaSettingsDeep(&iocWorkItems[0]);
 
