@@ -6,6 +6,7 @@
 #include "crack.h"
 #include "toolbox.h"
 #include "coincidence.h"
+#include "ngramscore.h"
 
 // GC6ZZBB
 
@@ -86,14 +87,47 @@ char replyGC6ZZBB[]=
 "JRZE MOQQ NEQU DLMC MUQW JENQ ZAFF R";
 
 
+char text11[]       = "MCIKVFMLPDWBWMLQRVKEYPSFBVYHLSGSYAFZPXZCBFWPEUMWMBUM"
+                      "GCUMKCZPQJEEXEEEWOSBXQJTHQEDNJMSJENPWYSCKWOVPMAYWNQ";
+
+
+// R: 1 1 1 G: 1 17 12, SB: AZ BY CX DW EV FU GT HS IQ JR
+
+char text11_test[]  = "QAVIMKGJZTXYFBCMVCONNTBZKLEZNBQMCLEUQXPYTYHEBVNCKOVACPK"
+                      "GCWPWUVHUFWJFWTCNIJVULFBVADZRQWMLVDDQFRJAZUPSIXACSKJHLR"
+                      "DQFMXPSZMKI";
+
+
+EnigmaSettings  fourthProblemTest=
+{
+    3,
+    {
+        "III",
+        "I",
+        "II"
+    },
+    "UKW B",
+    {
+        1, 1, 1
+    },
+    {
+        1, 17, 12
+    },
+    "AZ BY CX DW EV FU GT HS IQ JR",
+    "QAVIM KGJZT XYFBC MVCON NTBZK LEZNB QMCLE UQXPY TYHEB VNCKO VACPK "
+    "GCWPW UVHUF WJFWT CNIJV ULFBV ADZRQ WMLVD DQFRJ AZUPS IXACS KJHLR "
+    "DQFMX PSZMK I"
+};
+
+
 void theThirdProblem()
 {
-        int             i;
+    int             i;
     LinkedList*     permutations;
-	int				numOfThreads;
+    int				numOfThreads;
     
 	
-	numOfThreads=6;
+    numOfThreads=4;
 	
     // FROM THE GEOCACHE WE KNOW FOLLOWING:
     // Three Waltzen out of I-V, R1 = R2 = R3 = 1, UKW B
@@ -127,7 +161,9 @@ void theThirdProblem()
         i++;
     }
 
-	iocExecuteWorkItems(6, 1, permutations);	
+    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "DE");
+
+    iocExecuteWorkItems(numOfThreads, permutations);	
 	
 /*	
 	// THIS RESULTS IN THE BEST SOLUTION:
@@ -141,7 +177,7 @@ void theThirdProblem()
     i=0;
     while (i<numOfThreads)
     {
-		iocWorkItems[i].cypher              =text10;
+		iocWorkItems[i].cypher              =textGC6ZZBB;
         iocWorkItems[i].permutations        =permutations;
         iocWorkItems[i].startPermutation    =23;
         iocWorkItems[i].endPermutation      =23;
@@ -153,6 +189,53 @@ void theThirdProblem()
         i++;
     }
 
-	iocExecuteWorkItems(numOfThreads, 1, permutations);	
+    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, "DE");
+    iocExecuteWorkItems(numOfThreads, permutations);	
 */	
 }
+
+
+
+void theFourthProblem()
+{
+    int             i;
+    LinkedList*     permutations;
+    int             numOfThreads;
+	
+    numOfThreads=4;
+	
+    // FROM THE GEOCACHE WE KNOW FOLLOWING:
+    // III I II, UKW B
+
+    permutations=createRotorPermutations(3, 5);
+
+   
+    // Create the stack of work for the trheads
+    iocNumberOfWorkItems=numOfThreads;
+
+    i=0;
+    while (i<numOfThreads)
+    {
+//        iocWorkItems[i].cypher              =text11;
+        iocWorkItems[i].cypher              =text11_test;
+        iocWorkItems[i].permutations        =permutations;
+        iocWorkItems[i].startPermutation    =27;
+        iocWorkItems[i].endPermutation      =27;
+        iocWorkItems[i].startR2             =1;
+        iocWorkItems[i].endR2               =1;
+        iocWorkItems[i].startR3             =1;
+        iocWorkItems[i].endR3               =1;
+//        iocWorkItems[i].startR3             =i*(MAX_POSITIONS-1)/numOfThreads+1;
+//        iocWorkItems[i].endR3               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
+        iocWorkItems[i].maxCypherChars      =MAX_TEXT;
+        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
+
+        i++;
+    }
+
+    setEvaluationMethod(METHOD_IOC_NGRAM, 10, 6, 3, "GC");
+    iocExecuteWorkItems(numOfThreads, permutations);	
+	
+}
+
+

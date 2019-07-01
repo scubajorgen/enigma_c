@@ -2,9 +2,11 @@
 #include <string.h>
 #include <ctype.h>
 #include <malloc.h>
+#include <math.h>
 
 #include "enigma.h"
 #include "turing.h"
+#include "ngramscore.h"
 #include "toolbox.h"
 
 int permutations[12][2]=
@@ -91,6 +93,25 @@ void assertLongNotEquals(char* test, int testCase, long notExpected, long result
         printf("Test %10s %3d: Failed! Not expected %ld, result was %ld\n", test, testCase, notExpected, result);
     }
 }
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+void assertFloatEquals(char* test, int testCase, float expected, float result)
+{
+    if (floorf(expected*10000.0)==floorf(result*10000.0))
+    {
+        printf("Test %10s %3d: Passed!\n", test, testCase);
+    }
+    else
+    {
+        printf("Test %10s %3d: Failed! Expected %f, result was %f\n", test, testCase, expected, result);
+    }
+}
+
+
 
 
 /**************************************************************************************************\
@@ -438,6 +459,42 @@ void test07()
     destroyEnigma(enigma);
 }
 
+
+void test08()
+{
+    Enigma* enigma;
+
+    enigma=createEnigmaM3();
+    
+    
+
+    prepareNgramScore(3, "DE");
+
+    enigma->textSize=3;
+    enigma->conversion[0]='E'-'A';
+    enigma->conversion[1]='N'-'A';
+    enigma->conversion[2]='S'-'A';
+
+    
+    assertFloatEquals("ngram",  1, -4.323774, ngramScore(enigma, 3));   
+    
+    enigma->textSize=8;
+    enigma->conversion[0]='E'-'A';  //END - -4.132483
+    enigma->conversion[1]='N'-'A';  //NDE - -3.644503
+    enigma->conversion[2]='D'-'A';
+    enigma->conversion[3]='E'-'A';
+    enigma->conversion[4]='X'-'A';
+    enigma->conversion[5]='L'-'A';  //LIC - -4.872928
+    enigma->conversion[6]='I'-'A';
+    enigma->conversion[7]='C'-'A';
+
+    assertFloatEquals("ngram",  2, -28.082878, ngramScore(enigma, 3));   
+
+    destroyEnigma(enigma);
+}
+
+
+
 /**************************************************************************************************\
 * 
 * 
@@ -457,6 +514,7 @@ int main()
     test05();
     test06();
     test07();
+    test08();
     
     return 0;
 }

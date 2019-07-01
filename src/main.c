@@ -7,7 +7,7 @@
 
 void enigmaExample()
 {
-    char    someText[]="TEST MESSAGE ENCODED ON ENIMA";
+    char    someText[]="TEST MESSAGE ENCODED ON ENIGMA";
     char*   cypher; 
     char*   plain;
 
@@ -60,18 +60,17 @@ int main()
     printf("#####################################################################################\n");
     
 	
-	// Simple encode/decode example
+    // Simple encode/decode example
     enigmaExample();   
     
-	// The Turing method: find the crib loops and show they work
+    // The Turing method: find the crib loops and show they work
 //    turingProve();
    
     // The Turing method: working example
     turingExample();
 
-	// The James Gillogly method example
+    // The James Gillogly method example
     iocExample();
-
 
     return 0;
 }

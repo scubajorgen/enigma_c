@@ -13,9 +13,19 @@
 * DEFINES
 \**************************************************************************************************/
 
-#define TOP_RESULTS_SIZE    10
+#define TOP_RESULTS_SIZE    25
 #define MAX_THREADS         8
 #define MAX_WORK_ITEMS      32
+
+
+typedef enum 
+{
+    METHOD_IOC,             // James Gillogly
+    METHOD_IOC_DEEP,        // Improved James Gillogly method
+    METHOD_IOC_NGRAM        // Improved James Gillogly method combined with ngrams
+} method_t;
+
+
 
 typedef struct
 {
@@ -46,8 +56,13 @@ extern int                 iocNumberOfWorkItems;
 \**************************************************************************************************/
 
 
-void    iocDecodeText       (char* cypher, int numOfThreads, int isDeep);
-void    iocExecuteWorkItems (int numOfThreads, int isDeep, LinkedList* permutations);
+void    setEvaluationMethod (method_t method, int maxSteckers, int maxSteckersIoc, int ngramSize, char* ngrams);
+void    iocDecodeText       (char* cypher, int numOfThreads);
+void    iocExecuteWorkItems (int numOfThreads, LinkedList* permutations);
 void    iocExample          ();
 void    iocExampleDeep1     ();
 void    iocExampleDeep2     ();
+void    iocExampleNgram     ();
+void    ngramTest           ();
+void    ngramTest2          ();
+void    ngramTest3          ();

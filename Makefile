@@ -30,6 +30,7 @@ SRCOBJ	        = enigma.o \
                   steckerbrett.o\
                   turing.o\
                   coincidence.o \
+                  ngramscore.o \
                   toolbox.o
 
 MAINOBJ         = main.o crack02.o crack03.o

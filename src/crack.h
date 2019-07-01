@@ -14,4 +14,5 @@ void    message09       ();
 void    message10       ();
 
 void    theThirdProblem ();
+void    theFourthProblem();
 

@@ -17,12 +17,25 @@
 #include "coincidence.h"
 #include "toolbox.h"
 #include "ngrams.h"
+#include "ngramscore.h"
 
 /**************************************************************************************************\
 * DEFINES
 \**************************************************************************************************/
 
 #define MAX_TRIGRAMS        54
+
+
+/** Defines the method for decrypting the engima cypher */
+typedef struct
+{
+    method_t    method;             // The method
+    int         maxSteckers;        // Maximum number of Steckers to use
+    int         maxSteckersIoc;     // METHOD_NGRAMS: the number of Steckers used for IOC; beyond this number NGRAMS
+    int         ngramSize;          // n in ngram (2-bigrams, 3-trigrams)
+    char        ngramSet[5];        // The set to use ('DE' - german, 'EN' - english, 'GC' - NL, geocaching)
+} EvaluationMethod;
+
 
 typedef struct
 {
@@ -35,9 +48,9 @@ typedef struct
 
 typedef struct
 {
-    pthread_t       threadId;
-    LinkedList*     permutations;
-    int             isDeep;           // 0 for simple method, 1 for deep method
+    pthread_t           threadId;
+    LinkedList*         permutations;
+    EvaluationMethod*   evaluationMethod;
 } IocThreadParams;
 
 
@@ -54,6 +67,7 @@ EnigmaSettings      iocSettings;
 int                 iocNumberOfResults=0;      
 IocResults          iocTopTenResults[TOP_RESULTS_SIZE];
 
+EvaluationMethod    evaluationMethod;
 IocWorkItem         iocWorkItems[MAX_WORK_ITEMS];
 int                 iocNumberOfWorkItems;
 
@@ -165,7 +179,7 @@ IocResults  iocExampleResults3=
             "III",
             "I"
         },
-        "UKW B",
+        "UKW C",
         {
             7, 24, 15
         },
@@ -174,6 +188,88 @@ IocResults  iocExampleResults3=
         },
         "AT BG DV EW FR HN IQ JX KZ LU",
         "cypher"
+    }
+};
+
+
+IocResults  iocExampleResults3Test=
+{
+    0.0440,
+    {
+        3,
+        {
+            "IV",
+            "III",
+            "I"
+        },
+        "UKW C",
+        {
+            7, 24, 15
+        },
+        {
+            11, 18, 9
+        },
+        "AT BG DV EW FR",
+        ""
+    }
+};
+
+
+IocResults  iocExampleResults3Test2=
+{
+    0.0,
+    {
+        3,
+        {
+            "III",
+            "I",
+            "II"
+        },
+        "UKW B",
+        {
+            1, 1, 1
+        },
+        {
+            1, 17, 12
+        },
+//        "AZ BY CX DW EV FU GT HS IQ JR",
+        "AZ BY CX DW EV FU",
+//        "AZ DW EV IQ JR",
+//          "AZ CG DW EV IQ NX",
+
+
+        "QAVIM KGJZT XYFBC MVCON NTBZK LEZNB QMCLE UQXPY TYHEB VNCKO VACPK "
+        "GCWPW UVHUF WJFWT CNIJV ULFBV ADZRQ WMLVD DQFRJ AZUPS IXACS KJHLR "
+        "DQFMX PSZMK I"
+    }
+};
+
+IocResults  iocExampleResults3Test3=
+{
+    0.0,
+    {
+        3,
+        {
+            "V",
+            "I",
+            "III"
+        },
+        "UKW B",
+        {
+            1, 1, 1
+        },
+        {
+            12, 6, 18
+        },
+
+        "BW DH EM IY KL OR",
+        
+        "CRSMDDACIGRLKUPAHWCYFGDSEPBHSYPYYDDNWUDMBRKT"
+        "GPDULRSDTRWWYWVLWKVRIBHHWFVCDXVIEREHLGSQSBIQU"
+        "DGACRUFWBMYRSPYGBKESJLNNFTVAGSOXBDIOXJACSJRSAV"
+        "VXDAWBIMEDLQSLQKLFHATDCUGFPOYSBKPBSFLRHUPXDMM"
+        "TTDPRKZCOCNZDSULIHEJGLCLVQWXVAZZPWMOOKPPFWDSQ"
+        "VW"
     }
 };
 
@@ -540,9 +636,10 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
 /**************************************************************************************************\
 * 
 * After the rotor settings have been found, this method finds the steckers. 
+* It uses the Index of Coincidence as measure of plain text fitness
 * 
 \**************************************************************************************************/
-void iocFindSteckeredChars(IocResults* results)
+void iocFindSteckeredChars(IocResults* results, int maxNumOfSteckers)
 {
     Enigma* enigma;
     int     s;
@@ -553,7 +650,6 @@ void iocFindSteckeredChars(IocResults* results)
     int     steckerTable[MAX_POSITIONS];
     float   maxIoc;
     float   ioc;
-    int     numOfSteckers;
     int     found;
 
     // Initialise stecker brett table: no steckers
@@ -568,12 +664,11 @@ void iocFindSteckeredChars(IocResults* results)
     
     setEnigma(enigma, &results->settings);
     
-    numOfSteckers   =10;
     maxIoc          =results->indexOfCoincidence;
     
     s=0;
     found=1;
-    while (s<numOfSteckers && found)
+    while (s<maxNumOfSteckers && found)
     {
         s1Max=0;
         s2Max=0;
@@ -618,6 +713,7 @@ void iocFindSteckeredChars(IocResults* results)
             s1++;
             
         }
+        // If improvement of ioc found, make the switch definitive
         if (found)
         {
             printf("Found steckered chars %c-%c : ioc %f\n", s1Max+'A', s2Max+'A', maxIoc);
@@ -656,7 +752,392 @@ void iocFindSteckeredChars(IocResults* results)
 }
 
 
+/**************************************************************************************************\
+* 
+* After the rotor settings have been found, this method finds the steckers.
+* It uses ngrams
+* 
+\**************************************************************************************************/
+void iocFindSteckeredCharsNgram(IocResults* results, int maxNumOfSteckers, int ngramSize)
+{
 
+    Enigma* enigma;
+    int     s;
+    int     s1;
+    int     s2;
+    int     s1Max;
+    int     s2Max;
+    int     steckerTable[MAX_POSITIONS];
+    float   maxIoc;
+    float   ioc;
+    int     found;
+    char*   steckers;
+
+
+    // Initialise stecker brett table: no steckers
+    s1=0;
+    while (s1<MAX_POSITIONS)
+    {
+        steckerTable[s1]=s1;
+        s1++;
+    }
+  
+    // Convert the steckers from the Enigma to the stecker table
+    s=0;
+    steckers=results->settings.steckers;
+
+    s2=0;
+    while (s2<strlen(steckers))
+    {
+        steckerTable[steckers[s2+0]-'A']=steckers[s2+1]-'A';
+        steckerTable[steckers[s2+1]-'A']=steckers[s2+0]-'A';
+        s++;
+        s2+=3;
+    }
+
+    enigma=createEnigmaM3();
+    
+    setEnigma(enigma, &results->settings);
+    
+    maxIoc          =-1000000.0 ;
+
+    found=1;
+    while (s<maxNumOfSteckers && found)
+    {
+        s1Max=0;
+        s2Max=0;
+        found=0;
+        s1=0;
+        while (s1<MAX_POSITIONS-1)
+        {
+            s2=s1+1;
+            while (s2<MAX_POSITIONS)
+            {
+                if (steckerTable[s1]==s1 && steckerTable[s2]==s2)
+                {
+                    // Place stecker
+                    steckerTable[s1]=s2;
+                    steckerTable[s2]=s1;
+                    
+                    // Quick and dirty way to set up the steckers
+                    memcpy(enigma->steckerBrett, steckerTable, MAX_POSITIONS*sizeof(int));
+                    
+                    setGrundStellung(enigma, 1, results->settings.grundStellungen[0]);
+                    setGrundStellung(enigma, 2, results->settings.grundStellungen[1]);
+                    setGrundStellung(enigma, 3, results->settings.grundStellungen[2]);
+                    
+                    encodeDecode(enigma);
+                    ioc=ngramScore(enigma, ngramSize);
+
+                    if (ioc>maxIoc)
+                    {
+                        maxIoc=ioc;
+                        s1Max=s1;
+                        s2Max=s2;
+                        found=1;
+                    }
+                    // Remove stecker
+                    steckerTable[s1]=s1;
+                    steckerTable[s2]=s2;
+                                    
+                }
+                s2++;
+            }
+            s1++;
+            
+        }
+        if (!found)
+        {
+            printf("No improvement found\n");
+        }
+                   
+        // If improvement of ioc found, make the switch definitive
+        if (found)
+        {
+            printf("Found steckered chars %c-%c : ioc %f\n", s1Max+'A', s2Max+'A', maxIoc);
+            fflush(stdout);
+            steckerTable[s1Max]=s2Max;
+            steckerTable[s2Max]=s1Max;
+        }
+        s++;
+    }     
+
+    // Store the raw stecker table
+    memcpy(results->steckerTable, steckerTable, MAX_POSITIONS*sizeof(int));
+
+    // Convert the stecker positions to a stecker brett string
+    s1=0;
+    s2=0;
+    while (s1<MAX_POSITIONS)
+    {
+        if (steckerTable[s1]>s1)
+        {
+            if (s2>0)
+            {
+                results->settings.steckers[3*s2-1]=' ';
+            }
+            results->settings.steckers[3*s2]=s1+'A';
+            results->settings.steckers[3*s2+1]=steckerTable[s1]+'A';
+            results->settings.steckers[3*s2+2]='\0';
+            s2++;
+        }
+        s1++;
+    }
+    
+    destroyEnigma(enigma);
+    fflush(stdout);
+        
+}
+
+
+/*********************************************************************************3*****************\
+* 
+* After the rotor settings have been found, this method finds the steckers.
+* It uses ngrams
+* 
+\**************************************************************************************************/
+void iocFindSteckeredCharsNgram2(IocResults* results, int maxNumOfSteckers, int ngramSize)
+{
+
+    Enigma* enigma;
+    int     s;
+    int     s1;
+    int     s2;
+    int     s3;
+    int     s1Swap;
+    int     s2Swap;
+    int     s3Swap;
+    int     s1Max;
+    int     s2Max;
+    int     s3Max;
+    int     s1SwapMax;
+    int     s2SwapMax;
+    int     s3SwapMax;
+    int     steckerTable[MAX_POSITIONS];
+    float   maxIoc;
+    float   ioc;
+    int     found;
+    char*   steckers;
+
+
+    // Initialise stecker brett table: no steckers
+    s1=0;
+    while (s1<MAX_POSITIONS)
+    {
+        steckerTable[s1]=s1;
+        s1++;
+    }
+  
+    // Convert the steckers from the Enigma to the stecker table
+    s=0;
+    steckers=results->settings.steckers;
+
+    s2=0;
+    while (s2<strlen(steckers))
+    {
+        steckerTable[steckers[s2+0]-'A']=steckers[s2+1]-'A';
+        steckerTable[steckers[s2+1]-'A']=steckers[s2+0]-'A';
+        s++;
+        s2+=3;
+    }
+
+
+int i;
+i=0;
+while (i<26)
+{
+  printf("%c", steckerTable[i]+'A');
+  i++;
+}
+printf("\n");
+  
+    enigma=createEnigmaM3();
+    
+    setEnigma(enigma, &results->settings);
+    
+    maxIoc          =-1000000.0 ;
+    
+    found=1;
+    while (s<maxNumOfSteckers && found)
+    {
+        s1Max=-1;
+        s2Max=-1;
+        s3Max=-1;
+        found=0;
+        s1=0;
+        while (s1<MAX_POSITIONS-1)
+        {
+            s2=/*s1+1*/0;
+            while (s2<MAX_POSITIONS)
+            {
+                if ((s1!=s2) && (steckerTable[s1]==s1)/* && (steckerTable[s2]==s2)*/)
+                {
+                  if (steckerTable[s2]==s2)
+                  {
+                      // ***** MAIN COMBINATION *****
+                      // Place stecker  
+                      s1Swap=steckerTable[s1];
+                      s2Swap=steckerTable[s2];
+                      steckerTable[s1]=s2Swap;
+                      steckerTable[s2]=s1Swap;
+                      
+                      // Quick and dirty way to set up the steckers
+                      memcpy(enigma->steckerBrett, steckerTable, MAX_POSITIONS*sizeof(int));
+                      
+                      setGrundStellung(enigma, 1, results->settings.grundStellungen[0]);
+                      setGrundStellung(enigma, 2, results->settings.grundStellungen[1]);
+                      setGrundStellung(enigma, 3, results->settings.grundStellungen[2]);
+                      
+                      encodeDecode(enigma);
+                      ioc=ngramScore(enigma, ngramSize);
+
+                      if (ioc>maxIoc)
+                      {
+                          maxIoc=ioc;
+                          s1Max=s1;
+                          s2Max=s2;
+                          s3Max=-1;
+                          s1SwapMax=s2Swap;
+                          s2SwapMax=s1Swap;
+                          s3SwapMax=-1;
+                          found=1;
+                      }
+                      // Remove stecker
+                      steckerTable[s1]=s1Swap;
+                      steckerTable[s2]=s2Swap;
+                  }
+                  else
+                  {
+                      s3=steckerTable[s2];
+
+                      // ***** ADDITIONAL COMBINATION 1 *****
+                      // Place stecker
+                      s1Swap=steckerTable[s1];
+                      s2Swap=steckerTable[s2];
+                      s3Swap=steckerTable[s3];
+                      steckerTable[s1]=s2Swap;
+                      steckerTable[s2]=s3Swap;
+                      steckerTable[s3]=s1Swap;
+                      
+                      // Quick and dirty way to set up the steckers
+                      memcpy(enigma->steckerBrett, steckerTable, MAX_POSITIONS*sizeof(int));
+                      
+                      setGrundStellung(enigma, 1, results->settings.grundStellungen[0]);
+                      setGrundStellung(enigma, 2, results->settings.grundStellungen[1]);
+                      setGrundStellung(enigma, 3, results->settings.grundStellungen[2]);
+                      
+                      encodeDecode(enigma);
+                      ioc=ngramScore(enigma, ngramSize);
+
+                      if (ioc>maxIoc)
+                      {
+                          printf("Found 231\n");
+                          maxIoc=ioc;
+                          s1Max=s1;
+                          s2Max=s2;
+                          s3Max=s3;
+                          s1SwapMax=s2Swap;
+                          s2SwapMax=s3Swap;
+                          s3SwapMax=s1Swap;
+                          found=1;
+                      }
+                      // Remove stecker
+                      steckerTable[s1]=s1Swap;
+                      steckerTable[s2]=s2Swap;
+                      steckerTable[s3]=s3Swap;
+
+
+
+                      // ***** ADDITIONAL COMBINATION 2 *****
+                      // Place stecker
+                      s1Swap=steckerTable[s1];
+                      s2Swap=steckerTable[s2];
+                      s3Swap=steckerTable[s3];
+                      steckerTable[s1]=s3Swap;
+                      steckerTable[s2]=s1Swap;
+                      steckerTable[s3]=s2Swap;
+                      
+                      // Quick and dirty way to set up the steckers
+                      memcpy(enigma->steckerBrett, steckerTable, MAX_POSITIONS*sizeof(int));
+                      
+                      setGrundStellung(enigma, 1, results->settings.grundStellungen[0]);
+                      setGrundStellung(enigma, 2, results->settings.grundStellungen[1]);
+                      setGrundStellung(enigma, 3, results->settings.grundStellungen[2]);
+                      
+                      encodeDecode(enigma);
+                      ioc=ngramScore(enigma, ngramSize);
+
+                      if (ioc>maxIoc)
+                      {
+                          printf("Found 312\n");
+                          maxIoc=ioc;
+                          s1Max=s1;
+                          s2Max=s2;
+                          s3Max=s3;
+                          s1SwapMax=s3Swap;
+                          s2SwapMax=s1Swap;
+                          s3SwapMax=s2Swap;
+                          found=1;
+                      }
+                      // Remove stecker
+                      steckerTable[s1]=s1Swap;
+                      steckerTable[s2]=s2Swap;
+                      steckerTable[s3]=s3Swap;
+
+                  }
+                  
+                }
+                s2++;
+            }
+            s1++;
+            
+        }
+                   
+        // If improvement of ioc found, make the switch definitive
+        if (found)
+        {
+            printf("Found steckered chars %c-%c-%c : ioc %f\n", s1Max+'A', s2Max+'A', s3Max>=0?s3Max+'A':'=', maxIoc);
+            fflush(stdout);
+            steckerTable[s1Max]=s1SwapMax;
+            steckerTable[s2Max]=s2SwapMax;
+            if (s3Max>=0)
+            {
+                steckerTable[s3Max]=s3SwapMax;
+            }
+        }
+        else
+        {
+            printf("No improvement found\n");
+        }
+        s++;
+    }     
+
+    // Store the raw stecker table
+    memcpy(results->steckerTable, steckerTable, MAX_POSITIONS*sizeof(int));
+
+    // Convert the stecker positions to a stecker brett string
+    s1=0;
+    s2=0;
+    while (s1<MAX_POSITIONS)
+    {
+        if (steckerTable[s1]>s1)
+        {
+            if (s2>0)
+            {
+                results->settings.steckers[3*s2-1]=' ';
+            }
+            results->settings.steckers[3*s2]=s1+'A';
+            results->settings.steckers[3*s2+1]=steckerTable[s1]+'A';
+            results->settings.steckers[3*s2+2]='\0';
+            s2++;
+        }
+        s1++;
+    }
+    
+    destroyEnigma(enigma);
+    fflush(stdout);
+        
+}
 
 
 /**************************************************************************************************\
@@ -664,7 +1145,7 @@ void iocFindSteckeredChars(IocResults* results)
 * This method is meant to try to find best stecker settings for each rotor setting. 
 * 
 \**************************************************************************************************/
-void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int g2, int g3)
+void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int g2, int g3, int maxSteckers)
 {
     int     s;
     int     s1;
@@ -674,7 +1155,6 @@ void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int 
     int     steckerTable[MAX_POSITIONS];
     float   maxIoc;
     float   ioc;
-    int     numOfSteckers;
     int     found;
 
     // Initialise stecker brett table: no steckers
@@ -685,12 +1165,11 @@ void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int 
         s1++;
     }
     
-    numOfSteckers   =13;
-    maxIoc          =0;
+    maxIoc          =-1000000.0;
     
     s=0;
     found=1;
-    while (s<numOfSteckers && found)
+    while (s<maxSteckers && found)
     {
         s1Max=0;
         s2Max=0;
@@ -716,18 +1195,8 @@ void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int 
                     
                     encodeDecode(enigma);
 
-/*
-                    if (s>=4)
-                    {
-                        ioc=iocCountNgrams(enigma);
-                    }
-                    else
-                    {
-                        ioc=iocIndexOfCoincidence(enigma);
-                    }
-*/
-                    ioc=iocIndexOfCoincidence(enigma);
 
+                    ioc=iocIndexOfCoincidence(enigma);
 
 
                     if (ioc>maxIoc)
@@ -754,12 +1223,14 @@ void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int 
         }
         s++;
     }     
+
     // Store the raw stecker table
     memcpy(results->steckerTable, steckerTable, MAX_POSITIONS*sizeof(int));
    
     results->indexOfCoincidence=maxIoc;
         
 }
+
 
 /**************************************************************************************************\
 * 
@@ -771,7 +1242,7 @@ void iocFindSteckeredCharsDeep(Enigma* enigma, IocResults* results, int g1, int 
 * Works for short messages and >5 steckers
 * 
 \**************************************************************************************************/
-void iocEvaluateEngimaSettingsDeep(IocWorkItem* work)
+void iocEvaluateEngimaSettingsDeep(IocWorkItem* work, int maxSteckers)
 {
     Enigma*     enigma;
     int         r1, r2, r3;
@@ -829,7 +1300,7 @@ void iocEvaluateEngimaSettingsDeep(IocWorkItem* work)
     count       =0;
     startTime   =time(NULL);
 
-    iocMax      =0.0;
+    iocMax      =-1000000.0;
     // Parse the Waltzen permutations assigned
     w           =start;
     while (w<=end)
@@ -875,7 +1346,8 @@ void iocEvaluateEngimaSettingsDeep(IocWorkItem* work)
                             setRingStellung(enigma, 2, r2);
                             setRingStellung(enigma, 3, r3);
 
-                            iocFindSteckeredCharsDeep(enigma, results, g1, g2, g3);
+                            iocFindSteckeredCharsDeep(enigma, results, g1, g2, g3, maxSteckers);
+                            
                             ioc=results->indexOfCoincidence;
 
                             if (ioc>iocMax)
@@ -925,6 +1397,7 @@ void iocEvaluateEngimaSettingsDeep(IocWorkItem* work)
 }
 
 
+
 /**************************************************************************************************\
 * 
 * Thread function. Executes the next available work item at the end of the list
@@ -940,17 +1413,29 @@ void *iocThreadFunction(void *vargp)
     LinkedList*         permutations;
     IocThreadParams*    params;
     long                id;
-    int                 isDeep;
+    
+    EvaluationMethod*   evalMethod;
+    method_t            method;
+    int                 maxSteckers;
+    int                 maxSteckersIoc;
+    int                 ngramSize;
+    
+    
     
     params      =(IocThreadParams*)vargp;
     permutations=params->permutations;
     id          =(long)params->threadId;
-    isDeep      =params->isDeep;
-   
     
     done=0;
     // Increase the number of threads running
     pthread_mutex_lock(&iocMutex);
+
+    evalMethod    =params->evaluationMethod;
+    method        =evalMethod->method;
+    maxSteckers   =evalMethod->maxSteckers;
+    maxSteckersIoc=evalMethod->maxSteckersIoc;
+    ngramSize     =evalMethod->ngramSize;
+
     iocThreadsRunning++;
     pthread_mutex_unlock(&iocMutex);     
     
@@ -969,6 +1454,7 @@ void *iocThreadFunction(void *vargp)
         }
         pthread_mutex_unlock(&iocMutex);     
 
+        // PHASE 1
         // process the item
         if (!done)
         {
@@ -977,13 +1463,17 @@ void *iocThreadFunction(void *vargp)
                    item->startR2, item->endR2, 
                    item->startR3, item->endR3);
             fflush(stdout);
-            if (isDeep)
+            switch (method)
             {
-                iocEvaluateEngimaSettingsDeep(item);
-            }
-            else
-            {
-                iocEvaluateEngimaSettings(item);
+                case METHOD_IOC:
+                  iocEvaluateEngimaSettings(item);
+                  break;
+                case METHOD_IOC_DEEP:
+                  iocEvaluateEngimaSettingsDeep(item, maxSteckers);
+                  break;
+                case METHOD_IOC_NGRAM:
+                  iocEvaluateEngimaSettingsDeep(item, maxSteckersIoc);
+                  break;
             }
         }
     }
@@ -1001,23 +1491,36 @@ void *iocThreadFunction(void *vargp)
     }
     pthread_mutex_unlock(&iocMutex);     
     
+    // PHASE 2
     // If this is the last thread, finish the job
     if (lastManStanding)
     {
 
         printf("Last man standing: %ld\n", id);
         
-        if (!isDeep)
+        switch (method)
         {
-            // Now we have got the Top 10 best results, try to find the 
-            // Stecker Positions for each of them (only for the not deep method)
-            i=0;
-            while (i<iocNumberOfResults)
-            {
-                printf("Finding steckers for %d\n", i);
-                iocFindSteckeredChars(&iocTopTenResults[i]);
-                i++;
-            }
+            case METHOD_IOC:
+                // Now we have got the Top 10 best results, try to find the 
+                // Stecker Positions for each of them (only for the not deep method)
+                i=0;
+                while (i<iocNumberOfResults)
+                {
+                    printf("Finding steckers for %d\n", i);
+                    iocFindSteckeredChars(&iocTopTenResults[i], maxSteckers);
+                    i++;
+                }
+              break;
+            case METHOD_IOC_DEEP:
+              break;
+            case METHOD_IOC_NGRAM:
+                i=0;
+                while (i<iocNumberOfResults)
+                {
+                    iocFindSteckeredCharsNgram2(&iocTopTenResults[i], maxSteckers, ngramSize);
+                    i++;
+                }
+              break;
         }
         
         // Show the final result 
@@ -1049,7 +1552,7 @@ void *iocThreadFunction(void *vargp)
 * if not
 * 
 \**************************************************************************************************/
-void iocExecuteWorkItems (int numOfThreads, int isDeep, LinkedList* permutations)
+void iocExecuteWorkItems (int numOfThreads, LinkedList* permutations)
 {
     int             i;
 
@@ -1057,8 +1560,9 @@ void iocExecuteWorkItems (int numOfThreads, int isDeep, LinkedList* permutations
     i=0;
     while (i<numOfThreads)
     {
-        threadParams[i].permutations=permutations;
-        threadParams[i].isDeep      =isDeep;
+        threadParams[i].permutations        =permutations;
+        threadParams[i].evaluationMethod    =&evaluationMethod;
+
         pthread_create(&(threadParams[i].threadId), 
                        NULL, iocThreadFunction, 
                        (void *)(threadParams+i)); 
@@ -1070,17 +1574,55 @@ void iocExecuteWorkItems (int numOfThreads, int isDeep, LinkedList* permutations
 
 /**************************************************************************************************\
 * 
+* Defines the decryption method
+* method          The method to use
+* maxSteckers     The maximum number of Steckers to try
+* maxSteckersIoc  METHOD_IOC_NGRAM: the max number of Steckers to use with ioc, rest will be ngram
+* ngramSize       n in ngram (2 - bigrams, 3 - trigrams, etc)
+* ngrams          Ngram set to use ('DE', 'EN', 'GC')
+* 
+\**************************************************************************************************/
+void setEvaluationMethod(method_t method, int maxSteckers, int maxSteckersIoc, int ngramSize, char* ngrams)
+{
+    evaluationMethod.method         =method;
+    evaluationMethod.maxSteckers    =maxSteckers;
+    evaluationMethod.maxSteckersIoc =maxSteckersIoc;
+    evaluationMethod.ngramSize      =ngramSize;
+
+    if (ngrams!=NULL)
+    {
+        strncpy(evaluationMethod.ngramSet, ngrams, 5);
+    }
+    else
+    {
+        evaluationMethod.ngramSet[0]='\0';
+    }
+    
+    // Initialise the NGRAM scoring
+    if (ngramSize>0 && ngrams!=NULL)
+    {
+        prepareNgramScore(ngramSize, ngrams);
+    }
+}
+
+
+
+
+
+/**************************************************************************************************\
+* 
 * Tries to decode a cypher only text. Two methods are supported by means of isDeep.
 * isDeep=0: First the rotor positions are detected, then the steckered positions. Works op to 
 *           5-6 steckers
 * isDeep=1: For each rotor position the steckers are tried
 * 
 \**************************************************************************************************/
-void iocDecodeText(char* cypher, int numOfThreads, int isDeep)
+void iocDecodeText(char* cypher, int numOfThreads)
 {
     int             i;
     LinkedList*     permutations;
     int             length;
+
     
     // Start with 5 Wehrmacht rotors
     permutations=createRotorPermutations(3, 5);
@@ -1092,32 +1634,32 @@ void iocDecodeText(char* cypher, int numOfThreads, int isDeep)
     i=0;
     while (i<numOfThreads)
     {
-        iocWorkItems[i*2].cypher            =cypher;
-        iocWorkItems[i*2].permutations      =permutations;
-        iocWorkItems[i*2].startPermutation  =i*length/numOfThreads;
-        iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads-1;
-        iocWorkItems[i*2].startR2           =1;
-        iocWorkItems[i*2].endR2             =MAX_POSITIONS;
-        iocWorkItems[i*2].startR3           =1;
-        iocWorkItems[i*2].endR3             =MAX_POSITIONS;
-        iocWorkItems[i*2].maxCypherChars    =MAX_TEXT;
+        iocWorkItems[i*2].cypher                =cypher;
+        iocWorkItems[i*2].permutations          =permutations;
+        iocWorkItems[i*2].startPermutation      =i*length/numOfThreads;
+        iocWorkItems[i*2].endPermutation        =(i+1)*length/numOfThreads-1;
+        iocWorkItems[i*2].startR2               =1;
+        iocWorkItems[i*2].endR2                 =MAX_POSITIONS;
+        iocWorkItems[i*2].startR3               =1;
+        iocWorkItems[i*2].endR3                 =MAX_POSITIONS;
+        iocWorkItems[i*2].maxCypherChars        =MAX_TEXT;
         strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
 
         
-        iocWorkItems[i*2+1].cypher          =cypher;
-        iocWorkItems[i*2+1].permutations    =permutations;
-        iocWorkItems[i*2+1].startPermutation=i*length/numOfThreads;
-        iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads-1;
-        iocWorkItems[i*2+1].startR2         =1;
-        iocWorkItems[i*2+1].endR2           =MAX_POSITIONS;
-        iocWorkItems[i*2+1].startR3         =1;
-        iocWorkItems[i*2+1].endR3           =MAX_POSITIONS;
-        iocWorkItems[i*2+1].maxCypherChars  =MAX_TEXT;
+        iocWorkItems[i*2+1].cypher              =cypher;
+        iocWorkItems[i*2+1].permutations        =permutations;
+        iocWorkItems[i*2+1].startPermutation    =i*length/numOfThreads;
+        iocWorkItems[i*2+1].endPermutation      =(i+1)*length/numOfThreads-1;
+        iocWorkItems[i*2+1].startR2             =1;
+        iocWorkItems[i*2+1].endR2               =MAX_POSITIONS;
+        iocWorkItems[i*2+1].startR3             =1;
+        iocWorkItems[i*2+1].endR3               =MAX_POSITIONS;
+        iocWorkItems[i*2+1].maxCypherChars      =MAX_TEXT;
         strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
         i++;
     }
 
-    iocExecuteWorkItems(numOfThreads, isDeep, permutations);
+    iocExecuteWorkItems(numOfThreads, permutations);
 }
 
 
@@ -1147,7 +1689,9 @@ void iocExample()
     printf("# Original Steckers         : %s\n", settings->steckers);
     printf("#####################################################################################\n");
 
-    iocDecodeText(iocExampleCypher, 6, 0);
+    setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
+
+    iocDecodeText(iocExampleCypher, 6);
 }
 
 
@@ -1178,6 +1722,8 @@ void iocExampleDeep1()
     printf("# Original Steckers         : %s\n", settings->steckers);
     printf("#####################################################################################\n");
 
+    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 0, NULL);
+
     // Start with 5 Wehrmacht rotors
     permutations=createRotorPermutations(3, 5);
 
@@ -1194,7 +1740,7 @@ void iocExampleDeep1()
     
     strncpy(iocWorkItems[0].ukw, "UKW B", MAX_ROTOR_NAME);
 
-    iocEvaluateEngimaSettingsDeep(&iocWorkItems[0]);
+    iocEvaluateEngimaSettingsDeep(&iocWorkItems[0], 10);
 
     iocDumpTopTenResults(1);
 
@@ -1228,6 +1774,9 @@ void iocExampleDeep2()
     printf("# Original Steckers         : %s\n", settings->steckers);
     printf("#####################################################################################\n");
 
+    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 0, NULL);
+
+
     // Start with 5 Wehrmacht rotors
     permutations=createRotorPermutations(3, 5);
 
@@ -1244,9 +1793,132 @@ void iocExampleDeep2()
     
     strncpy(iocWorkItems[0].ukw, "UKW C", MAX_ROTOR_NAME);
 
-    iocEvaluateEngimaSettingsDeep(&iocWorkItems[0]);
+    iocEvaluateEngimaSettingsDeep(&iocWorkItems[0], 10);
 
     iocDumpTopTenResults(1);
 
     destroyLinkedList(permutations);    
+}
+
+/**************************************************************************************************\
+* 
+* Example to play with short messages
+* 
+\**************************************************************************************************/
+void iocExampleNgram()
+{
+    EnigmaSettings* settings;
+    LinkedList*     permutations;
+    int             i;
+    
+    settings=&iocExampleResults3.settings;
+    
+    printf("\n");
+    printf("#####################################################################################\n");
+    printf("# INDEX OF COINCIDENCE METHOD EXAMPLE\n");
+    printf("# Cypher                    : \n%s\n", iocExampleCypher3);
+    printf("# Original Waltzen          : %s %s %s\n", settings->rotors[0], settings->rotors[1], settings->rotors[2]);
+    printf("# Original UKW              : %s \n", settings->ukw);
+    printf("# Original RingStellungen   : %d %d %d\n", settings->ringStellungen[0], 
+                                                       settings->ringStellungen[1], 
+                                                       settings->ringStellungen[2]);
+    printf("# Original GrundStellungen  : %d %d %d\n", settings->grundStellungen[0],
+                                                       settings->grundStellungen[1],
+                                                       settings->grundStellungen[2]);
+    printf("# Original Steckers         : %s\n", settings->steckers);
+    printf("#####################################################################################\n");
+
+    setEvaluationMethod(METHOD_IOC_NGRAM, 10, 6, 3, "DE");
+
+
+    // Start with 5 Wehrmacht rotors
+    permutations=createRotorPermutations(3, 5);
+
+    iocWorkItems[0].cypher            =iocExampleCypher3;
+    iocWorkItems[0].permutations      =permutations;
+    iocWorkItems[0].startPermutation  =40;
+    iocWorkItems[0].endPermutation    =40;
+    iocWorkItems[0].startR2           =24;
+    iocWorkItems[0].endR2             =24;
+    iocWorkItems[0].startR3           =15;
+    iocWorkItems[0].endR3             =15;
+    iocWorkItems[0].maxCypherChars    =MAX_TEXT;
+
+    
+    strncpy(iocWorkItems[0].ukw, "UKW C", MAX_ROTOR_NAME);
+
+    iocEvaluateEngimaSettingsDeep(&iocWorkItems[0], 6);
+
+    i=0;
+    while (i<iocNumberOfResults)
+    {
+        iocFindSteckeredCharsNgram2(&iocTopTenResults[i], 10, 3);
+        i++;
+    }
+
+    iocDumpTopTenResults(1);
+
+    destroyLinkedList(permutations);    
+}
+
+/**************************************************************************************************\
+* 
+* Quicky to test iocFindSteckeredCharsNgram
+* 
+\**************************************************************************************************/
+void ngramTest()
+{
+    setEvaluationMethod(METHOD_IOC_NGRAM, 10, 6, 3, "DE");
+
+    strcpy(iocExampleResults3Test.settings.cypher, iocExampleCypher3);
+
+    printf("Steckers %s\n", iocExampleResults3Test.settings.steckers);
+
+    iocFindSteckeredCharsNgram2(&iocExampleResults3Test, 10, 3);
+    
+    printf("Steckers %s\n", iocExampleResults3Test.settings.steckers);
+    
+    dumpDecoded(&iocExampleResults3Test.settings);
+    
+}
+
+
+/**************************************************************************************************\
+* 
+* Quicky to test iocFindSteckeredCharsNgram
+* 
+\**************************************************************************************************/
+void ngramTest2()
+{
+    setEvaluationMethod(METHOD_IOC_NGRAM, 10, 6, 3, "GC");
+
+
+    printf("Steckers %s\n", iocExampleResults3Test2.settings.steckers);
+
+    iocFindSteckeredCharsNgram2(&iocExampleResults3Test2, 10, 3);
+    
+    printf("Steckers %s\n", iocExampleResults3Test2.settings.steckers);
+    
+    dumpDecoded(&iocExampleResults3Test2.settings);
+    
+}
+
+/**************************************************************************************************\
+* 
+* Quicky to test iocFindSteckeredCharsNgram
+* 
+\**************************************************************************************************/
+void ngramTest3()
+{
+    setEvaluationMethod(METHOD_IOC_NGRAM, 10, 6, 3, "DE");
+
+
+    printf("Steckers %s\n", iocExampleResults3Test3.settings.steckers);
+
+    iocFindSteckeredCharsNgram2(&iocExampleResults3Test3, 13, 3);
+    
+    printf("Steckers %s\n", iocExampleResults3Test3.settings.steckers);
+    
+    dumpDecoded(&iocExampleResults3Test3.settings);
+    
 }

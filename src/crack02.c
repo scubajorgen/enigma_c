@@ -203,6 +203,7 @@ char text10[]=
  "LGJJA VXHZZ VBFLX HNNEJ XS";
 
 
+
 /*
     Plain text: 
     Nadat eerst de Poolse en nadien, tijdens de Tweede Wereldoorlog, de Britse inlichtingendienst 
@@ -873,15 +874,15 @@ void message10()
 {
     int             i;
     LinkedList*     permutations;
-	int				numOfThreads;
+    int				numOfThreads;
     
 	
-	numOfThreads=4;
+    numOfThreads=4;
 	
     permutations=createRotorPermutations(3, 5);
 
 	
-	// STEP 1: INITIAL TRY: TRY ALL ROTOR POSTIONS
+  	// STEP 1: INITIAL TRY: TRY ALL ROTOR POSTIONS
     // Start with 5 Wehrmacht rotors
 	
 
@@ -918,7 +919,9 @@ void message10()
         i++;
     }
 
-	iocExecuteWorkItems(numOfThreads, 1, permutations);	
+    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, "DE");
+
+    iocExecuteWorkItems(numOfThreads, permutations);	
 	
 /*	
 	// THIS RESULTS IN THE BEST SOLUTION:
@@ -946,7 +949,12 @@ void message10()
         i++;
     }
 
-	iocExecuteWorkItems(numOfThreads, 1, permutations);	
+    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, "DE");
+    iocExecuteWorkItems(numOfThreads, permutations);	
 */	
 	
 }
+
+
+
+
