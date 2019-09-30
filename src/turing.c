@@ -394,6 +394,14 @@ void turingProve()
     int         set;
     CribCircle*     cribCircle;
     
+    printf("#####################################################################################\n");
+    printf("# TURING PROVE\n");
+    printf("# Inventory of links, finding loops and proving they work\n");
+    printf("#####################################################################################\n\n");
+
+    printf("            123456789012345678901234567890\n");    
+    printf("Cypher    : %s\n", turingCypher);
+    printf("Plain text: %s\n", turingCrib);
     
     turingFindLoops(turingCypher, turingCrib);
     
@@ -542,7 +550,6 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
         }
         set++;
     }
-
     
     return theFound;
 }
@@ -978,8 +985,6 @@ void turingExample()
     printf("# Original Steckers         : %s\n", testSteckers);
     printf("#####################################################################################\n");
 
-//    turingProve();
-    
     turingBombe(turingCypher, turingCrib, 1);
 }
 
