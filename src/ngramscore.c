@@ -140,7 +140,7 @@ void prepareNgramScore(int n, char* language)
         }
         else if (n==3)
         {
-            readNgramFile("ngrams/german_trigrams2.txt", 3, NGRAM_FREQUENCY);
+            readNgramFile("ngrams/german_trigrams.txt", 3, NGRAM_FREQUENCY);
         }
     }
     else if (strncmp(language, "GB", 4)==0)
@@ -198,12 +198,12 @@ float ngramScore(Enigma* engima, int n)
             ngramValue+=engima->conversion[c+ngram];
             ngram++;
         }
-        
+       
         ngram       =ngrams>>1;
         ngramInc    =ngram>>1;
         found       =0;
         exit        =0;
-        last        =2;
+        last        =4;         // TODO there must be a better solution for this...
         while (!found && !exit)
         {
             if (ngramValue==ngramFrequencies[ngram].value)
