@@ -11,13 +11,27 @@
 
 // EXAMPLE SET
 char turingCrib[]       ="WETTERVORHERSAGEBISKAYA";
-char turingCypher[]     ="RPVPZILDGRNOPPLOFZNRUALXKHEXLDMQYCDFAQ";
 
-char testGrundStellung[]="22 17 12";
-char testRingStellung []="01 24 03";
-char testWaltzen[3][5]  ={"I", "II", "III"};
-char testUkw[]          ="UKW B";
-char testSteckers[]     ="bq cr di ej kw mt os px uz gh";
+EnigmaSettings turingTestSettings=
+{
+    3,
+    {
+        "I",
+        "II",
+        "III"
+    },
+    "UKW B",
+    {
+        1, 24, 3
+    },
+    {
+        22, 17, 12
+    },
+    "bq cr di ej kw mt os px uz gh",
+    "RPVPZILDGRNOPPLOFZNRUALXKHEXLDMQYCDFAQ"
+};
+
+
 
 /**************************************************************************************************\
 * 
@@ -41,23 +55,21 @@ void turingProve()
     printf("#####################################################################################\n\n");
 
     printf("            123456789012345678901234567890\n");    
-    printf("Cypher    : %s\n", turingCypher);
+    printf("Cypher    : %s\n", turingTestSettings.cypher);
     printf("Plain text: %s\n", turingCrib);
     
-    turingFindLoops(turingCypher, turingCrib);
+    turingFindLoops(turingTestSettings.cypher, turingCrib);
     
+    printf("\nMENU (LINKS)\n");
     dumpMenu();
+
+    printf("\n\nCRIB CRICLES\n");
     dumpSets();
-    
+
+    printf("\n\nGOING THE CRIBCIRCLES AROUND\n");
     enigma=createEnigmaM3();
-    
-    placeWaltze         (enigma, 1, testWaltzen[0]);
-    placeWaltze         (enigma, 2, testWaltzen[1]);
-    placeWaltze         (enigma, 3, testWaltzen[2]);
-    setRingStellungen   (enigma, testRingStellung);
-    
-    placeSteckers       (enigma, testSteckers);
-    placeUmkehrWaltze   (enigma, testUkw);
+
+    setEnigma(enigma, &turingTestSettings);
     
     temp[1]='\0';
 
@@ -78,7 +90,10 @@ void turingProve()
             while (step<cribCircle->circleSize)
             {
                 setText(enigma, temp);
-                setGrundStellungen  (enigma, testGrundStellung);
+                setGrundStellung(enigma, 1, turingTestSettings.grundStellungen[0]);
+                setGrundStellung(enigma, 2, turingTestSettings.grundStellungen[1]);
+                setGrundStellung(enigma, 3, turingTestSettings.grundStellungen[2]);
+
                 advances(enigma, cribCircle->advances[step]-1);
 
                 encodeDecode        (enigma);
@@ -88,6 +103,10 @@ void turingProve()
             }
             printf("output: %s\n", decoded);
             circle++;
+        }
+        if (cribCircleSet[set].numOfCircles>0)
+        {
+            printf("\n");
         }
         set++;
     }
@@ -106,15 +125,21 @@ void turingExample()
     printf("\n");
     printf("#####################################################################################\n");
     printf("# TURING BOMBE\n");
-    printf("# Cypher                    : %s\n", turingCypher);
-    printf("# Crib                      : %s\n", turingCrib);
-    printf("# Original Waltzen          : %s %s %s\n", testWaltzen[0], testWaltzen[1], testWaltzen[2]);
-    printf("# Original RingStellungen   : %s\n", testRingStellung);
-    printf("# Original GrundStellungen  : %s\n", testGrundStellung);
-    printf("# Original Steckers         : %s\n", testSteckers);
+    printf("# Cypher                    : %s\n",        turingTestSettings.cypher);
+    printf("# Crib                      : %s\n",        turingCrib);
+    printf("# Original Waltzen          : %s %s %s\n",  turingTestSettings.rotors[0],
+                                                        turingTestSettings.rotors[1], 
+                                                        turingTestSettings.rotors[2]);
+    printf("# Original RingStellungen   : %d %d %d\n",  turingTestSettings.ringStellungen[0],
+                                                        turingTestSettings.ringStellungen[1],
+                                                        turingTestSettings.ringStellungen[2]);
+    printf("# Original GrundStellungen  : %d %d %d\n",  turingTestSettings.grundStellungen[0],
+                                                        turingTestSettings.grundStellungen[1],
+                                                        turingTestSettings.grundStellungen[2]);
+    printf("# Original Steckers         : %s\n",        turingTestSettings.steckers);
     printf("#####################################################################################\n");
 
-    turingBombe(turingCypher, turingCrib, 1);
+    turingBombe(turingTestSettings.cypher, turingCrib, 1);
 }
 
 /**************************************************************************************************\
