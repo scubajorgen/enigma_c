@@ -13,7 +13,7 @@
 * DEFINES
 \**************************************************************************************************/
 
-#define TOP_RESULTS_SIZE    25
+#define TOP_RESULTS_SIZE    10
 #define MAX_THREADS         8
 #define MAX_WORK_ITEMS      32
 
@@ -23,8 +23,7 @@ typedef enum
     METHOD_IOC,             // James Gillogly
     METHOD_IOC_DEEP,        // Improved James Gillogly method
     METHOD_IOC_NGRAM        // Improved James Gillogly method combined with ngrams
-} method_t;
-
+} Method_t;
 
 
 typedef struct
@@ -33,6 +32,7 @@ typedef struct
     LinkedList* permutations;           // List of Waltzen permutations
     int         startPermutation;       // Permutation start
     int         endPermutation;         // permutation end; end included
+    int         R1;                     // Value of R1 to use
     int         startR2;                // RingStellung 2 start
     int         endR2;                  // RingStellung 2 end; end included
     int         startR3;                // RingStellung 3 start
@@ -41,6 +41,12 @@ typedef struct
     char        ukw[MAX_ROTOR_NAME];    // UKW to use
 } IocWorkItem;
 
+typedef struct
+{
+    float           indexOfCoincidence;
+    EnigmaSettings  settings;
+    int             steckerTable[MAX_POSITIONS];
+} IocResults;
 
 /**************************************************************************************************\
 * VARIABLES
@@ -49,20 +55,21 @@ typedef struct
 extern IocWorkItem         iocWorkItems[MAX_WORK_ITEMS];
 extern int                 iocNumberOfWorkItems;
 
-
+// temp
+extern IocResults          iocTopTenResults[TOP_RESULTS_SIZE];
+extern int                 iocNumberOfResults;
 
 /**************************************************************************************************\
 * FUNCTIONS
 \**************************************************************************************************/
 
+// temp
+void    iocEvaluateEngimaSettings   (IocWorkItem* work, int maxSteckers);
+void    iocFindSteckeredChars       (IocResults* results, int maxNumOfSteckers);
+void    iocFindSteckeredCharsNgram  (IocResults* results, int maxNumOfSteckers, int ngramSize);
+void    iocDumpTopTenResults        (int withDecode);
+void    iocExecuteWorkItems         (int numOfThreads, LinkedList* permutations);
 
-void    setEvaluationMethod (method_t method, int maxSteckers, int maxSteckersIoc, int ngramSize, char* ngrams);
-void    iocDecodeText       (char* cypher, int numOfThreads);
-void    iocExecuteWorkItems (int numOfThreads, LinkedList* permutations);
-void    iocExample          ();
-void    iocExampleDeep1     ();
-void    iocExampleDeep2     ();
-void    iocExampleNgram     ();
-void    ngramTest           ();
-void    ngramTest2          ();
-void    ngramTest3          ();
+
+void    setEvaluationMethod         (Method_t method, int maxSteckers, int maxSteckersIoc, int ngramSize, char* ngrams);
+void    iocDecodeText               (char* cypher, int numOfThreads);

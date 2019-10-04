@@ -31,6 +31,7 @@ SRCOBJ	        = enigma.o \
                   turing.o\
                   exampleTuring.o \
                   coincidence.o \
+                  exampleIoc.o \
                   ngramscore.o \
                   toolbox.o
 
