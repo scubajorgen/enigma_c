@@ -471,24 +471,24 @@ void test08()
     prepareNgramScore(3, "DE");
 
     enigma->textSize=3;
-    enigma->conversion[0]='E'-'A';
+    enigma->conversion[0]='E'-'A';  // ENS - -5.618547
     enigma->conversion[1]='N'-'A';
     enigma->conversion[2]='S'-'A';
 
     
-    assertFloatEquals("ngram",  1, -4.323774, ngramScore(enigma, 3));   
+    assertFloatEquals("ngram",  1, -5.618547, ngramScore(enigma, 3));   
     
     enigma->textSize=8;
-    enigma->conversion[0]='E'-'A';  //END - -4.132483
-    enigma->conversion[1]='N'-'A';  //NDE - -3.644503
-    enigma->conversion[2]='D'-'A';
-    enigma->conversion[3]='E'-'A';
-    enigma->conversion[4]='X'-'A';
-    enigma->conversion[5]='L'-'A';  //LIC - -4.872928
-    enigma->conversion[6]='I'-'A';
+    enigma->conversion[0]='E'-'A';  //END -  -5.427283
+    enigma->conversion[1]='N'-'A';  //NDE -  -4.939303
+    enigma->conversion[2]='D'-'A';  //DEX -  -9.533161
+    enigma->conversion[3]='E'-'A';  //EXL - -12.648394
+    enigma->conversion[4]='X'-'A';  //XLI - -13.109703
+    enigma->conversion[5]='L'-'A';  //LIC -  -6.167728
+    enigma->conversion[6]='I'-'A';  
     enigma->conversion[7]='C'-'A';
 
-    assertFloatEquals("ngram",  2, -28.082878, ngramScore(enigma, 3));   
+    assertFloatEquals("ngram",  2, -51.825572, ngramScore(enigma, 3));   
 
     destroyEnigma(enigma);
 }
