@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <limits.h>
 
 #include "ngramscore.h"
 #include "enigma.h"
@@ -9,7 +10,7 @@
 #define MAX_NGRAM           3
 #define MAX_NGRAM_SIZE      17576
 
-typedef enum {NGRAM_CHANGE, NGRAM_FREQUENCY} NgramFileFormat;
+typedef enum {NGRAM_CHANCE, NGRAM_FREQUENCY} NgramFileFormat;
 
 typedef struct
 {
@@ -22,16 +23,26 @@ typedef struct
 
 NgramFrequency  ngramFrequencies[MAX_NGRAM_SIZE];
 int             ngrams;
-
+int             minFrequency;
+float           minChance;
+float           minLogChance;
 
 char fileLine[128];
 
 
-
-
 /**************************************************************************************************\
 * 
-* 
+* Reads the ngram file. Supports two types: frequency and chance
+*
+* Frequency:
+* [ABC] [123]
+* [ABC] is the ngram, [123] the number of occurences (e.g. in some text)
+*
+* Chance
+* [ABC] [0.123]
+* [ABC] is the ngram, [0.123] the relative chance of occurences
+*
+* In both cases the list must be alphabetically sorted in ascending order
 * 
 \**************************************************************************************************/
 void readNgramFile(char* fileName, int n, NgramFileFormat format)
@@ -51,6 +62,8 @@ void readNgramFile(char* fileName, int n, NgramFileFormat format)
  
     line=0;
     sum=0;
+    minFrequency=INT_MAX;
+    minChance=1.0f;
     // Read line
     while ( fgets(fileLine, sizeof fileLine, fp)!=NULL)
     {
@@ -63,15 +76,23 @@ void readNgramFile(char* fileName, int n, NgramFileFormat format)
             ngramFrequencies[line].value+=ngramFrequencies[line].ngram[i]-'A';
             i++;
         }
-        if (format==NGRAM_CHANGE)
+        if (format==NGRAM_CHANCE)
         {
             ngramFrequencies[line].chance=atof(fileLine+i+1);
             ngramFrequencies[line].logChance=log(ngramFrequencies[line].chance);
+            if (ngramFrequencies[line].chance<minChance)
+            {
+                minChance=ngramFrequencies[line].chance;
+            }
         }
         else
         {
             ngramFrequencies[line].frequency=atoi(fileLine+i+1);
             sum+=ngramFrequencies[line].frequency;
+            if (ngramFrequencies[line].frequency<minFrequency)
+            {
+               minFrequency=ngramFrequencies[line].frequency;
+            }
         }        
         
         line++;
@@ -93,10 +114,13 @@ void readNgramFile(char* fileName, int n, NgramFileFormat format)
                                 ngramFrequencies[i].frequency,
                                 ngramFrequencies[i].chance,
                                 ngramFrequencies[i].logChance);
-*/
+*/  
             i++;
         }
-    } 
+        minChance=(float)minFrequency/(float)sum;
+    }
+    minLogChance=log(minChance);
+
     fclose(fp);    
 }
 
@@ -116,7 +140,7 @@ void prepareNgramScore(int n, char* language)
         }
         else if (n==3)
         {
-            readNgramFile("ngrams/german_trigrams.txt", 3, NGRAM_FREQUENCY);
+            readNgramFile("ngrams/german_trigrams2.txt", 3, NGRAM_FREQUENCY);
         }
     }
     else if (strncmp(language, "GB", 4)==0)
@@ -133,6 +157,13 @@ void prepareNgramScore(int n, char* language)
             readNgramFile("ngrams/geocaching_trigrams.txt", 3, NGRAM_FREQUENCY);
         }
     }
+    else if (strncmp(language, "GC2", 4)==0)
+    {
+        if (n==3)
+        {
+            readNgramFile("ngrams/geocachingDe_trigrams.txt", 3, NGRAM_FREQUENCY);
+        }
+    }
 }
 
 
@@ -140,7 +171,7 @@ void prepareNgramScore(int n, char* language)
 
 /**************************************************************************************************\
 * 
-* 
+* Calculate the ngram score. It assumes the array of ngrams is sorted alphabetically
 * 
 \**************************************************************************************************/
 float ngramScore(Enigma* engima, int n)
@@ -175,7 +206,6 @@ float ngramScore(Enigma* engima, int n)
         last        =2;
         while (!found && !exit)
         {
-//            printf("%d %d - %d %d +- %d\n", ngramValue, ngramFrequencies[ngram].value, ngrams, ngram, ngramInc);
             if (ngramValue==ngramFrequencies[ngram].value)
             {
                 score+=ngramFrequencies[ngram].logChance;
@@ -218,7 +248,7 @@ float ngramScore(Enigma* engima, int n)
         // ngram
         if (!found)
         {
-            score+=ngramFrequencies[ngrams-1].logChance;
+            score+=minLogChance;
         }
         c++;
     }
