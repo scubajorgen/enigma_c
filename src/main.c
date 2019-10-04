@@ -1,9 +1,10 @@
 #include <stdio.h>
 
 #include "enigma.h"
-#include "turing.h"
+#include "exampleTuring.h"
 #include "coincidence.h"
 #include "crack.h"
+
 
 void enigmaExample()
 {
@@ -35,7 +36,7 @@ void enigmaExample()
     
     cypher=toString(enigma);
     
-    printf("Original  : %s \nCypher    : %s\n\n", someText, cypher);
+    printf("Original  : %s \nCypher    : %s\n", someText, cypher);
 
     setText             (enigma, cypher);
     
@@ -51,8 +52,6 @@ void enigmaExample()
 
 }
 
-
-
 int main()
 {
     printf("#####################################################################################\n");
@@ -60,17 +59,24 @@ int main()
     printf("#####################################################################################\n");
     
 	
-    // Simple encode/decode example
+    // Simple encode/decode example v
     enigmaExample();   
     
-    // The Turing method: find the crib loops and show they work
-//    turingProve();
+    // The Turing method: find the crib loops and show they work v
+    //turingProve();
    
-    // The Turing method: working example
-    turingExample();
+    // The Turing method: working example -> readable message, not all steckersettings are found
+    //turingExample();
 
-    // The James Gillogly method example
-    iocExample();
+    // The James Gillogly method example v
+    // iocExample();
+
+
+    // Deep method example - Gillogly text v
+    // iocExampleDeep1();
+
+    // Deep  method example - short message -> readable message, few misfits within steckered chars
+    // iocExampleDeep2();
 
     return 0;
 }

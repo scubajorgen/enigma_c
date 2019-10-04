@@ -19,7 +19,7 @@ examplesdir = $(docdir)/examples
 
 
 CFLAGS		= -I. -I./src -Wall -g -O2 -c -DOSA_POSIX 
-LDFLAGS		= -Wl,-rpath,/usr/local/lib -lstdc++
+LDFLAGS		= -Wl,-rpath,/usr/local/lib -lstdc++ -lm
 LIBS		= -L/usr/lib -lpthread 
 
 SRCOBJ	        = enigma.o \
@@ -29,6 +29,7 @@ SRCOBJ	        = enigma.o \
                   umkehrwaltze.o\
                   steckerbrett.o\
                   turing.o\
+                  exampleTuring.o \
                   coincidence.o \
                   ngramscore.o \
                   toolbox.o

@@ -49,9 +49,9 @@ extern LinkedLetters       menu[MAX_POSITIONS];
 extern CribCircleSet       cribCircleSet[MAX_POSITIONS];
 
 
+void    dumpSets();
+void    dumpMenu();
+
 void    turingGenerateLetterLinks   (char* text, char* crib);
 void    turingFindLoops             (char* text, char* crib);
-void    turingProve                 ();
 void    turingBombe                 (char* cypher, char* crib, int numOfThreads);
-void    turingExample               ();
-void    turingExample2              ();
