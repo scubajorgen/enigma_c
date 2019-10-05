@@ -128,7 +128,7 @@ IocResults  iocExampleResults3=
     }
 };
 
-
+// German text
 IocResults  iocExampleResults3Test=
 {
     0.0440,
@@ -146,15 +146,12 @@ IocResults  iocExampleResults3Test=
         {
             11, 18, 9
         },
-        "AT BG DV EW FR",
-//        "AT BG DV JX KZ QR"
-//        "AT DV JX KZ QR",
-//        "AT DV JX KZ",
+        "AT DV JX KZ QR IP", // last two steckers are wrong. AT BG DV EW FR HN IQ JX KZ LU
         ""
     }
 };
 
-
+// GC voorbeeld
 IocResults  iocExampleResults3Test2=
 {
     0.0,
@@ -174,9 +171,6 @@ IocResults  iocExampleResults3Test2=
         },
 //        "AZ BY CX DW EV FU GT HS IQ JR",
         "AZ BY CX DW EV FU",
-//        "AZ DW EV IQ JR",
-//          "AZ CG DW EV IQ NX",
-
 
         "QAVIM KGJZT XYFBC MVCON NTBZK LEZNB QMCLE UQXPY TYHEB VNCKO VACPK "
         "GCWPW UVHUF WJFWT CNIJV ULFBV ADZRQ WMLVD DQFRJ AZUPS IXACS KJHLR "
@@ -184,6 +178,7 @@ IocResults  iocExampleResults3Test2=
     }
 };
 
+//??
 IocResults  iocExampleResults3Test3=
 {
     0.0,
@@ -213,6 +208,46 @@ IocResults  iocExampleResults3Test3=
     }
 };
 
+/**************************************************************************************************\
+* 
+* Print cypher nicely formated
+* 
+\**************************************************************************************************/
+void printCypher(char* cypher)
+{
+  int i;
+  int printed;
+  
+  printf("# ");
+  i=0;
+  printed=0;
+  while(i<strlen(cypher))
+  {
+      if (cypher[i]!=' ')
+      {
+          printf("%c", cypher[i]);
+          printed++;
+
+      if (printed%5==0)
+      {
+          if (printed==50)
+          {
+              printf("\n# ");
+              printed=0;
+          }
+          else
+          {
+            printf(" ");
+          }
+      }
+      }
+      i++;
+  }
+  if (printed!=0)
+  {
+    printf("\n");
+  }
+}
 
 /**************************************************************************************************\
 * 
@@ -228,7 +263,8 @@ void iocExample()
     printf("\n");
     printf("#####################################################################################\n");
     printf("# INDEX OF COINCIDENCE METHOD EXAMPLE - James Gillogly\n");
-    printf("# Cypher                    : \n%s\n", iocExampleCypher);
+    printf("# Cypher                    : \n");
+    printCypher(iocExampleCypher);
     printf("# Original Waltzen          : %s %s %s\n", settings->rotors[0], settings->rotors[1], settings->rotors[2]);
     printf("# Original UKW              : %s \n", settings->ukw);
     printf("# Original RingStellungen   : %d %d %d\n", settings->ringStellungen[0], 
@@ -261,7 +297,8 @@ void iocExampleDeep1()
     printf("\n");
     printf("#####################################################################################\n");
     printf("# INDEX OF COINCIDENCE METHOD EXAMPLE\n");
-    printf("# Cypher                    : \n%s\n", iocExampleCypher2);
+    printf("# Cypher                    : \n");
+    printCypher(iocExampleCypher2);
     printf("# Original Waltzen          : %s %s %s\n", settings->rotors[0], settings->rotors[1], settings->rotors[2]);
     printf("# Original UKW              : %s \n", settings->ukw);
     printf("# Original RingStellungen   : %d %d %d\n", settings->ringStellungen[0], 
@@ -314,7 +351,8 @@ void iocExampleDeep2()
     printf("\n");
     printf("#####################################################################################\n");
     printf("# INDEX OF COINCIDENCE METHOD EXAMPLE\n");
-    printf("# Cypher                    : \n%s\n", iocExampleCypher3);
+    printf("# Cypher                    : \n");
+    printCypher(iocExampleCypher3);
     printf("# Original Waltzen          : %s %s %s\n", settings->rotors[0], settings->rotors[1], settings->rotors[2]);
     printf("# Original UKW              : %s \n", settings->ukw);
     printf("# Original RingStellungen   : %d %d %d\n", settings->ringStellungen[0], 
@@ -369,7 +407,8 @@ void iocExampleNgram()
     printf("\n");
     printf("#####################################################################################\n");
     printf("# INDEX OF COINCIDENCE METHOD EXAMPLE\n");
-    printf("# Cypher                    : \n%s\n", iocExampleCypher3);
+    printf("# Cypher                    : \n");
+    printCypher(iocExampleCypher3);
     printf("# Original Waltzen          : %s %s %s\n", settings->rotors[0], settings->rotors[1], settings->rotors[2]);
     printf("# Original UKW              : %s \n", settings->ukw);
     printf("# Original RingStellungen   : %d %d %d\n", settings->ringStellungen[0], 
@@ -430,7 +469,6 @@ void ngramTest()
 
     printf("Steckers %s\n", iocExampleResults3Test.settings.steckers);
 
-//    iocFindSteckeredChars(&iocExampleResults3Test, 10);
     iocFindSteckeredCharsNgram(&iocExampleResults3Test, 10, 3);
     
     printf("Steckers %s\n", iocExampleResults3Test.settings.steckers);
