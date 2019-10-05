@@ -2,7 +2,7 @@
 
 #include "enigma.h"
 #include "exampleTuring.h"
-#include "coincidence.h"
+#include "exampleIoc.h"
 #include "crack.h"
 
 
@@ -60,7 +60,7 @@ int main()
     
 	
     // Simple encode/decode example v
-    enigmaExample();   
+    //enigmaExample();   
     
     // The Turing method: find the crib loops and show they work v
     //turingProve();
@@ -69,14 +69,20 @@ int main()
     //turingExample();
 
     // The James Gillogly method example v
-    // iocExample();
-
+    //iocExample();
 
     // Deep method example - Gillogly text v
-    // iocExampleDeep1();
+    //iocExampleDeep1();
 
     // Deep  method example - short message -> readable message, few misfits within steckered chars
-    // iocExampleDeep2();
+    //iocExampleDeep2();
+
+    // NGRAM  method example - short message v
+    iocExampleNgram();
+    
+    // NGRAM method example: just find the steckers
+    // ngramTest();
+
 
     return 0;
 }
