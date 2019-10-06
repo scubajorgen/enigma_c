@@ -73,9 +73,13 @@ The software results in all rotor settings that result in the loops defined by t
 James Gillogly presented a method for finding the rotor settings and the steckers using the 'Index of Coincidence'.
 It uses the fact that letter frequency in plain text isn't random. He uses the index of coincidence as measure of 'non-randomness'. The method first tries to find the rotorsettings that result in the largest IoC value. It then uses a 'hill-climbing' technique to estimate the steckers that improves the IoC. 
 See the article http://web.archive.org/web/20060720040135/http://members.fortunecity.com/jpeschel/gillog1.htm
-The method described is implemented as iocExample();
+The method described is implemented as 
+    iocExample();
 
 ## Bgrams, Trigrams, Ngrams
 As an alternative for finding the steckers a method that scores the decoded text using trigrams. The method is described by https://cryptocellar.org/pubs/bgac.pdf.
 After finding the rotor settings and first steckers using the Gillogly method, the method succeeds better in fining the final steckers. It scores each trigram in the decoded text with the chance of this trigram occuring in average plain text. The more the decoded text approaches plain text, the higher the score. 
-Whereas the Gillogly requires large cyphers, this ngram method performs better for shorter cyphers. The method is implemented in exampleNgram(). A quick method is ngramTest().
+Whereas the Gillogly requires large cyphers, this ngram method performs better for shorter cyphers. The method is implemented in 
+    exampleNgram() 
+A quick method is 
+    ngramTest()
