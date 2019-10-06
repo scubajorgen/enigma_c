@@ -39,6 +39,7 @@ typedef struct
     int         endR3;                  // RingStellung 3 end; end included
     int         maxCypherChars;         // Part of the message to process; MAX_TEXT for full message
     char        ukw[MAX_ROTOR_NAME];    // UKW to use
+    int         threadId;               // Thread ID, to be filled in by the trhead
 } IocWorkItem;
 
 typedef struct

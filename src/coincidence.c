@@ -63,6 +63,7 @@ pthread_mutex_t     iocMutex;
 IocThreadParams     threadParams[MAX_THREADS];
 
 int                 iocThreadsRunning=0;
+int                 iocLastThreadId=-1;
 
 int                 ioctrigramCount[MAX_TRIGRAMS];
 
@@ -926,6 +927,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
     char*       cypher;
     int         maxCypherChars;
     char*       timeString;
+    int         threadId;
 
 
     // The work item
@@ -940,6 +942,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
     endR2           =work->endR2;
     startR3         =work->startR3;
     endR3           =work->endR3;
+    threadId        =work->threadId;
     
     results     =malloc(sizeof(IocResults));
     
@@ -975,8 +978,9 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
         time(&now);
         timeString=ctime(&now);
         timeString[strlen(timeString)-1]='\0';
-        printf("%s: Trying permutation %02d (%d/%d): %s %s %s %s R1 %02d R2 %02d-%02d R3 %02d-%02d\n",
-          timeString, 
+        printf("%s: Thread %d trying permutation %02d (%d/%d): %s %s %s %s R1 %02d R2 %02d-%02d R3 %02d-%02d\n",
+          timeString,
+          threadId,
           w,
           w-start+1, end-start+1,
           ukw,
@@ -1105,13 +1109,12 @@ void *iocThreadFunction(void *vargp)
     
     pthread_mutex_lock(&iocMutex);
     initialNumberOfWorkItems=iocInitialNumberOfWorkItems;
+    iocLastThreadId++;
+    id=iocLastThreadId;
     pthread_mutex_unlock(&iocMutex);
-    
-    
     
     params      =(IocThreadParams*)vargp;
     permutations=params->permutations;
-    id          =(long)params->threadId;
     
     done=0;
     // Increase the number of threads running
@@ -1134,6 +1137,7 @@ void *iocThreadFunction(void *vargp)
         {
             iocNumberOfWorkItems--;
             item=&iocWorkItems[iocNumberOfWorkItems];
+            item->threadId=id;
         }
         else
         {
