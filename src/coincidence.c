@@ -101,57 +101,6 @@ float iocIndexOfCoincidence(Enigma* enigma)
     return ioc;
 }
 
-
-/**************************************************************************************************\
-* 
-* Counts the occurrences of the most occurring trigrams
-* 
-\**************************************************************************************************/
-/*
-int iocCountTrigrams(Enigma* enigma)
-{
-    int i;
-    int count;
-    int length;
-    
-    length=sizeof(ioctrigrams3)/sizeof(NGram);
-    
-    count=0;
-    i=0;
-    while (i<length)
-    {
-        count+=countTrigram(enigma, ioctrigrams3[i].ngram)*ioctrigrams3[i].score;
-        i++;
-    }
-    
-    return count;
-}
-*/
-/**************************************************************************************************\
-* 
-* Counts the occurrences of the most occurring trigrams
-* 
-\**************************************************************************************************/
-/*
-int iocCountNgrams(Enigma* enigma)
-{
-    int i;
-    int count;
-    int length;
-    
-    length=sizeof(iocBiGrams)/sizeof(NGram);
-    
-    count=0;
-    i=0;
-    while (i<length)
-    {
-        count+=countNgram(enigma, iocBiGrams[i].ngram, 2)*iocBiGrams[i].score;
-        i++;
-    }
-    
-    return count;
-}
-*/
 /**************************************************************************************************\
 * 
 * Store the results in the top 10 of best results
@@ -586,10 +535,11 @@ void iocFindSteckeredCharsNgram(IocResults* results, int maxNumOfSteckers, int n
     sCount=steckersToSteckerTable(results->settings.steckers, steckerTable);
 
     enigma=createEnigmaM3();
-    
+
+    // Initialise maxIoc based on given settings
     setEnigma(enigma, &results->settings);
-    
-    maxIoc          =-1000000.0 ;
+    encodeDecode(enigma);
+    maxIoc          =ngramScore(enigma, ngramSize);
 
     found=1;
     while (sCount<maxNumOfSteckers && found)
