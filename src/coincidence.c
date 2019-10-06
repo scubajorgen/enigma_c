@@ -355,23 +355,26 @@ void printSteckerTable(int* steckerTable)
 void printFoundLetters(int s1Max, int s2Max, int s1aMax, int s2aMax, float maxIoc)
 {
     printf("Found steckered chars %c-%c ", s1Max+'A', s2Max+'A');
-    if (s1aMax>=0 || s2aMax>=0)
+    printf("(");
+
+    if (s1aMax>=0)
     {
-        printf("(");
-        if (s1aMax>=0)
-        {
-            printf("%c-%c", s1aMax+'A', s1Max+'A');
-            if (s2aMax>=0)
-            {
-                printf(" ");
-            }
-        }
-        if (s2aMax>=0)
-        {
-            printf("%c-%c", s2Max+'A', s2aMax+'A');
-        }
-        printf(") ");
+        printf("%c-%c", s1aMax+'A', s1Max+'A');
     }
+    else
+    {
+        printf(" - ");
+    }
+    if (s2aMax>=0)
+    {
+        printf(" %c-%c", s2Max+'A', s2aMax+'A');
+    }
+    else
+    {
+        printf("  - ");
+    }
+
+    printf(") ");
     printf("ioc %f\n", maxIoc);
     fflush(stdout);  
 }
@@ -604,7 +607,7 @@ void iocFindSteckeredCharsNgram(IocResults* results, int maxNumOfSteckers, int n
             {
                 if (steckerTable[s1]==s1 && steckerTable[s2]==s2)
                 {
-                    // Place stecker
+                    // Letters have not been steckered: Place stecker
                     steckerTable[s1]=s2;
                     steckerTable[s2]=s1;
                     s1a=-1;
@@ -612,6 +615,7 @@ void iocFindSteckeredCharsNgram(IocResults* results, int maxNumOfSteckers, int n
                 }
                 else if (steckerTable[s1]!=s1 && steckerTable[s2]==s2)
                 {
+                    // s1 has been steckered before
                     // swap back
                     s1a=steckerTable[s1];
                     steckerTable[s1a]=s1a;
@@ -622,6 +626,7 @@ void iocFindSteckeredCharsNgram(IocResults* results, int maxNumOfSteckers, int n
                 }
                 else if (steckerTable[s1]==s1 && steckerTable[s2]!=s2)
                 {
+                    // s2 has been steckered before
                     // swap back
                     s2a=steckerTable[s2];
                     steckerTable[s2a]=s2a;
@@ -630,16 +635,30 @@ void iocFindSteckeredCharsNgram(IocResults* results, int maxNumOfSteckers, int n
                     steckerTable[s2]=s1;
                     s1a=-1;
                 }
-                else
+                else //both letters have been steckered before
                 {
-                    // swap back
                     s1a=steckerTable[s1];
                     s2a=steckerTable[s2];
-                    steckerTable[s1a]=s1a;
-                    steckerTable[s2a]=s2a;
-                    // place new stecker
-                    steckerTable[s1]=s2;
-                    steckerTable[s2]=s1;
+                    // Now we have two cases: 
+                    // - both letters have been swapped with other letters ..P.NS.Q.. 
+                    //   In this case: swap back and place new stecker
+                    // - both letters have been swapped interchangeably    ....QP....
+                    //   In this case: just swap them back and see if it improves
+                    if (s1a!=s2 && s2a!=s1)
+                    {
+                        // swap back
+                        steckerTable[s1a]=s1a;
+                        steckerTable[s2a]=s2a;
+                        // place stecker
+                        steckerTable[s1]=s2;
+                        steckerTable[s2]=s1;
+                    }
+                    else
+                    {
+                        // swap back
+                        steckerTable[s1]=s1;
+                        steckerTable[s2]=s2;
+                    }  
                 }
 
                 // Quick and dirty way to set up the steckers
@@ -690,19 +709,51 @@ void iocFindSteckeredCharsNgram(IocResults* results, int maxNumOfSteckers, int n
         if (found)
         {
             printFoundLetters(s1Max, s2Max, s1aMax, s2aMax, maxIoc);
-            if (s1aMax>=0)
+
+            if (steckerTable[s1Max]==s1Max && steckerTable[s2Max]==s2Max)
             {
-              steckerTable[s1aMax]=s1aMax;
-              sCount--;
+                // Place stecker
+                steckerTable[s1Max]=s2Max;
+                steckerTable[s2Max]=s1Max;
+                sCount++;
             }
-            if (s2aMax>=0)
+            else if (steckerTable[s1Max]!=s1Max && steckerTable[s2Max]==s2Max)
             {
-              steckerTable[s2aMax]=s2aMax;
-              sCount--;
+                // swap back
+                steckerTable[s1aMax]=s1aMax;
+                // place new stecker
+                steckerTable[s1Max]=s2Max;
+                steckerTable[s2Max]=s1Max;
             }
-            steckerTable[s1Max]=s2Max;
-            steckerTable[s2Max]=s1Max;
-            sCount++;
+            else if (steckerTable[s1Max]==s1Max && steckerTable[s2Max]!=s2Max)
+            {
+                // swap back
+                steckerTable[s2aMax]=s2aMax;
+                // place new stecker
+                steckerTable[s1Max]=s2Max;  
+                steckerTable[s2Max]=s1Max;
+
+            }
+            else //both letters have been swapped before
+            {
+
+                // place new stecker, unless s1 and s2 had been swapped 
+                // interchangeably; in the latter case: leave them swapped back
+                if (s1aMax!=s2Max && s2aMax!=s1Max)
+                {
+                    // swap back
+                    steckerTable[s1aMax]=s1aMax;
+                    steckerTable[s2aMax]=s2aMax;
+                    steckerTable[s1Max]=s2Max;
+                    steckerTable[s2Max]=s1Max;
+                }
+                else
+                {
+                    steckerTable[s1Max]=s1Max;
+                    steckerTable[s2Max]=s2Max;
+                }  
+                sCount--;
+            }
         }
         else
         {
