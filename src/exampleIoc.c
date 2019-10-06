@@ -447,7 +447,7 @@ void ngramTest()
     settings=&iocExampleResults3.settings;
     printf("\n");
     printf("#####################################################################################\n");
-    printf("# INDEX OF COINCIDENCE METHOD EXAMPLE\n");
+    printf("# STECKER FINDING WITH NGRAM METHOD EXAMPLE\n");
     printf("# Cypher                    : \n");
     printCypher(iocExampleCypher3);
     printf("# Original Waltzen          : %s %s %s\n", settings->rotors[0], 
@@ -467,25 +467,25 @@ void ngramTest()
 
     strcpy(iocExampleResults3.settings.cypher, iocExampleCypher3);
 
-    strncpy(iocExampleResults3.settings.steckers, "AT BG DV EW FR HN IQ JX KZ LU", 30);
+    strncpy(iocExampleResults3.settings.steckers, "AT BG DV EW FR HN IQ JX KZ LU PS", 35);
     printf("\nSteckers %s\n", iocExampleResults3.settings.steckers);
     iocFindSteckeredCharsNgram(&iocExampleResults3, 13, 3);
     printf("Steckers %s\n", iocExampleResults3.settings.steckers);
     dumpDecoded(&iocExampleResults3.settings);
     
-    strncpy(iocExampleResults3.settings.steckers, "AT DV JX KZ QR IP", 30);
+    strncpy(iocExampleResults3.settings.steckers, "AT DV JX KZ QR IP", 35);
     printf("\nSteckers %s\n", iocExampleResults3.settings.steckers);
     iocFindSteckeredCharsNgram(&iocExampleResults3, 13, 3);
     printf("Steckers %s\n", iocExampleResults3.settings.steckers);
     dumpDecoded(&iocExampleResults3.settings);
     
-    strncpy(iocExampleResults3.settings.steckers, "AT", 30);
+    strncpy(iocExampleResults3.settings.steckers, "AT", 35);
     printf("\nSteckers %s\n", iocExampleResults3.settings.steckers);
     iocFindSteckeredCharsNgram(&iocExampleResults3, 13, 3);
     printf("Steckers %s\n", iocExampleResults3.settings.steckers);
     dumpDecoded(&iocExampleResults3.settings);
     
-    strncpy(iocExampleResults3.settings.steckers, "", 30);
+    strncpy(iocExampleResults3.settings.steckers, "", 35);
     printf("\nSteckers %s\n", iocExampleResults3.settings.steckers);
     iocFindSteckeredCharsNgram(&iocExampleResults3, 13, 3);
     printf("Steckers %s\n", iocExampleResults3.settings.steckers);
