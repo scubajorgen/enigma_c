@@ -15,6 +15,8 @@
 
 #define ROTATING_WALTZEN 3
 
+#define min(a,b) (a<b?a:b)
+
 /**************************************************************************************************\
 * 
 * Converts text to the input array of unified positions
@@ -24,12 +26,14 @@ void setText(Enigma* engima, char text[])
 {
     int  i;
     int  count;
+    int  maxCount;
     char digit;
     
     // to upper case, remove non chars and get position
     i=0;
     count=0;
-    while (i<strlen(text))
+    maxCount=min(strlen(text), MAX_TEXT);
+    while (i<maxCount)
     {
         digit=charToPos(text[i]);
         if (digit>=0 && digit<MAX_POSITIONS)
