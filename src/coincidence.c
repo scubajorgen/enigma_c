@@ -708,7 +708,7 @@ void iocFindSteckeredCharsNgram(IocResults* results, int maxNumOfSteckers, int n
         }
         else
         {
-            printf("No improvement found\n");
+            printf("No more improvement found\n");
         }
     }     
 
@@ -1210,6 +1210,7 @@ void *iocThreadFunction(void *vargp)
             case METHOD_IOC_DEEP:
               break;
             case METHOD_IOC_NGRAM:            
+                iocDumpTopTenResults(1);
                 i=0;
                 while (i<iocNumberOfResults)
                 {
