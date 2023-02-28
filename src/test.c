@@ -26,7 +26,7 @@ int permutations[12][2]=
 };
 /**************************************************************************************************\
 * 
-* 
+* Helper function
 * 
 \**************************************************************************************************/
 void assertStringEquals(char* test, int testCase, char* expected, char* result)
@@ -43,7 +43,7 @@ void assertStringEquals(char* test, int testCase, char* expected, char* result)
 
 /**************************************************************************************************\
 * 
-* 
+* Helper function
 * 
 \**************************************************************************************************/
 void assertIntIsNull(char* test, int testCase, int* result)
@@ -60,7 +60,7 @@ void assertIntIsNull(char* test, int testCase, int* result)
 
 /**************************************************************************************************\
 * 
-* 
+* Helper function
 * 
 \**************************************************************************************************/
 void assertIntEquals(char* test, int testCase, int expected, int result)
@@ -79,7 +79,7 @@ void assertIntEquals(char* test, int testCase, int expected, int result)
 
 /**************************************************************************************************\
 * 
-* 
+* Helper function
 * 
 \**************************************************************************************************/
 void assertLongNotEquals(char* test, int testCase, long notExpected, long result)
@@ -96,7 +96,7 @@ void assertLongNotEquals(char* test, int testCase, long notExpected, long result
 
 /**************************************************************************************************\
 * 
-* 
+* Helper funcion
 * 
 \**************************************************************************************************/
 void assertFloatEquals(char* test, int testCase, float expected, float result)
@@ -116,7 +116,7 @@ void assertFloatEquals(char* test, int testCase, float expected, float result)
 
 /**************************************************************************************************\
 * 
-* 
+* Test the toolbox
 * 
 \**************************************************************************************************/
 void test01()
@@ -129,6 +129,7 @@ void test01()
     int         i;
     int         j;
     
+    // character/stellung to position [0..25]
     assertIntEquals("toolbox", 1, 4, stellungToPos('e'));
     assertIntEquals("toolbox", 2, 4, stellungToPos('E'));
     assertIntEquals("toolbox", 3, 4, stellungToPos(5));
@@ -176,12 +177,9 @@ void test01()
     objectFromList=(int *)elementAt(list, 6);
     assertIntIsNull("toolbox", 20, objectFromList);
     
-    
-    
     destroyLinkedList(list);
     
-
-    // Permutaions
+    // Permutations
     list=createLinkedList();
     permute(list, permutationElements, 4, 2, 0);
     
@@ -225,7 +223,7 @@ void test01()
 
 /**************************************************************************************************\
 * 
-* 
+* Test the Waltze functions
 * 
 \**************************************************************************************************/
 
@@ -261,13 +259,12 @@ void test02(void)
     setGrundStellungen(enigma, "26 10 01");
     assertIntEquals("waltze", 8, 'Z'-'A', enigma->grundStellung[2]);
     
-    
     destroyEnigma(enigma);    
 }
 
 /**************************************************************************************************\
 * 
-* 
+*  Test the Umkehrwaltze functions
 * 
 \**************************************************************************************************/
 void test03(void)
@@ -286,12 +283,11 @@ void test03(void)
     assertIntEquals("ukw", 2, 23, enigma->umkehrWaltzeFunction[18]);   //  maps to X
 
     destroyEnigma(enigma);  
-    
 }
 
 /**************************************************************************************************\
 * 
-* 
+* Test the steckerbrett functions
 * 
 \**************************************************************************************************/
 void test04(void)
@@ -319,7 +315,7 @@ void test04(void)
 
 /**************************************************************************************************\
 * 
-* 
+* Test the Engima M3
 * 
 \**************************************************************************************************/
 void test05(void)
@@ -327,7 +323,7 @@ void test05(void)
     Enigma*     enigma;
     char*       result;
 
-    
+    // Test 1
     enigma=createEnigmaM3();
     setText(enigma, "RCGXFEAJCT");
     placeWaltze(enigma, 1, "I");
@@ -369,7 +365,7 @@ void test05(void)
     assertStringEquals("enigma", 2, "HEILHITLER", result);
 
 
-    // Test 2
+    // Test 3
     setText(enigma, "boot klar x bei j schnoor j etwa zwo siben x nov x sechs nul cbm x proviant bis zwo nul x dez x benoetige glaeser y noch vier klar x stehe marqu bruno bruno zwo funf x lage wie j schaefer j x nnn www funf y eins funf mb steigend y gute sicht vvv j rasch");
 
     placeWaltze(enigma, 1, "VI");
@@ -392,6 +388,11 @@ void test05(void)
     destroyEnigma(enigma);  
 }
 
+/**************************************************************************************************\
+* 
+* Test the Turing bombe
+* 
+\**************************************************************************************************/
 void test06()
 {
     LinkedLetters* link;
@@ -420,6 +421,11 @@ void test06()
 }
 
 
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
 void test07()
 {
     Enigma* enigma;
@@ -453,20 +459,21 @@ void test07()
 
     assertIntEquals("count",  8, 3, countTrigram(enigma, trigram));   
     assertIntEquals("count",  9, 4, countNgram(enigma, bigram, 2));   
-    
 
-    
     destroyEnigma(enigma);
 }
 
 
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
 void test08()
 {
     Enigma* enigma;
 
     enigma=createEnigmaM3();
-    
-    
 
     prepareNgramScore(3, "DE");
 
@@ -474,7 +481,6 @@ void test08()
     enigma->conversion[0]='E'-'A';  // ENS - -5.618547
     enigma->conversion[1]='N'-'A';
     enigma->conversion[2]='S'-'A';
-
     
     assertFloatEquals("ngram",  1, -5.618547, ngramScore(enigma, 3));   
     
@@ -491,6 +497,45 @@ void test08()
     assertFloatEquals("ngram",  2, -51.825572, ngramScore(enigma, 3));   
 
     destroyEnigma(enigma);
+}
+
+
+/**************************************************************************************************\
+*
+* Test The double step thing for rotor 2
+* QPP -> QPQ -> QQR -> RRS -> RRT -> RRU -> ...
+* 
+\**************************************************************************************************/
+void test09()
+{
+    Enigma*     enigma;
+    char*       result;
+
+    
+    enigma=createEnigmaM3();
+    setText(enigma, "AAAAAAAAAA");
+    placeWaltze(enigma, 1, "I");
+    placeWaltze(enigma, 2, "I");
+    placeWaltze(enigma, 3, "I");
+    
+    placeUmkehrWaltze(enigma, "UKW B");
+    
+    setRingStellung(enigma, 1, 'A');
+    setRingStellung(enigma, 2, 'A');
+    setRingStellung(enigma, 3, 'A');
+
+    setGrundStellung(enigma, 1, 'Q');
+    setGrundStellung(enigma, 2, 'P');
+    setGrundStellung(enigma, 3, 'P');
+
+    
+    clearSteckerBrett(enigma);
+    
+    encodeDecode(enigma);
+
+    result=toString(enigma);
+    assertStringEquals("enigma", 4, "ZGOUZFVQWG", result);
+
 }
 
 
@@ -515,6 +560,7 @@ int main()
     test06();
     test07();
     test08();
+    test09();
     
     return 0;
 }

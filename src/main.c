@@ -78,11 +78,24 @@ int main()
     //iocExampleDeep2();
 
     // NGRAM  method example - short message v
-    iocExampleNgram();
+    //iocExampleNgram();
     
-    // NGRAM method example: just find the steckers
-    // ngramTest();
+    // NGRAM method example: just find the steckers v
+    //ngramTest();
 
+    //ngramTest2();
+    //ngramTest3();
+    //ngramTest4();
+//    ngramTest5();
+
+//theSixthTest();
+//theSixthProblem();
+
+//theFifthProblem();
+//theFourthProblem();
+theThirdProblem();
+
+//decode();
 
     return 0;
 }

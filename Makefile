@@ -33,9 +33,10 @@ SRCOBJ	        = enigma.o \
                   coincidence.o \
                   exampleIoc.o \
                   ngramscore.o \
+                  adfgx.o \
                   toolbox.o
 
-MAINOBJ         = main.o crack02.o crack03.o
+MAINOBJ         = main.o crack02.o crack03.o crack04.o
 
 TESTOBJ         = test.o
 

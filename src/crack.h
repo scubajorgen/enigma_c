@@ -15,4 +15,8 @@ void    message10       ();
 
 void    theThirdProblem ();
 void    theFourthProblem();
+void    theFifthProblem ();
+void    theSixthProblem ();
+void    theSixthProblem2();
+void    theSixthTest    ();
 
