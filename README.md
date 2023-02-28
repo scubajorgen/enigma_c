@@ -12,8 +12,8 @@ performs only 1000 or so.
 ## Building
 Simply call 'make clean', 'make'.
 It delivers two executable files:
-* enigma, which executes a brute force example
-* test, which execute module tests
+* **enigma**, which executes a brute force example
+* **test**, which execute module tests
 
 
 ## Usage of the software
@@ -35,17 +35,19 @@ Typical usage:
     setGrundStellung(enigma, 1, 'A');
     setGrundStellung(enigma, 2, 'B');
     setGrundStellung(enigma, 3, 'C');
-
     
-    clearSteckerBrett(enigma);
+    placeSteckers(enigma, "bq cr di ej kw mt os px uz gh");
     
     encodeDecode(enigma);
 
     result=toString(enigma);
     destroyEngima(enigma);
     
-Note that the rotors positions are numbered from left to right, starting with 1.
-Refer to the code for more information.
+Note that the rotors positions are numbered from left to right, starting with 1 as shown below. Note that in *these interface functions* for the letters ASCII characters can be used (like 'A', 'B', 'C', ... 'Z', 'a', 'b', ... 'z') as well as digits (1, 2, ... 26).
+
+![](images/positions.png)
+
+In the code the internal representation is optimized for performance. Rotor numbering is the other way round (0 for the rightmost rotor, numbering up to the left) and 0..26 for letters. Refer to the code for more information.
 
 ## Turing method
 
@@ -87,3 +89,10 @@ Whereas the Gillogly requires large cyphers, this ngram method performs better f
 A quick method is
  
     ngramTest();
+
+## Code structure
+![](images/code.png)
+In green the core files
+In purple the cracking methods
+In grey internal files
+In blue example and test files
