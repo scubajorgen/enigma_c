@@ -1,8 +1,14 @@
 /**************************************************************************************************\
 * 
 * This module implents the Enigma machine. It is optimized for performance required for cracking
-* enigma cyphers. All settings (A-Z, a-z) are tranlated to positions from 0-25 in tables, 
+* enigma cyphers. All settings (A-Z, a-z) are translated to positions from 0-25 in tables, 
 * encoding/decoding consists merely of lookup in tables
+*
+* Position : UKW   2       1     0
+* Enigma M3: UKW rotor1 rotor2 rotor3
+*
+* Position : UKW   3      2       1     0
+* Enigma M4: UKW rotor1 rotor2 rotor3 rotor4
 *
 \**************************************************************************************************/
 #ifndef ENIGMA
@@ -43,7 +49,7 @@ typedef struct
     int     textSize;
     int     text[MAX_TEXT];
     int     conversion[MAX_TEXT];
-    char    string[MAX_TEXT];
+    char    string[MAX_TEXT+1]; // add 1 for '\0'
     
 } Enigma;
 
@@ -74,7 +80,5 @@ int         countLetter             (Enigma* enigma, char letter);
 int         countConvertedChar      (Enigma* enigma, int letter);
 int         countTrigram            (Enigma* enigma, char* trigram);
 int         countNgram              (Enigma* enigma, char* ngram, int n);
-
-
 
 #endif
