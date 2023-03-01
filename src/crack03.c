@@ -1,442 +1,293 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <string.h>
-
-#include "enigma.h"
-#include "crack.h"
+#include "adfgx.h"
 #include "toolbox.h"
-#include "coincidence.h"
-#include "ngramscore.h"
+
+char    topTenKeys[10][26];
+double  topTenScore[10];
 
 
-// GC6ZZBB
+char sixth[]=
+"AGFFGDGXXGXDFGADXAFFADAAFDFGGFFDDDGGAXAF"
+"DAFFDFFGDFDDDDGFDDAAAFDGGGGXXXGGDDXXGAAD"
+"GDADDFDADFDXFFXXDAFGXDADGGDXXAXFFDXAFDXD"
+"DGXAAFXFAXDDDDDXFDXGDXGAXXDFFXDXAAXXGXXX"
+"GGAFGFAADFGGFFDAAGDFADAFFGGADXFAFGXDFFFG"
+"ADFGDXAADGGAFGAXXDGXXGAGAGGDGXXGXGGFDGDF"
+"AFAFFDGAXDFGGDAADGAAGAADFAFGGGFDDAADGGFF"
+"AAFGDGXXGXAGXXGAXGDDFFGXGXXFXAAFGXFADDXA"
+"ADXGXFFXDDGAFDFDAXADFDDAGFFDDAGDAAADADAA"
+"DDXDDGDDFGXGFGDGGDXGFAAXADDAXXGAGGDADFXF"
+"DAGFFDDDXXDGFXXDGADFDXGDGAFDAGGAAFDDGFGD"
+"XDGDAGGFGFGXXGGGXFDAAFGDDXDFGXAGGDAFDGAF"
+"GGXFGDADAADAGGFDFAGGAAXFDGGGGXDXXXXXGGGG"
+"ADFFGXAGXGGDXGADXADGAXXGXDAGGGFXFXFXDAGD"
+"XAAXXXFGFGGDGXXGFADXAXGGXAXDFDAX";
 
-char textGC6ZZBB[]=
-"CRSMDDACIGRLKUPAHWCYFGDSEPBHSYPYYDDNWUDMBRKT"
-"GPDULRSDTRWWYWVLWKVRIBHHWFVCDXVIEREHLGSQSBIQU"
-"DGACRUFWBMYRSPYGBKESJLNNFTVAGSOXBDIOXJACSJRSAV"
-"VXDAWBIMEDLQSLQKLFHATDCUGFPOYSBKPBSFLRHUPXDMM"
-"TTDPRKZCOCNZDSULIHEJGLCLVQWXVAZZPWMOOKPPFWDSQ"
-"VW";
+char sixthTest[]=
+"DXGGGFGAGFFGXAGAXGAGDFGG";
 
-char replyGC6ZZBB[]=
-"QLTPKMZRJFEKXOWPAZXPJJJQLCIVDSVFUMCNUGRVTLXEEVYT"
-"WDEFZQAMITJUSFQCRNMYHXVIFGRPHKBJBEAPDPJWBYTIILQM"
-"AZIMWFNGLJJISZXFQURMHWWVIKUJVJHRWYJDKHVPYXCBFUOL"
-"FCMJWTXFMNJBRFONYOQTSWQGKETQFGTNKUIWHSTCOAFJKOHX"
-"HYRIHNLZEWJQQBABYIKUWXGCINOCVQPEBQJYXKUMWEDGBJPA"
-"LDRUSFELKUIHPRHDAEXHGKMAUMHIIKKIAHPSJUABXMJKDJHD"
-"JVQEUHOIIYYJMIVKDUEBLVGRKJMHECFYAYIKDNJWYDWJSTBZ"
-"PIJQMQAPNKWOOZEJUKYVZECNKAYGADJHMBZAFGWSGXZYHIUY"
-"MRJUVZOZVMCHZGILJZGJOBEJHIXJQXQEGMTDFVHXMAVDHDRO"
-"HBKKZNAHICTDMLUXHEULAYCPOSQTGDAPJMIXOMGGRIWRTPCQ"
-"JUJTCJEWBKPYQHVEWURAKVMJIRNPRCEEPARIUMCWTHILQLDZ"
-"MRSDSRMAOQTLSUFVUYPDKGHTIGTLRMMBZPVUKMCHUKZKUPRK"
-"EVYJIBWVZCXVXNHMTZEFZXVVPQBGTTJJHMQTUSCYFAGXXQOJ"
-"JFNKQTXAXRLZGDJEOMXNAJWHVXMSHIVUUAWGPDSZKBHUKJVA"
-"NRSLCDRUYEETMZAMBODUPCIWSEOHZYMSTEAFNKDEXPPKMWUN"
-"RCAVOKVSWQWOKSFBXANMMUUIAYFLWNMUAWGGOGASBYERVJCL"
-"PCBVNWAGMWEMUYJIMAQJJGDADNAWMPKKPFFFKXXPSLMUZSLB"
-"EQJILYZZAXLYSTAAVIPOSFBWYBPOSFBHNQVXICOKHFZVNKZG"
-"FJLUTYUGFGGAGKPZOAJDCRWIFZPKMCDTSVMLUMPNKSKDGNYZ"
-"PUJQMEBCIPYAIPWTAGQBSEYLNHNUFDGGTVLJWUYSSAWCZMFA"
-"OUVUWJQIGQFTACHWENNSHUNNRUKXWCOPWFLAPAUTROCMEJVC"
-"UZMHPJXWPEONLUWCEHXWDGTBOUKZWRTYGYHVTBAFOVPEHTYY"
-"KWMLBGVIJIVMUEZYZPGKRTMBXLIXBYWOPVQXZBWYBDJGVLHA"
-"VEPDOQZAPRTFETCRZUFUTKOOZWTGPOIUKJKQPPIUKKQXHRZP"
-"LVINXQOCJGXNVRFWDNADOVZWPBUQVKYLTHICCXVMEPMQTCGQ"
-"NILDTBOXXDAAUZYANLKWMLZNTRFMZUEJQRZFKDSOCOFVYLUV"
-"MIIWOOKAXLQEKRJGGDCDQLJMNGKDKBHMZJZOPYKGHPNIMIDR"
-"UXEMRGVFYNZDCTXKGMHUEYMGZAUEIQOCDKHMIGURNEVBXLJL"
-"PYLGDEBAKZJXTTRRIZUFZKBAQWQWBUXMGNLRVXEAWJTPAFWQ"
-"HALGLSHFAFPQMSADGINEXECUDJDCBWEOEQJCWBNGLHIPXGJU"
-"BWRYLYLYNABZRUEWCKSUBWCYJGLYZBFVFLAMEVRPTRAHWYKH"
-"UFQFRMYXPJOHNVZAOVBFIGCIJONBKNVZXMVNBSXAWVEECXKW"
-"WNOVVRRGSAJAZEDTQMKCFSGLDWSDFJCNZQEUFDGJLPMFMAGC"
-"BZEJEMGGHRXEDBDENGDJZVXZTJNKTYJXUGHDHXNKZBOWXJUC"
-"IZNHHITGFEHAMFDQXKSYWBQILNXXMNRJBHKZPBVGQDPKMSGJ"
-"XICNRGSPKQWMTBLOVSXQOVIIBLHZCAUFKQSBAGHHNLAPRJJG"
-"PEAIOULZSNJVBPHIERCWSGVRAXRVBIZGALTMXRZLTCICAPAD"
-"YSLBUTXVEBACZDXJGGMRBAIXSIEDPSACVTFPTXOQLHSEZTRQ"
-"ETYTLABBKDDXUCHEBWNFUMGUQJTDQNCPYLNWPFZFJZUNFGQJ"
-"CYQLSXDQKKNRJGPHFPKHDUPEWBJJJSVCLBCSIJMJVUDKUXRF"
-"IQIUZTNENNHZNWLOJDVPNYPYIRMOUUXEFYMPCROOSKKGAJOH"
-"UPLXLHDAOHDQEHYFTYFKZNUHUNXAGDPNUNDEZEFJBXUKQCAP"
-"MXFCNKQWKKCLYUESQJLSFMACBYRDJUSJIHDCMXDARSAPDQGM"
-"VJVQVNYGTRVBKURGCEZQTLMFTOTFSJOYXLATZHJARLNMKYXX"
-"AIJIWMWVRECNJDXCVEUZLMNXIEVARCVUEHAMPAHCRZUJNTIJ"
-"DAMACDLJCRIGNKXFGALBUAKHLCZWTMGQDRTWUMKGSBZDGQGK"
-"QZCUQQXEVDDXBLZPIRQMPUHTQNKCNAAKYQLKWSUELLXDQBMU"
-"MOLFXKEOZZLBVXSFTPULYPUZGFJYTMUPXIVOUYACHYVASEBI"
-"NORMVEPMJKXCFNULBJURDBDDKXVADTGOUDDXTXZPZNTJFPIU"
-"AUGSQSIAHSNBZLBBWVSSCYICSYATXDUJZEMFDQIVUTKWCFJZ"
-"KHEEQNJAWDAVTOELFOKWBLXGSSFBFQAXMUGIJEXWKZPJOSNB"
-"ZJFXLZHPXAJFGLOHNBWPMPNCMBCINDWLWODISOZXTARGYCNM"
-"HIUMTZHLGGOCOGWPNQTBVGCBCVJGVAWSIJNMKBZMXMBVYWQD"
-"RMBJHPILKIMTWPQBNFQMKKURZEOYRZHESYXHDWILXMZHMKWA"
-"ZEFBOWEYJSKJSFHRMQIGMHYHMWPAQTXQYVRCBNKCGHITSQYH"
-"SADFAJTINESFMNJMWTIXCEXTGRKOGOOIZIJGAYNFDQDZXARQ"
-"IORJNYXHLECSWTFRGZVKWLUGTDBQRREESCNOBBVOLDBRVNKN"
-"QOZRVOVZDTKGOCSRYTYJFLWTGLEIXFTZZHNCYKKBVLRZCYEN"
-"UKMXQSCFDDIKTODTCFIUTIVXQLVKWTKRGETZXFRQKTPHMXPE"
-"LOSOQYQUTCBSMLKEBBTUEKMLLBCQEFWQMLKDBWFHMBTUNGHG"
-"CDSYVURJZSPOHYRUFETJKZKLYVUKUVRUEZDWBYAOKPLRBNPH"
-"KWTJJUBLWXRLVODBNCHNZKLGXZMPZEQZLNORDSOLPFFBSIRL"
-"FQSEURQWXHDSKLPXVFCVVEYKHLVUZAYYLQAIXKJZFPIYHKOA"
-"AVAEAXVHJWTLISBNUSIDNWYTIWXXCVYUNZPCTVHMUEGVCSIN"
-"XYPAFTJFQEWEMBNXCRMVOOTCBUMUAPMTFITWAQRGHUAWIHVC"
-"JRZEMOQQNEQUDLMCMUQWJENQZAFFR";
+char sixthTestKeyword[]="KEYWORD";
 
 
+char sixthTest2[]=
+"AGDGGGDGGFAXAXFFGGAXGFGG";
 
-EnigmaSettings  GCXQHWTest=
+char sixthTestKeyword2[]="A";
+
+char sixthTest3[]=
+"GADDGGXDDDFGFDXAGGXDAAGAXFGXDX";
+
+char sixthTestKeyword3[]="PILOTEN";
+
+char sixthTest4[]=
+"AGGAGFFDADFAGAAAAGAAAAGDAAGAGGXFAAAAGFXFADFAAGAADAAADFXFAFAFADAAFAAAFA"
+"GDAFAGADGGFXGDAXADFGDAGXXFGXXXDGXAFXGFAGGGFGDFAFGDDGXFXXFGXDFAAFXFXGFG"
+"FGFXXAFXFGXGGGXXGGXFAXGAFXXXAFFGXGGDDDXXFAXFXGGDXXGXGDAAAFGGAGDGGDGXXX"
+"AGGGFAGFGXFDDAXFXXFAGDDGDDAFAADFFAAAFFGGDGDXDAGDFFAFAGFGAAFADDAADXDAFA"
+"FGFFGAGFAADAXDFFDAAXDAAFDDFDDXGG";
+
+char sixthTest5[]=
+"AFGDDDFGDAFGFGGDDAGFADAAFAAGGAGGFGGDDDXFDXAXFFXXFAAAAFGDXAXGXFGGXFGDGG"
+"DAGAXAGDAFDGGFDGAGFAAGAFAFDGDGGAAADAGFDFDGFAAAAAFFAAAGFAAADAAAGAAADGGX"
+"GGXXFFGGXFGGXXFXAXAFFGADFAGGFGGGAGFXGFXGGADFGFGADGGXDGXDDDXXAGFAXDXXXF"
+"FFAGFDGXGDAGXGFAGGXGAAFAXDGXDGFDGFAAFGFAGGAAAAGXAGDXAFDAAXXAFAFAFAGAAG"
+"AAGGAGAFGADGFAFAFDFGAXFFGDFFAAAFGXFGXGXDGXXXXGXXGXAGFFGXADXGXXXGAFGXGX"
+"FGFXGAGADFAXDFAFFXFDDFAGAGXDFXDGGXGXXXDDGGGGGFGGADGXDFAGAAFFGXGXGXDXGA"
+"FFAAFAADXDADXFAFFAAGFFDGFGDFDDGAFAFAAGGAFFGDFAGAGDGAADFGAXAFGFAGAD";
+
+char sixthTestKeyword5[]=
+"VLIEGTUSORAMPJ";
+
+char sixthTest6[]=
+"GXGFXGXFGFXDFDGGDGFGGDGGFAGAXGXAADXFGGDGFGDDXGAAAGGGGXXGGGFXAGGADAGFADDXD"
+"AGAAGAAFFDGXFAFGDDADAFAGXFAAFAFADFAFDAAGGDFDDFGFGGADADFAGAAFFGDFGAFFGAFDG"
+"GADAGFXAAAAGAFAAADGGGGAAAFFGFFAAGFGADAAGGFDGDFGXFXGGGXDDGAFXFXXAGXADXFDGG"
+"AGGAFXFXAAADXAXXFGAFXXDFGXGXXFGFXXXDFXXGFFGXAGGXGGAFXXGFXGGGXFXXFGXFXDFAA"
+"GDFXDFDFGGAXXXGFGADGXGGGGFXAXGXFXADXXGFGGDGXFXGGAFAAADAGXDFFDGXFAFAAXGGGF"
+"XGDDGDDXDFXAAFDAAFGAGAFDAAAGDDAAGFGDDGAFDDGFADADDAAFXFXXAGGDGFFAADFAAGAGA"
+"FGGGAFADGFGGDGAFAAAAFGDAGDFXGGAGFFFAFAAAAFAXAADGFGAAGAGAADDG";
+
+char sixthTestKeyword6[]=
+"VLIEGTUS";
+
+char sixthTest7[]=
+"AFFXFFGGAGXXGGGAFGFDFFAGAXFGAGDGDXGXFGFGAFDDAXFDDAAXGGFGDGGGDXAAGGDAFDFFD"
+"GGGADAGXXDAAGGDGDGGFAFGDGGGGFGXGAGAFADAFFXDDADGGAFAGGGAFDXAXAAGGAFAXFGGFA"
+"GDFFXGFGFAXAAFXFGAAFFAAAAAGGXGGGDXGXFDADAGAGGXDAGXFAGGDXDAAXAADAGDFFGAXAA"
+"DAFXFXGDFFAFADAXAGGGFXXAGFFGFGGAXFFDGDAXDGXGFGFFGDXAXGFDGAXDXAGAGFXFDGFGG"
+"FDADAXDGGAAXGGFGGFGAAFAFXFFXFGGXXAGAGFDFFDDGXFGGFAFAGXXFGDDFAAGFXDGADFGAG"
+"GFADXXDAFAFGDXAFDGXXAXDDGXGFGAXXFDAXAAAAAGFXAXGFFAFAXDXAXDGDFDFFFGDAAGGAF"
+"DAFGGFXGAAGAAAAAADGAXGXFAGGGGAGXADFGFGAGDXDDAAAADDADAAGGFXAX";
+
+char sixthTestKeyword7[]=
+"KCDBENGOIJALMQFPH";
+
+char sixthTest8[]=
+"AGGAGDGAGGXFXFGFDDAFAGDGGGFXGXGX";
+
+char sixthTestKeyword8[]=
+"ADCB";
+
+char seventhTest[]="UWQJHNQIUSSWWHMGMSPARTLIXQDJRAHELIMYTFFLFNTFIJROFBDZEGAPLSTGBXOQTMDMVBTWWZAOODOJT";
+
+//int permElements[]     ={'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
+int permElements[]     ={'V', 'L', 'I', 'E', 'G', 'T', 'U', 'S', 'I', 'J'};
+
+void theSixthProblem()
 {
-    3,
+    char*   cypher=sixthTest6;
+
+    int     keySize;
+    int     i, j;
+    int     iMax, jMax;
+    int     depth;
+    char    swap;
+    float   ioc;
+    float   iocMax;
+    float   iocMaxMax;
+    int     done;
+    char*   plain;
+    char    key[27];
+    char    keyCopy[27];
+    char    maxKey[27];
+    char    maxMaxKey[27];
+    
+    adfgxAlloc(26, strlen(cypher));
+    adfgxNormalizeCypher(cypher, strlen(cypher));
+    
+    iocMaxMax=0;
+    keySize  =8;
+    while (keySize<=8)
     {
-        "IV",
-        "III",
-        "V"
-    },
-    "UKW B",
-    {
-        1, 1, 1
-    },
-    {
-        1, 1, 1 // unknown
-    },
-    "",
-    "IFKIN OXPBU ELULE UEHNF KVJCW"
-    "XCTWM AFEFZ VGUVA CTASQ CYIAM"
-    "GEBFH DXRWK UOFNY JJWPI FUESJ"
-    "JGYUR IRAQI XQAPP QQ"
-};
+        printf("Keysize %d\n", keySize);
+        i=0;
+        while (i<keySize)
+        {
+            key[i]='A'+i;
+            i++;
+        }
+//strcpy(key, "GEOMARIK");        
+//strcpy(key, "VLIEGTUS");        
+        key[keySize]='\0';
+        strncpy(keyCopy, key, 26);
+       
+        iMax=-1;
+        jMax=-1;        
+        // Start with unswapped key
+        plain=adfgxDecrypt(keyCopy, strlen(keyCopy));
+        iocMax=adfgxIndexOfCoincidence();       
+        printf("Key %s iocMax %f\n", keyCopy, iocMax);
 
+        depth=0;
+        done=0;
+        while (depth<keySize/2 && !done)
+        {
+            done=1;
+            i=0;
+            while (i<keySize-1)
+            {
+                j=i+1;
+                while (j<keySize)
+                {
+                    
+                    swap=keyCopy[i];
+                    keyCopy[i]=keyCopy[j];
+                    keyCopy[j]=swap;
+                    
+                    
+                    plain=adfgxDecrypt(keyCopy, strlen(keyCopy));
+                    
+                    ioc=adfgxIndexOfCoincidence();
+                    printf("%d %d %s %f\n", i, j, keyCopy, ioc);
+                    if (ioc>iocMax)
+                    {
+                        iocMax=ioc;
+                        iMax=i;
+                        jMax=j;
+                        done=0;
+                        printf(">>>%s\n", keyCopy);
+                    }
+                    swap=keyCopy[i];
+                    keyCopy[i]=keyCopy[j];
+                    keyCopy[j]=swap;                
+                    j++;
+                }
+                i++;
+            }      
+            if (!done)
+            {
+                swap=keyCopy[iMax];
+                keyCopy[iMax]=keyCopy[jMax];
+                keyCopy[jMax]=swap;    
+            }                
+            depth++;
+        }
 
+        if (iocMax>=iocMaxMax)
+        {
+            iocMaxMax=iocMax;
+            plain=adfgxDecrypt(keyCopy, strlen(keyCopy));
+            printf("####Absolute Max %f key %s decrypt: %s\n", iocMaxMax, keyCopy, plain);
+            
+        }
+        keySize++;
+    }
+   
+    adfgxFree();
+}
 
-
-char text11[]       = "MCIKVFMLPDWBWMLQRVKEYPSFBVYHLSGSYAFZPXZCBFWPEUMWMBUM"
-                      "GCUMKCZPQJEEXEEEWOSBXQJTHQEDNJMSJENPWYSCKWOVPMAYWNQ";
-
-
-// R: 1 1 1 G: 1 17 12, SB: AZ BY CX DW EV FU GT HS IQ JR
-
-char text11_test[]  = "QAVIMKGJZTXYFBCMVCONNTBZKLEZNBQMCLEUQXPYTYHEBVNCKOVACPK"
-                      "GCWPWUVHUFWJFWTCNIJVULFBVADZRQWMLVDDQFRJAZUPSIXACSKJHLR"
-                      "DQFMXPSZMKI";
-
-
-EnigmaSettings  fourthProblemTest=
+void theSixthProblem2()
 {
-    3,
-    {
-        "III",
-        "I",
-        "II"
-    },
-    "UKW B",
-    {
-        1, 1, 1
-    },
-    {
-        1, 17, 12
-    },
-    "AZ BY CX DW EV FU GT HS IQ JR",
-    "QAVIM KGJZT XYFBC MVCON NTBZK LEZNB QMCLE UQXPY TYHEB VNCKO VACPK "
-    "GCWPW UVHUF WJFWT CNIJV ULFBV ADZRQ WMLVD DQFRJ AZUPS IXACS KJHLR "
-    "DQFMX PSZMK I"
-};
+    char*   cypher=sixthTest6;
 
-
-char fifth[]=
-"joelhLeibTtAdneIemeIrDsEtleOlraeaMgigPeSkurMadaOkltOgresbirT"
-"uAimkEdteccohnescekCeTrEoTmusrtAedeidpsiesecnIhnignEtLvioTos"
-"reddedvOoElIguesnMdOedltaeaMgPtOervieNrckirDiIjdgUeNntxuzTil"
-"lavbeOrrvEleotodtoxLlOORReEMmAigPNsAUamLdIOqLUOArustIEtnAImm"
-"eatDCMOiNnsieMCVteeNTIuarmAqDUiiPsinsOcsITnrguEDleixtEsREcDI"
-"DToaEtiIuOsNMUoLdltAemmcpoOLRAiBnOCriIdsiNDiusNITUutTAllaIbq"
-"ouRiepeETXdeOalcOorMemmOaDGoNCaOanlsieqqUUaAuTTDEuniIsmaaUDT"
-"mEiiNriUmRVeedNoILaOmRqIUNirsEnPORseTHReUndDeExREirtcIIntVao"
-"tLiUoPNTUaltlEAVmecloILTaeBSOSreICsInliLsuImuDtOAlloIrqEUeiU"
-"pfEUxgEiaacToNmumLoldaOpCaoRNisAEtQuUrAETXdCUEipstAEUUtresII"
-"RnUtrOecDCoAlEOCrAitncRuePPiRDeahTEantdneoRnIptRIonIVDOElNut"
-"pstuaNtteivNeCluiltPEasQsueiCOiFlFLIUcMIdaODLeOSrEeReUUNftum"
-"goilALTinTualnliampIadReiLaoTruErmEixPcsEUpMTDeoUlrOsRIsnItT"
-"OacMcEatECcOaNtsCEUcpTieDtaUtrAatDniopNiPsrCOIInDGEenlTIsTUs"
-"neTDIDNoceUIlUpsAmqoUDiToeFmfPiocRIiandceiSDEIrDUunnttmuoTLL"
-"laibTOarneIEmTidDoeLLOorReEmMAiGpnsAUamLdioqlUoarUstieTnaImM"
-"eAtDcmoInnsIEmCvTEenTIuARMaqduiipsiNsoCsiTnrGUEdLEiXtesrecDI"
-"dTOaetIiUoSNMUoldltAEMmcPooLraiBnOcriIdsindIuSNitUuTTallaIBq"
-"oUriEPEeTXdeOalcOORMeMMoAdgoNcAoaNlSieQquUaAuttdeuNiiSMaaUDT"
-"MeiINRiuMRVeeDNoILaOMRqiuNIrSeNpORsEthReunDDeeXreirtCIinTVAo"
-"tLIUOPntUalTleAVMEClOiLTaebsOSrEiCsINlILsUimUDtOalloIRqeueiu"
-"PFEUxgeIaactoNMUMLolDaoPcAORniSaetQuuRaetXdCueIpStAeuuTREsiI"
-"rnUTroeCdCoaleOcRaiTNCrueppIrDeAhteantdneoRnIpTrIoNivDOeLNuT"
-"PsTUantTeIVneCLuILTPeASqSUeiCOiFLfLiuCmiDaoDlEosReEREuuNfTUm"
-"goilaltinTuaLNLIAmPiADReilaOtRueRMeIXpCsEUpmTdeOUlrosrISNiTt"
-"OacmCEatECCOAntSceucpTiEdtautRaATDNIOpNipsRcoiiNdgeeNltIstUs"
-"neTDidNOCeUIlupsAmQoUDitOeFmFPIocRIianDcEisDeIRdUUnnttMuotlL"
-"LaiBTOArnEieMTiDDoEllOORrEEmmaIgPnsAuAmldiOQLuOAruSTieTnAiMm"
-"EatDcMoiNnsiemcVTEEntiUArmAQduiIpsINsocsitNrGUEdLeixtEsreCdi"
-"DToaEtiiUosNmuOlDlTAEmmCPoolRaIbnOcRIiDSindiusniTUUttAlLAiBQ"
-"ouRIEpEEtxdeoalCOormemmOAdgOncaOanlsIeQqUUaaUttdEUniISmAauDt"
-"meiinRiuMRVeeDNOilAoMrqiUniRSENpoRsEThrEUNdDeexrEirtcIiNTvAO"
-"TliuOpntuALtlEAVmecLoiLTAeBSosreIcsINlILsuiMUdToAllOIrQeUeiU"
-"pfEUxGEIAactONMUmlOldaOPCAoRNiSaeTQUurAETxdCUeipStaEUUTrESii"
-"RnutrOecdCoaLeOcRaItNCrUEpPIrDEahtEANtdneoRnIpTRiONIvDoeLNut"
-"pSTuanttEIvNeCluilTPeaSqsueIcoiflflIUcmiDAodleoSREeREUUnFTuM"
-"GoiLALTintuAlNLIampIadrEIlAOTRUerMeIxPCsEuPmtDeoUlrosrISNiTt"
-"OAcmceATeccOaNtscEucptiEdtautraATDNIOpniPSrCOIIndGEEnltIStUs"
-"NEtDidNOcEUIlUpsaMqouditOeFMFpioCrIIAnDCEiSdeirDuunNtTM";
-
-
-void theThirdProblem()
-{
-    int             i;
+    int     keySize;
+    int     i, j;
+    float   ioc;
+    float   iocMax;
+    float   iocMaxMax;
+    char*   plain;
+    char    key[27];
+    char    keyCopy[27];
+    int*            permutation;
     LinkedList*     permutations;
-    int             numOfThreads;
     
-	
-    numOfThreads=4;
-	
-    // FROM THE GEOCACHE WE KNOW FOLLOWING:
-    // (http://enigmaco.de/enigma/enigma_de.html was used to encrypt)
-    // Three Waltzen out of I-V, R1 = R2 = R3 = 1, UKW B
-    // We know it because it was encrypted on
-
-    permutations=createRotorPermutations(3, 5);
-
-	
-	// STEP 1: INITIAL TRY: TRY ALL ROTOR POSTIONS
-    // Start with 5 Wehrmacht rotors
-
-
-    int length=linkedListLength(permutations);
-   
-    // Create the stack of work for the trheads
-    iocNumberOfWorkItems=numOfThreads;
-
-    i=0;
-    while (i<numOfThreads)
-    {
-//        iocWorkItems[i].cypher            =textGC6ZZBB;
-        iocWorkItems[i].cypher            =replyGC6ZZBB;
-        iocWorkItems[i].permutations      =permutations;
-        iocWorkItems[i].startPermutation  =i*length/numOfThreads;
-        iocWorkItems[i].endPermutation    =(i+1)*length/numOfThreads-1;
-        iocWorkItems[i].R1                =1;
-        iocWorkItems[i].startR2           =1;
-        iocWorkItems[i].endR2             =1;
-        iocWorkItems[i].startR3           =1;
-        iocWorkItems[i].endR3             =1;
-        iocWorkItems[i].maxCypherChars    =MAX_TEXT;
-        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
-        i++;
-    }
-
-
-    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 0, 3, "DE");
-
-    iocExecuteWorkItems(numOfThreads, permutations);	
-
-/*
-    numOfThreads=1;
-	
-    // FROM THE GEOCACHE WE KNOW FOLLOWING:
-    // (http://enigmaco.de/enigma/enigma_de.html was used to encrypt)
-    // Three Waltzen out of I-V, R1 = R2 = R3 = 1, UKW B
-    // We know it because it was encrypted on
-
-    permutations=createRotorPermutations(3, 5);
-
-	
-	// STEP 1: INITIAL TRY: TRY ALL ROTOR POSTIONS
-    // Start with 5 Wehrmacht rotors
-
-
-    int length=linkedListLength(permutations);
-   
-    // Create the stack of work for the trheads
-    iocNumberOfWorkItems=numOfThreads;
-
-    i=0;
-    while (i<numOfThreads)
-    {
-        iocWorkItems[i].cypher            =textGC6ZZBB;
-        iocWorkItems[i].permutations      =permutations;
-        iocWorkItems[i].startPermutation  =47;
-        iocWorkItems[i].endPermutation    =47;
-        iocWorkItems[i].R1                =1;
-        iocWorkItems[i].startR2           =1;
-        iocWorkItems[i].endR2             =1;
-        iocWorkItems[i].startR3           =1;
-        iocWorkItems[i].endR3             =1;
-        iocWorkItems[i].maxCypherChars    =MAX_TEXT;
-        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
-        i++;
-    }
-
-
-    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 13, 3, "DE");
-
-    iocExecuteWorkItems(numOfThreads, permutations);	
-*/
-
+    adfgxAlloc(26, strlen(cypher));
+    adfgxNormalizeCypher(cypher, strlen(cypher));
     
-	
-/*	
-	// THIS RESULTS IN THE BEST SOLUTION:
-	//  1: UKW B  II   V   I R  1  1 18 G 21  6 24 - AO BV DS EX FT HZ IQ JW KU PR - 0.071839
-
-	// STEP 2: NOW TRY THIS ROTOR SETTINGS AND VARY ALL R2
-   
-    // Create the stack of work for the trheads
-    iocNumberOfWorkItems=numOfThreads;
-
-    i=0;
-    while (i<numOfThreads)
+    
+    iocMaxMax=0.0;
+    iocMax=0.0;
+    keySize  =2;
+    while (keySize<=8)
     {
-		iocWorkItems[i].cypher              =textGC6ZZBB;
-        iocWorkItems[i].permutations        =permutations;
-        iocWorkItems[i].startPermutation    =23;
-        iocWorkItems[i].endPermutation      =23;
-        iocWorkItems[i].startR2             =i*(MAX_POSITIONS-1)/numOfThreads+1;
-        iocWorkItems[i].endR2               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
-        iocWorkItems[i].maxCypherChars      =MAX_TEXT;
-        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
+        printf("Keysize %d\n", keySize);
 
-        i++;
+        
+        permutations=createLinkedList();
+        permute(permutations, permElements, keySize, keySize, 0);
+
+        i=0;
+        while (i<linkedListLength(permutations))
+        {
+            permutation=(int*)elementAt(permutations, i);
+
+            j=0;
+            while (j<keySize)
+            {
+                key[j]=(char)permutation[j];
+                j++;
+            }
+            key[j]='\0';
+
+            plain=adfgxDecrypt(key, strlen(key));
+            
+            ioc=adfgxIndexOfCoincidence();
+//            printf("%s %f\n", key, ioc);
+            if (ioc>=iocMax/* || ioc>2.0*/)
+            {
+                iocMax=ioc;
+                printf(">>>%s %f %s\n", key, ioc, plain);
+//                strncpy(keyCopy, key, 26);
+            }
+            
+            i++;
+        }
+
+        if (iocMax>=iocMaxMax)
+        {
+            iocMaxMax=iocMax;
+            plain=adfgxDecrypt(key, strlen(key));
+            printf("####Absolute Max %f key %s decrypt: %s\n", iocMaxMax, key, plain);
+        }
+        
+        
+        destroyLinkedList(permutations);
+        keySize++;
     }
-
-    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, "DE");
-    iocExecuteWorkItems(numOfThreads, permutations);	
-*/	
+   
+    adfgxFree();
 }
 
 
-
-void theFourthProblem()
+void theSixthTest()
 {
-    int             i;
-    LinkedList*     permutations;
-    int             numOfThreads;
-	
-    numOfThreads=1;
-	
-    // FROM THE GEOCACHE WE KNOW FOLLOWING:
-    // III I II, UKW B, 
-
-    permutations=createRotorPermutations(3, 5);
-
+    char*   cypher=sixthTest6;
+    char*   key   =sixthTestKeyword6;
+    char*   plain;    
+    
+    printf("Key   : size %d %s\n", (int)strlen(key), key);
+    printf("Cypher: size %d %s\n", (int)strlen(cypher), cypher);
    
-    // Create the stack of work for the trheads
-    iocNumberOfWorkItems=numOfThreads;
-
-    i=0;
-    while (i<numOfThreads)
-    {
-        iocWorkItems[i].cypher              =text11;
-//        iocWorkItems[i].cypher              =text11_test;
-        iocWorkItems[i].permutations        =permutations;
-        iocWorkItems[i].startPermutation    =27;
-        iocWorkItems[i].endPermutation      =27;
-        iocWorkItems[i].R1                  =13;
-        iocWorkItems[i].startR2             =5;
-        iocWorkItems[i].endR2               =5;
-        iocWorkItems[i].startR3             =20;
-        iocWorkItems[i].endR3               =20;
-//        iocWorkItems[i].startR3             =i*(MAX_POSITIONS-1)/numOfThreads+1;
-//        iocWorkItems[i].endR3               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
-        iocWorkItems[i].maxCypherChars      =MAX_TEXT;
-        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
-
-        i++;
-    }
-
-    setEvaluationMethod(METHOD_IOC_NGRAM, 10, 10, 3, "GC");
-    iocExecuteWorkItems(numOfThreads, permutations);	
-	
+    adfgxAlloc(strlen(key), strlen(cypher));
+    adfgxNormalizeCypher(cypher, strlen(cypher));
+    plain=adfgxDecrypt(key, strlen(key)); 
+    printf("Decrypt: %s\n\n", plain);
+    
 }
 
-
-void theFifthProblem()
+void theSeventhProblem()
 {
-    int i, j;
-    int count;
-    int value;
-    char* level01;
-    char* level02;
     
-    int length;
-    
-    length=strlen(fifth);
-    printf("Length %d\n", length);
-    
-    level01=malloc(length);
-    i=0;
-    while (i<length/2+1)
-    {
-      level01[i]=fifth[2*i];
-      i++;
-    }
-    i=0;
-    while (i<length/2+1)
-    {
-      level01[length/2+i+1]=fifth[i*2+1];
-      i++;
-    }
-    i=0;
-    while(i<length)
-    {    
-        printf("%c", level01[i]);
-        i++;
-    }
-    printf("\n\n");
-
-
-    level02=malloc(length-100);
-    i=100;
-    count=0;
-    j=0;
-    value=0;
-    while(i<length)
-    {
-      value<<=1;
-      if (level01[i]>='a' && level01[i]<='z')
-      {
-          
-      }
-      else
-      {
-          value|=0x01;
-      }
-      j++;
-      if (j==5)
-      {
-//          printf("%02d ", value);
-          printf("%c", 'A'+value);
-          level02[count]='A'+value;
-          count++;
-          j=0;
-          value=0;
-      } 
-      
-      i++;
-    }
-    printf("\n\n");
-
-    i=72;
-    while (i<length-100)
-    {
-        i++;
-    }
-
-
-    free(level01);
 }
-
-
-
-
-
-
-

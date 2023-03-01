@@ -26,15 +26,16 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 #define MAX_TRIGRAMS        54
+#define MAX_NGRAMSETSIZE    5
 
 /** Defines the method for decrypting the engima cypher */
 typedef struct
 {
-    Method_t    method;             // The method
-    int         maxSteckers;        // Maximum number of Steckers to use
-    int         maxSteckersIoc;     // METHOD_NGRAMS: the number of Steckers used for IOC; beyond this number NGRAMS
-    int         ngramSize;          // n in ngram (2-bigrams, 3-trigrams)
-    char        ngramSet[5];        // The set to use ('DE' - german, 'EN' - english, 'GC' - NL, geocaching)
+    Method_t    method;                     // The method
+    int         maxSteckers;                // Maximum number of Steckers to use
+    int         maxSteckersIoc;             // METHOD_NGRAMS: the number of Steckers used for IOC; beyond this number NGRAMS
+    int         ngramSize;                  // n in ngram (2-bigrams, 3-trigrams)
+    char        ngramSet[MAX_NGRAMSETSIZE]; // The set to use ('DE' - german, 'EN' - english, 'GC' - NL, geocaching)
 } EvaluationMethod;
 
 typedef struct
@@ -1032,10 +1033,10 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
                             {
                                 results->indexOfCoincidence         =ioc;
                                 results->settings.numberOfRotors    =3;
-                                strncpy(results->settings.cypher, cypher, MAX_TEXT);
-                                strncpy(results->settings.rotors[0], waltzen[permutation[0]], MAX_ROTOR_NAME);
-                                strncpy(results->settings.rotors[1], waltzen[permutation[1]], MAX_ROTOR_NAME);
-                                strncpy(results->settings.rotors[2], waltzen[permutation[2]], MAX_ROTOR_NAME);
+                                strncpy(results->settings.cypher, cypher, MAX_TEXT-1);
+                                strncpy(results->settings.rotors[0], waltzen[permutation[0]], MAX_ROTOR_NAME-1);
+                                strncpy(results->settings.rotors[1], waltzen[permutation[1]], MAX_ROTOR_NAME-1);
+                                strncpy(results->settings.rotors[2], waltzen[permutation[2]], MAX_ROTOR_NAME-1);
                                 strncpy(results->settings.ukw, ukw, MAX_ROTOR_NAME);
                                 results->settings.ringStellungen[0] =r1;
                                 results->settings.ringStellungen[1] =r2;
@@ -1284,7 +1285,7 @@ void setEvaluationMethod(Method_t method, int maxSteckers, int maxSteckersIoc, i
 
     if (ngrams!=NULL)
     {
-        strncpy(evaluationMethod.ngramSet, ngrams, 5);
+        strncpy(evaluationMethod.ngramSet, ngrams, MAX_NGRAMSETSIZE-1);
     }
     else
     {

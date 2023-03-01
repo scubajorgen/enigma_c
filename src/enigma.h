@@ -20,7 +20,7 @@
 #define MAX_ROTOR_NAME          6
 #define MAX_STECKER_STRING      41
 #define MAX_REFLECTIONS         13
-#define MAX_TEXT                1024
+#define MAX_TEXT                4096
 #define MAX_NOTCHES             2
 
 typedef struct

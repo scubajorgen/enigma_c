@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "enigma.h"
 #include "exampleTuring.h"
@@ -54,25 +56,79 @@ void enigmaExample()
 
 int main()
 {
+    char input[10];
+    int  i;
+    
     printf("#####################################################################################\n");
     printf("# ENIGMA SIMULATION\n");
     printf("#####################################################################################\n");
     
-	
-    // Simple encode/decode example v
-    //enigmaExample();   
-    
-    // The Turing method: find the crib loops and show they work v
-    //turingProve();
-   
-    // The Turing method: working example -> readable message, not all steckersettings are found
-    //turingExample();
+	printf(" 1.     Enigma example                  \n");
+	printf(" 2.     Turing crib circles/loops       \n");
+	printf(" 3.     Turing example                  \n");
+	printf(" 4.     Gillogly IoC example            \n");
+	printf(" 5.     Gillogly IoC deep example       \n");
 
-    // The James Gillogly method example v
-    //iocExample();
+	printf("20-29.  Engima Challenge message 1-10   \n");
 
-    // Deep method example - Gillogly text v
-    //iocExampleDeep1();
+
+    fgets(input, 10, stdin);
+    i=atoi(input);
+
+    switch(i)
+    {
+        case 1: 
+            // Simple encode/decode example v
+            enigmaExample();           
+            break;
+        case 2:
+            // The Turing method: find the crib loops and show they work v
+            turingProve();
+            break;        
+        case 3: 
+            // The Turing method: working example -> readable message, not all steckersettings are found
+            turingExample();
+            break;    
+        case 4: 
+            // The James Gillogly method example v
+            iocExample();
+            break;
+        case 5:  
+            // Deep method example - Gillogly text v
+            iocExampleDeep1();
+            break;
+        case 20:
+            message01();
+            break;
+        case 21:
+            message02();
+            break;
+        case 22:
+            message03();
+            break;
+        case 23:
+            message04();
+            break;
+        case 24:
+            message05();
+            break;
+        case 25:
+            message06();
+            break;
+        case 26:
+            message07();
+            break;
+        case 27:
+            message08();
+            break;
+        case 28:
+            message09();
+            break;
+        case 29:
+            message10();
+            break;
+    }
+
 
     // Deep  method example - short message -> readable message, few misfits within steckered chars
     //iocExampleDeep2();
@@ -93,7 +149,7 @@ int main()
 
 //theFifthProblem();
 //theFourthProblem();
-theThirdProblem();
+//theThirdProblem();
 
 //decode();
 
