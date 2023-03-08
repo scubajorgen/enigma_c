@@ -230,6 +230,7 @@ void test01()
 void test02(void)
 {
     Enigma*     enigma;
+    int         stellung;
 
     enigma=createEnigmaM3();
 
@@ -247,17 +248,24 @@ void test02(void)
     setRingStellungen(enigma, "p q r");
     assertIntEquals("waltze", 4, 'P'-'A', enigma->ringStellung[2]);
 
+    stellung=getRingStellung(enigma, 1);
+    assertIntEquals("waltze", 5, 'P'-'A'+1, stellung);
+    stellung=getRingStellung(enigma, 2);
+    assertIntEquals("waltze", 6, 'Q'-'A'+1, stellung);
+    stellung=getRingStellung(enigma, 3);
+    assertIntEquals("waltze", 7, 'R'-'A'+1, stellung);
+
     setRingStellungen(enigma, "09 10 11");
-    assertIntEquals("waltze", 5, 'I'-'A', enigma->ringStellung[2]);
+    assertIntEquals("waltze", 8, 'I'-'A', enigma->ringStellung[2]);
     
     setGrundStellungen(enigma, "STU");
-    assertIntEquals("waltze", 6, 'U'-'A', enigma->grundStellung[0]);
+    assertIntEquals("waltze", 9, 'U'-'A', enigma->grundStellung[0]);
     
     setGrundStellungen(enigma, "b c d");
-    assertIntEquals("waltze", 7, 'B'-'A', enigma->grundStellung[2]);
+    assertIntEquals("waltze",10, 'B'-'A', enigma->grundStellung[2]);
 
     setGrundStellungen(enigma, "26 10 01");
-    assertIntEquals("waltze", 8, 'Z'-'A', enigma->grundStellung[2]);
+    assertIntEquals("waltze",11, 'Z'-'A', enigma->grundStellung[2]);
     
     destroyEnigma(enigma);    
 }
@@ -535,8 +543,153 @@ void test09()
 
     result=toString(enigma);
     assertStringEquals("enigma", 4, "ZGOUZFVQWG", result);
+}
+
+/**************************************************************************************************\
+*
+* Test the advance/reverse function
+* 
+\**************************************************************************************************/
+void test10()
+{
+    Enigma*     enigma;
+    
+    enigma=createEnigmaM3();
+    setText(enigma, "AAAAAAAAAA");
+    placeWaltze(enigma, 1, "I");
+    placeWaltze(enigma, 2, "III");
+    placeWaltze(enigma, 3, "II");
+    placeUmkehrWaltze(enigma, "UKW B");
+    
+    setRingStellung(enigma, 1, 'A');
+    setRingStellung(enigma, 2, 'A');
+    setRingStellung(enigma, 3, 'A');
+
+    setGrundStellung(enigma, 1, 'Q');
+    setGrundStellung(enigma, 2, 'U');
+    setGrundStellung(enigma, 3, 'D');
+    clearSteckerBrett(enigma);
+    
+    // Rotor 3
+    advances(enigma, 1);
+    assertIntEquals("enigma", 5, 'Q', stellungToChar(getGrundStellung(enigma, 1)));
+    assertIntEquals("enigma", 6, 'U', stellungToChar(getGrundStellung(enigma, 2)));
+    assertIntEquals("enigma", 7, 'E', stellungToChar(getGrundStellung(enigma, 3)));
+    
+    // Rotor 1, 2, 3
+    advances(enigma, 1);
+    assertIntEquals("enigma", 8, 'Q', stellungToChar(getGrundStellung(enigma, 1)));
+    assertIntEquals("enigma", 9, 'V', stellungToChar(getGrundStellung(enigma, 2)));
+    assertIntEquals("enigma",10, 'F', stellungToChar(getGrundStellung(enigma, 3)));
+
+    // Rotor 2, 3 (double step of rotor 2)
+    advances(enigma, 1);
+    assertIntEquals("enigma",11, 'R', stellungToChar(getGrundStellung(enigma, 1)));
+    assertIntEquals("enigma",12, 'W', stellungToChar(getGrundStellung(enigma, 2)));
+    assertIntEquals("enigma",13, 'G', stellungToChar(getGrundStellung(enigma, 3)));
+
+    // Rotor 3
+    advances(enigma, 1);
+    assertIntEquals("enigma",14, 'R', stellungToChar(getGrundStellung(enigma, 1)));
+    assertIntEquals("enigma",15, 'W', stellungToChar(getGrundStellung(enigma, 2)));
+    assertIntEquals("enigma",16, 'H', stellungToChar(getGrundStellung(enigma, 3)));
+
+    // Rotor 3
+    advances(enigma, 1);
+    assertIntEquals("enigma",17, 'R', stellungToChar(getGrundStellung(enigma, 1)));
+    assertIntEquals("enigma",18, 'W', stellungToChar(getGrundStellung(enigma, 2)));
+    assertIntEquals("enigma",19, 'I', stellungToChar(getGrundStellung(enigma, 3)));
+
+    // Rotor 3 reverses
+    advances(enigma, -1);
+    assertIntEquals("enigma",20, 'R', stellungToChar(getGrundStellung(enigma, 1))); 
+    assertIntEquals("enigma",21, 'W', stellungToChar(getGrundStellung(enigma, 2))); 
+    assertIntEquals("enigma",22, 'H', stellungToChar(getGrundStellung(enigma, 3)));
+
+    // Rotor 3 reverses
+    advances(enigma, -1);
+    assertIntEquals("enigma",23, 'R', stellungToChar(getGrundStellung(enigma, 1))); 
+    assertIntEquals("enigma",24, 'W', stellungToChar(getGrundStellung(enigma, 2))); 
+    assertIntEquals("enigma",25, 'G', stellungToChar(getGrundStellung(enigma, 3)));
+
+    // Rotor 2, 3 (double step) reverse
+    advances(enigma, -1);
+    assertIntEquals("enigma",26, 'Q', stellungToChar(getGrundStellung(enigma, 1))); // R
+    assertIntEquals("enigma",27, 'V', stellungToChar(getGrundStellung(enigma, 2))); // W
+    assertIntEquals("enigma",28, 'F', stellungToChar(getGrundStellung(enigma, 3)));
+
+    // Rotor 1, 2, 3 reverse
+    advances(enigma, -1);
+    assertIntEquals("enigma",29, 'Q', stellungToChar(getGrundStellung(enigma, 1)));
+    assertIntEquals("enigma",30, 'U', stellungToChar(getGrundStellung(enigma, 2)));
+    assertIntEquals("enigma",31, 'E', stellungToChar(getGrundStellung(enigma, 3)));
+
+    // Rotor 3 reverse -> returned to start position
+    advances(enigma, -1);
+    assertIntEquals("enigma",32, 'Q', stellungToChar(getGrundStellung(enigma, 1)));
+    assertIntEquals("enigma",33, 'U', stellungToChar(getGrundStellung(enigma, 2)));
+    assertIntEquals("enigma",34, 'D', stellungToChar(getGrundStellung(enigma, 3)));
+
+    advances(enigma,  52348);
+    advances(enigma, -52348);
+    assertIntEquals("enigma",35, 'Q', stellungToChar(getGrundStellung(enigma, 1)));
+    assertIntEquals("enigma",36, 'U', stellungToChar(getGrundStellung(enigma, 2)));
+    assertIntEquals("enigma",37, 'D', stellungToChar(getGrundStellung(enigma, 3)));
 
 }
+
+/**************************************************************************************************\
+*
+* Test the advance/reverse function
+* 
+\**************************************************************************************************/
+void test11()
+{
+    Enigma*     enigma;
+    
+    enigma=createEnigmaM3();
+    setText(enigma, "AAAAAAAAAA");
+    placeWaltze(enigma, 1, "IV");
+    placeWaltze(enigma, 2, "V");
+    placeWaltze(enigma, 3, "II");
+    placeUmkehrWaltze(enigma, "UKW B");
+    
+    setRingStellung(enigma, 1, 'A');
+    setRingStellung(enigma, 2, 'A');
+    setRingStellung(enigma, 3, 'A');
+
+    setGrundStellung(enigma, 1, 'I');
+    setGrundStellung(enigma, 2, 'Y');
+    setGrundStellung(enigma, 3, 'H');
+    clearSteckerBrett(enigma);
+    
+    // 
+    advances(enigma, 26);
+    assertIntEquals("enigma", 38, 'J', stellungToChar(getGrundStellung(enigma, 1)));
+    assertIntEquals("enigma", 39, 'A', stellungToChar(getGrundStellung(enigma, 2)));
+    assertIntEquals("enigma", 40, 'H', stellungToChar(getGrundStellung(enigma, 3)));
+    
+    // 
+    advances(enigma, 26);
+    assertIntEquals("enigma", 41, 'J', stellungToChar(getGrundStellung(enigma, 1)));
+    assertIntEquals("enigma", 42, 'B', stellungToChar(getGrundStellung(enigma, 2)));
+    assertIntEquals("enigma", 43, 'H', stellungToChar(getGrundStellung(enigma, 3)));
+
+    //
+    advances(enigma, -26);
+    assertIntEquals("enigma", 38, 'J', stellungToChar(getGrundStellung(enigma, 1)));
+    assertIntEquals("enigma", 39, 'A', stellungToChar(getGrundStellung(enigma, 2)));
+    assertIntEquals("enigma", 40, 'H', stellungToChar(getGrundStellung(enigma, 3)));
+
+    //
+    advances(enigma, -26);
+    assertIntEquals("enigma", 38, 'I', stellungToChar(getGrundStellung(enigma, 1)));
+    assertIntEquals("enigma", 39, 'Y', stellungToChar(getGrundStellung(enigma, 2)));
+    assertIntEquals("enigma", 40, 'H', stellungToChar(getGrundStellung(enigma, 3)));
+
+
+}
+
 
 
 
@@ -561,6 +714,8 @@ int main()
     test07();
     test08();
     test09();
+    test10();
+    test11();
     
     return 0;
 }

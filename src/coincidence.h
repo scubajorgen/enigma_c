@@ -14,13 +14,15 @@
 \**************************************************************************************************/
 
 #define TOP_RESULTS_SIZE    10
-#define MAX_THREADS         8
+#define MAX_THREADS         10
 #define MAX_WORK_ITEMS      32
 
 
 typedef enum 
 {
-    METHOD_IOC,             // James Gillogly
+    METHOD_IOC,             // James Gillogly, original described method, RING STELLUNG fixed to 1 1 1
+    METHOD_IOC_R3,          // James Gillogly, RING STELLUNG R1 and R2 fixed, varying R3
+    METHOD_IOC_R2R3,        // James Gillogly, RING STELLUNG R1 fixed, varying R2 and R3
     METHOD_IOC_DEEP,        // Improved James Gillogly method
     METHOD_IOC_NGRAM        // Improved James Gillogly method combined with ngrams
 } Method_t;
@@ -57,7 +59,7 @@ extern IocWorkItem         iocWorkItems[MAX_WORK_ITEMS];
 extern int                 iocNumberOfWorkItems;
 
 // temp
-extern IocResults          iocTopTenResults[TOP_RESULTS_SIZE];
+extern IocResults          iocTopResults[TOP_RESULTS_SIZE];
 extern int                 iocNumberOfResults;
 
 /**************************************************************************************************\
@@ -68,9 +70,10 @@ extern int                 iocNumberOfResults;
 void    iocEvaluateEngimaSettings   (IocWorkItem* work, int maxSteckers);
 void    iocFindSteckeredChars       (IocResults* results, int maxNumOfSteckers);
 void    iocFindSteckeredCharsNgram  (IocResults* results, int maxNumOfSteckers, int ngramSize);
-void    iocDumpTopTenResults        (int withDecode);
+void    iocDumpTopResults           (int withDecode);
 void    iocExecuteWorkItems         (int numOfThreads, LinkedList* permutations);
-
+void    findRingStellung            (IocResults*  results, int startRotor, int endRotor);
 
 void    setEvaluationMethod         (Method_t method, int maxSteckers, int maxSteckersIoc, int ngramSize, char* ngrams);
 void    iocDecodeText               (char* cypher, int numOfThreads);
+

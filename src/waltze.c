@@ -135,6 +135,21 @@ void setRingStellung(Enigma* enigma, int waltze, int ringStellung)
 
 /**************************************************************************************************\
 * 
+* Return the Ringstellung of given Waltze
+* 
+\**************************************************************************************************/
+int getRingStellung(Enigma* enigma, int waltze)
+{
+    int     pos;
+    
+    pos=enigma->numberOfRotors-waltze;
+    
+    return posToStellung(enigma->ringStellung[pos]);
+}
+
+
+/**************************************************************************************************\
+* 
 *  Sets the RingStellungen as string. Supported: "12 02 03", "G B C" or "GBC"
 * 
 \**************************************************************************************************/
@@ -200,6 +215,20 @@ void setGrundStellung(Enigma* enigma, int waltze, int grundStellung)
     pos=enigma->numberOfRotors-waltze;
     
     enigma->grundStellung[pos]=stellungToPos(grundStellung);
+}
+
+/**************************************************************************************************\
+* 
+* Return the Grundstellung of given Waltze
+* 
+\**************************************************************************************************/
+int getGrundStellung(Enigma* enigma, int waltze)
+{
+    int     pos;
+    
+    pos=enigma->numberOfRotors-waltze;
+    
+    return posToStellung(enigma->grundStellung[pos]);
 }
 
 /**************************************************************************************************\

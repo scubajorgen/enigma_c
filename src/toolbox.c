@@ -1,4 +1,10 @@
+/**************************************************************************************************\
+* 
+* Toolbox functions
+*
+\**************************************************************************************************/
 #include <malloc.h>
+#include <string.h>
 
 #include "toolbox.h"
 
@@ -8,6 +14,27 @@ int                 waltzenIndices[8]  ={0, 1, 2, 3, 4, 5, 6, 7};
 char                waltzen[8][4]      ={"I", "II", "III", "IV", "V", "VI", "VII", "VIII"};
 LinkedList*         permutations;
 
+
+/**************************************************************************************************\
+* 
+* Calculates the power with integer numbers result=base ^ exp
+* 
+\**************************************************************************************************/
+int ipow(int base, int exp)
+{
+    int result = 1;
+    for (;;)
+    {
+        if (exp & 1)
+            result *= base;
+        exp >>= 1;
+        if (!exp)
+            break;
+        base *= base;
+    }
+
+    return result;
+}
 
 
 /**************************************************************************************************\
@@ -65,6 +92,66 @@ int charToPos(char theChar)
     return pos;
 }
 
+/**************************************************************************************************\
+* 
+* Converts the unified position (0-25) to a character ('A'-'Z')
+* 
+\**************************************************************************************************/
+char posToChar(int position)
+{
+    char theChar;
+    
+    theChar='A'+(char)position; 
+    
+    return theChar;
+}
+
+/**************************************************************************************************\
+* 
+* Converts a unified position (0-25) to GrundStellung or RingStellung (1-26)
+* 
+\**************************************************************************************************/
+int posToStellung(int position)
+{
+    int stellung;
+    
+    stellung=position+1;    
+    
+    return stellung;
+}
+
+/**************************************************************************************************\
+* 
+* Converts an text character (A-Z, a-z) to a Ring/Grundstellung (1-26)
+* 
+\**************************************************************************************************/
+int charToStellung(int theChar)
+{
+    int stellung;
+    if (theChar>='A' && theChar<='Z')
+    {
+        stellung=theChar-'A'+1;
+    }
+    else if (theChar>='a' && theChar<='z')
+    {
+        stellung=theChar-'a'+1;
+    }
+    else
+    {
+        stellung=-1;
+    }     
+    return stellung;
+}
+
+/**************************************************************************************************\
+* 
+* Converts a  Ring/Grundstellung (1-26) to a character (A-Z)
+* 
+\**************************************************************************************************/
+int stellungToChar(int stellung)
+{
+    return stellung+'A'-1;
+}
 
 /**************************************************************************************************\
 * 
@@ -284,4 +371,46 @@ LinkedList* createRotorPermutations(int numberOfWaltzen, int numberToChooseFrom)
     permutations=createLinkedList();
     permute(permutations, waltzenIndices, numberToChooseFrom, numberOfWaltzen, 0);
     return permutations;
+}
+
+
+/**************************************************************************************************\
+* 
+* Print cypher nicely formated
+* 
+\**************************************************************************************************/
+void printCypher(char* cypher)
+{
+  int i;
+  int printed;
+  
+  printf("# ");
+  i=0;
+  printed=0;
+  while(i<strlen(cypher))
+  {
+      if (cypher[i]!=' ')
+      {
+          printf("%c", cypher[i]);
+          printed++;
+
+      if (printed%5==0)
+      {
+          if (printed==50)
+          {
+              printf("\n# ");
+              printed=0;
+          }
+          else
+          {
+            printf(" ");
+          }
+      }
+      }
+      i++;
+  }
+  if (printed!=0)
+  {
+    printf("\n");
+  }
 }

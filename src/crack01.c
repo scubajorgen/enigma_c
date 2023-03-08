@@ -1,5 +1,5 @@
 /**************************************************************************************************\
-* crack02.c
+* crack01.c
 * 
 * Enigma challenge (see /documents/engimaChallenge.pdf) or 
 * https://www.ciphermachinesandcryptology.com/en/challenge.htm

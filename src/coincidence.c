@@ -52,7 +52,8 @@ typedef struct
 EnigmaSettings      iocSettings;
 
 int                 iocNumberOfResults=0;      
-IocResults          iocTopTenResults[TOP_RESULTS_SIZE];
+IocResults          iocTopResults[TOP_RESULTS_SIZE];
+IocResults          swap;
 
 EvaluationMethod    evaluationMethod;
 IocWorkItem         iocWorkItems[MAX_WORK_ITEMS];
@@ -67,6 +68,9 @@ int                 iocThreadsRunning=0;
 int                 iocLastThreadId=-1;
 
 int                 ioctrigramCount[MAX_TRIGRAMS];
+
+long                evaluationStartTime;
+long                evaluationEndTime;
 
 
 /**************************************************************************************************\
@@ -106,7 +110,7 @@ float iocIndexOfCoincidence(Enigma* enigma)
 /**************************************************************************************************\
 * 
 * Store the results in the top 10 of best results
-* Returns the lowest index of coincidence value
+* Returns the lowest index of coincidence value in the list
 * 
 \**************************************************************************************************/
 
@@ -121,7 +125,7 @@ float iocStoreResults(IocResults* results)
     index   =-1;
     while (i<iocNumberOfResults && index<0)
     {
-        if (results->indexOfCoincidence > iocTopTenResults[i].indexOfCoincidence)
+        if (results->indexOfCoincidence > iocTopResults[i].indexOfCoincidence)
         {
             index=i;
         }
@@ -141,19 +145,47 @@ float iocStoreResults(IocResults* results)
         {
             if (i<TOP_RESULTS_SIZE)
             {
-                iocTopTenResults[i]=iocTopTenResults[i-1];
+                iocTopResults[i]=iocTopResults[i-1];
             }
             i--;
         } 
         // Add the new record
-        iocTopTenResults[index]=*results;
+        iocTopResults[index]=*results;
 
         if (iocNumberOfResults<TOP_RESULTS_SIZE)
         {
             iocNumberOfResults++;
         }   
     }
-    return iocTopTenResults[iocNumberOfResults-1].indexOfCoincidence;
+    return iocTopResults[iocNumberOfResults-1].indexOfCoincidence;
+}
+
+/**************************************************************************************************\
+* 
+* After processing the top 10 results may no longer be sorted. This sorts the list.
+* 
+\**************************************************************************************************/
+void sortTop10Results()
+{
+    int     i;
+    int     j;
+
+    i=0;
+    while (i<TOP_RESULTS_SIZE-1)
+    {
+        j=i+1;
+        while (j<TOP_RESULTS_SIZE)
+        {
+            if (iocTopResults[j].indexOfCoincidence>iocTopResults[i].indexOfCoincidence)
+            {
+                swap            =iocTopResults[i];
+                iocTopResults[i]=iocTopResults[j];
+                iocTopResults[j]=swap;
+            }
+            j++;
+        }        
+        i++;
+    }
 }
 
 /**************************************************************************************************\
@@ -162,7 +194,7 @@ float iocStoreResults(IocResults* results)
 * 
 \**************************************************************************************************/
 
-void iocDumpTopTenResults(int withDecode)
+void iocDumpTopResults(int withDecode)
 {
     int             i;
     int             s1, s2;
@@ -175,7 +207,7 @@ void iocDumpTopTenResults(int withDecode)
     i=0;
     while (i<iocNumberOfResults)
     {
-        results=&iocTopTenResults[i];
+        results=&iocTopResults[i];
         settings=&results->settings;
 
         // Convert the stecker positions to a stecker brett string of pairs
@@ -222,6 +254,7 @@ void iocDumpTopTenResults(int withDecode)
 /**************************************************************************************************\
 * 
 * Helper: converts the engima stecker string to the stecker table
+* The stecker string is like: AG HI PQ CV
 * 
 \**************************************************************************************************/
 int steckersToSteckerTable(char* steckers, int* steckerTable)
@@ -332,12 +365,12 @@ void printFoundLetters(int s1Max, int s2Max, int s1aMax, int s2aMax, float maxIo
 
 /**************************************************************************************************\
 * 
-* After the rotor settings have been found, this method finds the steckers. 
+* After the rotor settings and Ringstellungs have been found, this method finds the steckers. 
 * It uses the Index of Coincidence as measure of plain text fitness
 * It uses a 'hill climbing algorithm': try a stecker on each pair of unsteckered letters and
 * calculate de IoC. Place the one with the highest IoC. Proceed to the next round until the
 * requested number of steckers has been placed or no better IoC can be found.
-* This function is meant to be called after the rotor settings have been established 
+* This function is meant to be called after the rotor settings and Ringstellungs have been established 
 * (Gillogly method)
 *
 * Steckering: if on a location a stecker is already present, this stecker is removed
@@ -368,9 +401,8 @@ void iocFindSteckeredChars(IocResults* results, int maxNumOfSteckers)
     // Initialise stecker brett table
     sCount=steckersToSteckerTable(results->settings.steckers, steckerTable);
 
-  
+    // Setup the enigma
     enigma=createEnigmaM3();
-    
     setEnigma(enigma, &results->settings);
     
     // The IoC found by just moving the rotors, no steckers
@@ -433,6 +465,7 @@ void iocFindSteckeredChars(IocResults* results, int maxNumOfSteckers)
                 // Quick and dirty way to set up the steckers
                 memcpy(enigma->steckerBrett, steckerTable, MAX_POSITIONS*sizeof(int));
                 
+                // reset the enigma Grundstellung
                 setGrundStellung(enigma, 1, results->settings.grundStellungen[0]);
                 setGrundStellung(enigma, 2, results->settings.grundStellungen[1]);
                 setGrundStellung(enigma, 3, results->settings.grundStellungen[2]);
@@ -1056,14 +1089,10 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
                     }
                     g1++;
                 }
- 
-            
                 r3++;
             }
             r2++;
         }
-
-
         w++;
     }
     destroyEnigma(enigma);  
@@ -1081,6 +1110,92 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
     pthread_mutex_lock(&iocMutex);
     pthread_mutex_unlock(&iocMutex);     
 }
+
+
+
+/**************************************************************************************************\
+* 
+* In the original Gillogly method, rotors are found assuming Ringstellung 1-1-1. After finding
+* the rotors and Grundstellung, the Ringstellung is found by varying the Ringstellungen and 
+* calculating the index of coincidence. First the 26 positions for R3 are tried. The best 
+* solution is selected. Then the 26 positions of R2 are tried. The best solution is selected.
+* 
+* However, this frequently does not result in the optimal solutions, since it does not take into 
+* account allowed Waltzen combinations, allowed by the inner working of the Enigma. 
+* This improved version simulates the allowed Walzen combinations.
+* 
+\**************************************************************************************************/
+void findRingStellung(IocResults*  results, int startRotor, int endRotor)
+{
+    int             rotor;
+    int             inc;
+    int             steps;
+    int             ring;
+    int             g1;
+    int             g2;
+    int             g3;
+    float           ioc;
+    float           maxIoc;
+    int             maxR;
+    int             maxG1;
+    int             maxG2;
+    int             maxG3;
+    Enigma*         enigma;
+    EnigmaSettings* settings;
+
+    settings    =&results->settings;
+    enigma      =createEnigmaM3(); 
+    
+    rotor       =endRotor;
+    while (rotor>=startRotor)
+    {
+        maxR    =settings->ringStellungen[rotor-1];
+        maxG1   =settings->grundStellungen[0];
+        maxG2   =settings->grundStellungen[1];
+        maxG3   =settings->grundStellungen[2];
+        maxIoc  =results->indexOfCoincidence;
+        inc    =-MAX_POSITIONS+1;
+        while (inc<MAX_POSITIONS)
+        {
+            ring=1+inc;
+            if (ring<1)
+            {
+                ring+=MAX_POSITIONS;
+            }            
+            setEnigma(enigma, settings);
+            setRingStellung(enigma, rotor, ring);
+            
+            steps=ipow(MAX_POSITIONS, enigma->numberOfRotors-rotor)*inc;
+            advances(enigma, steps);
+
+            g1=getGrundStellung(enigma, 1);
+            g2=getGrundStellung(enigma, 2);
+            g3=getGrundStellung(enigma, 3);
+            encodeDecode(enigma);
+            ioc=iocIndexOfCoincidence(enigma);
+//printf("A Test inc %d rotor %d ring %d grund %d %d %d : %f\n", inc, rotor, ring, g1, g2, g3 ,ioc);
+            if (ioc>maxIoc)
+            {
+                maxIoc  =ioc;
+                maxR    =ring;
+                maxG1   =g1;
+                maxG2   =g2;
+                maxG3   =g3;
+            }
+            inc++;
+        }
+
+        settings->grundStellungen[0]        =maxG1;
+        settings->grundStellungen[1]        =maxG2;
+        settings->grundStellungen[2]        =maxG3;
+        settings->ringStellungen[rotor-1]   =maxR;
+        results->indexOfCoincidence         =maxIoc;
+        printf("Rotor %d: best Ringstellung %2d, best Grundstellung %2d %2d %2d - IoC %f\n", rotor, maxR, maxG1, maxG2, maxG3, maxIoc);
+        rotor--;
+    }
+}
+
+
 
 
 
@@ -1107,6 +1222,7 @@ void *iocThreadFunction(void *vargp)
     int                 ngramSize;
     int                 initialNumberOfWorkItems;
     int                 number;
+    long                timeDiff;
     
     pthread_mutex_lock(&iocMutex);
     initialNumberOfWorkItems=iocInitialNumberOfWorkItems;
@@ -1162,6 +1278,8 @@ void *iocThreadFunction(void *vargp)
             switch (method)
             {
                 case METHOD_IOC:
+                case METHOD_IOC_R2R3:
+                case METHOD_IOC_R3:
                   iocEvaluateEngimaSettings(item, 0);
                   break;
                 case METHOD_IOC_DEEP:
@@ -1192,30 +1310,62 @@ void *iocThreadFunction(void *vargp)
     // If this is the last thread, finish the job
     if (lastManStanding)
     {
-
         printf("Last man standing: %ld\n", id);
-        
+        iocDumpTopResults(0);
         switch (method)
         {
-            case METHOD_IOC:
-                // Now we have got the Top 10 best results, try to find the 
-                // Stecker Positions for each of them (only for the not deep method)
+            case METHOD_IOC_R2R3:
+                // Now we have got the Top 10 best results for rotor position and Ringstellung R1 R2 R3
+                // Try to find
+                // - Stecker Positions for each of them (only for the not deep method)
                 i=0;
                 while (i<iocNumberOfResults)
                 {
                     printf("Finding steckers for %d\n", i);
-                    iocFindSteckeredChars(&iocTopTenResults[i], maxSteckers);
+                    iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
+                    i++;
+                }
+              break;
+            case METHOD_IOC_R3:
+                // Now we have got the Top 10 best results for rotor position and Ringstellung R1 R3
+                // Try to find
+                // - Ringstellung R2
+                // - Stecker Positions for each of them (only for the not deep method)
+                i=0;
+                while (i<iocNumberOfResults)
+                {
+                    // find ringstellung for rotor R2
+                    printf("Finding ring setting R2 for %d\n", i);
+                    findRingStellung(&iocTopResults[i], 2, 2);
+                    printf("Finding steckers for %d\n", i);
+                    iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
+                    i++;
+                }
+              break;           
+            case METHOD_IOC:
+                // Now we have got the Top 10 best results for rotor position and Ringstellung R1
+                // Try to find
+                // - Ringstellung R2 and R3
+                // - Stecker Positions for each of them (only for the not deep method)
+                i=0;
+                while (i<iocNumberOfResults)
+                {
+                    // find ringstellung for rotor R2 and R3
+                    printf("Finding ring setting R2 and R3 for %d\n", i);
+                    findRingStellung(&iocTopResults[i], 2, 3);
+                    printf("Finding steckers for %d\n", i);
+                    iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
                     i++;
                 }
               break;
             case METHOD_IOC_DEEP:
               break;
             case METHOD_IOC_NGRAM:            
-                iocDumpTopTenResults(1);
                 i=0;
                 while (i<iocNumberOfResults)
                 {
-                    iocFindSteckeredCharsNgram(&iocTopTenResults[i], maxSteckers, ngramSize);
+                    printf("Finding final steckers for %d\n", i);
+                    iocFindSteckeredCharsNgram(&iocTopResults[i], maxSteckers, ngramSize);
                     i++;
                 }
               break;
@@ -1223,12 +1373,16 @@ void *iocThreadFunction(void *vargp)
         
         // Show the final result 
         printf("FOUND SOLUTIONS: \n");
-        iocDumpTopTenResults(1);
+        sortTop10Results();
+        iocDumpTopResults(1);
 
         if (permutations!=NULL)
         {
             destroyLinkedList(permutations);
         }
+        evaluationEndTime=time(NULL);
+        timeDiff=evaluationEndTime-evaluationStartTime;
+        printf("Time elapsed: %ld minutes\n", timeDiff/60);
     }
     fflush(stdout);
     return NULL;
@@ -1314,8 +1468,8 @@ void iocDecodeText(char* cypher, int numOfThreads)
     int             length;
     
     // Start with 5 Wehrmacht rotors
-    permutations=createRotorPermutations(3, 5);
-    length=linkedListLength(permutations);
+    permutations        =createRotorPermutations(3, 5);
+    length              =linkedListLength(permutations);
    
     // Create the stack of work for the trheads
     iocNumberOfWorkItems=numOfThreads*2;
@@ -1329,9 +1483,23 @@ void iocDecodeText(char* cypher, int numOfThreads)
         iocWorkItems[i*2].endPermutation        =(i+1)*length/numOfThreads-1;
         iocWorkItems[i*2].R1                    =1;
         iocWorkItems[i*2].startR2               =1;
-        iocWorkItems[i*2].endR2                 =MAX_POSITIONS;
+        if (evaluationMethod.method==METHOD_IOC_R2R3)
+        {
+            iocWorkItems[i*2].endR2             =MAX_POSITIONS;
+        }
+        else
+        {
+            iocWorkItems[i*2].endR2             =1;
+        }
         iocWorkItems[i*2].startR3               =1;
-        iocWorkItems[i*2].endR3                 =MAX_POSITIONS;
+        if (evaluationMethod.method==METHOD_IOC_R2R3 || evaluationMethod.method==METHOD_IOC_R3)
+        {
+            iocWorkItems[i*2].endR3             =MAX_POSITIONS;
+        }
+        else
+        {
+            iocWorkItems[i*2].endR3             =1;
+        }
         iocWorkItems[i*2].maxCypherChars        =MAX_TEXT;
         strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
 
@@ -1342,14 +1510,29 @@ void iocDecodeText(char* cypher, int numOfThreads)
         iocWorkItems[i*2+1].endPermutation      =(i+1)*length/numOfThreads-1;
         iocWorkItems[i*2+1].R1                  =1;
         iocWorkItems[i*2+1].startR2             =1;
-        iocWorkItems[i*2+1].endR2               =MAX_POSITIONS;
+        if (evaluationMethod.method==METHOD_IOC_R2R3)
+        {
+            iocWorkItems[i*2+1].endR2           =MAX_POSITIONS;
+        }
+        else
+        {
+            iocWorkItems[i*2+1].endR2           =1;
+        }
         iocWorkItems[i*2+1].startR3             =1;
-        iocWorkItems[i*2+1].endR3               =MAX_POSITIONS;
+        if (evaluationMethod.method==METHOD_IOC_R2R3 || evaluationMethod.method==METHOD_IOC_R3)
+        {
+            iocWorkItems[i*2+1].endR3           =MAX_POSITIONS;
+        }
+        else
+        {
+            iocWorkItems[i*2+1].endR3           =1;
+        }
         iocWorkItems[i*2+1].maxCypherChars      =MAX_TEXT;
         strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
         i++;
     }
 
+    evaluationStartTime=time(NULL);
     iocExecuteWorkItems(numOfThreads, permutations);
 }
 

@@ -63,11 +63,17 @@ int main()
     printf("# ENIGMA SIMULATION\n");
     printf("#####################################################################################\n");
     
-	printf(" 1.     Enigma example                  \n");
-	printf(" 2.     Turing crib circles/loops       \n");
-	printf(" 3.     Turing example                  \n");
-	printf(" 4.     Gillogly IoC example            \n");
-	printf(" 5.     Gillogly IoC deep example       \n");
+	printf(" 1.     Enigma example                      \n");
+	printf(" 2.     Turing crib circles/loops           \n");
+	printf(" 3.     Turing example                      \n");
+	printf(" 4.     Gillogly IoC example 00 - original  \n");
+	printf(" 5.     Gillogly IoC example 1A             \n");
+	printf(" 6.     Gillogly IoC example 1B             \n");
+	printf(" 7.     Gillogly IoC example 1C             \n");
+	printf(" 8.     Gillogly IoC example 7A             \n");
+	printf("10.     The third problem                   \n");
+	printf("11.     The fourth problem                  \n");
+	printf("12.     The fifth problem                   \n");
 
 	printf("20-29.  Engima Challenge message 1-10   \n");
 
@@ -91,12 +97,43 @@ int main()
             break;    
         case 4: 
             // The James Gillogly method example v
-            iocExample();
+            iocExample00();
             break;
-        case 5:  
+        case 5: 
+            // 2nd IoC example
+            iocExample01A();
+            break;
+        case 6:  
             // Deep method example - Gillogly text v
-            iocExampleDeep1();
+            iocExample01B();
             break;
+        case 7:  
+            // Deep method example - Gillogly text v
+            iocExample01C();
+            break;
+        case 8:  
+            // Deep method example - Gillogly text v
+            iocExample08B();
+            break;
+        case 9:  
+            // Deep method example - Gillogly text v
+            iocExample07B();
+            break;
+        case 10:
+            theThirdProblem();
+            break;
+        case 11:
+            theFourthProblem();
+            break;
+        case 12:
+            theFifthProblem();
+            break;
+        case 13:
+            theSixthProblem();
+            break;
+        case 14:
+            iocExampleNgram();
+            break;    
         case 20:
             message01();
             break;

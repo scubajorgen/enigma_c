@@ -23,9 +23,13 @@ extern int                 waltzenIndices[8];
 extern char                waltzen[8][4];
 
 
-
+int         ipow                    (int base, int exp);
 int         stellungToPos           (int stellung);
 int         charToPos               (char theChar);
+char        posToChar               (int position);
+int         posToStellung           (int position);
+int         charToStellung          (int theChar);
+int         stellungToChar          (int stellung);
 
 LinkedList* createLinkedList        ();
 void        destroyLinkedList       (LinkedList* list);
@@ -37,5 +41,6 @@ int         linkedListLength        (LinkedList* list);
 void*       elementAt               (LinkedList* list, int index);
 void        permute                 (LinkedList* permutations, int elements[], int elementArraySize, int number, int start);
 LinkedList* createRotorPermutations (int numberOfWaltzen, int numberToChooseFrom);
+void        printCypher             (char* cypher);
 
 #endif

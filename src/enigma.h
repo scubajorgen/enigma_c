@@ -65,8 +65,10 @@ void        destroyEnigma           (Enigma* enigma);
 void        setText                 (Enigma* engima, char text[]);
 void        placeWaltze             (Enigma* enigma, int waltze, char rotorName[]);
 void        setRingStellung         (Enigma* enigma, int waltze, int ringStellung);
+int         getRingStellung         (Enigma* enigma, int waltze);
 void        setRingStellungen       (Enigma* engima, char* ringStellungen);
 void        setGrundStellung        (Enigma* enigma, int waltze, int grundStellung);
+int         getGrundStellung        (Enigma* enigma, int waltze);
 void        setGrundStellungen      (Enigma* enigma, char* grundStellungen);
 void        placeUmkehrWaltze       (Enigma* engima, char name[]);
 void        clearSteckerBrett       (Enigma* engima);
@@ -74,6 +76,7 @@ void        placeSteckers           (Enigma* engima, char steckers[]);
 void        encodeDecode            (Enigma* enigma);
 char*       toString                (Enigma* enigma);
 void        setEnigma               (Enigma* enigma, EnigmaSettings* settings);
+void        printEnigmaSettings     (EnigmaSettings* settings, char* title);
 void        dumpDecoded             (EnigmaSettings* settings);
 
 int         countLetter             (Enigma* enigma, char letter);

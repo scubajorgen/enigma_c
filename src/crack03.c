@@ -111,8 +111,8 @@ void theSixthProblem()
     char*   plain;
     char    key[27];
     char    keyCopy[27];
-    char    maxKey[27];
-    char    maxMaxKey[27];
+//    char    maxKey[27];
+//    char    maxMaxKey[27];
     
     adfgxAlloc(26, strlen(cypher));
     adfgxNormalizeCypher(cypher, strlen(cypher));
@@ -209,7 +209,7 @@ void theSixthProblem2()
     float   iocMaxMax;
     char*   plain;
     char    key[27];
-    char    keyCopy[27];
+//    char    keyCopy[27];
     int*            permutation;
     LinkedList*     permutations;
     
