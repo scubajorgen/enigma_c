@@ -15,8 +15,8 @@
 #include "coincidence.h"
 #include "toolbox.h"
 
-// The orignal Gillogly cipher text and enigma settings
-EnigmaSettings iocExampleSettings0=
+// The orignal Gillogly cipher text and enigma settings, 7 steckers
+EnigmaSettings iocExampleSettings01=
 {
     3,
     {
@@ -47,9 +47,42 @@ EnigmaSettings iocExampleSettings0=
     "GFZJC URWGT QZCTL LOIEK AOISK HAAQF OPFUZ IRTLW EVYWM DN"
 };
 
-// The orignal Gillogly cipher text but other engima settings
+// The orignal Gillogly cipher text but other engima settings, 8 steckers
 // The original Gillogly method won't find the solution
-EnigmaSettings iocExampleSettings1=
+EnigmaSettings iocExampleSettings01_2=
+{
+    3,
+    {
+        "IV",
+        "V",
+        "III"
+    },
+    "UKW B",
+    {
+        1, 23, 4
+    },
+    {
+        2, 7, 9
+    },
+    "RW JO BL IU KT AC SY PQ",
+    "isxxr rfvuk ivvcf xozlr ewedp fggon aalyq avyrb ixwwk melvf"
+    "gcsne pawuq fgywg xapbs astop qyawu kqnau nfduu gdinf zksnt"
+    "rfsyo thctm yglkb kkgup wofxg jbzxp aslll rrusk avwoc oloxp"
+    "hvbnv mnuqb rumpo njczp fmxkw sszay heaxw cnezn rtqxc gsvcn"
+    "sqhfw zwlar zxyxz zuryj cclgv ntfno knjyb ubofb rnlce wvfgi"
+    "yhbko lzfof opndn sgeji ahgvf qqtvw uakaw jvrsg fzmtr jfvwb"
+    "mtdqt qmldn fnjuq gujdv dsfsv obbwt dgrdr xeryu irhpz vlqyd"
+    "ciexk eezmy suion bsrgf qsdhf uxows tykyp zoopr jsisg czpiw"
+    "hikww pheir qagld fgycz fqwyf zazct kstas gxycs powzx qgvie"
+    "iosrm felbh qftdw ctnvy tlhny lrgcl fqyzb ebbkm tfkdd vxeyp"
+    "sijlu jzhrl inmzj hhupz nqcch hzlnz pdbxk ebxcf quhcf aghia"
+    "qdpsn bapmv harup udvim bxwsq ajoen gsozk jteot fliqb rokyq"
+    "xzwij qhdwj aiyge sncou yzgay ucwdf rnqxf yxlym bwsdw hy"
+};
+
+// The orignal Gillogly cipher text but other engima settings, 10 steckers
+// The original Gillogly method won't find the solution
+EnigmaSettings iocExampleSettings01_3=
 {
     3,
     {
@@ -78,6 +111,41 @@ EnigmaSettings iocExampleSettings1=
     "JLYBA JEHNB INVEL HHBQE NXCNH HELEE QDBPK QBPCO WUHXF AGHIC"
     "XDQAN BAQVA GDRNQ UDMTV BPRSJ ANOZN GSOEB OLZOW FHISB ROGYX"
     "XEOIW XHDTJ AWYGZ SNCOO YZGAY NTWDA RNXMF YTLOV BVSDW XU"
+};
+
+
+// Some random pretty large message with only 4 steckers
+// rotor 3 just before step
+EnigmaSettings iocExampleSettings02=
+{
+    3,
+    {
+        "IV",
+        "V",
+        "II"
+    },
+    "UKW B",
+    {
+        1, 18, 24
+    },
+    {
+        9, 21, 3
+    },
+
+    "bq cr di ep",
+    "kqloo dyocm rhnhc oexpt wnnpb fibdu cpemy ktgti dobwb etorl ctevu lazab xgvxk ouplq jjqwm"
+    "tkroh hiekp uonaw sectb glqse egotr zatwb xhift klpab nzmfk mlmws exulj wxbps ecbec wiits"
+    "ztwkz cqrjn wxxin hdida vicjj zvhub kdsdi asapa uulug gskpg ekrzi uhqlm orbxw dlvit zrpmw"
+    "crsyu mhvvd iemqc ehpty hnlxe hzkwl swsec clqoq neonx frobn mrizp ehxlw ahvjx bznjt zpxoq"
+    "sejdm gpofo cvddi emcom lrnsm vnkpy bwfhq blhwl xizfi euvjr iagmn rdocb nylvn mvvty szuyg"
+    "rzntp itzps mfhcv rgtxu udvmi hsizi azicg gzqab ilswh slfif mruln rctub qtgxs slyhx kbmtn"
+    "umiyl moycv xykop dudrl bjang yvaoo ujibe acpim tbthy uijdi nhxpr ookgv jzwno vpcqa wjako"
+    "xsvjj qitct iosnk aonjz cqksr aqpjy awwrz sjuel wvpfg rgmvz ehalw usdsn jbirb uuksj ychph"
+    "ceaqk pljnk yupwr vhnqa wpwzp jbxms cwjeg ghleb bterp rmgys wipuz kowaa pjxkk hypqo mjywg"
+    "gtjel mkfin tktcf rdjpl wmfpt nroje lkzhp thuzx mljms tvcea djzkr cwang vspvo aqajh vyucv"
+    "oulko qymra uaoyb wwndy mnswn pyufy bmzjs qkyei syxnn kkkhl eyjay ohsqw ltdkg rborj mepgh"
+    "knyfj uculb sankm ndhzi grqdy qdeew zdyiv whhta ppfjk dtegd urdqu vtmbp hmxmb lltbw qjbbv"
+    "wukdh quraa bkucm rgqsk volqi zeare jfggf hqvyh nwwih dzt"
 };
 
 
@@ -375,175 +443,85 @@ EnigmaSettings iocExampleSettings07=
     "WEMRZBDDARDHQYZPZHDJWRADMNSSE"
 };
 
-// Some random pretty large message with only 4 steckers
-// rotor 3 just before step
-EnigmaSettings iocExampleSettings08=
-{
-    3,
-    {
-        "IV",
-        "V",
-        "II"
-    },
-    "UKW B",
-    {
-        1, 18, 24
-    },
-    {
-        9, 21, 3
-    },
-
-    "bq cr di ep",
-    "kqloo dyocm rhnhc oexpt wnnpb fibdu cpemy ktgti dobwb etorl ctevu lazab xgvxk ouplq jjqwm"
-    "tkroh hiekp uonaw sectb glqse egotr zatwb xhift klpab nzmfk mlmws exulj wxbps ecbec wiits"
-    "ztwkz cqrjn wxxin hdida vicjj zvhub kdsdi asapa uulug gskpg ekrzi uhqlm orbxw dlvit zrpmw"
-    "crsyu mhvvd iemqc ehpty hnlxe hzkwl swsec clqoq neonx frobn mrizp ehxlw ahvjx bznjt zpxoq"
-    "sejdm gpofo cvddi emcom lrnsm vnkpy bwfhq blhwl xizfi euvjr iagmn rdocb nylvn mvvty szuyg"
-    "rzntp itzps mfhcv rgtxu udvmi hsizi azicg gzqab ilswh slfif mruln rctub qtgxs slyhx kbmtn"
-    "umiyl moycv xykop dudrl bjang yvaoo ujibe acpim tbthy uijdi nhxpr ookgv jzwno vpcqa wjako"
-    "xsvjj qitct iosnk aonjz cqksr aqpjy awwrz sjuel wvpfg rgmvz ehalw usdsn jbirb uuksj ychph"
-    "ceaqk pljnk yupwr vhnqa wpwzp jbxms cwjeg ghleb bterp rmgys wipuz kowaa pjxkk hypqo mjywg"
-    "gtjel mkfin tktcf rdjpl wmfpt nroje lkzhp thuzx mljms tvcea djzkr cwang vspvo aqajh vyucv"
-    "oulko qymra uaoyb wwndy mnswn pyufy bmzjs qkyei syxnn kkkhl eyjay ohsqw ltdkg rborj mepgh"
-    "knyfj uculb sankm ndhzi grqdy qdeew zdyiv whhta ppfjk dtegd urdqu vtmbp hmxmb lltbw qjbbv"
-    "wukdh quraa bkucm rgqsk volqi zeare jfggf hqvyh nwwih dzt"
-};
 
 
 
-// Some random pretty large message with only 4 steckers
-EnigmaSettings iocExampleSettings08_2=
-{
-    3,
-    {
-        "IV",
-        "V",
-        "II"
-    },
-    "UKW B",
-    {
-        1, 18, 5
-    },
-    {
-        9, 21, 8
-    },
 
-    "bq cr di ep",
-    "ieoms vttxi onvax stuzt xiwag uxwte embrz veepr gjbin rrbip jabjl sjdhp kozet fucec zsgbh"
-    "oxevt uonrp ovxik cfuex contb liqcw npemh tbpey xavsr pfjmf ssrhm gvugp gwfaq ghbnl hbyqj"
-    "utovh gwgbj xhouu slsgc jcuwy jyfks vwqsl tumwo aevkp ntnsu boqis aomnh dneeq rewnh fwush"
-    "gehvj mdqwm hyyii jxlfd bhjmd hggoc txzpu damuj htory kevfk mmuzu wgeys uecsk dpdjk gkwfx"
-    "mnhqb wirku ughcj sfbur tpwkk htupj wvolv yxuck xvdon cxrlk ifkkb bgmww xntnm ksger ekgzz"
-    "mwlun ciwcc hshbj lxqqc ethzt gpsft vhhel eryvz qgzoj mlwwk xocfs mnkoh fllbo hdknv hbmdz"
-    "kkozz tlnuy cbxtt qbdkz dgllb xishn ahpru cbfka gbneo hbzfv ttbkj fejtd czoel kbkzh odudz"
-    "kpzcm hinso wxeiy vmfbf ivwlj xqxbx bqbkh muvlu ayvts qgifa lcfah zynvl hqhjw usfzi nhvyu"
-    "fuiih rxnxf lrrxu jxeut gxsme biife exazx pyuvb xgbvj repbd sjnio iupau evtvn quelb vzfkc"
-    "qdunt crcny ezajj fnzmg ofuop veswy sxaxz drohr xtdgc ydtil qwvaq guhgl lhzwt xjjdo uojvw"
-    "vjkdm gsjxw aynsx ljoxd jnysr ksceg uoedy skata ajzvq rtypt zarev jvays plzqf kxjab kycmo"
-    "phwev wjhtz wkzwt vdsux zitzh zoczj ckqlh dauiw nqtuf uzyun sitny zggrg gfwwz mpdpb bkmgw"
-    "khmje dipmh nwkdz uzvpr xsimf movbc zcxzj dbfgw ofole xhl"
-};
-
-IocResults  iocExampleResults08_2=
-{
-    0.042268,
-    {
-        3,
-        {
-            "IV",
-            "V",
-            "II"
-        },
-        "UKW B",
-        {
-            1, 1, 1
-        },
-        {
-            10, 4, 4
-        },
-
-        "bq cr di ep",
-        "cipher"
-    }   
-};
 
 /**************************************************************************************************\
 * 
 * Example from the original James Gillogly article
+* Works. 2nd result is correct
 * 
 \**************************************************************************************************/
 void iocExample00()
 {
-    printEnigmaSettings(&iocExampleSettings0, "INDEX OF COINCIDENCE METHOD EXAMPLE 0 - James Gillogly");
+    printEnigmaSettings(&iocExampleSettings01, "INDEX OF COINCIDENCE METHOD EXAMPLE 0 - James Gillogly");
 
     setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings0.cypher, 6);
+    iocDecodeText(iocExampleSettings01.cypher, 6);
 }
 
 /**************************************************************************************************\
 * 
 * Example from the original James Gillogly article - other encryption
+* Does not work. 5th result comes closest
 * 
 \**************************************************************************************************/
 void iocExample01A()
 {
-    printEnigmaSettings(&iocExampleSettings1, "INDEX OF COINCIDENCE METHOD EXAMPLE 1A - James Gillogly");
+    printEnigmaSettings(&iocExampleSettings01_2, "INDEX OF COINCIDENCE METHOD EXAMPLE 1A - James Gillogly");
 
     setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings1.cypher, 6);
+    iocDecodeText(iocExampleSettings01_2.cypher, 10);
 }
 
 /**************************************************************************************************\
 * 
 * Example from the original James Gillogly article - other encryption
+* Works
 * 
 \**************************************************************************************************/
 void iocExample01B()
 {
-    printEnigmaSettings(&iocExampleSettings1, "INDEX OF COINCIDENCE METHOD EXAMPLE 1B - James Gillogly");
+    printEnigmaSettings(&iocExampleSettings01_2, "INDEX OF COINCIDENCE METHOD EXAMPLE 1B - James Gillogly");
 
-    setEvaluationMethod(METHOD_IOC_R2R3, 10, 10, 0, NULL);
+    setEvaluationMethod(METHOD_IOC_R3, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings1.cypher, 6);
+    iocDecodeText(iocExampleSettings01_2.cypher, 10);
 }
 
 /**************************************************************************************************\
 * 
-* Example to play with short messages
+* Example from the original James Gillogly article - other encryption
+* ?
 * 
 \**************************************************************************************************/
 void iocExample01C()
 {
-    LinkedList*     permutations;
-    
-    printEnigmaSettings(&iocExampleSettings1, "INDEX OF COINCIDENCE METHOD EXAMPLE 1C - James Gillogly");
+    printEnigmaSettings(&iocExampleSettings01_3, "INDEX OF COINCIDENCE METHOD EXAMPLE 1C - James Gillogly");
 
-    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 0, NULL);
+    setEvaluationMethod(METHOD_IOC_R2R3, 10, 10, 0, NULL);
 
-    // Start with 5 Wehrmacht rotors
-    permutations=createRotorPermutations(3, 5);
+    iocDecodeText(iocExampleSettings01_3.cypher, 10);
+}
 
-    iocWorkItems[0].cypher            =iocExampleSettings1.cypher;
-    iocWorkItems[0].permutations      =permutations;
-    iocWorkItems[0].startPermutation  =45;
-    iocWorkItems[0].endPermutation    =45;
-    iocWorkItems[0].R1                =1;
-    iocWorkItems[0].startR2           =23;
-    iocWorkItems[0].endR2             =23;
-    iocWorkItems[0].startR3           =4;
-    iocWorkItems[0].endR3             =4;
-    iocWorkItems[0].maxCypherChars    =MAX_TEXT;
 
-    
-    strncpy(iocWorkItems[0].ukw, "UKW B", MAX_ROTOR_NAME);
+/**************************************************************************************************\
+* 
+* Pretty long english text example generated using https://cryptii.com/pipes/enigma-machine
+* Works. 3rd result is correct.
+* 
+\**************************************************************************************************/
+void iocExample02A()
+{
+    printEnigmaSettings(&iocExampleSettings02, "INDEX OF COINCIDENCE METHOD EXAMPLE 2A");
 
-    iocEvaluateEngimaSettings(&iocWorkItems[0], 10);
+    setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
 
-    iocDumpTopResults(1);
-
-    destroyLinkedList(permutations);    
+    iocDecodeText(iocExampleSettings02.cypher, 6);
 }
 
 /**************************************************************************************************\
@@ -557,7 +535,7 @@ void iocExample07A()
 
     setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings07.cypher, 6);
+    iocDecodeText(iocExampleSettings07.cypher, 10);
 }
 
 /**************************************************************************************************\
@@ -571,138 +549,15 @@ void iocExample07B()
 
     setEvaluationMethod(METHOD_IOC_R3, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings07.cypher, 6);
-}
-
-/**************************************************************************************************\
-* 
-* Pretty long english text example generated using https://cryptii.com/pipes/enigma-machine
-* 
-\**************************************************************************************************/
-void iocExample08B()
-{
-    printEnigmaSettings(&iocExampleSettings08, "INDEX OF COINCIDENCE METHOD EXAMPLE 8B");
-
-    // Best results with probing Grundstellung G1 G2 G3 and Ringstellung R3
-    // The best before R2 and Steckerbret is: 
-    // 1: UKW B  IV   V  II R  1  1 24 G 10  5  3 -  - 0.043119
-    setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
-
-    iocDecodeText(iocExampleSettings08.cypher, 6);
-}
-
-/**************************************************************************************************\
-* 
-* Pretty long english text example generated using https://cryptii.com/pipes/enigma-machine
-* This one works and returns the right solution as number 1
-* 
-\**************************************************************************************************/
-void iocExample08C()
-{
-    printEnigmaSettings(&iocExampleSettings08, "INDEX OF COINCIDENCE METHOD EXAMPLE 8C");
-
-    // Best results with probing Grundstellung G1 G2 G3 and Ringstellung R2 and R3
-    setEvaluationMethod(METHOD_IOC_R2R3, 10, 10, 0, NULL);
-
-    iocDecodeText(iocExampleSettings08.cypher, 6);
-}
-
-/**************************************************************************************************\
-* 
-* Pretty long english text example generated using https://cryptii.com/pipes/enigma-machine
-* 
-\**************************************************************************************************/
-void iocExample08Test2()
-{
-    LinkedList*     permutations;
-    printEnigmaSettings(&iocExampleSettings08_2, "INDEX OF COINCIDENCE METHOD EXAMPLE 8A");
-
-
-    setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
-
-    // Start with 5 Wehrmacht rotors
-    permutations=createRotorPermutations(3, 5);
-
-    iocWorkItems[0].cypher            =iocExampleSettings08_2.cypher;
-    iocWorkItems[0].permutations      =permutations;
-    iocWorkItems[0].startPermutation  =47;
-    iocWorkItems[0].endPermutation    =47;
-    iocWorkItems[0].R1                =1;
-    iocWorkItems[0].startR2           =1;
-    iocWorkItems[0].endR2             =1;
-    iocWorkItems[0].startR3           =1;
-    iocWorkItems[0].endR3             =1;
-    iocWorkItems[0].maxCypherChars    =MAX_TEXT;
-
-    
-    strncpy(iocWorkItems[0].ukw, "UKW B", MAX_ROTOR_NAME);
-
-    iocEvaluateEngimaSettings(&iocWorkItems[0], 0);
-
-    iocDumpTopResults(1);
-
-    destroyLinkedList(permutations);   
-}
-
-
-/**************************************************************************************************\
-* 
-* Pretty long english text example generated using https://cryptii.com/pipes/enigma-machine
-* 
-\**************************************************************************************************/
-void iocExample08Test()
-{
-    printEnigmaSettings(&iocExampleSettings08_2, "INDEX OF COINCIDENCE METHOD EXAMPLE 8 Test");
-
-
-    setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
-
-    strncpy(iocExampleResults08_2.settings.cypher, iocExampleSettings08_2.cypher, MAX_TEXT);
-
-    findRingStellung(&iocExampleResults08_2, 2, 3);
-
-    iocDumpTopResults(1);
+    iocDecodeText(iocExampleSettings07.cypher, 10);
 }
 
 
 
 
-/**************************************************************************************************\
-* 
-* Example to play with short messages
-* 
-\**************************************************************************************************/
-void iocExampleDeep1()
-{
-    LinkedList*     permutations;
-    
-    printEnigmaSettings(&iocExampleSettings1, "INDEX OF COINCIDENCE METHOD EXAMPLE 1C - James Gillogly");
 
-    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 0, NULL);
 
-    // Start with 5 Wehrmacht rotors
-    permutations=createRotorPermutations(3, 5);
 
-    iocWorkItems[0].cypher            =iocExampleSettings1.cypher;
-    iocWorkItems[0].permutations      =permutations;
-    iocWorkItems[0].startPermutation  =45;
-    iocWorkItems[0].endPermutation    =45;
-    iocWorkItems[0].R1                =1;
-    iocWorkItems[0].startR2           =23;
-    iocWorkItems[0].endR2             =23;
-    iocWorkItems[0].startR3           =4;
-    iocWorkItems[0].endR3             =4;
-    iocWorkItems[0].maxCypherChars    =MAX_TEXT;
-
-    
-    strncpy(iocWorkItems[0].ukw, "UKW B", MAX_ROTOR_NAME);
-
-    iocEvaluateEngimaSettings(&iocWorkItems[0], 10);
-
-    iocDumpTopResults(1);
-
-    destroyLinkedList(permutations);    
-}
 
 /**************************************************************************************************\
 * 

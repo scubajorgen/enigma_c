@@ -29,9 +29,10 @@ SRCOBJ	        = enigma.o \
                   umkehrwaltze.o\
                   steckerbrett.o\
                   turing.o\
+                  exampleEnigma.o\
                   exampleTuring.o \
                   coincidence.o \
-                  exampleIoc.o \
+                  exampleCoincidence.o \
                   ngramscore.o \
                   adfgx.o \
                   toolbox.o

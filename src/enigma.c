@@ -17,6 +17,8 @@
 
 #define min(a,b) (a<b?a:b)
 
+EnigmaSettings settings;
+
 /**************************************************************************************************\
 * 
 * Converts text to the input array of unified positions
@@ -478,6 +480,7 @@ void setEnigma(Enigma* enigma, EnigmaSettings* settings)
     }
     setText(enigma, settings->cypher);
 }
+
 
 /**************************************************************************************************\
 * 

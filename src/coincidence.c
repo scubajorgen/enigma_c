@@ -1173,7 +1173,7 @@ void findRingStellung(IocResults*  results, int startRotor, int endRotor)
             g3=getGrundStellung(enigma, 3);
             encodeDecode(enigma);
             ioc=iocIndexOfCoincidence(enigma);
-//printf("A Test inc %d rotor %d ring %d grund %d %d %d : %f\n", inc, rotor, ring, g1, g2, g3 ,ioc);
+
             if (ioc>maxIoc)
             {
                 maxIoc  =ioc;
@@ -1193,6 +1193,7 @@ void findRingStellung(IocResults*  results, int startRotor, int endRotor)
         printf("Rotor %d: best Ringstellung %2d, best Grundstellung %2d %2d %2d - IoC %f\n", rotor, maxR, maxG1, maxG2, maxG3, maxIoc);
         rotor--;
     }
+    destroyEnigma(enigma);
 }
 
 
@@ -1382,7 +1383,7 @@ void *iocThreadFunction(void *vargp)
         }
         evaluationEndTime=time(NULL);
         timeDiff=evaluationEndTime-evaluationStartTime;
-        printf("Time elapsed: %ld minutes\n", timeDiff/60);
+        printf("Time elapsed: %ld.%2ld minutes\n", timeDiff/60, timeDiff%60);
     }
     fflush(stdout);
     return NULL;

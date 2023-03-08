@@ -19,7 +19,7 @@ It delivers two executable files:
 ## Usage of the software
 
 Typical usage:
-    
+```    
     enigma=createEnigmaM3();
     setText(enigma, "RCGXFEAJCT");
     placeWaltze(enigma, 1, "I");
@@ -42,12 +42,12 @@ Typical usage:
 
     result=toString(enigma);
     destroyEngima(enigma);
-    
+```    
 Note that the rotors positions are numbered from left to right, starting with 1 as shown below. Note that in *these interface functions* for the letters ASCII characters can be used (like 'A', 'B', 'C', ... 'Z', 'a', 'b', ... 'z') as well as digits (1, 2, ... 26).
 
 ![](images/positions.png)
 
-In the code the internal representation is optimized for performance. Rotor numbering is the other way round (0 for the rightmost rotor, numbering up to the left) and 0..26 for letters. Refer to the code for more information.
+In the code the internal representation is optimized for performance. Rotor numbering is the other way round (0 for the rightmost rotor, numbering up to the left) and 0..25 for letters. Refer to the code for more information.
 
 ## Turing method
 
@@ -73,11 +73,21 @@ The software results in all rotor settings that result in the loops defined by t
 
 ## Index of Coincidence - James Gillogly
 James Gillogly presented a method for finding the rotor settings and the steckers using the 'Index of Coincidence'.
-It uses the fact that letter frequency in plain text isn't random. He uses the index of coincidence as measure of 'non-randomness'. The method first tries to find the rotorsettings that result in the largest IoC value. It then uses a 'hill-climbing' technique to estimate the steckers that improves the IoC. 
-See the article http://web.archive.org/web/20060720040135/http://members.fortunecity.com/jpeschel/gillog1.htm
+It uses the fact that letter frequency in plain text isn't random. He uses the index of coincidence as measure of 'non-randomness'. The Gillogly method consists of following steps:
+1. Find the rotors and Grundstellung that result in the largest IoC value, assuming a fixed Ringstellung of 1-1-1. 
+1. Find the Ringstellung with the highes IoC value, first by varying the Ringstellung of Rotor 3, then of Rotor 2 (and changing the Grundstellung accordingly). 
+1. Find the steckers using a  'hill-climbing' technique.
+
+The 1st step is the most time consuming. 
+
+In this software the 2nd step has been improved. In the original method Ringstellung and Grundstellung are simply done not taking into account the workings of the Enigma. In this software the working of the Enigma is simulated when changing Ringstellung and Grundstellung.
+
+See [the original article](http://web.archive.org/web/20060720040135/http://members.fortunecity.com/jpeschel/gillog1.htm) (it is enclosed in the /documents folder as well).
 The method described is implemented as 
 
-    iocExample();
+    iocExample00();
+
+The implementation distributes the work over a number of threads, so the cores of multi core processors can be used to speed up the work.
 
 ## Bgrams, Trigrams, Ngrams
 As an alternative for finding the steckers a method that scores the decoded text using trigrams. The method is described by https://cryptocellar.org/pubs/bgac.pdf.
@@ -96,3 +106,33 @@ In green the core files
 In purple the cracking methods
 In grey internal files
 In blue example and test files
+
+### Inner workings
+The green files in the picture above implement the Enigma simulation.
+
+The current state of the machine is defined by the ```Enigma``` structure. Using the various functions an instance of this structure can be configured.
+
+The main function is encodeDecode().
+
+```
+void encodeDecode(Enigma* enigma)
+{
+    int charIndex;
+    
+    charIndex=0;
+    while (charIndex<enigma->textSize)
+    {
+        advance(enigma);
+
+        enigma->conversion[charIndex]=encodeCharacter(enigma, enigma->text[charIndex]);
+        
+        charIndex++;
+    }
+}
+```
+
+It basically boils down to two functions: ```advance()``` to advance the rotors and ```encodeCharacter()``` for encoding/decoding a character of the text given the new rotor position. The ```advance()``` and its brother ```reverse()``` can be used to advance and reverse the rotors; these also come in handy in various decryption algorithms. Both functions simulate the 'double step' of the middle rotor, which is shown in the image below. 
+
+![](images/doublestep.png)
+
+

@@ -4,11 +4,10 @@ void    iocExample00        ();
 void    iocExample01A       ();
 void    iocExample01B       ();
 void    iocExample01C       ();
+void    iocExample02A       ();
+
 void    iocExample07A       ();
 void    iocExample07B       ();
-void    iocExample08B       ();
-void    iocExample08C       ();
-void    iocExample08Test    ();
 void    iocExampleDeep2     ();
 void    iocExampleNgram     ();
 void    ngramTest           ();

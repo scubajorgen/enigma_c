@@ -80,7 +80,7 @@ void        printEnigmaSettings     (EnigmaSettings* settings, char* title);
 void        dumpDecoded             (EnigmaSettings* settings);
 
 int         countLetter             (Enigma* enigma, char letter);
-int         countConvertedChar      (Enigma* enigma, int letter);
+int         countConvertedChar      (Enigma* enigma, int  letter);
 int         countTrigram            (Enigma* enigma, char* trigram);
 int         countNgram              (Enigma* enigma, char* ngram, int n);
 
