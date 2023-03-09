@@ -1,4 +1,9 @@
-
+/**************************************************************************************************\
+* 
+* This file presents a number of IoC examples. First the original James Gillogly example, then
+* a number of other ciphers.
+*
+\**************************************************************************************************/
 
 void    iocExample00        ();
 void    iocExample01A       ();

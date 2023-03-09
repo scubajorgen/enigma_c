@@ -4,7 +4,6 @@
 * Implements the engima encoding/decoding. Enhanced for performance. All letters  and positions 
 * (A-Z, a-z, 1-26) are converted to unified positions (0-25).
 * 
-* 
 \**************************************************************************************************/
 #include <stdio.h>
 #include <ctype.h>
@@ -283,7 +282,6 @@ int encodeCharacter(Enigma* enigma, int theCharacter)
     // Via switchboard
     intermediate=enigma->steckerBrett[intermediate];
 
-
     return intermediate;
 }
 
@@ -448,14 +446,11 @@ int countNgram(Enigma* enigma, char* ngram, int n)
     return count;
 }
 
-
-
 /**************************************************************************************************\
 * 
 * Set the Enigma key based on settings array
 * 
 \**************************************************************************************************/
-
 void setEnigma(Enigma* enigma, EnigmaSettings* settings)
 {
     int i;
@@ -481,13 +476,11 @@ void setEnigma(Enigma* enigma, EnigmaSettings* settings)
     setText(enigma, settings->cypher);
 }
 
-
 /**************************************************************************************************\
 * 
 * Print the engima settings
 * 
 \**************************************************************************************************/
-
 void printEnigmaSettings(EnigmaSettings* settings, char* title)
 {
     printf("\n");
@@ -512,7 +505,6 @@ void printEnigmaSettings(EnigmaSettings* settings, char* title)
 * Decode and print solution
 * 
 \**************************************************************************************************/
-
 void dumpDecoded(EnigmaSettings* settings)
 {
     Enigma* enigma;

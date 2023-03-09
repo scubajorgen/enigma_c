@@ -443,11 +443,6 @@ EnigmaSettings iocExampleSettings07=
     "WEMRZBDDARDHQYZPZHDJWRADMNSSE"
 };
 
-
-
-
-
-
 /**************************************************************************************************\
 * 
 * Example from the original James Gillogly article

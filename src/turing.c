@@ -123,7 +123,6 @@ void dumpMenu()
 * 
 * 
 \**************************************************************************************************/
-
 void dumpCircle(CribCircle* circle)
 {
     int c;
@@ -142,7 +141,6 @@ void dumpCircle(CribCircle* circle)
 * 
 * 
 \**************************************************************************************************/
-
 void dumpSets()
 {
     int                 s;
@@ -210,8 +208,6 @@ void turingGenerateLetterLinks(char* text, char* crib)
 * TO DO: remove double loops, prevent endless loops
 * 
 \**************************************************************************************************/
-
-
 void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int step)
 {
     int             l;
@@ -362,7 +358,6 @@ void turingFindLoops(char* text, char* crib)
         printf("Invalid crib length\n");
     }
 }
-
 
 /**************************************************************************************************\
 * 
@@ -755,7 +750,6 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
 * Thread function
 * 
 \**************************************************************************************************/
-
 void *threadFunction(void *vargp) 
 { 
     int     workStart;
@@ -820,7 +814,6 @@ void *threadFunction(void *vargp)
 *                 this number
 * 
 \**************************************************************************************************/
-
 void turingBombe(char* cypher, char* crib, int numOfThreads)
 {
     int         i; 
@@ -871,6 +864,5 @@ void turingBombe(char* cypher, char* crib, int numOfThreads)
     }
     
     pthread_exit(NULL); 
-  
 }
 

@@ -1,3 +1,8 @@
+/**************************************************************************************************\
+* 
+* Main function. Simply presents a menu with a number of examples and cracks.
+*
+\**************************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

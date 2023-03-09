@@ -113,7 +113,6 @@ float iocIndexOfCoincidence(Enigma* enigma)
 * Returns the lowest index of coincidence value in the list
 * 
 \**************************************************************************************************/
-
 float iocStoreResults(IocResults* results)
 {
     int i;
@@ -165,7 +164,7 @@ float iocStoreResults(IocResults* results)
 * After processing the top 10 results may no longer be sorted. This sorts the list.
 * 
 \**************************************************************************************************/
-void sortTop10Results()
+void sortTopResults()
 {
     int     i;
     int     j;
@@ -190,10 +189,9 @@ void sortTop10Results()
 
 /**************************************************************************************************\
 * 
-* Show the top 10 results. En passant, translate the found steckertable into stecker pairs
+* Show the top results. En passant, translate the found steckertable into stecker pairs
 * 
 \**************************************************************************************************/
-
 void iocDumpTopResults(int withDecode)
 {
     int             i;
@@ -1111,8 +1109,6 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
     pthread_mutex_unlock(&iocMutex);     
 }
 
-
-
 /**************************************************************************************************\
 * 
 * In the original Gillogly method, rotors are found assuming Ringstellung 1-1-1. After finding
@@ -1196,16 +1192,11 @@ void findRingStellung(IocResults*  results, int startRotor, int endRotor)
     destroyEnigma(enigma);
 }
 
-
-
-
-
 /**************************************************************************************************\
 * 
 * Thread function. Executes the next available work item at the end of the list
 * 
 \**************************************************************************************************/
-
 void *iocThreadFunction(void *vargp) 
 {
     int                 i;
@@ -1374,7 +1365,7 @@ void *iocThreadFunction(void *vargp)
         
         // Show the final result 
         printf("FOUND SOLUTIONS: \n");
-        sortTop10Results();
+        sortTopResults();
         iocDumpTopResults(1);
 
         if (permutations!=NULL)
@@ -1383,7 +1374,7 @@ void *iocThreadFunction(void *vargp)
         }
         evaluationEndTime=time(NULL);
         timeDiff=evaluationEndTime-evaluationStartTime;
-        printf("Time elapsed: %ld.%2ld minutes\n", timeDiff/60, timeDiff%60);
+        printf("Time elapsed: %ld'%02ld\"\n", timeDiff/60, timeDiff%60);
     }
     fflush(stdout);
     return NULL;
