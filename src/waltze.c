@@ -1,3 +1,8 @@
+/**************************************************************************************************\
+*
+* This file implements the functions and definitions of the Enigma Waltze, or rotors
+* 
+\**************************************************************************************************/
 #include <stdio.h>
 #include <string.h>
 
@@ -65,7 +70,10 @@
 
 /**************************************************************************************************\
 * 
-* 
+* Place the given rotor at given position
+* enigima: enigma definition
+* waltze: rotor position counted from left to right (1..4)
+* rotorName: name of the rotor to place, like 'I', 'VI' 
 * 
 \**************************************************************************************************/
 void placeWaltze(Enigma* enigma, int waltze, char rotorName[])
@@ -121,8 +129,11 @@ void placeWaltze(Enigma* enigma, int waltze, char rotorName[])
 
 /**************************************************************************************************\
 * 
-* 
-* 
+* Set the Ringstellung of the Waltze at given position
+* enigima: enigma definition
+* waltze: rotor position counted from left to right (1..4)
+* ringStellung: the Ringstellung. Supported: "12", "G" or "G" or "g"
+*
 \**************************************************************************************************/
 void setRingStellung(Enigma* enigma, int waltze, int ringStellung)
 {
@@ -205,7 +216,7 @@ void setRingStellungen(Enigma* enigma, char* ringStellungen)
 
 /**************************************************************************************************\
 * 
-* 
+* Set the Grundstellung of the Waltze at given position
 * 
 \**************************************************************************************************/
 void setGrundStellung(Enigma* enigma, int waltze, int grundStellung)

@@ -1,3 +1,8 @@
+/**************************************************************************************************\
+*
+* This file implements the functions and definitions of the Enigma Umkehrwaltze, or reflector
+* 
+\**************************************************************************************************/
 #include <stdio.h>
 #include <string.h>
 
@@ -38,7 +43,11 @@ int umkehrWaltzeTables[UMKEHR_WALTZEN][MAX_POSITIONS]=
 
 /**************************************************************************************************\
 * 
-* 
+* Choose the Umkehrwaltze to use. 
+* enigima: enigma definition
+* name: name of the Umkehrwaltze. "UKW A", "UKW B" or "UKW C" for Engima M3, "UKW B2" and "UKW C2"
+*       are the thin UKWs for Engima M4 (though all UKWs can be used for all Enigmas in this 
+*       software) 
 * 
 \**************************************************************************************************/
 void placeUmkehrWaltze(Enigma* enigma, char name[])
@@ -73,5 +82,4 @@ void placeUmkehrWaltze(Enigma* enigma, char name[])
     {
         printf("ERROR: invalid umkehrwaltze %s\n", name);
     }
-    
 }

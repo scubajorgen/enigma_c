@@ -475,7 +475,7 @@ void iocExample01A()
 
     setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings01_2.cypher, 10);
+    iocDecodeText(iocExampleSettings01_2.cypher, 6);
 }
 
 /**************************************************************************************************\
@@ -490,7 +490,7 @@ void iocExample01B()
 
     setEvaluationMethod(METHOD_IOC_R3, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings01_2.cypher, 10);
+    iocDecodeText(iocExampleSettings01_2.cypher, 6);
 }
 
 /**************************************************************************************************\
@@ -505,7 +505,7 @@ void iocExample01C()
 
     setEvaluationMethod(METHOD_IOC_R2R3, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings01_3.cypher, 10);
+    iocDecodeText(iocExampleSettings01_3.cypher, 6);
 }
 
 

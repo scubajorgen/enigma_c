@@ -1,4 +1,15 @@
 
+/**************************************************************************************************\
+* 
+* This file implements the method turing used to crack enigma encoded messages. It assumes a crib:
+* a cypher text with corresponding plain text. Both are transformed into a 'menu' containing
+* 'crib circles' or 'loops'. Crib circles are used validate hypotheses regarding the steckered
+* letters: a the hypothesis proves right if the steckered value used as input generates 
+* the same value as output when traversing the loop.
+* Explained in detail on http://www.ellsbury.com/bombe1.htm
+* 
+\**************************************************************************************************/
+
 #define MAX_CIRCLES         1024
 #define MAX_CIRCLE_SIZE     26 
 #define MAX_CRIB_SIZE       30

@@ -1,13 +1,16 @@
 # enigma_c - Enigma simulation in C
 ## Introduction
+### Purpose
 This code simulates the Engima M3 and M4 encryption machine the Germans used during WWII.
 I wrote this software to study the Enigma and try to crack its cyphers. It
 is not meant as a user friendly program and requires C programming skills.
 
-My first implementation was in Java (https://github.com/scubajorgen/enigma), its performance was poor for some brute forcing. 
-Therefore I wrote the software also in C and optimized for performance.
-On a simple low power Pentium it peforms 84000 encryptions (running on 3 threads), whereas the Java software on a I5 notebook 
-performs only 1000 or so.
+### Performance
+My first implementation was in Java (https://github.com/scubajorgen/enigma). Though nowadays Java is my favorite language, its performance was poor for some brute forcing. 
+Therefore I wrote the software also in plain old C and optimized for performance. 
+
+On a simple low power Pentium it peforms 50.000-80.000 encryptions (running on 6 threads), whereas the Java software on a I5 notebook 
+performs only 1000 or so. On a Linux VM on the Core I5-9600 @ 3.7 GHz it runs 200.000 - 300.000 decryptions (depending on the text size). 
 
 ## Building
 Simply call 'make clean', 'make'.
@@ -72,9 +75,10 @@ Or simply, for a working example:
 The software results in all rotor settings that result in the loops defined by the cypher en crib.
 
 ## Index of Coincidence - James Gillogly
+### The method
 James Gillogly presented a method for finding the rotor settings and the steckers using the 'Index of Coincidence'.
 It uses the fact that letter frequency in plain text isn't random. He uses the index of coincidence as measure of 'non-randomness'. The Gillogly method consists of following steps:
-1. Find the rotors and Grundstellung that result in the largest IoC value, assuming a fixed Ringstellung of 1-1-1. 
+1. Find the rotors and Grundstellung that result in the largest IoC value, assuming a fixed Ringstellung of 1-1-1. It simply tries all combinations.
 1. Find the Ringstellung with the highes IoC value, first by varying the Ringstellung of Rotor 3, then of Rotor 2 (and changing the Grundstellung accordingly). 
 1. Find the steckers using a  'hill-climbing' technique.
 
@@ -87,7 +91,24 @@ The method described is implemented as
 
     iocExample00();
 
+### Modes
+Several modes are supported.
+* METHOD_IOC
+  The orginal method as described above
+* METHOD_IOC_R3
+  As above, but now the fastest Waltze 3 is also taken into step 1, at the 
+  penalty of more time (26x) consumed. It sometimes is more successful than the original method and has been proposed by Gillogly. 
+* METHOD_IOC_R2R3
+  As above, but now both Waltzen 2 and 3 are taken into step 1, removing he necesity for step 2. The penalty with respect to the original is 25x26x more time. It sometimes is more successful than the original method and has been proposed by Gillogly. 
+* METHOD_IOC_DEEP
+  Experimental method in which also the Stecker finding is taken into step 1. Extremely slowly and not really succesful
+
+### Findings
 The implementation distributes the work over a number of threads, so the cores of multi core processors can be used to speed up the work.
+
+The original message from the Gillogly article is decrypted in **8 seconds** on a Core I5-9600 @ 3.7 GHz.
+
+A drawback of this method is that with increasing number of Steckers the chance of decryption decreases. With 10 steckers it goes to 0. 
 
 ## Bgrams, Trigrams, Ngrams
 As an alternative for finding the steckers a method that scores the decoded text using trigrams. The method is described by https://cryptocellar.org/pubs/bgac.pdf.
