@@ -5,6 +5,8 @@ This code simulates the Engima M3 and M4 encryption machine the Germans used dur
 I wrote this software to study the Enigma and try to crack its cyphers. It
 is not meant as a user friendly program and requires C programming skills.
 
+![](https://www.stephenpeek.co.uk/enigma_machines/enigma_machine/enigma_machine_large.jpg)
+
 ### Performance
 My first implementation was in Java (https://github.com/scubajorgen/enigma). Though nowadays Java is my favorite language, its performance was poor for some brute forcing. 
 Therefore I wrote the software also in plain old C and optimized for performance. 
