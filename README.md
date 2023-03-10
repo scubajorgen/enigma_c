@@ -125,6 +125,10 @@ The original message from the Gillogly article is decrypted in **9 seconds** on 
 
 A drawback of the Gillogly method is that with increasing number of Steckers the chance of decryption decreases. With 10 steckers it goes to 0. 
 
+The chance of finding the right solution decreases with the number of letters in the cipher, since randomness in the IoC become a factor, resulting in other solutions than the right one. Especially when the Ringstellung deviates much from 1-1-1. It may be worthwile to use METHOD_IOC_R3 or METHOD_IOC_R2R3 in such cases.
+Assume Ringstellung R3=2 and Grundstellung G3=5 and you assume R3=1 you most probably will find G3=4. This gives almost the same result decryption result, however 1 out of 26 characters is wrong. Similarly if R3=3 and you assume R3=1 you find G3=3 and you end up with the decryption in which 2 out of 26 characters are wrong. In this way, the worst you can get is 13 out of 26 characters wrong, which is half of the text. The IoC than depends on the other half of the text which is right.
+
+
 ## Bgrams, Trigrams, Ngrams
 **Under construction**
 

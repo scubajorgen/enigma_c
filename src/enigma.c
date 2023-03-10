@@ -483,11 +483,21 @@ void setEnigma(Enigma* enigma, EnigmaSettings* settings)
 \**************************************************************************************************/
 void printEnigmaSettings(EnigmaSettings* settings, char* title)
 {
+    Enigma *enigma;
+    size_t cipherSize;
+
+    // Cipher size when given to Enigma
+    enigma=createEnigmaM3();
+    setText(enigma, settings->cypher);
+    cipherSize=enigma->textSize;
+    destroyEnigma(enigma);
+
     printf("\n");
     printf("#####################################################################################\n");
     printf("# %s\n", title);
-    printf("# Cypher                    : \n");
+    printf("# Cipher                    : \n");
     printCypher(settings->cypher);
+    printf("# Cipher size               : %d characters\n", (int)cipherSize);
     printf("# Original Waltzen          : %s %s %s\n", settings->rotors[0], settings->rotors[1], settings->rotors[2]);
     printf("# Original UKW              : %s \n", settings->ukw);
     printf("# Original RingStellungen   : %d %d %d\n", settings->ringStellungen[0], 

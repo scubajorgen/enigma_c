@@ -10,6 +10,7 @@ void    iocExample01A       ();
 void    iocExample01B       ();
 void    iocExample01C       ();
 void    iocExample02A       ();
+void    iocExample03C       ();
 
 void    iocExample07A       ();
 void    iocExample07B       ();

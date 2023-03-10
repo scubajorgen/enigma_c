@@ -150,7 +150,7 @@ EnigmaSettings iocExampleSettings02=
 
 
 
-IocResults  iocExampleResults3=
+IocResults  iocExampleResults10=
 {
     0.0440,
     {
@@ -184,7 +184,7 @@ IocResults  iocExampleResults3=
 };
 
 // GC voorbeeld
-IocResults  iocExampleResults3Test2=
+IocResults  iocExampleResults10Test2=
 {
     0.0,
     {
@@ -211,7 +211,7 @@ IocResults  iocExampleResults3Test2=
 };
 
 // GC GC6ZZBB https://www.geocaching.com/geocache/GC6ZZBB The original cipher
-IocResults  iocExampleResults3Test3=
+IocResults  iocExampleResults10Test3=
 {
     0.0,
     {
@@ -243,7 +243,7 @@ IocResults  iocExampleResults3Test3=
 
 
 // GC Code breakers
-IocResults  iocExampleResults3Test4=
+IocResults  iocExampleResults10Test4=
 {
     0.0,
     {
@@ -270,7 +270,7 @@ IocResults  iocExampleResults3Test4=
 
 
 // GC GC6ZZBB
-IocResults  iocExampleResults3Test5=
+IocResults  iocExampleResults10Test5=
 {
     0.0,
     {
@@ -443,6 +443,26 @@ EnigmaSettings iocExampleSettings07=
     "WEMRZBDDARDHQYZPZHDJWRADMNSSE"
 };
 
+// A short english text
+EnigmaSettings iocExampleSettings03=
+{
+    3,
+    {
+        "I",
+        "II",
+        "IV"
+    },
+    "UKW C",
+    {
+        1, 6, 21
+    },
+    {
+        2, 22, 12
+    },
+    "RW JO BL IU",
+    "chyjp rtitl yuzid ooeik hetwk xjvuj fkznw zpyis vahdi ffoid habsa iqooc ugdvo uvgwf cmkpd edcxs fiiek vxgek dqsuc ivlzv yabac rqriv ixvnz ldaei qabsb znzqi ndjfn zpyhp rplfo lndpc jvywv ydwjm vaexw plycd xlpbd swath hwc"
+};
+
 /**************************************************************************************************\
 * 
 * Example from the original James Gillogly article
@@ -547,9 +567,20 @@ void iocExample07B()
     iocDecodeText(iocExampleSettings07.cypher, 10);
 }
 
+/**************************************************************************************************\
+* 
+* Example , short english text
+* Works. ?th result is correct
+* 
+\**************************************************************************************************/
+void iocExample03C()
+{
+    printEnigmaSettings(&iocExampleSettings03, "INDEX OF COINCIDENCE METHOD EXAMPLE 8B - Short english text");
 
+    setEvaluationMethod(METHOD_IOC_R2R3, 10, 10, 0, NULL);
 
-
+    iocDecodeText(iocExampleSettings03.cypher, 6);
+}
 
 
 
@@ -564,7 +595,7 @@ void iocExampleDeep2()
     EnigmaSettings* settings;
     LinkedList*     permutations;
     
-    settings=&iocExampleResults3.settings;
+    settings=&iocExampleResults10.settings;
     
     printEnigmaSettings(settings, "INDEX OF COINCIDENCE METHOD EXAMPLE 3C - IoC");
 
@@ -605,7 +636,7 @@ void iocExampleNgram()
     LinkedList*     permutations;
     int             i;
     
-    settings=&iocExampleResults3.settings;
+    settings=&iocExampleResults10.settings;
     
     printEnigmaSettings(settings, "INDEX OF COINCIDENCE METHOD EXAMPLE 3C - NGram");
 
@@ -654,34 +685,34 @@ void ngramTest()
 {
     EnigmaSettings* settings;
     
-    settings=&iocExampleResults3.settings;
+    settings=&iocExampleResults10.settings;
     printEnigmaSettings(settings, "INDEX OF COINCIDENCE METHOD EXAMPLE 3C - Ngram test");
     
     setEvaluationMethod(METHOD_IOC_NGRAM, 10, 6, 3, "DE");
 
-    strncpy(iocExampleResults3.settings.steckers, "AT BG DV EW FR HN IQ JX KZ LU PS", 35);
-    printf("\nSteckers %s\n", iocExampleResults3.settings.steckers);
-    iocFindSteckeredCharsNgram(&iocExampleResults3, 13, 3);
-    printf("Steckers %s\n", iocExampleResults3.settings.steckers);
-    dumpDecoded(&iocExampleResults3.settings);
+    strncpy(iocExampleResults10.settings.steckers, "AT BG DV EW FR HN IQ JX KZ LU PS", 35);
+    printf("\nSteckers %s\n", iocExampleResults10.settings.steckers);
+    iocFindSteckeredCharsNgram(&iocExampleResults10, 13, 3);
+    printf("Steckers %s\n", iocExampleResults10.settings.steckers);
+    dumpDecoded(&iocExampleResults10.settings);
     
-    strncpy(iocExampleResults3.settings.steckers, "AT DV JX KZ QR IP", 35);
-    printf("\nSteckers %s\n", iocExampleResults3.settings.steckers);
-    iocFindSteckeredCharsNgram(&iocExampleResults3, 13, 3);
-    printf("Steckers %s\n", iocExampleResults3.settings.steckers);
-    dumpDecoded(&iocExampleResults3.settings);
+    strncpy(iocExampleResults10.settings.steckers, "AT DV JX KZ QR IP", 35);
+    printf("\nSteckers %s\n", iocExampleResults10.settings.steckers);
+    iocFindSteckeredCharsNgram(&iocExampleResults10, 13, 3);
+    printf("Steckers %s\n", iocExampleResults10.settings.steckers);
+    dumpDecoded(&iocExampleResults10.settings);
     
-    strncpy(iocExampleResults3.settings.steckers, "AT", 35);
-    printf("\nSteckers %s\n", iocExampleResults3.settings.steckers);
-    iocFindSteckeredCharsNgram(&iocExampleResults3, 13, 3);
-    printf("Steckers %s\n", iocExampleResults3.settings.steckers);
-    dumpDecoded(&iocExampleResults3.settings);
+    strncpy(iocExampleResults10.settings.steckers, "AT", 35);
+    printf("\nSteckers %s\n", iocExampleResults10.settings.steckers);
+    iocFindSteckeredCharsNgram(&iocExampleResults10, 13, 3);
+    printf("Steckers %s\n", iocExampleResults10.settings.steckers);
+    dumpDecoded(&iocExampleResults10.settings);
     
-    strncpy(iocExampleResults3.settings.steckers, "", 35);
-    printf("\nSteckers %s\n", iocExampleResults3.settings.steckers);
-    iocFindSteckeredCharsNgram(&iocExampleResults3, 13, 3);
-    printf("Steckers %s\n", iocExampleResults3.settings.steckers);
-    dumpDecoded(&iocExampleResults3.settings);
+    strncpy(iocExampleResults10.settings.steckers, "", 35);
+    printf("\nSteckers %s\n", iocExampleResults10.settings.steckers);
+    iocFindSteckeredCharsNgram(&iocExampleResults10, 13, 3);
+    printf("Steckers %s\n", iocExampleResults10.settings.steckers);
+    dumpDecoded(&iocExampleResults10.settings);
 }
 
 
@@ -695,13 +726,13 @@ void ngramTest2()
     setEvaluationMethod(METHOD_IOC_NGRAM, 10, 6, 3, "GC");
 
 
-    printf("Steckers %s\n", iocExampleResults3Test2.settings.steckers);
+    printf("Steckers %s\n", iocExampleResults10Test2.settings.steckers);
 
-    iocFindSteckeredCharsNgram(&iocExampleResults3Test2, 10, 3);
+    iocFindSteckeredCharsNgram(&iocExampleResults10Test2, 10, 3);
     
-    printf("Steckers %s\n", iocExampleResults3Test2.settings.steckers);
+    printf("Steckers %s\n", iocExampleResults10Test2.settings.steckers);
     
-    dumpDecoded(&iocExampleResults3Test2.settings);
+    dumpDecoded(&iocExampleResults10Test2.settings);
     
 }
 
@@ -715,13 +746,13 @@ void ngramTest3()
     setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "GC");
 
 
-    printf("Steckers %s\n", iocExampleResults3Test3.settings.steckers);
+    printf("Steckers %s\n", iocExampleResults10Test3.settings.steckers);
 
-    iocFindSteckeredCharsNgram(&iocExampleResults3Test3, 13, 3);
+    iocFindSteckeredCharsNgram(&iocExampleResults10Test3, 13, 3);
     
-    printf("Steckers %s\n", iocExampleResults3Test3.settings.steckers);
+    printf("Steckers %s\n", iocExampleResults10Test3.settings.steckers);
     
-    dumpDecoded(&iocExampleResults3Test3.settings);
+    dumpDecoded(&iocExampleResults10Test3.settings);
     
 }
 
@@ -735,13 +766,13 @@ void ngramTest4()
     setEvaluationMethod(METHOD_IOC_NGRAM, 10, 10, 3, "GC");
 
 
-    printf("Steckers %s\n", iocExampleResults3Test4.settings.steckers);
+    printf("Steckers %s\n", iocExampleResults10Test4.settings.steckers);
 
-    iocFindSteckeredCharsNgram(&iocExampleResults3Test4, 13, 3);
+    iocFindSteckeredCharsNgram(&iocExampleResults10Test4, 13, 3);
     
-    printf("Steckers %s\n", iocExampleResults3Test4.settings.steckers);
+    printf("Steckers %s\n", iocExampleResults10Test4.settings.steckers);
     
-    dumpDecoded(&iocExampleResults3Test4.settings);
+    dumpDecoded(&iocExampleResults10Test4.settings);
     
 }
 
@@ -755,12 +786,12 @@ void ngramTest5()
     setEvaluationMethod(METHOD_IOC_NGRAM, 13, 3, 3, "DE");
 
 
-    printf("Steckers %s\n", iocExampleResults3Test5.settings.steckers);
+    printf("Steckers %s\n", iocExampleResults10Test5.settings.steckers);
 
-    iocFindSteckeredCharsNgram(&iocExampleResults3Test5, 13, 3);
+    iocFindSteckeredCharsNgram(&iocExampleResults10Test5, 13, 3);
     
-    printf("Steckers %s\n", iocExampleResults3Test5.settings.steckers);
+    printf("Steckers %s\n", iocExampleResults10Test5.settings.steckers);
     
-    dumpDecoded(&iocExampleResults3Test5.settings);
+    dumpDecoded(&iocExampleResults10Test5.settings);
     
 }

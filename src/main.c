@@ -33,8 +33,9 @@ int main()
 	printf("21.     Gillogly IoC example 1A - no solution   \n");
 	printf("22.     Gillogly IoC example 1B - solution      \n");
 	printf("23.     Gillogly IoC example 1C - ??            \n");
-	printf("24.     Gillogly IoC example 2A english         \n");
-	printf("25.     Gillogly IoC example 7A                 \n");
+	printf("24.     Gillogly IoC example 2A long English    \n");
+	printf("25.     Gillogly IoC example 3C short English   \n");
+	printf("26.     Gillogly IoC example 7A                 \n");
 	
     printf("30.     The third problem                       \n");
 	printf("31.     The fourth problem                      \n");
@@ -83,11 +84,15 @@ int main()
             iocExample01C();
             break;
         case 24:  
-            // Some long english text
+            // Some long english text, piece of cake for METHOD_IOC
             iocExample02A();
             break;
         case 25:  
-            // 
+            // Some short english text, METHOD_IOC_R2R3 finds a close solution
+            iocExample03C();
+            break;
+        case 26:  
+            // Test
             iocExample07A();
             break;
         case 30:
