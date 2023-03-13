@@ -17,10 +17,9 @@
 #include "toolbox.h"
 #include "enigma.h"
 #include "turing.h"
+#include "workDispatcher.h"
 
-#define MAX_THREADS     16
 #define MAX_WORKITEMS   32
-#define MAX_UKW_STRING  20
 
 
 // This defines a work item for the thread
@@ -28,26 +27,15 @@ typedef struct
 {
     int     permutationStart;       // Start permutation in the permutations array
     int     permutationEnd;         // End permutation (not included)
-    char    ukw[MAX_UKW_STRING];    // UKW to use
+    char    ukw[MAX_ROTOR_NAME];    // UKW to use
 } ThreadWork;
-
-// This defines the parameters passed to the thread
-typedef struct
-{
-    int         start;              // Start work item in work array
-    int         end;                // End work item (not included)
-    pthread_t   threadId;           // ID of the thread
-} ThreadParam;
-
 
 int                 threadsRunning;
 
-char                waltzenString[80];
+char                walzenString[80];
 
 // Thread stuff
 ThreadWork          work[MAX_WORKITEMS];
-pthread_mutex_t     mutex;
-ThreadParam         params[MAX_THREADS];
 
 time_t              startTime;
 
@@ -57,7 +45,7 @@ LinkedLetters       menu[MAX_POSITIONS];
 // Defines the crib circle loops
 CribCircleSet       cribCircleSet[MAX_POSITIONS];
 
-LinkedList* permutations;
+LinkedList*         permutations;
 
 // Consistency parameters
 int                 mallocs=0;
@@ -645,7 +633,7 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
             w1=waltzen[permutation[0]];
             w2=waltzen[permutation[1]];
             w3=waltzen[permutation[2]];
-            sprintf(waltzenString,"%s - %s %s %s", ukw, w1, w2, w3);
+            sprintf(walzenString,"%s - %s %s %s", ukw, w1, w2, w3);
             
             currentTime=(long)time(NULL)-(long)startTime;
             diffTime=currentTime-prevTime;
@@ -660,8 +648,8 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
             prevTime        =currentTime;
             prevCounting    =counting;
             
-            printf("Processing waltzen permutation (%3d, %3d, %3d) %3d:%15s @ systemtime %ld seconds, %ld settings per sec \n", 
-                   permutation[0], permutation[1], permutation[2], w, waltzenString, currentTime, convPerSec);
+            printf("Processing walzen permutation (%3d, %3d, %3d) %3d:%15s @ systemtime %ld seconds, %ld settings per sec \n", 
+                   permutation[0], permutation[1], permutation[2], w, walzenString, currentTime, convPerSec);
             fflush(stdout);
            
             // Set the rotor
@@ -747,61 +735,37 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
 
 /**************************************************************************************************\
 * 
-* Thread function
+* Worker function. Processes the work item parsed.
 * 
 \**************************************************************************************************/
-void *threadFunction(void *vargp) 
-{ 
-    int     workStart;
-    int     workEnd;
-    int     w;
-    int     p;
-    long    threadId;
-    
-    ThreadParam* params;
+void turingWorkerFunction(int worker, int workItem, void* params)
+{
+    ThreadWork* item;
 
-    // Increase the number of threads running
-    pthread_mutex_lock(&mutex);
-    threadsRunning++;
-    pthread_mutex_unlock(&mutex);  
+    item=(ThreadWork*)params;
 
-    // Store the value argument passed to this thread 
-    params=(ThreadParam*)vargp;
+    printf("Worker %d starting work item %d-%d\n", worker, item->permutationStart, item->permutationEnd);
+    turingFind(item->permutationStart, item->permutationEnd, item->ukw);    
+}
 
-    threadId    =(long)params->threadId;
-    workStart   =params->start;
-    workEnd     =params->end;
 
-    printf("Starting thread %ld processing work items %2d to %2d\n", threadId, workStart, workEnd);
-  
-    w=workStart;
-    while (w<workEnd)
+/**************************************************************************************************\
+* 
+* Finish function. Executed after the work is done. Deletes the permutations.
+* 
+\**************************************************************************************************/
+
+void turingFinishFunction(void* params)
+{
+    int p;
+    p=0;
+    while (p<linkedListLength(permutations))
     {
-        printf("Thread %ld starting work item %d\n", threadId, w);
-        turingFind(work[w].permutationStart, work[w].permutationEnd, work[w].ukw);
-        w++;
-    }
-    
-    // Decrease the number of running threads
-    // If this is the last one, clean up the linked list
-    pthread_mutex_lock(&mutex);
-    threadsRunning--;
-    if (threadsRunning==0)
-    {
-        p=0;
-        while (p<linkedListLength(permutations))
-        {
-            free(elementAt(permutations, p));
-            p++;
-        }            
-        destroyLinkedList(permutations);
-    }
-    pthread_mutex_unlock(&mutex); 
-
-
-
-    return NULL;
-} 
+        free(elementAt(permutations, p));
+        p++;
+    }            
+    destroyLinkedList(permutations);
+}
    
 /**************************************************************************************************\
 * 
@@ -810,13 +774,12 @@ void *threadFunction(void *vargp)
 * crib          : crib, upper case. Length must be shorter than cypher and not to long 
 *                 to prevent stack overflow
 * numOfThreads  : Use multiple threads to use multi processor cores. Rotor combinations are 
-*                 split up amongst the threads. Number of permutations should be divisable by 
-*                 this number
+*                 split up amongst the threads. Number of permutations (60) should be divisable by 
+*                 this number. Hence 1, 2, 3, 4, 5, 6, 10 will do.
 * 
 \**************************************************************************************************/
 void turingBombe(char* cypher, char* crib, int numOfThreads)
 {
-    int         i; 
     int         w;
     int         numberOfPermutations;
     int         workItems;
@@ -825,44 +788,32 @@ void turingBombe(char* cypher, char* crib, int numOfThreads)
 
     turingFindLoops(cypher, crib);
 
-    // Choose from the 5 wehrmacht waltzen   
+    // Choose from the 5 wehrmacht walzen on an M3 Enigma   
     permutations=createRotorPermutations(3, 5);
     
     numberOfPermutations=linkedListLength(permutations);
-    printf("Waltzen permutations %d\n", numberOfPermutations);
+    printf("Walzen permutations %d\n", numberOfPermutations);
 
     workItems=numOfThreads*2;
     
+    dispatcherClearWorkItems();
     w=0;
     while (w<workItems)
     {
         work[w  ].permutationStart  =(w/2)*numberOfPermutations/numOfThreads;
         work[w  ].permutationEnd    =(w/2+1)*numberOfPermutations/numOfThreads;
-        strncpy(work[w  ].ukw, "UKW B", MAX_UKW_STRING);
+        strncpy(work[w  ].ukw, "UKW B", MAX_ROTOR_NAME);
+        dispatcherPushWorkItem(turingWorkerFunction, &work[w]);
         
         work[w+1].permutationStart  =(w/2)*numberOfPermutations/numOfThreads;
         work[w+1].permutationEnd    =(w/2+1)*numberOfPermutations/numOfThreads;
-        strncpy(work[w+1].ukw, "UKW C", MAX_UKW_STRING);
+        strncpy(work[w+1].ukw, "UKW C", MAX_ROTOR_NAME);
+        dispatcherPushWorkItem(turingWorkerFunction, &work[w+1]);
         w+=2;
     }
 
-    threadsRunning=0;
-    startTime=time(NULL);  
-    // Let us create three threads 
-    for (i = 0; i < numOfThreads; i++) 
-    {
-        
-        params[i].start =i*2;
-        params[i].end   =(i+1)*2;
-
-        pthread_create(&(params[i].threadId), NULL, threadFunction, (void *)(params+i)); 
-    }
-    
-    if (i*(numberOfPermutations/numOfThreads)!=numberOfPermutations)
-    {
-        printf("Oops! Permutations not divisible by number of threads\n");
-    }
-    
+    startTime=time(NULL); 
+    dispatcherStartWork(numOfThreads, turingFinishFunction, NULL);    
     pthread_exit(NULL); 
 }
 

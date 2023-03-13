@@ -25,8 +25,8 @@ LIBS		= -L/usr/lib -lpthread
 SRCOBJ	        = enigma.o \
                   enigmaM3.o \
                   enigmaM4.o \
-                  waltze.o\
-                  umkehrwaltze.o\
+                  walze.o\
+                  umkehrwalze.o\
                   steckerbrett.o\
                   turing.o\
                   exampleEnigma.o\
@@ -35,7 +35,8 @@ SRCOBJ	        = enigma.o \
                   exampleCoincidence.o \
                   ngramscore.o \
                   adfgx.o \
-                  toolbox.o
+                  toolbox.o \
+                  workDispatcher.o
 
 MAINOBJ         = main.o crack01.o crack02.o crack03.o
 

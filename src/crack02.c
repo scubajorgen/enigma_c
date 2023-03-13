@@ -13,6 +13,7 @@
 #include "toolbox.h"
 #include "coincidence.h"
 #include "ngramscore.h"
+#include "workDispatcher.h"
 
 
 // GC6ZZBB Engima-nano
@@ -287,6 +288,7 @@ void theThirdProblem()
     // Create the stack of work for the trheads
     iocNumberOfWorkItems=numOfThreads;
 
+    dispatcherClearWorkItems();
     i=0;
     while (i<numOfThreads)
     {
@@ -302,13 +304,14 @@ void theThirdProblem()
         iocWorkItems[i].endR3             =1;
         iocWorkItems[i].maxCypherChars    =MAX_TEXT;
         strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
+        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]);
         i++;
     }
 
-
+    setWalzePermutations(permutations);
     setEvaluationMethod(METHOD_IOC_NGRAM, 13, 0, 3, "DE");
 
-    iocExecuteWorkItems(numOfThreads, permutations);	
+    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
 
 /*
     numOfThreads=1;
@@ -403,6 +406,7 @@ void theFourthProblem()
     // Create the stack of work for the trheads
     iocNumberOfWorkItems=numOfThreads;
 
+    dispatcherClearWorkItems();
     i=0;
     while (i<numOfThreads)
     {
@@ -420,12 +424,14 @@ void theFourthProblem()
 //        iocWorkItems[i].endR3               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
         iocWorkItems[i].maxCypherChars      =MAX_TEXT;
         strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
-
+        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]);
         i++;
     }
 
+    setWalzePermutations(permutations);
     setEvaluationMethod(METHOD_IOC_NGRAM, 10, 10, 3, "GC");
-    iocExecuteWorkItems(numOfThreads, permutations);	
+
+    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
 	
 }
 

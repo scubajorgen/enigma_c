@@ -18,6 +18,7 @@
 #include "toolbox.h"
 #include "ngrams.h"
 #include "ngramscore.h"
+#include "workDispatcher.h"
 
 /**************************************************************************************************\
 * DEFINES
@@ -36,14 +37,8 @@ typedef struct
     int         maxSteckersIoc;             // METHOD_NGRAMS: the number of Steckers used for IOC; beyond this number NGRAMS
     int         ngramSize;                  // n in ngram (2-bigrams, 3-trigrams)
     char        ngramSet[MAX_NGRAMSETSIZE]; // The set to use ('DE' - german, 'EN' - english, 'GC' - NL, geocaching)
+    LinkedList* permutations;               // List of rotor permutations
 } EvaluationMethod;
-
-typedef struct
-{
-    pthread_t           threadId;
-    LinkedList*         permutations;
-    EvaluationMethod*   evaluationMethod;
-} IocThreadParams;
 
 /**************************************************************************************************\
 * VARIABLES
@@ -60,18 +55,10 @@ IocWorkItem         iocWorkItems[MAX_WORK_ITEMS];
 int                 iocNumberOfWorkItems;
 int                 iocInitialNumberOfWorkItems;
 
-pthread_mutex_t     iocMutex;
-
-IocThreadParams     threadParams[MAX_THREADS];
-
 int                 iocThreadsRunning=0;
 int                 iocLastThreadId=-1;
 
 int                 ioctrigramCount[MAX_TRIGRAMS];
-
-long                evaluationStartTime;
-long                evaluationEndTime;
-
 
 /**************************************************************************************************\
 * FUNCTIONS
@@ -1010,7 +997,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
         time(&now);
         timeString=ctime(&now);
         timeString[strlen(timeString)-1]='\0';
-        printf("%s: Thread %d trying permutation %02d (%d/%d): %s %s %s %s R1 %02d R2 %02d-%02d R3 %02d-%02d\n",
+        printf("%s: Worker %d trying permutation %02d (%d/%d): %s %s %s %s R1 %02d R2 %02d-%02d R3 %02d-%02d\n",
           timeString,
           threadId,
           w,
@@ -1076,9 +1063,9 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
                                 results->settings.grundStellungen[1]=g2;
                                 results->settings.grundStellungen[2]=g3;
                         
-                                pthread_mutex_lock(&iocMutex);
+                                mutexLock();
                                 iocMax=iocStoreResults(results);
-                                pthread_mutex_unlock(&iocMutex);
+                                mutexUnlock();
                             }
                             count++;
                             g3++;
@@ -1105,8 +1092,6 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
                 timeDiff/60, 
                 count/timeDiff);
     }
-    pthread_mutex_lock(&iocMutex);
-    pthread_mutex_unlock(&iocMutex);     
 }
 
 /**************************************************************************************************\
@@ -1121,7 +1106,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
 * This improved version simulates the allowed Walzen combinations.
 * 
 \**************************************************************************************************/
-void findRingStellung(IocResults*  results, int startRotor, int endRotor)
+void iocFindRingStellung(IocResults*  results, int startRotor, int endRotor)
 {
     int             rotor;
     int             inc;
@@ -1194,223 +1179,140 @@ void findRingStellung(IocResults*  results, int startRotor, int endRotor)
 
 /**************************************************************************************************\
 * 
-* Thread function. Executes the next available work item at the end of the list
+* Worker function. Processes the work item parsed.
 * 
 \**************************************************************************************************/
-void *iocThreadFunction(void *vargp) 
+void iocWorkerFunction(int worker, int workItem, void* params)
 {
-    int                 i;
-    int                 done;
-    int                 lastManStanding;
     IocWorkItem*        item;
-    LinkedList*         permutations;
-    IocThreadParams*    params;
-    long                id;
-    
-    EvaluationMethod*   evalMethod;
     Method_t            method;
     int                 maxSteckers;
     int                 maxSteckersIoc;
-    int                 ngramSize;
     int                 initialNumberOfWorkItems;
-    int                 number;
-    long                timeDiff;
-    
-    pthread_mutex_lock(&iocMutex);
-    initialNumberOfWorkItems=iocInitialNumberOfWorkItems;
-    iocLastThreadId++;
-    id=iocLastThreadId;
-    pthread_mutex_unlock(&iocMutex);
-    
-    params      =(IocThreadParams*)vargp;
-    permutations=params->permutations;
-    
-    done=0;
-    // Increase the number of threads running
-    pthread_mutex_lock(&iocMutex);
 
-    evalMethod    =params->evaluationMethod;
-    method        =evalMethod->method;
-    maxSteckers   =evalMethod->maxSteckers;
-    maxSteckersIoc=evalMethod->maxSteckersIoc;
-    ngramSize     =evalMethod->ngramSize;
 
-    iocThreadsRunning++;
-    pthread_mutex_unlock(&iocMutex);     
-    
-    while (!done)
-    {
-        // Pop the next item from the stack
-        pthread_mutex_lock(&iocMutex);
-        if (iocNumberOfWorkItems>0)
-        {
-            iocNumberOfWorkItems--;
-            item=&iocWorkItems[iocNumberOfWorkItems];
-            item->threadId=id;
-        }
-        else
-        {
-            done=1;
-        }
-        number=iocNumberOfWorkItems;       
-        pthread_mutex_unlock(&iocMutex);     
+    item=(IocWorkItem*)params;
+    item->threadId=worker;
 
-        // PHASE 1
-        // process the item
-        if (!done)
-        {
-            printf("Thread %ld starting work item: %02d-%02d (%d/%d), %s, R1 %02d R2 %02d-%02d R3: %02d-%02d\n", 
-                   id, item->startPermutation, item->endPermutation,
-                   initialNumberOfWorkItems-number, initialNumberOfWorkItems, 
-                   item->ukw, 
-                   item->R1,
-                   item->startR2, item->endR2, 
-                   item->startR3, item->endR3);
-            fflush(stdout);
-            switch (method)
-            {
-                case METHOD_IOC:
-                case METHOD_IOC_R2R3:
-                case METHOD_IOC_R3:
-                  iocEvaluateEngimaSettings(item, 0);
-                  break;
-                case METHOD_IOC_DEEP:
-                  iocEvaluateEngimaSettings(item, maxSteckers);
-                  break;
-                case METHOD_IOC_NGRAM:
-                  iocEvaluateEngimaSettings(item, maxSteckersIoc);
-                  break;
-            }
-        }
-    }
-    
-    // Decrease the number of threads running
-    pthread_mutex_lock(&iocMutex);
-    iocThreadsRunning--;
-    if (iocThreadsRunning==0)
-    {
-        lastManStanding=1;
-    }
-    else
-    {
-        lastManStanding=0;
-    }
-    pthread_mutex_unlock(&iocMutex);     
-    
-    
-    // PHASE 2
-    // If this is the last thread, finish the job
-    if (lastManStanding)
-    {
-        printf("Last man standing: %ld\n", id);
-        iocDumpTopResults(0);
-        switch (method)
-        {
-            case METHOD_IOC_R2R3:
-                // Now we have got the Top 10 best results for rotor position and Ringstellung R1 R2 R3
-                // Try to find
-                // - Stecker Positions for each of them (only for the not deep method)
-                i=0;
-                while (i<iocNumberOfResults)
-                {
-                    printf("Finding steckers for %d\n", i);
-                    iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
-                    i++;
-                }
-              break;
-            case METHOD_IOC_R3:
-                // Now we have got the Top 10 best results for rotor position and Ringstellung R1 R3
-                // Try to find
-                // - Ringstellung R2
-                // - Stecker Positions for each of them (only for the not deep method)
-                i=0;
-                while (i<iocNumberOfResults)
-                {
-                    // find ringstellung for rotor R2
-                    printf("Finding ring setting R2 for %d\n", i);
-                    findRingStellung(&iocTopResults[i], 2, 2);
-                    printf("Finding steckers for %d\n", i);
-                    iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
-                    i++;
-                }
-              break;           
-            case METHOD_IOC:
-                // Now we have got the Top 10 best results for rotor position and Ringstellung R1
-                // Try to find
-                // - Ringstellung R2 and R3
-                // - Stecker Positions for each of them (only for the not deep method)
-                i=0;
-                while (i<iocNumberOfResults)
-                {
-                    // find ringstellung for rotor R2 and R3
-                    printf("Finding ring setting R2 and R3 for %d\n", i);
-                    findRingStellung(&iocTopResults[i], 2, 3);
-                    printf("Finding steckers for %d\n", i);
-                    iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
-                    i++;
-                }
-              break;
-            case METHOD_IOC_DEEP:
-              break;
-            case METHOD_IOC_NGRAM:            
-                i=0;
-                while (i<iocNumberOfResults)
-                {
-                    printf("Finding final steckers for %d\n", i);
-                    iocFindSteckeredCharsNgram(&iocTopResults[i], maxSteckers, ngramSize);
-                    i++;
-                }
-              break;
-        }
-        
-        // Show the final result 
-        printf("FOUND SOLUTIONS: \n");
-        sortTopResults();
-        iocDumpTopResults(1);
+    method                  =evaluationMethod.method;
+    maxSteckers             =evaluationMethod.maxSteckers;
+    maxSteckersIoc          =evaluationMethod.maxSteckersIoc;
+    initialNumberOfWorkItems=dispatcherGetTotalWorkItems();
 
-        if (permutations!=NULL)
-        {
-            destroyLinkedList(permutations);
-        }
-        evaluationEndTime=time(NULL);
-        timeDiff=evaluationEndTime-evaluationStartTime;
-        printf("Time elapsed: %ld'%02ld\"\n", timeDiff/60, timeDiff%60);
-    }
+    printf("Worker %d starting work item: %02d-%02d (%d/%d), %s, R1 %02d R2 %02d-%02d R3: %02d-%02d\n", 
+            worker, item->startPermutation, item->endPermutation,
+            initialNumberOfWorkItems-workItem, initialNumberOfWorkItems, 
+            item->ukw, 
+            item->R1,
+            item->startR2, item->endR2, 
+            item->startR3, item->endR3);
     fflush(stdout);
-    return NULL;
+    switch (method)
+    {
+        case METHOD_IOC:
+        case METHOD_IOC_R2R3:
+        case METHOD_IOC_R3:
+            iocEvaluateEngimaSettings(item, 0);
+            break;
+        case METHOD_IOC_DEEP:
+            iocEvaluateEngimaSettings(item, maxSteckers);
+            break;
+        case METHOD_IOC_NGRAM:
+            iocEvaluateEngimaSettings(item, maxSteckersIoc);
+            break;
+    }    
 }
+
 
 /**************************************************************************************************\
 * 
-* Tries to decode a cypher only text. Two methods are supported by means of isDeep.
-* isDeep=0: First the rotor positions are detected, then the steckered positions. Works op to 
-*           5-6 steckers
-* isDeep=1: For each rotor position the steckers are tried
-*
-* Assumes the work items and work items number have been defined
-* Pass pointer to permutations if the permutations must be cleaned up after finishing. Leave NULL
-* if not
+* Finish function. Executed after the work is done
 * 
 \**************************************************************************************************/
-void iocExecuteWorkItems (int numOfThreads, LinkedList* permutations)
+
+void iocFinishFunction(void* params)
 {
-    int             i;
+    int                 method;
+    int                 maxSteckers;
+    int                 ngramSize;
+    int                 i;
 
-    // create the threads
-    iocInitialNumberOfWorkItems=iocNumberOfWorkItems;
-    i=0;
-    while (i<numOfThreads)
+    method                  =evaluationMethod.method; 
+    maxSteckers             =evaluationMethod.maxSteckers;
+    ngramSize               =evaluationMethod.ngramSize;
+
+    iocDumpTopResults(0);
+    switch (method)
     {
-        threadParams[i].permutations        =permutations;
-        threadParams[i].evaluationMethod    =&evaluationMethod;
-
-        pthread_create(&(threadParams[i].threadId), 
-                       NULL, iocThreadFunction, 
-                       (void *)(threadParams+i)); 
-        i++;
+        case METHOD_IOC_R2R3:
+            // Now we have got the Top 10 best results for rotor position and Ringstellung R1 R2 R3
+            // Try to find
+            // - Stecker Positions for each of them (only for the not deep method)
+            i=0;
+            while (i<iocNumberOfResults)
+            {
+                printf("Finding steckers for %d\n", i);
+                iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
+                i++;
+            }
+            break;
+        case METHOD_IOC_R3:
+            // Now we have got the Top 10 best results for rotor position and Ringstellung R1 R3
+            // Try to find
+            // - Ringstellung R2
+            // - Stecker Positions for each of them (only for the not deep method)
+            i=0;
+            while (i<iocNumberOfResults)
+            {
+                // find ringstellung for rotor R2
+                printf("Finding ring setting R2 for %d\n", i);
+                iocFindRingStellung(&iocTopResults[i], 2, 2);
+                printf("Finding steckers for %d\n", i);
+                iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
+                i++;
+            }
+            break;           
+        case METHOD_IOC:
+            // Now we have got the Top 10 best results for rotor position and Ringstellung R1
+            // Try to find
+            // - Ringstellung R2 and R3
+            // - Stecker Positions for each of them (only for the not deep method)
+            i=0;
+            while (i<iocNumberOfResults)
+            {
+                // find ringstellung for rotor R2 and R3
+                printf("Finding ring setting R2 and R3 for %d\n", i);
+                iocFindRingStellung(&iocTopResults[i], 2, 3);
+                printf("Finding steckers for %d\n", i);
+                iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
+                i++;
+            }
+            break;
+        case METHOD_IOC_DEEP:
+            break;
+        case METHOD_IOC_NGRAM:            
+            i=0;
+            while (i<iocNumberOfResults)
+            {
+                printf("Finding final steckers for %d\n", i);
+                iocFindSteckeredCharsNgram(&iocTopResults[i], maxSteckers, ngramSize);
+                i++;
+            }
+            break;
     }
-    pthread_exit(NULL);     
+    
+    // Show the final result 
+    printf("FOUND SOLUTIONS: \n");
+    sortTopResults();
+    iocDumpTopResults(1);
+
+    if (evaluationMethod.permutations!=NULL)
+    {
+        destroyLinkedList(evaluationMethod.permutations);
+    }
+
 }
+
 
 /**************************************************************************************************\
 * 
@@ -1447,25 +1349,40 @@ void setEvaluationMethod(Method_t method, int maxSteckers, int maxSteckersIoc, i
 
 /**************************************************************************************************\
 * 
-* Tries to decode a cypher only text. Two methods are supported by means of isDeep.
-* isDeep=0: First the rotor positions are detected, then the steckered positions. Works op to 
-*           5-6 steckers
-* isDeep=1: For each rotor position the steckers are tried
+* Set the list of Walze/rotor permutations
+* 
+\**************************************************************************************************/
+void setWalzePermutations(LinkedList* permutations)
+{
+    evaluationMethod.permutations   =permutations;
+}
+
+
+/**************************************************************************************************\
+* 
+* Tries to decode a cypher only text. 
+* Currently it assumes 
+* - an Enigma M3
+* - only Walzen I, II, III, IV and V
+* - Umkehr Walzen UKW B and UKW C
 * 
 \**************************************************************************************************/
 void iocDecodeText(char* cypher, int numOfThreads)
 {
     int             i;
-    LinkedList*     permutations;
     int             length;
+    LinkedList*     permutations;
     
-    // Start with 5 Wehrmacht rotors
+    // Start with 5 Wehrmacht rotors in an M3 Enigma
     permutations        =createRotorPermutations(3, 5);
     length              =linkedListLength(permutations);
    
+    setWalzePermutations(permutations);
+    
     // Create the stack of work for the trheads
     iocNumberOfWorkItems=numOfThreads*2;
 
+    dispatcherClearWorkItems();
     i=0;
     while (i<numOfThreads)
     {
@@ -1494,6 +1411,7 @@ void iocDecodeText(char* cypher, int numOfThreads)
         }
         iocWorkItems[i*2].maxCypherChars        =MAX_TEXT;
         strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
+        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i*2]);
 
         
         iocWorkItems[i*2+1].cypher              =cypher;
@@ -1521,11 +1439,11 @@ void iocDecodeText(char* cypher, int numOfThreads)
         }
         iocWorkItems[i*2+1].maxCypherChars      =MAX_TEXT;
         strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
+        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i*2+1]);
         i++;
     }
 
-    evaluationStartTime=time(NULL);
-    iocExecuteWorkItems(numOfThreads, permutations);
+    dispatcherStartWork(6, iocFinishFunction, NULL);
 }
 
 

@@ -139,7 +139,7 @@ void turingExample()
     printf("# Original Steckers         : %s\n",        turingTestSettings.steckers);
     printf("#####################################################################################\n");
 
-    turingBombe(turingTestSettings.cypher, turingCrib, 1);
+    turingBombe(turingTestSettings.cypher, turingCrib, 4);
 }
 
 /**************************************************************************************************\

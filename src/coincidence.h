@@ -66,14 +66,17 @@ extern int                 iocNumberOfResults;
 * FUNCTIONS
 \**************************************************************************************************/
 
-// temp
+// Methods for own cracking methods
 void    iocEvaluateEngimaSettings   (IocWorkItem* work, int maxSteckers);
 void    iocFindSteckeredChars       (IocResults* results, int maxNumOfSteckers);
 void    iocFindSteckeredCharsNgram  (IocResults* results, int maxNumOfSteckers, int ngramSize);
 void    iocDumpTopResults           (int withDecode);
-void    iocExecuteWorkItems         (int numOfThreads, LinkedList* permutations);
-void    findRingStellung            (IocResults*  results, int startRotor, int endRotor);
+void    iocFindRingStellung         (IocResults*  results, int startRotor, int endRotor);
+void    iocWorkerFunction           (int worker, int workItem, void* params);
+void    iocFinishFunction           (void* params);
+void    setWalzePermutations        (LinkedList* permutations);
 
+// Public methods
 void    setEvaluationMethod         (Method_t method, int maxSteckers, int maxSteckersIoc, int ngramSize, char* ngrams);
 void    iocDecodeText               (char* cypher, int numOfThreads);
 

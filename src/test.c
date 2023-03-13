@@ -3,11 +3,13 @@
 #include <ctype.h>
 #include <malloc.h>
 #include <math.h>
+#include <unistd.h>
 
 #include "enigma.h"
 #include "turing.h"
 #include "ngramscore.h"
 #include "toolbox.h"
+#include "workDispatcher.h"
 
 int permutations[12][2]=
 {
@@ -690,7 +692,42 @@ void test11()
 
 }
 
+char* workItems[]=
+{
+    "Item 1",
+    "Item 2",
+    "Item 3"
+};
 
+char* finalItem="Final item";
+
+
+void workFunction(int worker, int workItem, void* params)
+{
+    char* item;
+    item=(char*) params;
+    printf("Workfunction: Worker # %d, Work Item# %d, data: %s\n", worker, workItem, item);
+    sleep(1);
+    fflush(stdout);
+}
+
+void finalFunction(void* params)
+{
+    char* item;
+    item=(char*) params;
+    printf("Final function %s\n", item);
+    assertStringEquals("Dispatcher", 4, finalItem, item);
+    fflush(stdout);
+}
+
+void test12()
+{
+    dispatcherClearWorkItems();
+    dispatcherPushWorkItem(workFunction, (void*)workItems[0]);
+    dispatcherPushWorkItem(workFunction, (void*)workItems[1]);
+    dispatcherPushWorkItem(workFunction, (void*)workItems[2]);
+    dispatcherStartWork(3, finalFunction, (void*)finalItem);
+} 
 
 
 /**************************************************************************************************\
@@ -716,6 +753,7 @@ int main()
     test09();
     test10();
     test11();
+    test12();
     
     return 0;
 }

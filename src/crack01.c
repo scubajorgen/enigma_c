@@ -16,6 +16,7 @@
 #include "crack.h"
 #include "toolbox.h"
 #include "coincidence.h"
+#include "workDispatcher.h"
 
 char text01[]=
 "MUUQ JZVQ LORV MCOL YKXE"
@@ -896,6 +897,7 @@ void message10()
     // Create the stack of work for the trheads
     iocNumberOfWorkItems=numOfThreads*2;
 
+    dispatcherClearWorkItems();
     i=0;
     while (i<numOfThreads)
     {
@@ -909,6 +911,7 @@ void message10()
         iocWorkItems[i*2].endR3             =MAX_POSITIONS;
         iocWorkItems[i*2].maxCypherChars    =250;
         strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
+        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i*2]);
 
         
 		iocWorkItems[i*2+1].cypher          =text10;
@@ -921,12 +924,14 @@ void message10()
         iocWorkItems[i*2+1].endR3           =MAX_POSITIONS;
         iocWorkItems[i*2+1].maxCypherChars  =250;
         strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
+        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i*2+1]);        
         i++;
     }
 
+    setWalzePermutations(permutations);
     setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, "DE");
 
-    iocExecuteWorkItems(numOfThreads, permutations);	
+    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);	
 	
 /*	
 	// THIS RESULTS IN THE BEST SOLUTION:
