@@ -127,7 +127,7 @@ void turingExample()
     printf("# TURING BOMBE\n");
     printf("# Cypher                    : %s\n",        turingTestSettings.cypher);
     printf("# Crib                      : %s\n",        turingCrib);
-    printf("# Original Waltzen          : %s %s %s\n",  turingTestSettings.rotors[0],
+    printf("# Original Walzen           : %s %s %s\n",  turingTestSettings.rotors[0],
                                                         turingTestSettings.rotors[1], 
                                                         turingTestSettings.rotors[2]);
     printf("# Original RingStellungen   : %d %d %d\n",  turingTestSettings.ringStellungen[0],

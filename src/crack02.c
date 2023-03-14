@@ -273,7 +273,7 @@ void theThirdProblem()
 	
     // FROM THE GEOCACHE WE KNOW FOLLOWING:
     // (http://enigmaco.de/enigma/enigma_de.html was used to encrypt)
-    // Three Waltzen out of I-V, R1 = R2 = R3 = 1, UKW B
+    // Three Walzen out of I-V, R1 = R2 = R3 = 1, UKW B
     // We know it because it was encrypted on
 
     permutations=createRotorPermutations(3, 5);
@@ -318,7 +318,7 @@ void theThirdProblem()
 	
     // FROM THE GEOCACHE WE KNOW FOLLOWING:
     // (http://enigmaco.de/enigma/enigma_de.html was used to encrypt)
-    // Three Waltzen out of I-V, R1 = R2 = R3 = 1, UKW B
+    // Three Walzen out of I-V, R1 = R2 = R3 = 1, UKW B
     // We know it because it was encrypted on
 
     permutations=createRotorPermutations(3, 5);

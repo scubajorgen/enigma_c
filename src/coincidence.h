@@ -31,7 +31,7 @@ typedef enum
 typedef struct
 {
     char*       cypher;                 // The Cypher
-    LinkedList* permutations;           // List of Waltzen permutations
+    LinkedList* permutations;           // List of Walzen permutations
     int         startPermutation;       // Permutation start
     int         endPermutation;         // permutation end; end included
     int         R1;                     // Value of R1 to use

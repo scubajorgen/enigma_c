@@ -9,9 +9,9 @@
 #include "toolbox.h"
 
 
-// Permutations of rotors/waltzen
-int                 waltzenIndices[8]  ={0, 1, 2, 3, 4, 5, 6, 7};
-char                waltzen[8][4]      ={"I", "II", "III", "IV", "V", "VI", "VII", "VIII"};
+// Permutations of rotors/walzen
+int                 walzenIndices[8]    ={0, 1, 2, 3, 4, 5, 6, 7};
+char                walzen[8][4]        ={"I", "II", "III", "IV", "V", "VI", "VII", "VIII"};
 LinkedList*         permutations;
 
 
@@ -361,15 +361,15 @@ void* elementAt(LinkedList* list, int index)
 
 /**************************************************************************************************\
 * 
-* Create the permutations of the waltzen. numberOfWaltzen: 3 or 4, numberToChoosFrom: 3,5,8 
-* TO DO: incorporate beta and gamma waltzen at the right spot
+* Create the permutations of the walzen. numberOfWalzen: 3 or 4, numberToChoosFrom: 3,5,8 
+* TO DO: incorporate beta and gamma walzen at the right spot
 * 
 \**************************************************************************************************/
-LinkedList* createRotorPermutations(int numberOfWaltzen, int numberToChooseFrom)
+LinkedList* createRotorPermutations(int numberOfWalzen, int numberToChooseFrom)
 {
     LinkedList* permutations;
     permutations=createLinkedList();
-    permute(permutations, waltzenIndices, numberToChooseFrom, numberOfWaltzen, 0);
+    permute(permutations, walzenIndices, numberToChooseFrom, numberOfWalzen, 0);
     return permutations;
 }
 

@@ -616,7 +616,7 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
 
     enigma=createEnigmaM3(); 
     clearSteckerBrett(enigma);
-    placeUmkehrWaltze(enigma, ukw);
+    placeUmkehrWalze(enigma, ukw);
 
     counting        =0;
     prevTime        =startTime;
@@ -630,9 +630,9 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
         
         if (permutation!=NULL)
         {
-            w1=waltzen[permutation[0]];
-            w2=waltzen[permutation[1]];
-            w3=waltzen[permutation[2]];
+            w1=walzen[permutation[0]];
+            w2=walzen[permutation[1]];
+            w3=walzen[permutation[2]];
             sprintf(walzenString,"%s - %s %s %s", ukw, w1, w2, w3);
             
             currentTime=(long)time(NULL)-(long)startTime;
@@ -653,9 +653,9 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
             fflush(stdout);
            
             // Set the rotor
-            placeWaltze(enigma, 1, w1);
-            placeWaltze(enigma, 2, w2);
-            placeWaltze(enigma, 3, w3);
+            placeWalze(enigma, 1, w1);
+            placeWalze(enigma, 2, w2);
+            placeWalze(enigma, 3, w3);
             
             // GrundStellungen
             for (g1=1; g1<=26; g1++)

@@ -72,18 +72,18 @@
 * 
 * Place the given rotor at given position
 * enigima: enigma definition
-* waltze: rotor position counted from left to right (1..4)
+* walze: rotor position counted from left to right (1..4)
 * rotorName: name of the rotor to place, like 'I', 'VI' 
 * 
 \**************************************************************************************************/
-void placeWaltze(Enigma* enigma, int waltze, char rotorName[])
+void placeWalze(Enigma* enigma, int walze, char rotorName[])
 {
     int     index;
     int     found;
     int     j;
     int     pos;
     
-    pos=enigma->numberOfRotors-waltze;
+    pos=enigma->numberOfRotors-walze;
     
     index=0;
     found=0;
@@ -94,7 +94,7 @@ void placeWaltze(Enigma* enigma, int waltze, char rotorName[])
             found=1;
             
             if ((index==8 || index==9) && 
-                (enigma->numberOfRotors<4 || (enigma->numberOfRotors==4 && waltze!=1)))
+                (enigma->numberOfRotors<4 || (enigma->numberOfRotors==4 && walze!=1)))
             {
                 printf("Beta and Gamma rotors are only allowed on position 1 of Enigma M4\n");
             }
@@ -122,38 +122,38 @@ void placeWaltze(Enigma* enigma, int waltze, char rotorName[])
     }
     if (!found)
     {
-        printf("ERROR: invalid waltze\n");
+        printf("ERROR: invalid walze\n");
     }
 }
 
 
 /**************************************************************************************************\
 * 
-* Set the Ringstellung of the Waltze at given position
+* Set the Ringstellung of the Walze at given position
 * enigima: enigma definition
-* waltze: rotor position counted from left to right (1..4)
+* walze: rotor position counted from left to right (1..4)
 * ringStellung: the Ringstellung. Supported: "12", "G" or "G" or "g"
 *
 \**************************************************************************************************/
-void setRingStellung(Enigma* enigma, int waltze, int ringStellung)
+void setRingStellung(Enigma* enigma, int walze, int ringStellung)
 {
     int     pos;
     
-    pos=enigma->numberOfRotors-waltze;
+    pos=enigma->numberOfRotors-walze;
     
     enigma->ringStellung[pos]=stellungToPos(ringStellung);
 }
 
 /**************************************************************************************************\
 * 
-* Return the Ringstellung of given Waltze
+* Return the Ringstellung of given Walze
 * 
 \**************************************************************************************************/
-int getRingStellung(Enigma* enigma, int waltze)
+int getRingStellung(Enigma* enigma, int walze)
 {
     int     pos;
     
-    pos=enigma->numberOfRotors-waltze;
+    pos=enigma->numberOfRotors-walze;
     
     return posToStellung(enigma->ringStellung[pos]);
 }
@@ -216,28 +216,28 @@ void setRingStellungen(Enigma* enigma, char* ringStellungen)
 
 /**************************************************************************************************\
 * 
-* Set the Grundstellung of the Waltze at given position
+* Set the Grundstellung of the Walze at given position
 * 
 \**************************************************************************************************/
-void setGrundStellung(Enigma* enigma, int waltze, int grundStellung)
+void setGrundStellung(Enigma* enigma, int walze, int grundStellung)
 {
     int     pos;
     
-    pos=enigma->numberOfRotors-waltze;
+    pos=enigma->numberOfRotors-walze;
     
     enigma->grundStellung[pos]=stellungToPos(grundStellung);
 }
 
 /**************************************************************************************************\
 * 
-* Return the Grundstellung of given Waltze
+* Return the Grundstellung of given Walze
 * 
 \**************************************************************************************************/
-int getGrundStellung(Enigma* enigma, int waltze)
+int getGrundStellung(Enigma* enigma, int walze)
 {
     int     pos;
     
-    pos=enigma->numberOfRotors-waltze;
+    pos=enigma->numberOfRotors-walze;
     
     return posToStellung(enigma->grundStellung[pos]);
 }

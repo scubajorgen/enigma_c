@@ -257,11 +257,11 @@ void message01()
     
     enigma=createEnigmaM3(); 
 
-    placeWaltze(enigma, 1, "VIII");
-    placeWaltze(enigma, 2, "II");
-    placeWaltze(enigma, 3, "IV");
+    placeWalze(enigma, 1, "VIII");
+    placeWalze(enigma, 2, "II");
+    placeWalze(enigma, 3, "IV");
     placeSteckers(enigma, "bd co ei gl js kt nv pm qr wz");
-    placeUmkehrWaltze(enigma, "UKW B");
+    placeUmkehrWalze(enigma, "UKW B");
     
     setRingStellung(enigma, 1, 19);    
     setRingStellung(enigma, 2,  7);    
@@ -296,11 +296,11 @@ void message02()
     enigma=createEnigmaM3(); 
 
 
-    placeWaltze(enigma, 1, "III");
-    placeWaltze(enigma, 2, "V");
-    placeWaltze(enigma, 3, "I");
+    placeWalze(enigma, 1, "III");
+    placeWalze(enigma, 2, "V");
+    placeWalze(enigma, 3, "I");
     placeSteckers(enigma, "BL CK DG FP IR MO QW ST VY UZ");
-    placeUmkehrWaltze(enigma, "UKW B");
+    placeUmkehrWalze(enigma, "UKW B");
     
     setRingStellungen(enigma, "25 03 07");
       
@@ -348,11 +348,11 @@ void message03()
     enigma=createEnigmaM3(); 
 
 
-    placeWaltze(enigma, 1, "III");
-    placeWaltze(enigma, 2, "II");
-    placeWaltze(enigma, 3, "V");
+    placeWalze(enigma, 1, "III");
+    placeWalze(enigma, 2, "II");
+    placeWalze(enigma, 3, "V");
     placeSteckers(enigma, "AL FP HX JO KT NV QR SU WY CE");
-    placeUmkehrWaltze(enigma, "UKW C");
+    placeUmkehrWalze(enigma, "UKW C");
     
     setRingStellungen(enigma, "08 19 03");
       
@@ -390,11 +390,11 @@ void message04()
 
 
 
-    placeWaltze(enigma, 1, "II");
-    placeWaltze(enigma, 2, "IV");
-    placeWaltze(enigma, 3, "I");
+    placeWalze(enigma, 1, "II");
+    placeWalze(enigma, 2, "IV");
+    placeWalze(enigma, 3, "I");
     placeSteckers(enigma, "bd cv el gn iz jo kw mt pr sx");
-    placeUmkehrWaltze(enigma, "UKW C");
+    placeUmkehrWalze(enigma, "UKW C");
     
     setRingStellung(enigma, 2, 3);    
     setRingStellung(enigma, 3, 21);    
@@ -441,17 +441,17 @@ void message05()
     int         r1;
     int         count;
 	int         limit;
-    char        possibleWaltzen[3][4]={"I","III","V"};
+    char        possibleWalzen[3][4]={"I","III","V"};
     int         w;
 
     printf("Message 05\n");
     enigma=createEnigmaM3(); 
 
-    placeWaltze(enigma, 1, "II");
-    placeWaltze(enigma, 2, "IV");
+    placeWalze(enigma, 1, "II");
+    placeWalze(enigma, 2, "IV");
 
     placeSteckers(enigma, "AS CK DE FV GJ LU MW OT PX RZ");
-    placeUmkehrWaltze(enigma, "UKW B");
+    placeUmkehrWalze(enigma, "UKW B");
     
     setRingStellung(enigma, 1, 9);    
     setRingStellung(enigma, 2, 2);    
@@ -460,7 +460,7 @@ void message05()
     w=0;
     while (w<3)
     {
-        placeWaltze(enigma, 3, possibleWaltzen[w]);
+        placeWalze(enigma, 3, possibleWalzen[w]);
         
         setText(enigma, text05);
         // Frequence e=18%, n=10%. 10 gives a good result 
@@ -484,7 +484,7 @@ void message05()
                 if (count>22)
                 {
                     printf("Found %s R %d G %d count%d limit %d:\n%s\n", 
-                           possibleWaltzen[w], r1, g1, count, limit, toString(enigma));
+                           possibleWalzen[w], r1, g1, count, limit, toString(enigma));
                 }
                 
                 r1++;
@@ -508,11 +508,11 @@ void message06()
     
     enigma=createEnigmaM3(); 
 
-    placeWaltze(enigma, 1, "V");
-    placeWaltze(enigma, 2, "I");
-    placeWaltze(enigma, 3, "II");
+    placeWalze(enigma, 1, "V");
+    placeWalze(enigma, 2, "I");
+    placeWalze(enigma, 3, "II");
     placeSteckers(enigma, "cq du en fr gx is jp ko ty vz");
-    placeUmkehrWaltze(enigma, "UKW C");
+    placeUmkehrWalze(enigma, "UKW C");
     
     setRingStellung(enigma, 1, 10);    
     setRingStellung(enigma, 2, 12);    
@@ -623,13 +623,13 @@ void message07()
     int             limit;
     int             count;
     
-    char            waltzen[5][6]       ={"I", "II", "III", "IV", "V"};
+    char            walzen[5][6]       ={"I", "II", "III", "IV", "V"};
     int             permElements[5]     ={0, 1, 2, 3, 4};
     
     enigma=createEnigmaM3(); 
 
     placeSteckers(enigma, "au cm dp ev hl iz jw no qx st");
-    placeUmkehrWaltze(enigma, "UKW B");
+    placeUmkehrWalze(enigma, "UKW B");
     
     setRingStellung(enigma, 1, 5);    
     setRingStellung(enigma, 2, 22);    
@@ -644,11 +644,11 @@ void message07()
     {
         permutation=(int*)elementAt(permutations, i);
         
-        printf("%d %d %d: %s-%s-%s\n", permutation[0], permutation[1], permutation[2], waltzen[permutation[0]], waltzen[permutation[1]], waltzen[permutation[2]]);
+        printf("%d %d %d: %s-%s-%s\n", permutation[0], permutation[1], permutation[2], walzen[permutation[0]], walzen[permutation[1]], walzen[permutation[2]]);
         
-        placeWaltze(enigma, 1, waltzen[permutation[0]]);
-        placeWaltze(enigma, 2, waltzen[permutation[1]]);
-        placeWaltze(enigma, 3, waltzen[permutation[2]]);
+        placeWalze(enigma, 1, walzen[permutation[0]]);
+        placeWalze(enigma, 2, walzen[permutation[1]]);
+        placeWalze(enigma, 3, walzen[permutation[2]]);
 
         setGrundStellungen(enigma, "A E G");
 
@@ -719,10 +719,10 @@ void message08()
     
     enigma=createEnigmaM3(); 
 
-    placeWaltze(enigma, 1, "II");
-    placeWaltze(enigma, 2, "I");
-    placeWaltze(enigma, 3, "III");
-    placeUmkehrWaltze(enigma, "UKW B");
+    placeWalze(enigma, 1, "II");
+    placeWalze(enigma, 2, "I");
+    placeWalze(enigma, 3, "III");
+    placeUmkehrWalze(enigma, "UKW B");
     
     setRingStellung(enigma, 1, 26);    
     setRingStellung(enigma, 2,  3);    
@@ -828,10 +828,10 @@ void message09()
     
     enigma=createEnigmaM3(); 
 
-    placeWaltze(enigma, 1, "IV");
-    placeWaltze(enigma, 2, "III");
-    placeWaltze(enigma, 3, "I");
-    placeUmkehrWaltze(enigma, "UKW C");
+    placeWalze(enigma, 1, "IV");
+    placeWalze(enigma, 2, "III");
+    placeWalze(enigma, 3, "I");
+    placeUmkehrWalze(enigma, "UKW C");
     
     setRingStellung(enigma, 1,  7);    
     setRingStellung(enigma, 2, 24);    

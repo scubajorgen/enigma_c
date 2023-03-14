@@ -12,7 +12,7 @@
 #include "enigma.h"
 #include "toolbox.h"
 
-#define ROTATING_WALTZEN 3
+#define ROTATING_WALZEN 3
 
 #define min(a,b) (a<b?a:b)
 
@@ -63,7 +63,7 @@ void advance(Enigma* enigma)
     rotor           =0;
     revolveNext     =1;
     // Only the 1st three rotors advance
-    while (rotor<ROTATING_WALTZEN && revolveNext)
+    while (rotor<ROTATING_WALZEN && revolveNext)
     {
         revolveNext=0;
         notch=0;
@@ -118,7 +118,7 @@ void reverse(Enigma* enigma)
     rotor           =0;
     reverseNext     =1;
     // Only the 1st three rotors advance
-    while (rotor<ROTATING_WALTZEN && reverseNext)
+    while (rotor<ROTATING_WALZEN && reverseNext)
     {
         reverseNext=0;
         enigma->grundStellung[rotor]--;
@@ -250,7 +250,7 @@ int encodeCharacter(Enigma* enigma, int theCharacter)
     }
     
     // Reflector
-    intermediate=enigma->umkehrWaltzeFunction[intermediate];
+    intermediate=enigma->umkehrWalzeFunction[intermediate];
    
     // left to right through the rotors
     rotor=enigma->numberOfRotors-1;
@@ -459,12 +459,12 @@ void setEnigma(Enigma* enigma, EnigmaSettings* settings)
     i=0;
     while (i<settings->numberOfRotors)
     {
-        placeWaltze         (enigma, i+1, settings->rotors[i]);
+        placeWalze          (enigma, i+1, settings->rotors[i]);
         setRingStellung     (enigma, i+1, settings->ringStellungen[i]);
         setGrundStellung    (enigma, i+1, settings->grundStellungen[i]);
         i++;
     }
-    placeUmkehrWaltze       (enigma, settings->ukw);
+    placeUmkehrWalze        (enigma, settings->ukw);
     if (strncmp(settings->steckers, "", MAX_STECKER_STRING)==0)
     {
         clearSteckerBrett(enigma);
@@ -498,7 +498,7 @@ void printEnigmaSettings(EnigmaSettings* settings, char* title)
     printf("# Cipher                    : \n");
     printCypher(settings->cypher);
     printf("# Cipher size               : %d characters\n", (int)cipherSize);
-    printf("# Original Waltzen          : %s %s %s\n", settings->rotors[0], settings->rotors[1], settings->rotors[2]);
+    printf("# Original Walzen           : %s %s %s\n", settings->rotors[0], settings->rotors[1], settings->rotors[2]);
     printf("# Original UKW              : %s \n", settings->ukw);
     printf("# Original RingStellungen   : %d %d %d\n", settings->ringStellungen[0], 
                                                        settings->ringStellungen[1], 

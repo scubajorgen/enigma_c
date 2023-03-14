@@ -209,15 +209,15 @@ void test01()
     
     permutation=elementAt(list, 0);
     
-    assertStringEquals("toolbox", 43, "I", waltzen[permutation[0]]);
-    assertStringEquals("toolbox", 44, "II", waltzen[permutation[1]]);
-    assertStringEquals("toolbox", 45, "III", waltzen[permutation[2]]);
+    assertStringEquals("toolbox", 43, "I", walzen[permutation[0]]);
+    assertStringEquals("toolbox", 44, "II", walzen[permutation[1]]);
+    assertStringEquals("toolbox", 45, "III", walzen[permutation[2]]);
 
     permutation=elementAt(list, 59);
     
-    assertStringEquals("toolbox", 46, "V", waltzen[permutation[0]]);
-    assertStringEquals("toolbox", 47, "I", waltzen[permutation[1]]);
-    assertStringEquals("toolbox", 48, "II", waltzen[permutation[2]]);
+    assertStringEquals("toolbox", 46, "V", walzen[permutation[0]]);
+    assertStringEquals("toolbox", 47, "I", walzen[permutation[1]]);
+    assertStringEquals("toolbox", 48, "II", walzen[permutation[2]]);
     
     destroyLinkedList(list);
     
@@ -225,7 +225,7 @@ void test01()
 
 /**************************************************************************************************\
 * 
-* Test the Waltze functions
+* Test the Walze functions
 * 
 \**************************************************************************************************/
 
@@ -236,45 +236,45 @@ void test02(void)
 
     enigma=createEnigmaM3();
 
-    placeWaltze(enigma, 1, "I");    
+    placeWalze(enigma, 1, "I");    
 
     setRingStellung(enigma, 1, 'j'); 
-    assertIntEquals("waltze", 1, 9, enigma->ringStellung[2]);
+    assertIntEquals("walze", 1, 9, enigma->ringStellung[2]);
 
     setRingStellung(enigma, 1, 12); 
-    assertIntEquals("waltze", 2, 11, enigma->ringStellung[2]);
+    assertIntEquals("walze", 2, 11, enigma->ringStellung[2]);
     
     setRingStellungen(enigma, "JKL");
-    assertIntEquals("waltze", 3, 'L'-'A', enigma->ringStellung[0]);
+    assertIntEquals("walze", 3, 'L'-'A', enigma->ringStellung[0]);
     
     setRingStellungen(enigma, "p q r");
-    assertIntEquals("waltze", 4, 'P'-'A', enigma->ringStellung[2]);
+    assertIntEquals("walze", 4, 'P'-'A', enigma->ringStellung[2]);
 
     stellung=getRingStellung(enigma, 1);
-    assertIntEquals("waltze", 5, 'P'-'A'+1, stellung);
+    assertIntEquals("walze", 5, 'P'-'A'+1, stellung);
     stellung=getRingStellung(enigma, 2);
-    assertIntEquals("waltze", 6, 'Q'-'A'+1, stellung);
+    assertIntEquals("walze", 6, 'Q'-'A'+1, stellung);
     stellung=getRingStellung(enigma, 3);
-    assertIntEquals("waltze", 7, 'R'-'A'+1, stellung);
+    assertIntEquals("walze", 7, 'R'-'A'+1, stellung);
 
     setRingStellungen(enigma, "09 10 11");
-    assertIntEquals("waltze", 8, 'I'-'A', enigma->ringStellung[2]);
+    assertIntEquals("walze", 8, 'I'-'A', enigma->ringStellung[2]);
     
     setGrundStellungen(enigma, "STU");
-    assertIntEquals("waltze", 9, 'U'-'A', enigma->grundStellung[0]);
+    assertIntEquals("walze", 9, 'U'-'A', enigma->grundStellung[0]);
     
     setGrundStellungen(enigma, "b c d");
-    assertIntEquals("waltze",10, 'B'-'A', enigma->grundStellung[2]);
+    assertIntEquals("walze",10, 'B'-'A', enigma->grundStellung[2]);
 
     setGrundStellungen(enigma, "26 10 01");
-    assertIntEquals("waltze",11, 'Z'-'A', enigma->grundStellung[2]);
+    assertIntEquals("walze",11, 'Z'-'A', enigma->grundStellung[2]);
     
     destroyEnigma(enigma);    
 }
 
 /**************************************************************************************************\
 * 
-*  Test the Umkehrwaltze functions
+*  Test the Umkehrwalze functions
 * 
 \**************************************************************************************************/
 void test03(void)
@@ -283,14 +283,14 @@ void test03(void)
     
     enigma=createEnigmaM4();
     
-    placeUmkehrWaltze(enigma, "UKW B");
+    placeUmkehrWalze(enigma, "UKW B");
 
-    assertIntEquals("ukw", 1, 23, enigma->umkehrWaltzeFunction[9]);   // J (9) maps to X (23)
+    assertIntEquals("ukw", 1, 23, enigma->umkehrWalzeFunction[9]);   // J (9) maps to X (23)
 
 
-    placeUmkehrWaltze(enigma, "UKW C2");
+    placeUmkehrWalze(enigma, "UKW C2");
 
-    assertIntEquals("ukw", 2, 23, enigma->umkehrWaltzeFunction[18]);   //  maps to X
+    assertIntEquals("ukw", 2, 23, enigma->umkehrWalzeFunction[18]);   //  maps to X
 
     destroyEnigma(enigma);  
 }
@@ -336,11 +336,11 @@ void test05(void)
     // Test 1
     enigma=createEnigmaM3();
     setText(enigma, "RCGXFEAJCT");
-    placeWaltze(enigma, 1, "I");
-    placeWaltze(enigma, 2, "II");
-    placeWaltze(enigma, 3, "III");
+    placeWalze(enigma, 1, "I");
+    placeWalze(enigma, 2, "II");
+    placeWalze(enigma, 3, "III");
     
-    placeUmkehrWaltze(enigma, "UKW B");
+    placeUmkehrWalze(enigma, "UKW B");
     
     setRingStellung(enigma, 1, 1);
     setRingStellung(enigma, 2, 17);
@@ -378,11 +378,11 @@ void test05(void)
     // Test 3
     setText(enigma, "boot klar x bei j schnoor j etwa zwo siben x nov x sechs nul cbm x proviant bis zwo nul x dez x benoetige glaeser y noch vier klar x stehe marqu bruno bruno zwo funf x lage wie j schaefer j x nnn www funf y eins funf mb steigend y gute sicht vvv j rasch");
 
-    placeWaltze(enigma, 1, "VI");
-    placeWaltze(enigma, 2, "I");
-    placeWaltze(enigma, 3, "III");
+    placeWalze(enigma, 1, "VI");
+    placeWalze(enigma, 2, "I");
+    placeWalze(enigma, 3, "III");
 
-    placeUmkehrWaltze(enigma, "UKW C");
+    placeUmkehrWalze(enigma, "UKW C");
     
     setRingStellungen(enigma, "06 23 12");
 
@@ -524,11 +524,11 @@ void test09()
     
     enigma=createEnigmaM3();
     setText(enigma, "AAAAAAAAAA");
-    placeWaltze(enigma, 1, "I");
-    placeWaltze(enigma, 2, "I");
-    placeWaltze(enigma, 3, "I");
+    placeWalze(enigma, 1, "I");
+    placeWalze(enigma, 2, "I");
+    placeWalze(enigma, 3, "I");
     
-    placeUmkehrWaltze(enigma, "UKW B");
+    placeUmkehrWalze(enigma, "UKW B");
     
     setRingStellung(enigma, 1, 'A');
     setRingStellung(enigma, 2, 'A');
@@ -558,10 +558,10 @@ void test10()
     
     enigma=createEnigmaM3();
     setText(enigma, "AAAAAAAAAA");
-    placeWaltze(enigma, 1, "I");
-    placeWaltze(enigma, 2, "III");
-    placeWaltze(enigma, 3, "II");
-    placeUmkehrWaltze(enigma, "UKW B");
+    placeWalze(enigma, 1, "I");
+    placeWalze(enigma, 2, "III");
+    placeWalze(enigma, 3, "II");
+    placeUmkehrWalze(enigma, "UKW B");
     
     setRingStellung(enigma, 1, 'A');
     setRingStellung(enigma, 2, 'A');
@@ -651,10 +651,10 @@ void test11()
     
     enigma=createEnigmaM3();
     setText(enigma, "AAAAAAAAAA");
-    placeWaltze(enigma, 1, "IV");
-    placeWaltze(enigma, 2, "V");
-    placeWaltze(enigma, 3, "II");
-    placeUmkehrWaltze(enigma, "UKW B");
+    placeWalze(enigma, 1, "IV");
+    placeWalze(enigma, 2, "V");
+    placeWalze(enigma, 3, "II");
+    placeUmkehrWalze(enigma, "UKW B");
     
     setRingStellung(enigma, 1, 'A');
     setRingStellung(enigma, 2, 'A');

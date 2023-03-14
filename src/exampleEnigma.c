@@ -26,14 +26,14 @@ void enigmaExampleM3()
     
     enigma=createEnigmaM3();
     
-    placeWaltze         (enigma, 1, "I");
-    placeWaltze         (enigma, 2, "II");
-    placeWaltze         (enigma, 3, "III");
+    placeWalze          (enigma, 1, "I");
+    placeWalze          (enigma, 2, "II");
+    placeWalze          (enigma, 3, "III");
     setRingStellungen   (enigma, "26 13 01");
     setGrundStellungen  (enigma, "01 02 03");
     
     placeSteckers       (enigma, "bq cr di ej kw mt os px uz gh");
-    placeUmkehrWaltze   (enigma, "UKW B");
+    placeUmkehrWalze    (enigma, "UKW B");
     
     setText             (enigma, someText);
     
@@ -76,15 +76,15 @@ void enigmaExampleM4()
     
     enigma=createEnigmaM4();
     
-    placeWaltze         (enigma, 1, "Beta");
-    placeWaltze         (enigma, 2, "I");
-    placeWaltze         (enigma, 3, "II");
-    placeWaltze         (enigma, 4, "III");
+    placeWalze          (enigma, 1, "Beta");
+    placeWalze          (enigma, 2, "I");
+    placeWalze          (enigma, 3, "II");
+    placeWalze          (enigma, 4, "III");
     setRingStellungen   (enigma, "02 17 12 01");
     setGrundStellungen  (enigma, "01 02 03 04");
     
     placeSteckers       (enigma, "bq cr di ej kw mt os px uz gh");
-    placeUmkehrWaltze   (enigma, "UKW B2");
+    placeUmkehrWalze    (enigma, "UKW B2");
     
     setText             (enigma, someText);
     

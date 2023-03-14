@@ -18,9 +18,9 @@ typedef struct LinkedList
 }
 LinkedList;
 
-// Permutations of rotors/waltzen
-extern int                 waltzenIndices[8];
-extern char                waltzen[8][4];
+// Permutations of rotors/walzen
+extern int                 walzenIndices[8];
+extern char                walzen[8][4];
 
 
 int         ipow                    (int base, int exp);
@@ -40,7 +40,7 @@ int         hasNext                 (LinkedList* list);
 int         linkedListLength        (LinkedList* list);
 void*       elementAt               (LinkedList* list, int index);
 void        permute                 (LinkedList* permutations, int elements[], int elementArraySize, int number, int start);
-LinkedList* createRotorPermutations (int numberOfWaltzen, int numberToChooseFrom);
+LinkedList* createRotorPermutations (int numberOfWalzen, int numberToChooseFrom);
 void        printCypher             (char* cypher);
 
 #endif

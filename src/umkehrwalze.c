@@ -1,6 +1,6 @@
 /**************************************************************************************************\
 *
-* This file implements the functions and definitions of the Enigma Umkehrwaltze, or reflector
+* This file implements the functions and definitions of the Enigma Umkehrwalze, or reflector
 * 
 \**************************************************************************************************/
 #include <stdio.h>
@@ -8,11 +8,11 @@
 
 #include "enigma.h"
 
-#define UMKEHR_WALTZEN          5
-#define MAX_UMKEHRWALTZE_NAME   10
+#define UMKEHR_WALZEN           5
+#define MAX_UMKEHRWALZE_NAME    10
 
 
-char umkehrWaltzeNames[UMKEHR_WALTZEN][MAX_UMKEHRWALTZE_NAME]=
+char umkehrWalzeNames[UMKEHR_WALZEN][MAX_UMKEHRWALZE_NAME]=
 {
     "UKW A",
     "UKW B",
@@ -21,7 +21,7 @@ char umkehrWaltzeNames[UMKEHR_WALTZEN][MAX_UMKEHRWALTZE_NAME]=
     "UKW C2"
 };
 
-int umkehrWaltzeTables[UMKEHR_WALTZEN][MAX_POSITIONS]=
+int umkehrWalzeTables[UMKEHR_WALZEN][MAX_POSITIONS]=
 {
     {
         'E','J','M','Z','A','L','Y','X','V','B','W','F','C','R','Q','U','O','N','T','S','P','I','K','H','G','D'
@@ -43,14 +43,14 @@ int umkehrWaltzeTables[UMKEHR_WALTZEN][MAX_POSITIONS]=
 
 /**************************************************************************************************\
 * 
-* Choose the Umkehrwaltze to use. 
+* Choose the Umkehrwalze to use. 
 * enigima: enigma definition
-* name: name of the Umkehrwaltze. "UKW A", "UKW B" or "UKW C" for Engima M3, "UKW B2" and "UKW C2"
+* name: name of the Umkehrwalze. "UKW A", "UKW B" or "UKW C" for Engima M3, "UKW B2" and "UKW C2"
 *       are the thin UKWs for Engima M4 (though all UKWs can be used for all Enigmas in this 
 *       software) 
 * 
 \**************************************************************************************************/
-void placeUmkehrWaltze(Enigma* enigma, char name[])
+void placeUmkehrWalze(Enigma* enigma, char name[])
 {
     int     index;
     int     found;
@@ -58,10 +58,10 @@ void placeUmkehrWaltze(Enigma* enigma, char name[])
     
     index=0;
     found=0;
-    while (index<UMKEHR_WALTZEN && !found)
+    while (index<UMKEHR_WALZEN && !found)
     {
         
-        if (!strcmp(name, umkehrWaltzeNames[index]))
+        if (!strcmp(name, umkehrWalzeNames[index]))
         {
             if ((index==3 || index==4) && (enigma->numberOfRotors<4))
             {
@@ -71,7 +71,7 @@ void placeUmkehrWaltze(Enigma* enigma, char name[])
             j=0;
             while (j<MAX_POSITIONS)
             {
-                enigma->umkehrWaltzeFunction[j]=umkehrWaltzeTables[index][j]-'A';
+                enigma->umkehrWalzeFunction[j]=umkehrWalzeTables[index][j]-'A';
                 j++;
             }
         }
@@ -80,6 +80,6 @@ void placeUmkehrWaltze(Enigma* enigma, char name[])
     }  
     if (!found)
     {
-        printf("ERROR: invalid umkehrwaltze %s\n", name);
+        printf("ERROR: invalid umkehrwalze %s\n", name);
     }
 }

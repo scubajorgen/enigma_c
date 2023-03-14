@@ -903,16 +903,16 @@ void iocFindSteckeredCharsInline(Enigma* enigma, IocResults* results, int g1, in
 /**************************************************************************************************\
 * 
 * This method follows the James Gillogly method.
-* This method processes the indicated Waltzen permutations with UKW. It looks for the setting with
+* This method processes the indicated Walzen permutations with UKW. It looks for the setting with
 * the best index of coincidence. The best solutions are stored in the Top 10. 
 * Whereas the original James Gillogly method fixed the R2 setting and tries to find the 
 * best R2 setting after the rotor settings have been found, this function varies
 * also the R2 setting. Takes more time, but all settings are tried.
 * The parameter maxSteckers parameter defines the number of steckers the routine will look for.
 *
-* Set to 0 to just try Waltzen positions and use Index of Coincidence (original Gillogly method).
+* Set to 0 to just try Walzen positions and use Index of Coincidence (original Gillogly method).
 *
-* Set to >0 to try to find the best steckers for each Waltzen position.
+* Set to >0 to try to find the best steckers for each Walzen position.
 * For each rotor setting the steckers are tried, which makes this very slow.
 * Best approach is to fix R2 to one setting, and try to find the best result. Then finalize 
 * by trying all R2 for the found rotor setting.
@@ -967,7 +967,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
     
     enigma      =createEnigmaM3(); 
 
-    placeUmkehrWaltze(enigma, ukw);
+    placeUmkehrWalze(enigma, ukw);
         
     clearSteckerBrett(enigma);
 
@@ -984,15 +984,15 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
     startTime   =time(NULL);
 
     iocMax      =-1000000.0;
-    // Parse the Waltzen permutations assigned
+    // Parse the Walzen permutations assigned
     w           =start;
     while (w<=end)
     {
         permutation=(int*)elementAt(permutations, w);
 
-        placeWaltze(enigma, 1, waltzen[permutation[0]]);
-        placeWaltze(enigma, 2, waltzen[permutation[1]]);
-        placeWaltze(enigma, 3, waltzen[permutation[2]]);
+        placeWalze(enigma, 1, walzen[permutation[0]]);
+        placeWalze(enigma, 2, walzen[permutation[1]]);
+        placeWalze(enigma, 3, walzen[permutation[2]]);
 
         time(&now);
         timeString=ctime(&now);
@@ -1003,15 +1003,15 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
           w,
           w-start+1, end-start+1,
           ukw,
-          waltzen[permutation[0]], 
-          waltzen[permutation[1]], 
-          waltzen[permutation[2]], 
+          walzen[permutation[0]], 
+          walzen[permutation[1]], 
+          walzen[permutation[2]], 
           R1,
           startR2, endR2, 
           startR3, endR3);
         fflush(stdout);
 
-        // The Ringstellung of the 1st Waltze has no meaning
+        // The Ringstellung of the 1st Walze has no meaning
         r1=R1;
 
         r2=startR2;
@@ -1052,9 +1052,9 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
                                 results->indexOfCoincidence         =ioc;
                                 results->settings.numberOfRotors    =3;
                                 strncpy(results->settings.cypher, cypher, MAX_TEXT-1);
-                                strncpy(results->settings.rotors[0], waltzen[permutation[0]], MAX_ROTOR_NAME-1);
-                                strncpy(results->settings.rotors[1], waltzen[permutation[1]], MAX_ROTOR_NAME-1);
-                                strncpy(results->settings.rotors[2], waltzen[permutation[2]], MAX_ROTOR_NAME-1);
+                                strncpy(results->settings.rotors[0], walzen[permutation[0]], MAX_ROTOR_NAME-1);
+                                strncpy(results->settings.rotors[1], walzen[permutation[1]], MAX_ROTOR_NAME-1);
+                                strncpy(results->settings.rotors[2], walzen[permutation[2]], MAX_ROTOR_NAME-1);
                                 strncpy(results->settings.ukw, ukw, MAX_ROTOR_NAME);
                                 results->settings.ringStellungen[0] =r1;
                                 results->settings.ringStellungen[1] =r2;
@@ -1102,7 +1102,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
 * solution is selected. Then the 26 positions of R2 are tried. The best solution is selected.
 * 
 * However, this frequently does not result in the optimal solutions, since it does not take into 
-* account allowed Waltzen combinations, allowed by the inner working of the Enigma. 
+* account allowed Walzen combinations, allowed by the inner working of the Enigma. 
 * This improved version simulates the allowed Walzen combinations.
 * 
 \**************************************************************************************************/
