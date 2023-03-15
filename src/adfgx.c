@@ -5,7 +5,7 @@
 char* adfgxPlain;
 int * adfgxNormPlain;
 int * adfgxTransposed;
-int * adfgxNormCypher;
+int * adfgxNormCipher;
 int * adfgxKey;
 int * adfgxKeyOrder;
 int * adfgxKeyIndex;
@@ -19,8 +19,8 @@ char adfgxMatrix[5][5]=
     {'Q', 'R', 'S', 'T', 'U'},
     {'V', 'W', 'X', 'Y', 'Z'},
 };
-int adfgxNormCypherLength;
-int adfgxMaxCypherLength;
+int adfgxNormCipherLength;
+int adfgxMaxCipherLength;
 
 void quicksort(int* source, int* target, int first, int last)
 {
@@ -62,23 +62,23 @@ void quicksort(int* source, int* target, int first, int last)
    }
 }
 
-void adfgxAlloc(int keySize, int cypherSize)
+void adfgxAlloc(int keySize, int cipherSize)
 {
     int rows;
     
     
-    rows=cypherSize/keySize;
-    if (cypherSize/keySize!=0)
+    rows=cipherSize/keySize;
+    if (cipherSize/keySize!=0)
     {
         rows++;
     }
-    adfgxMaxCypherLength=rows*keySize;
+    adfgxMaxCipherLength=rows*keySize;
     
-    adfgxPlain              =malloc(adfgxMaxCypherLength)+1;
-    adfgxPlain[cypherSize/2]=0;
-    adfgxNormPlain          =malloc(adfgxMaxCypherLength/2*sizeof(int));
-    adfgxTransposed         =malloc(adfgxMaxCypherLength*sizeof(int));
-    adfgxNormCypher         =malloc(adfgxMaxCypherLength*sizeof(int));
+    adfgxPlain              =malloc(adfgxMaxCipherLength)+1;
+    adfgxPlain[cipherSize/2]=0;
+    adfgxNormPlain          =malloc(adfgxMaxCipherLength/2*sizeof(int));
+    adfgxTransposed         =malloc(adfgxMaxCipherLength*sizeof(int));
+    adfgxNormCipher         =malloc(adfgxMaxCipherLength*sizeof(int));
     adfgxKey                =malloc(keySize*sizeof(int));
     adfgxKeyIndex           =malloc(keySize*sizeof(int));
     adfgxKeyOrder           =malloc(keySize*sizeof(int));
@@ -92,7 +92,7 @@ void adfgxFree()
     free(adfgxPlain);
     free(adfgxNormPlain);
     free(adfgxTransposed);
-    free(adfgxNormCypher);
+    free(adfgxNormCipher);
     free(adfgxKeyIndex);
     free(adfgxKeyOrder);
     free(adfgxRowsPerCol);
@@ -125,8 +125,8 @@ char* adfgxDecrypt(char* key, int keyLength)
     i=0;
     while (i<keyLength)
     {
-        adfgxRowsPerCol[i]=adfgxNormCypherLength/keyLength;
-        if (adfgxKeyIndex[i]<adfgxNormCypherLength%keyLength)
+        adfgxRowsPerCol[i]=adfgxNormCipherLength/keyLength;
+        if (adfgxKeyIndex[i]<adfgxNormCipherLength%keyLength)
         {
             adfgxRowsPerCol[i]++;
         }
@@ -142,8 +142,8 @@ char* adfgxDecrypt(char* key, int keyLength)
         i++;
     }
     
-    rows=adfgxNormCypherLength/keyLength;
-    if (adfgxNormCypherLength%keyLength!=0)
+    rows=adfgxNormCipherLength/keyLength;
+    if (adfgxNormCipherLength%keyLength!=0)
     {
         rows++;
     }
@@ -154,14 +154,14 @@ char* adfgxDecrypt(char* key, int keyLength)
         col=0;
         while (col<keyLength)
         {
-            adfgxTransposed[row*keyLength+col]=adfgxNormCypher[adfgxCumRowsPerCol[adfgxKeyOrder[col]]+row];
+            adfgxTransposed[row*keyLength+col]=adfgxNormCipher[adfgxCumRowsPerCol[adfgxKeyOrder[col]]+row];
             col++;
         }
         row++;
     }
     
     i=0;
-    while (i<adfgxNormCypherLength)
+    while (i<adfgxNormCipherLength)
     {
         row=adfgxTransposed[i];
         col=adfgxTransposed[i+1];
@@ -173,42 +173,42 @@ char* adfgxDecrypt(char* key, int keyLength)
     return adfgxPlain;
 }
 
-void adfgxNormalizeCypher(char* cypher, int cypherLength)
+void adfgxNormalizeCipher(char* cipher, int cipherLength)
 {
     int i;
     i=0;
-    while (i<cypherLength)
+    while (i<cipherLength)
     {
-        switch(cypher[i])
+        switch(cipher[i])
         {
             case 'A':
-                adfgxNormCypher[i]=0;
+                adfgxNormCipher[i]=0;
                 break;
             case 'D':
-                adfgxNormCypher[i]=1;
+                adfgxNormCipher[i]=1;
                 break;
             case 'F':
-                adfgxNormCypher[i]=2;
+                adfgxNormCipher[i]=2;
                 break;
             case 'G':
-                adfgxNormCypher[i]=3;
+                adfgxNormCipher[i]=3;
                 break;
             case 'X':
-                adfgxNormCypher[i]=4;
+                adfgxNormCipher[i]=4;
                 break;
         }
         i++;
     }
-    adfgxNormCypherLength=cypherLength;
+    adfgxNormCipherLength=cipherLength;
 }
 
-void adfgxDenormalizeCypher(int* cypher)
+void adfgxDenormalizeCipher(int* cipher)
 {
     int i;
     i=0;
-    while (i<adfgxNormCypherLength)
+    while (i<adfgxNormCipherLength)
     {
-        switch(cypher[i])
+        switch(cipher[i])
         {
             case 0:
                 adfgxPlain[i]='A';
@@ -245,7 +245,7 @@ float adfgxIndexOfCoincidence()
     int     iocCharCount[25];
     int     plainTextSize;
     
-    plainTextSize=adfgxNormCypherLength/2;
+    plainTextSize=adfgxNormCipherLength/2;
     
     c=0;
     while (c<25)
@@ -278,9 +278,9 @@ void adfgxDump()
 {
     int i;
     i=0;
-    while (i<adfgxNormCypherLength)
+    while (i<adfgxNormCipherLength)
     {
-        printf("%d %d - ", adfgxNormCypher[i], adfgxNormCypher[i+1]);
+        printf("%d %d - ", adfgxNormCipher[i], adfgxNormCipher[i+1]);
         i+=2;
     }
     printf("\n");
@@ -290,7 +290,7 @@ void adfgxDumpPlain()
 {
     int i;
     i=0;
-    while (i<adfgxNormCypherLength/2)
+    while (i<adfgxNormCipherLength/2)
     {
         printf("%d ", adfgxNormPlain[i]);
         i++;

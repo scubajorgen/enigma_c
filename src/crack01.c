@@ -901,7 +901,7 @@ void message10()
     i=0;
     while (i<numOfThreads)
     {
-		iocWorkItems[i*2].cypher            =text10;
+		iocWorkItems[i*2].cipher            =text10;
         iocWorkItems[i*2].permutations      =permutations;
         iocWorkItems[i*2].startPermutation  =i*length/numOfThreads;
         iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads;
@@ -909,12 +909,12 @@ void message10()
         iocWorkItems[i*2].endR2             =1;
         iocWorkItems[i*2].startR3           =1;
         iocWorkItems[i*2].endR3             =MAX_POSITIONS;
-        iocWorkItems[i*2].maxCypherChars    =250;
+        iocWorkItems[i*2].maxCipherChars    =250;
         strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
         dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i*2]);
 
         
-		iocWorkItems[i*2+1].cypher          =text10;
+		iocWorkItems[i*2+1].cipher          =text10;
         iocWorkItems[i*2+1].permutations    =permutations;
         iocWorkItems[i*2+1].startPermutation=i*length/numOfThreads;
         iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads;
@@ -922,7 +922,7 @@ void message10()
         iocWorkItems[i*2+1].endR2           =1;
         iocWorkItems[i*2+1].startR3         =1;
         iocWorkItems[i*2+1].endR3           =MAX_POSITIONS;
-        iocWorkItems[i*2+1].maxCypherChars  =250;
+        iocWorkItems[i*2+1].maxCipherChars  =250;
         strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
         dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i*2+1]);        
         i++;
@@ -945,7 +945,7 @@ void message10()
     i=0;
     while (i<numOfThreads)
     {
-		iocWorkItems[i].cypher              =text10;
+		iocWorkItems[i].cipher              =text10;
         iocWorkItems[i].permutations        =permutations;
         iocWorkItems[i].startPermutation    =23;
         iocWorkItems[i].endPermutation      =24;
@@ -953,7 +953,7 @@ void message10()
         iocWorkItems[i].endR2               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
         iocWorkItems[i].startR3             =1;
         iocWorkItems[i].endR3               =MAX_POSITIONS;
-        iocWorkItems[i].maxCypherChars      =MAX_TEXT;
+        iocWorkItems[i].maxCipherChars      =MAX_TEXT;
         strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
 
         i++;

@@ -2,13 +2,13 @@
 ## Introduction
 ### Purpose
 This code simulates the Engima M3 and M4 encryption machine the Germans used during WWII.
-I wrote this software to study the Enigma and try to crack its cyphers. It
+I wrote this software to study the Enigma and try to crack its ciphers. It
 is not meant as a user friendly program and requires C programming skills.
 
 ![](https://www.stephenpeek.co.uk/enigma_machines/enigma_machine/enigma_machine_large.jpg)
 Engima M3 (picture link from site https://www.stephenpeek.co.uk)
 
-The core of the software is mainly intended for research and to be used to break Enigma encoded cyphers and study its workings. It is intended for **software devolopers who are familiar with the C language**. To show its workings, a lot of examples are provide which can be run from the menu. It is not intended as some stand alone end user tool. 
+The core of the software is mainly intended for research and to be used to break Enigma encoded ciphers and study its workings. It is intended for **software devolopers who are familiar with the C language**. To show its workings, a lot of examples are provide which can be run from the menu. It is not intended as some stand alone end user tool. 
 
 ### Performance
 My first implementation was in Java (https://github.com/scubajorgen/enigma). Though nowadays Java is my favorite language, its performance was poor for some brute forcing because of the nature of the language. 
@@ -66,27 +66,27 @@ TO DO: convert Ringstellung to change the lookup-tables in order to save more ca
 
 ## Cracking ciphers: Turing method
 
-The software implements the method used by Alan Turing to crack the German encoded messages using 'the Bombe'. It assumes a piece of plain text (the crib) that corresponds to part of the cypher text. The software creates the letter links (the menu) and finds all loops in it. It then finds the rotor settings and start position that fullfills the loops.
+The software implements the method used by Alan Turing to crack the German encoded messages using 'the Bombe'. It assumes a piece of plain text (the crib) that corresponds to part of the cipher text. The software creates the letter links (the menu) and finds all loops in it. It then finds the rotor settings and start position that fullfills the loops.
 Refer to http://www.rutherfordjournal.org/article030108.html for a good description.
 
 The Turing Bombe crack:
 
-    turingBombe("CYPHERTEXT", "CRIB", 1);
+    turingBombe("CIPHERTEXT", "CRIB", 1);
 
 Note:
-* Pass the cypher text and the crib as uppercase! 
-* Crib length shall not exceed cypher text length. 
+* Pass the cipher text and the crib as uppercase! 
+* Crib length shall not exceed cipher text length. 
 * Crib size should not exceed 26 characters or the loop number will explode. Space is not allocated dynamically, so arrays will get out of bounds
-* The crib start must correspond to position 0 of the cypher. 
+* The crib start must correspond to position 0 of the cipher. 
 * To use multi core processors increase the number of threads (3rd parameter) to 2, 3 or 4. The routine parses all 60 permutations of 5 rotors and subdivides the work amongst the threads.
 
 Or simply, for a working example:
 
     turingExample();
 
-The software results in all rotor settings that result in the loops defined by the cypher en crib.
+The software results in all rotor settings that result in the loops defined by the cipher en crib.
 
-## Cracking cyphers: Index of Coincidence - James Gillogly
+## Cracking ciphers: Index of Coincidence - James Gillogly
 ### The method
 James Gillogly presented a method for finding the rotor settings and the steckers using the '_Index of Coincidence_' (IoC).
 It uses the fact that letter frequency in plain text isn't random. He uses the index of coincidence as measure of 'non-randomness'. The Gillogly method consists of following steps:
@@ -134,7 +134,7 @@ Assume Ringstellung R3=2 and Grundstellung G3=5 and you assume R3=1 you most pro
 
 As an alternative for finding the steckers a method that scores the decoded text using trigrams. The method is described by [this article](https://cryptocellar.org/pubs/bgac.pdf).
 After finding the rotor settings and first steckers using the Gillogly method, the method succeeds better in fining the final steckers. It scores each trigram in the decoded text with the chance of this trigram occuring in average plain text. The more the decoded text approaches plain text, the higher the score. 
-Whereas the Gillogly requires large cyphers, this ngram method performs better for shorter cyphers. The method is implemented in 
+Whereas the Gillogly requires large ciphers, this ngram method performs better for shorter ciphers. The method is implemented in 
 
     exampleNgram();
 

@@ -407,7 +407,7 @@ void test06()
 {
     LinkedLetters* link;
     
-    turingGenerateLetterLinks("ENIGMAP","NIEMAGE");
+    turingGenerateLetterLinks("ENIGMAP","NIEMAGE", 0);
     
     link=&menu['E'-'A'];
     assertIntEquals("turing",  1,   3, link->numOfLinks);
@@ -420,16 +420,121 @@ void test06()
      
     // ENIGMAPN
     // NPPMAGEI
-    turingFindLoops("ENIGMAPN","NPPMAGEI"); 
+    turingFindLoops("ENIGMAPN","NPPMAGEI", 0); 
     assertIntEquals("turing",  8, 2, cribCircleSet['A'-'A'].numOfCircles);
     assertIntEquals("turing",  9, 0, cribCircleSet['B'-'A'].numOfCircles);
     assertIntEquals("turing", 10, 4, cribCircleSet['E'-'A'].numOfCircles);
 
     assertStringEquals("turing", 11, "AMGA", cribCircleSet['A'-'A'].cribCircles[0].orgChars);
     assertStringEquals("turing", 12, "AGMA", cribCircleSet['A'-'A'].cribCircles[1].orgChars);
-        
 }
 
+void test06b()
+{
+    LinkedLetters* link;
+
+    // Pos  123456789012
+    // Text PQRSABCCHIJK
+    // Crib     CABAP
+    turingGenerateLetterLinks("PQRSABCCHIJK","CABAP", 4);
+
+    link=&menu['A'-'A'];
+    assertIntEquals("tur menu",  1,   3, link->numOfLinks);
+    assertIntEquals("tur menu",  2,   5, link->links[0].position);
+    assertIntEquals("tur menu",  3, 'C', link->links[0].letter);
+    assertIntEquals("tur menu",  4,   6, link->links[1].position);
+    assertIntEquals("tur menu",  5, 'B', link->links[1].letter);
+    assertIntEquals("tur menu",  6,   8, link->links[2].position);
+    assertIntEquals("tur menu",  7, 'C', link->links[2].letter);
+
+    link=&menu['B'-'A'];
+    assertIntEquals("tur menu",  8,   2, link->numOfLinks);
+    assertIntEquals("tur menu",  9,   6, link->links[0].position);
+    assertIntEquals("tur menu", 10, 'A', link->links[0].letter);
+    assertIntEquals("tur menu", 11,   7, link->links[1].position);
+    assertIntEquals("tur menu", 12, 'C', link->links[1].letter);
+
+    link=&menu['C'-'A'];
+    assertIntEquals("tur menu", 13,   3, link->numOfLinks);
+    assertIntEquals("tur menu", 14,   5, link->links[0].position);
+    assertIntEquals("tur menu", 15, 'A', link->links[0].letter);
+    assertIntEquals("tur menu", 16,   7, link->links[1].position);
+    assertIntEquals("tur menu", 17, 'B', link->links[1].letter);
+    assertIntEquals("tur menu", 18,   8, link->links[2].position);
+    assertIntEquals("tur menu", 19, 'A', link->links[2].letter);
+
+    link=&menu['H'-'A'];
+    assertIntEquals("tur menu", 20,   1, link->numOfLinks);
+    assertIntEquals("tur menu", 21,   9, link->links[0].position);
+    assertIntEquals("tur menu", 22, 'P', link->links[0].letter);
+
+    link=&menu['P'-'A'];
+    assertIntEquals("tur menu", 23,   1, link->numOfLinks);
+    assertIntEquals("tur menu", 24,   9, link->links[0].position);
+    assertIntEquals("tur menu", 25, 'H', link->links[0].letter);
+
+    link=&menu['Z'-'A'];
+    assertIntEquals("tur menu", 26,   0, link->numOfLinks);
+}
+
+void test06c()
+{
+    // Array 012345678901
+    // Text  PQRSABCCHIJK
+    // Crib      CABAP
+    // Pos   123456789012
+    turingFindLoops("PQRSABCCHIJK","CABAP", 4);
+
+    assertIntEquals     ("tur loops",  1, 6, cribCircleSet['A'-'A'].numOfCircles);
+    assertIntEquals     ("tur loops",  2, 4, cribCircleSet['B'-'A'].numOfCircles);
+    assertIntEquals     ("tur loops",  3, 6, cribCircleSet['C'-'A'].numOfCircles);
+    assertIntEquals     ("tur loops",  4, 0, cribCircleSet['D'-'A'].numOfCircles);
+
+    assertStringEquals  ("tur loops",  5, "ACBA", cribCircleSet['A'-'A'].cribCircles[0].orgChars);
+    assertStringEquals  ("tur loops",  6, "ACA" , cribCircleSet['A'-'A'].cribCircles[1].orgChars);
+
+    assertIntEquals     ("tur loops",  7, 3, cribCircleSet['A'-'A'].cribCircles[0].circleSize);
+    assertIntEquals     ("tur loops",  8, 5, cribCircleSet['A'-'A'].cribCircles[0].advances[0]);
+    assertIntEquals     ("tur loops",  9, 7, cribCircleSet['A'-'A'].cribCircles[0].advances[1]);
+    assertIntEquals     ("tur loops", 10, 6, cribCircleSet['A'-'A'].cribCircles[0].advances[2]);
+
+
+    // Array 012345678901
+    // Text  PQRSTAWDQUJWPQR
+    // Crib       WDQUJW
+    // Pos   123456789012
+    turingFindLoops("PQRSTAWDQUJWPQR", "WDQUJW", 5);
+
+    Enigma* enigma=createEnigmaM3();
+    placeWalze(enigma, 1, "I");
+    placeWalze(enigma, 2, "II");
+    placeWalze(enigma, 3, "III");
+    
+    placeUmkehrWalze(enigma, "UKW B");
+    clearSteckerBrett(enigma);
+    
+    setRingStellung(enigma, 1, 'A');
+    setRingStellung(enigma, 2, 'A');
+    setRingStellung(enigma, 3, 'A');  
+
+    SteckeredChars* chars;
+    int             found;
+    chars   =createSteckeredChars();
+    found   =turingValidateHypotheses(enigma, 5, 20, 12, chars);
+    assertIntEquals     ("tur loops", 11, 1, found);
+
+    found=turingValidateTheSteckeredValues(chars);
+    assertIntEquals     ("tur loops", 12, 1, found);
+    free(chars);
+
+    chars   =createSteckeredChars();
+    found   =turingValidateHypotheses(enigma, 5, 20, 1, chars);
+    assertIntEquals     ("tur loops", 13, 1, found);
+
+    found=turingValidateTheSteckeredValues(chars);
+    assertIntEquals     ("tur loops", 14, 0, found);
+    free(chars);
+}
 
 /**************************************************************************************************\
 * 
@@ -753,6 +858,8 @@ int main()
     test09();
     test10();
     test11();
+    test06b();
+    test06c();
     test12();
     
     return 0;

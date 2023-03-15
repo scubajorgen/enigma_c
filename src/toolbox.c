@@ -376,10 +376,10 @@ LinkedList* createRotorPermutations(int numberOfWalzen, int numberToChooseFrom)
 
 /**************************************************************************************************\
 * 
-* Print cypher nicely formated
+* Print cipher nicely formated
 * 
 \**************************************************************************************************/
-void printCypher(char* cypher)
+void printCipher(char* cipher)
 {
   int i;
   int printed;
@@ -387,11 +387,11 @@ void printCypher(char* cypher)
   printf("# ");
   i=0;
   printed=0;
-  while(i<strlen(cypher))
+  while(i<strlen(cipher))
   {
-      if (cypher[i]!=' ')
+      if (cipher[i]!=' ')
       {
-          printf("%c", cypher[i]);
+          printf("%c", cipher[i]);
           printed++;
 
       if (printed%5==0)

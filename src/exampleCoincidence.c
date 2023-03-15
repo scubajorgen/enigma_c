@@ -475,7 +475,7 @@ void iocExample00()
 
     setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings01.cypher, 6);
+    iocDecodeText(iocExampleSettings01.cipher, 6);
 }
 
 /**************************************************************************************************\
@@ -490,7 +490,7 @@ void iocExample01A()
 
     setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings01_2.cypher, 6);
+    iocDecodeText(iocExampleSettings01_2.cipher, 6);
 }
 
 /**************************************************************************************************\
@@ -505,7 +505,7 @@ void iocExample01B()
 
     setEvaluationMethod(METHOD_IOC_R3, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings01_2.cypher, 6);
+    iocDecodeText(iocExampleSettings01_2.cipher, 6);
 }
 
 /**************************************************************************************************\
@@ -520,7 +520,7 @@ void iocExample01C()
 
     setEvaluationMethod(METHOD_IOC_R2R3, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings01_3.cypher, 6);
+    iocDecodeText(iocExampleSettings01_3.cipher, 6);
 }
 
 
@@ -536,7 +536,7 @@ void iocExample02A()
 
     setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings02.cypher, 6);
+    iocDecodeText(iocExampleSettings02.cipher, 6);
 }
 
 /**************************************************************************************************\
@@ -550,7 +550,7 @@ void iocExample07A()
 
     setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings07.cypher, 10);
+    iocDecodeText(iocExampleSettings07.cipher, 10);
 }
 
 /**************************************************************************************************\
@@ -564,7 +564,7 @@ void iocExample07B()
 
     setEvaluationMethod(METHOD_IOC_R3, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings07.cypher, 10);
+    iocDecodeText(iocExampleSettings07.cipher, 10);
 }
 
 /**************************************************************************************************\
@@ -579,7 +579,7 @@ void iocExample03C()
 
     setEvaluationMethod(METHOD_IOC_R2R3, 10, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings03.cypher, 6);
+    iocDecodeText(iocExampleSettings03.cipher, 6);
 }
 
 
@@ -604,7 +604,7 @@ void iocExampleDeep2()
     // Start with 5 Wehrmacht rotors
     permutations=createRotorPermutations(3, 5);
 
-    iocWorkItems[0].cypher            =settings->cypher;
+    iocWorkItems[0].cipher            =settings->cipher;
     iocWorkItems[0].permutations      =permutations;
     iocWorkItems[0].startPermutation  =40;
     iocWorkItems[0].endPermutation    =40;
@@ -613,7 +613,7 @@ void iocExampleDeep2()
     iocWorkItems[0].endR2             =24;
     iocWorkItems[0].startR3           =15;
     iocWorkItems[0].endR3             =15;
-    iocWorkItems[0].maxCypherChars    =MAX_TEXT;
+    iocWorkItems[0].maxCipherChars    =MAX_TEXT;
 
     
     strncpy(iocWorkItems[0].ukw, "UKW C", MAX_ROTOR_NAME);
@@ -646,7 +646,7 @@ void iocExampleNgram()
     // Start with 5 Wehrmacht rotors
     permutations=createRotorPermutations(3, 5);
 
-    iocWorkItems[0].cypher            =settings->cypher;
+    iocWorkItems[0].cipher            =settings->cipher;
     iocWorkItems[0].permutations      =permutations;
     iocWorkItems[0].startPermutation  =40;
     iocWorkItems[0].endPermutation    =40;
@@ -655,7 +655,7 @@ void iocExampleNgram()
     iocWorkItems[0].endR2             =24;
     iocWorkItems[0].startR3           =15;
     iocWorkItems[0].endR3             =15;
-    iocWorkItems[0].maxCypherChars    =MAX_TEXT;
+    iocWorkItems[0].maxCipherChars    =MAX_TEXT;
 
     
     strncpy(iocWorkItems[0].ukw, "UKW C", MAX_ROTOR_NAME);

@@ -1,7 +1,7 @@
 /**************************************************************************************************\
 * 
 * This file implements the method turing used to crack enigma encoded messages. It assumes a crib:
-* a cypher text with corresponding plain text. Both are transformed into a 'menu' containing
+* a cipher text with corresponding plain text. Both are transformed into a 'menu' containing
 * 'crib circles' or 'loops'. Crib circles are used validate hypotheses regarding the steckered
 * letters: a the hypothesis proves right if the steckered value used as input generates 
 * the same value as output when traversing the loop.
@@ -51,12 +51,12 @@ LinkedList*         permutations;
 int                 mallocs=0;
 int                 stepMax=0;
 
-char*               turingBombeCypher;
+char*               turingBombeCipher;
 
 
 /**************************************************************************************************\
 * 
-* 
+* Creates a CribCircle instance
 * 
 \**************************************************************************************************/
 CribCircle* createCircle()
@@ -65,15 +65,13 @@ CribCircle* createCircle()
     
     circle              =malloc(sizeof(CribCircle));
     circle->circleSize  =0;
-    
     mallocs++;
-    
     return circle;
 }
 
 /**************************************************************************************************\
 * 
-* 
+* Destroys a CribCricle instance
 * 
 \**************************************************************************************************/
 void destroyCircle(CribCircle* circle)
@@ -108,7 +106,7 @@ void dumpMenu()
 
 /**************************************************************************************************\
 * 
-* 
+* Debugging: show a CribCircle
 * 
 \**************************************************************************************************/
 void dumpCircle(CribCircle* circle)
@@ -126,7 +124,7 @@ void dumpCircle(CribCircle* circle)
 
 /**************************************************************************************************\
 * 
-* 
+* Debugging: show all CribCricles in the set
 * 
 \**************************************************************************************************/
 void dumpSets()
@@ -155,36 +153,47 @@ void dumpSets()
 /**************************************************************************************************\
 * 
 * Makes an inventory of the links between any two letters in the text and crib
+* text: cipher text
+* crib: piece of plain text that corresponds with the cipher
+* cribStartPosition: array position of the crib with respect to the cipher
 * 
 \**************************************************************************************************/
-void turingGenerateLetterLinks(char* text, char* crib)
+void turingGenerateLetterLinks(char* text, char* crib, int cribStartPosition)
 {
     int pos;
     int index1;
     int index2;
     
-    // Reset links
-    pos=0;
-    while (pos<MAX_POSITIONS)
+    if (strlen(text)>=cribStartPosition+strlen(crib))
     {
-        menu[pos].letter       ='A'+pos;
-        menu[pos].numOfLinks   =0;
-        pos++;
-    }
-    
-    pos=0;
-    while (pos<strlen(crib))
-    {
-        index1=text[pos]-'A';
-        index2=crib[pos]-'A';
+        // Reset links
+        pos=0;
+        while (pos<MAX_POSITIONS)
+        {
+            menu[pos].letter       ='A'+pos;
+            menu[pos].numOfLinks   =0;
+            pos++;
+        }
         
-        menu[index1].links[menu[index1].numOfLinks].letter      =crib[pos];
-        menu[index1].links[menu[index1].numOfLinks].position    =pos+1;
-        menu[index1].numOfLinks++;
-        menu[index2].links[menu[index2].numOfLinks].letter      =text[pos];
-        menu[index2].links[menu[index2].numOfLinks].position    =pos+1;
-        menu[index2].numOfLinks++;
-        pos++;
+        // Build the menu
+        pos=0;
+        while (pos<strlen(crib))
+        {
+            index1=text[pos+cribStartPosition]-'A';
+            index2=crib[pos]-'A';
+            
+            menu[index1].links[menu[index1].numOfLinks].letter      =crib[pos];
+            menu[index1].links[menu[index1].numOfLinks].position    =pos+cribStartPosition+1;
+            menu[index1].numOfLinks++;
+            menu[index2].links[menu[index2].numOfLinks].letter      =text[pos+cribStartPosition];
+            menu[index2].links[menu[index2].numOfLinks].position    =pos+cribStartPosition+1;
+            menu[index2].numOfLinks++;
+            pos++;
+        }
+    }
+    else
+    {
+        printf("Crib exceeds text; not allowed\n");
     }
 }
 
@@ -319,14 +328,14 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
 * is smaller than or equal to text length
 * 
 \**************************************************************************************************/
-void turingFindLoops(char* text, char* crib)
+void turingFindLoops(char* text, char* crib, int cribStartPosition)
 {
     int c;
     
     if (strlen(text)>=strlen(crib))
     {
         // create the menu (the letter links)
-        turingGenerateLetterLinks(text, crib);
+        turingGenerateLetterLinks(text, crib, cribStartPosition);
        
         stepMax=0;
         c=0;
@@ -379,14 +388,14 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
     // there is a character (hypothesis) that fullfills 
     // all circles in the set. 
     // Parse the sets
-    found=1;
+    found   =1;
     theFound=1;
-    set=0;
+    set     =0;
     while (set<MAX_POSITIONS && theFound)
     {
         theSet=&cribCircleSet[set];
         
-        if (theSet->numOfCircles>2)
+        if (theSet->numOfCircles>0)
         {
             // Choose a character c and check whether
             // the output of each circle in th set results 
@@ -691,7 +700,7 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
                                 if (found)
                                 {
                                     settings.numberOfRotors     =3;
-                                    strncpy(settings.cypher, turingBombeCypher, MAX_TEXT-1);
+                                    strncpy(settings.cipher, turingBombeCipher, MAX_TEXT-1);
                                     strncpy(settings.rotors[0], w1, MAX_ROTOR_NAME);
                                     strncpy(settings.rotors[1], w2, MAX_ROTOR_NAME);
                                     strncpy(settings.rotors[2], w3, MAX_ROTOR_NAME);
@@ -770,23 +779,23 @@ void turingFinishFunction(void* params)
 /**************************************************************************************************\
 * 
 * Implements the Turing Bombe
-* cypher        : cypher string, upper case!!
-* crib          : crib, upper case. Length must be shorter than cypher and not to long 
+* cipher        : cipher string, upper case!!
+* crib          : crib, upper case. Length must be shorter than cipher and not to long 
 *                 to prevent stack overflow
 * numOfThreads  : Use multiple threads to use multi processor cores. Rotor combinations are 
 *                 split up amongst the threads. Number of permutations (60) should be divisable by 
 *                 this number. Hence 1, 2, 3, 4, 5, 6, 10 will do.
 * 
 \**************************************************************************************************/
-void turingBombe(char* cypher, char* crib, int numOfThreads)
+void turingBombe(char* cipher, char* crib, int numOfThreads)
 {
     int         w;
     int         numberOfPermutations;
     int         workItems;
 
-    turingBombeCypher=cypher;
+    turingBombeCipher=cipher;
 
-    turingFindLoops(cypher, crib);
+    turingFindLoops(cipher, crib, 0);
 
     // Choose from the 5 wehrmacht walzen on an M3 Enigma   
     permutations=createRotorPermutations(3, 5);

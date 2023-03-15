@@ -292,8 +292,8 @@ void theThirdProblem()
     i=0;
     while (i<numOfThreads)
     {
-//        iocWorkItems[i].cypher            =textGC6ZZBB;
-        iocWorkItems[i].cypher            =replyGC6ZZBB;
+//        iocWorkItems[i].cipher            =textGC6ZZBB;
+        iocWorkItems[i].cipher            =replyGC6ZZBB;
         iocWorkItems[i].permutations      =permutations;
         iocWorkItems[i].startPermutation  =i*length/numOfThreads;
         iocWorkItems[i].endPermutation    =(i+1)*length/numOfThreads-1;
@@ -302,7 +302,7 @@ void theThirdProblem()
         iocWorkItems[i].endR2             =1;
         iocWorkItems[i].startR3           =1;
         iocWorkItems[i].endR3             =1;
-        iocWorkItems[i].maxCypherChars    =MAX_TEXT;
+        iocWorkItems[i].maxCipherChars    =MAX_TEXT;
         strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
         dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]);
         i++;
@@ -336,7 +336,7 @@ void theThirdProblem()
     i=0;
     while (i<numOfThreads)
     {
-        iocWorkItems[i].cypher            =textGC6ZZBB;
+        iocWorkItems[i].cipher            =textGC6ZZBB;
         iocWorkItems[i].permutations      =permutations;
         iocWorkItems[i].startPermutation  =47;
         iocWorkItems[i].endPermutation    =47;
@@ -345,7 +345,7 @@ void theThirdProblem()
         iocWorkItems[i].endR2             =1;
         iocWorkItems[i].startR3           =1;
         iocWorkItems[i].endR3             =1;
-        iocWorkItems[i].maxCypherChars    =MAX_TEXT;
+        iocWorkItems[i].maxCipherChars    =MAX_TEXT;
         strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
         i++;
     }
@@ -370,13 +370,13 @@ void theThirdProblem()
     i=0;
     while (i<numOfThreads)
     {
-		iocWorkItems[i].cypher              =textGC6ZZBB;
+		iocWorkItems[i].cipher              =textGC6ZZBB;
         iocWorkItems[i].permutations        =permutations;
         iocWorkItems[i].startPermutation    =23;
         iocWorkItems[i].endPermutation      =23;
         iocWorkItems[i].startR2             =i*(MAX_POSITIONS-1)/numOfThreads+1;
         iocWorkItems[i].endR2               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
-        iocWorkItems[i].maxCypherChars      =MAX_TEXT;
+        iocWorkItems[i].maxCipherChars      =MAX_TEXT;
         strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
 
         i++;
@@ -410,8 +410,8 @@ void theFourthProblem()
     i=0;
     while (i<numOfThreads)
     {
-        iocWorkItems[i].cypher              =text11;
-//        iocWorkItems[i].cypher              =text11_test;
+        iocWorkItems[i].cipher              =text11;
+//        iocWorkItems[i].cipher              =text11_test;
         iocWorkItems[i].permutations        =permutations;
         iocWorkItems[i].startPermutation    =27;
         iocWorkItems[i].endPermutation      =27;
@@ -422,7 +422,7 @@ void theFourthProblem()
         iocWorkItems[i].endR3               =20;
 //        iocWorkItems[i].startR3             =i*(MAX_POSITIONS-1)/numOfThreads+1;
 //        iocWorkItems[i].endR3               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
-        iocWorkItems[i].maxCypherChars      =MAX_TEXT;
+        iocWorkItems[i].maxCipherChars      =MAX_TEXT;
         strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
         dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]);
         i++;

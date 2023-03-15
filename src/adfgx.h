@@ -1,7 +1,7 @@
 
 
-void    adfgxAlloc              (int keySize, int cypherSize);
+void    adfgxAlloc              (int keySize, int cipherSize);
 void    adfgxFree               ();
-void    adfgxNormalizeCypher    (char* cypher, int cypherLength);
+void    adfgxNormalizeCipher    (char* cipher, int cipherLength);
 char*   adfgxDecrypt            (char* key, int keyLength);
 float   adfgxIndexOfCoincidence ();

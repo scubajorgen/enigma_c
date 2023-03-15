@@ -41,6 +41,6 @@ int         linkedListLength        (LinkedList* list);
 void*       elementAt               (LinkedList* list, int index);
 void        permute                 (LinkedList* permutations, int elements[], int elementArraySize, int number, int start);
 LinkedList* createRotorPermutations (int numberOfWalzen, int numberToChooseFrom);
-void        printCypher             (char* cypher);
+void        printCipher             (char* cipher);
 
 #endif

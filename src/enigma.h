@@ -1,7 +1,7 @@
 /**************************************************************************************************\
 * 
 * This module implents the Enigma machine. It is optimized for performance required for cracking
-* enigma cyphers. All settings (A-Z, a-z) are translated to positions from 0-25 in tables, 
+* enigma ciphers. All settings (A-Z, a-z) are translated to positions from 0-25 in tables, 
 * encoding/decoding consists merely of lookup in tables
 *
 * Position : UKW   2       1     0
@@ -31,7 +31,7 @@ typedef struct
     int     ringStellungen[MAX_ROTORS];
     int     grundStellungen[MAX_ROTORS];
     char    steckers[MAX_STECKER_STRING];
-    char    cypher[MAX_TEXT];
+    char    cipher[MAX_TEXT];
 } EnigmaSettings;
 
 typedef struct 

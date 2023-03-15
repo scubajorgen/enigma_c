@@ -29,7 +29,7 @@
 #define MAX_TRIGRAMS        54
 #define MAX_NGRAMSETSIZE    5
 
-/** Defines the method for decrypting the engima cypher */
+/** Defines the method for decrypting the engima cipher */
 typedef struct
 {
     Method_t    method;                     // The method
@@ -943,15 +943,15 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
     long        count;
     time_t      now;
     LinkedList* permutations;
-    char*       cypher;
-    int         maxCypherChars;
+    char*       cipher;
+    int         maxCipherChars;
     char*       timeString;
     int         threadId;
 
 
     // The work item
-    cypher          =work->cypher;
-    maxCypherChars  =work->maxCypherChars;
+    cipher          =work->cipher;
+    maxCipherChars  =work->maxCipherChars;
     permutations    =work->permutations;
     start           =work->startPermutation;
     end             =work->endPermutation;
@@ -971,13 +971,13 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
         
     clearSteckerBrett(enigma);
 
-    setText(enigma, cypher);
+    setText(enigma, cipher);
 
-    // limit number of cypher characters to speed up work
+    // limit number of cipher characters to speed up work
     // 250 will do
-    if (enigma->textSize > maxCypherChars)
+    if (enigma->textSize > maxCipherChars)
     {
-        enigma->textSize=maxCypherChars;
+        enigma->textSize=maxCipherChars;
     }
 
     count       =0;
@@ -1051,7 +1051,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
                             {
                                 results->indexOfCoincidence         =ioc;
                                 results->settings.numberOfRotors    =3;
-                                strncpy(results->settings.cypher, cypher, MAX_TEXT-1);
+                                strncpy(results->settings.cipher, cipher, MAX_TEXT-1);
                                 strncpy(results->settings.rotors[0], walzen[permutation[0]], MAX_ROTOR_NAME-1);
                                 strncpy(results->settings.rotors[1], walzen[permutation[1]], MAX_ROTOR_NAME-1);
                                 strncpy(results->settings.rotors[2], walzen[permutation[2]], MAX_ROTOR_NAME-1);
@@ -1360,14 +1360,14 @@ void setWalzePermutations(LinkedList* permutations)
 
 /**************************************************************************************************\
 * 
-* Tries to decode a cypher only text. 
+* Tries to decode a cipher only text. 
 * Currently it assumes 
 * - an Enigma M3
 * - only Walzen I, II, III, IV and V
 * - Umkehr Walzen UKW B and UKW C
 * 
 \**************************************************************************************************/
-void iocDecodeText(char* cypher, int numOfThreads)
+void iocDecodeText(char* cipher, int numOfThreads)
 {
     int             i;
     int             length;
@@ -1386,7 +1386,7 @@ void iocDecodeText(char* cypher, int numOfThreads)
     i=0;
     while (i<numOfThreads)
     {
-        iocWorkItems[i*2].cypher                =cypher;
+        iocWorkItems[i*2].cipher                =cipher;
         iocWorkItems[i*2].permutations          =permutations;
         iocWorkItems[i*2].startPermutation      =i*length/numOfThreads;
         iocWorkItems[i*2].endPermutation        =(i+1)*length/numOfThreads-1;
@@ -1409,12 +1409,12 @@ void iocDecodeText(char* cypher, int numOfThreads)
         {
             iocWorkItems[i*2].endR3             =1;
         }
-        iocWorkItems[i*2].maxCypherChars        =MAX_TEXT;
+        iocWorkItems[i*2].maxCipherChars        =MAX_TEXT;
         strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
         dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i*2]);
 
         
-        iocWorkItems[i*2+1].cypher              =cypher;
+        iocWorkItems[i*2+1].cipher              =cipher;
         iocWorkItems[i*2+1].permutations        =permutations;
         iocWorkItems[i*2+1].startPermutation    =i*length/numOfThreads;
         iocWorkItems[i*2+1].endPermutation      =(i+1)*length/numOfThreads-1;
@@ -1437,7 +1437,7 @@ void iocDecodeText(char* cypher, int numOfThreads)
         {
             iocWorkItems[i*2+1].endR3           =1;
         }
-        iocWorkItems[i*2+1].maxCypherChars      =MAX_TEXT;
+        iocWorkItems[i*2+1].maxCipherChars      =MAX_TEXT;
         strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
         dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i*2+1]);
         i++;

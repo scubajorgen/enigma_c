@@ -2,7 +2,7 @@
 /**************************************************************************************************\
 * 
 * This file implements the method turing used to crack enigma encoded messages. It assumes a crib:
-* a cypher text with corresponding plain text. Both are transformed into a 'menu' containing
+* a cipher text with corresponding plain text. Both are transformed into a 'menu' containing
 * 'crib circles' or 'loops'. Crib circles are used validate hypotheses regarding the steckered
 * letters: a the hypothesis proves right if the steckered value used as input generates 
 * the same value as output when traversing the loop.
@@ -17,7 +17,7 @@
 typedef struct
 {
     char        letter;                     // Linked letter
-    int         position;                   // Rotor positions of the link (advances from start)
+    int         position;                   // Rotor positions of the link (advances from start of the cipher)
 } LetterLink;
 
 
@@ -34,8 +34,8 @@ typedef struct
 // Crib circle definition.
 typedef struct CribCircle
 {
-    int                 circleSize;                     // Number of steps in the circle
-    int                 advances    [MAX_CIRCLE_SIZE];    // Advances of the rotors per step
+    int                 circleSize;                         // Number of steps in the circle
+    int                 advances    [MAX_CIRCLE_SIZE];      // Advances of the rotors per step
     char                orgChars    [MAX_CIRCLE_SIZE+4];    // Original chars as in the text/crib
 //    char                foundChars  [MAX_CIRCLE_SIZE+4];    // Steckered chars 
 } CribCircle;
@@ -59,10 +59,13 @@ typedef struct
 extern LinkedLetters       menu[MAX_POSITIONS];
 extern CribCircleSet       cribCircleSet[MAX_POSITIONS];
 
+void            dumpSets                        ();
+void            dumpMenu                        ();
+SteckeredChars* createSteckeredChars            ();
+int             turingValidateHypotheses        (Enigma* enigma, int g1, int g2, int g3, SteckeredChars* chars);
+int             turingValidateTheSteckeredValues(SteckeredChars* chars);
 
-void    dumpSets                    ();
-void    dumpMenu                    ();
-
-void    turingGenerateLetterLinks   (char* text, char* crib);
-void    turingFindLoops             (char* text, char* crib);
-void    turingBombe                 (char* cypher, char* crib, int numOfThreads);
+// Public functions
+void            turingGenerateLetterLinks       (char* cipher, char* crib, int cribStartPosition);
+void            turingFindLoops                 (char* cipher, char* crib, int cribStartPosition);
+void            turingBombe                     (char* cipher, char* crib, int numOfThreads);

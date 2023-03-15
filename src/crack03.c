@@ -97,7 +97,7 @@ int permElements[]     ={'V', 'L', 'I', 'E', 'G', 'T', 'U', 'S', 'I', 'J'};
 
 void theSixthProblem()
 {
-    char*   cypher=sixthTest6;
+    char*   cipher=sixthTest6;
 
     int     keySize;
     int     i, j;
@@ -114,8 +114,8 @@ void theSixthProblem()
 //    char    maxKey[27];
 //    char    maxMaxKey[27];
     
-    adfgxAlloc(26, strlen(cypher));
-    adfgxNormalizeCypher(cypher, strlen(cypher));
+    adfgxAlloc(26, strlen(cipher));
+    adfgxNormalizeCipher(cipher, strlen(cipher));
     
     iocMaxMax=0;
     keySize  =8;
@@ -200,7 +200,7 @@ void theSixthProblem()
 
 void theSixthProblem2()
 {
-    char*   cypher=sixthTest6;
+    char*   cipher=sixthTest6;
 
     int     keySize;
     int     i, j;
@@ -213,8 +213,8 @@ void theSixthProblem2()
     int*            permutation;
     LinkedList*     permutations;
     
-    adfgxAlloc(26, strlen(cypher));
-    adfgxNormalizeCypher(cypher, strlen(cypher));
+    adfgxAlloc(26, strlen(cipher));
+    adfgxNormalizeCipher(cipher, strlen(cipher));
     
     
     iocMaxMax=0.0;
@@ -273,15 +273,15 @@ void theSixthProblem2()
 
 void theSixthTest()
 {
-    char*   cypher=sixthTest6;
+    char*   cipher=sixthTest6;
     char*   key   =sixthTestKeyword6;
     char*   plain;    
     
     printf("Key   : size %d %s\n", (int)strlen(key), key);
-    printf("Cypher: size %d %s\n", (int)strlen(cypher), cypher);
+    printf("Cipher: size %d %s\n", (int)strlen(cipher), cipher);
    
-    adfgxAlloc(strlen(key), strlen(cypher));
-    adfgxNormalizeCypher(cypher, strlen(cypher));
+    adfgxAlloc(strlen(key), strlen(cipher));
+    adfgxNormalizeCipher(cipher, strlen(cipher));
     plain=adfgxDecrypt(key, strlen(key)); 
     printf("Decrypt: %s\n\n", plain);
     

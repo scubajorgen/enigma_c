@@ -30,7 +30,7 @@ typedef enum
 
 typedef struct
 {
-    char*       cypher;                 // The Cypher
+    char*       cipher;                 // The Cipher
     LinkedList* permutations;           // List of Walzen permutations
     int         startPermutation;       // Permutation start
     int         endPermutation;         // permutation end; end included
@@ -39,7 +39,7 @@ typedef struct
     int         endR2;                  // RingStellung 2 end; end included
     int         startR3;                // RingStellung 3 start
     int         endR3;                  // RingStellung 3 end; end included
-    int         maxCypherChars;         // Part of the message to process; MAX_TEXT for full message
+    int         maxCipherChars;         // Part of the message to process; MAX_TEXT for full message
     char        ukw[MAX_ROTOR_NAME];    // UKW to use
     int         threadId;               // Thread ID, to be filled in by the trhead
 } IocWorkItem;
@@ -78,5 +78,5 @@ void    setWalzePermutations        (LinkedList* permutations);
 
 // Public methods
 void    setEvaluationMethod         (Method_t method, int maxSteckers, int maxSteckersIoc, int ngramSize, char* ngrams);
-void    iocDecodeText               (char* cypher, int numOfThreads);
+void    iocDecodeText               (char* cipher, int numOfThreads);
 

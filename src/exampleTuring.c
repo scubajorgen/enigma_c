@@ -55,10 +55,10 @@ void turingProve()
     printf("#####################################################################################\n\n");
 
     printf("            123456789012345678901234567890\n");    
-    printf("Cypher    : %s\n", turingTestSettings.cypher);
+    printf("Cipher    : %s\n", turingTestSettings.cipher);
     printf("Plain text: %s\n", turingCrib);
     
-    turingFindLoops(turingTestSettings.cypher, turingCrib);
+    turingFindLoops(turingTestSettings.cipher, turingCrib, 0);
     
     printf("\nMENU (LINKS)\n");
     dumpMenu();
@@ -125,7 +125,7 @@ void turingExample()
     printf("\n");
     printf("#####################################################################################\n");
     printf("# TURING BOMBE\n");
-    printf("# Cypher                    : %s\n",        turingTestSettings.cypher);
+    printf("# Cipher                    : %s\n",        turingTestSettings.cipher);
     printf("# Crib                      : %s\n",        turingCrib);
     printf("# Original Walzen           : %s %s %s\n",  turingTestSettings.rotors[0],
                                                         turingTestSettings.rotors[1], 
@@ -139,7 +139,7 @@ void turingExample()
     printf("# Original Steckers         : %s\n",        turingTestSettings.steckers);
     printf("#####################################################################################\n");
 
-    turingBombe(turingTestSettings.cypher, turingCrib, 4);
+    turingBombe(turingTestSettings.cipher, turingCrib, 4);
 }
 
 /**************************************************************************************************\

@@ -14,7 +14,7 @@
 void enigmaExampleM3()
 {
     char    someText[]="TEST MESSAGE ENCODED ON ENIGMA";
-    char*   cypher; 
+    char*   cipher; 
     char*   plain;
 
     printf("#####################################################################################\n");
@@ -39,11 +39,11 @@ void enigmaExampleM3()
     
     encodeDecode(enigma);
     
-    cypher=toString(enigma);
+    cipher=toString(enigma);
     
-    printf("Original  : %s \nCypher    : %s\n", someText, cypher);
+    printf("Original  : %s \nCipher    : %s\n", someText, cipher);
 
-    setText             (enigma, cypher);
+    setText             (enigma, cipher);
     
     setGrundStellungen  (enigma, "01 02 03");
     
@@ -64,7 +64,7 @@ void enigmaExampleM3()
 void enigmaExampleM4()
 {
     char    someText[]="TEST MESSAGE ENCODED ON ENIGMA";
-    char*   cypher; 
+    char*   cipher; 
     char*   plain;
 
     printf("#####################################################################################\n");
@@ -90,11 +90,11 @@ void enigmaExampleM4()
     
     encodeDecode(enigma);
     
-    cypher=toString(enigma);
+    cipher=toString(enigma);
     
-    printf("Original  : %s \nCypher    : %s\n", someText, cypher);
+    printf("Original  : %s \nCipher    : %s\n", someText, cipher);
 
-    setText             (enigma, cypher);
+    setText             (enigma, cipher);
     
     setGrundStellungen  (enigma, "01 02 03 04");
     
