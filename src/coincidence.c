@@ -897,7 +897,6 @@ void iocFindSteckeredCharsInline(Enigma* enigma, IocResults* results, int g1, in
     memcpy(results->steckerTable, steckerTable, MAX_POSITIONS*sizeof(int));
    
     results->indexOfCoincidence=maxIoc;
-        
 }
 
 /**************************************************************************************************\
@@ -919,7 +918,6 @@ void iocFindSteckeredCharsInline(Enigma* enigma, IocResults* results, int g1, in
 * Works for short messages and >5 steckers
 * 
 \**************************************************************************************************/
-
 void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
 {
     Enigma*     enigma;
@@ -1062,7 +1060,6 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
                                 results->settings.grundStellungen[0]=g1;
                                 results->settings.grundStellungen[1]=g2;
                                 results->settings.grundStellungen[2]=g3;
-                        
                                 mutexLock();
                                 iocMax=iocStoreResults(results);
                                 mutexUnlock();

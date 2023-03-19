@@ -23,7 +23,7 @@ typedef enum
     METHOD_IOC,             // James Gillogly, original described method, RING STELLUNG fixed to 1 1 1
     METHOD_IOC_R3,          // James Gillogly, RING STELLUNG R1 and R2 fixed, varying R3
     METHOD_IOC_R2R3,        // James Gillogly, RING STELLUNG R1 fixed, varying R2 and R3
-    METHOD_IOC_DEEP,        // Improved James Gillogly method
+    METHOD_IOC_DEEP,        // Improved James Gillogly method, also tries for each Steckers for each situation (brute force)
     METHOD_IOC_NGRAM        // Improved James Gillogly method combined with ngrams
 } Method_t;
 

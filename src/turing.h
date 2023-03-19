@@ -68,4 +68,4 @@ int             turingValidateTheSteckeredValues(SteckeredChars* chars);
 // Public functions
 void            turingGenerateLetterLinks       (char* cipher, char* crib, int cribStartPosition);
 void            turingFindLoops                 (char* cipher, char* crib, int cribStartPosition);
-void            turingBombe                     (char* cipher, char* crib, int numOfThreads);
+void            turingBombe                     (char* cipher, char* crib, int cribStartPosition, int numOfThreads);

@@ -358,6 +358,51 @@ void turingFindLoops(char* text, char* crib, int cribStartPosition)
 
 /**************************************************************************************************\
 * 
+* When we find a character that fulfills all cribs in the set, we know the counterpart in the 
+* crib: this is the one the character is steckered to. This not only holds for the character 
+* found, but also to all intermediate characters that are encountered when processing the crib:
+* they are steckered to the counterparts in the crib. This function find all steckers that can 
+* be derived in this way.
+* enigma        : enigma to use
+* g1, g2, g3    : grundstellung to start with
+* theSet        : the set of crib circles to process
+* theChar       : the character found
+* chars         : the array of steckered chars to update 
+* 
+\**************************************************************************************************/
+void processIntermediateChars(Enigma* enigma, int g1, int g2, int g3, CribCircleSet* theSet, int theChar, SteckeredChars* chars)
+{
+    int         circle;
+    int         e;
+    int         c;
+    int         encodedC;
+    CribCircle* cribCircle;
+
+    circle  =0;
+    while (circle<theSet->numOfCircles)
+    {
+        cribCircle=&theSet->cribCircles[circle];
+        c       =theChar;
+        e       =0;
+        while (e<cribCircle->circleSize)
+        {
+
+            encodedC=cribCircle->orgChars[e]-'A';
+            chars[encodedC].foundChar=c+'A';
+            setGrundStellung(enigma, 1, g1);
+            setGrundStellung(enigma, 2, g2);
+            setGrundStellung(enigma, 3, g3);
+            
+            advances(enigma, cribCircle->advances[e]);
+            c=encodeCharacter(enigma, c);
+            e++;
+        }
+        circle++;
+    }
+}
+
+/**************************************************************************************************\
+* 
 * Helper: for a given setting of the engima, test all loop hypotheses, i.e. check if for each 
 * subset of loops there is a steckered character that when following the loops results in the 
 * same output char; the subset is characterized that they start and end with the same 
@@ -384,7 +429,7 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
     int             theChar;    
     CribCircleSet*  theSet;
     
-    // We check if for each set of crib circles 
+    // We check if for each set of crib circles for each letter
     // there is a character (hypothesis) that fullfills 
     // all circles in the set. 
     // Parse the sets
@@ -410,7 +455,6 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
                 // hypothesis is rejected, proceed to next char
                 circle  =0;
                 found   =1;
-                theSet=&cribCircleSet[set];
                 while (circle<theSet->numOfCircles && found)
                 {
                     cribCircle=&theSet->cribCircles[circle];
@@ -437,7 +481,7 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
                 // for all circles in the set
                 if (found)
                 {
-                    chars[set].foundChar=c+'A';
+                    processIntermediateChars(enigma, g1, g2, g3, theSet, c, chars);
                     fc++;
                     if (fc>1)
                     {
@@ -453,6 +497,10 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
     
     return theFound;
 }
+
+
+
+
 
 
 /**************************************************************************************************\
@@ -779,15 +827,16 @@ void turingFinishFunction(void* params)
 /**************************************************************************************************\
 * 
 * Implements the Turing Bombe
-* cipher        : cipher string, upper case!!
-* crib          : crib, upper case. Length must be shorter than cipher and not to long 
-*                 to prevent stack overflow
-* numOfThreads  : Use multiple threads to use multi processor cores. Rotor combinations are 
-*                 split up amongst the threads. Number of permutations (60) should be divisable by 
-*                 this number. Hence 1, 2, 3, 4, 5, 6, 10 will do.
+* cipher            : cipher string, upper case!!
+* crib              : crib, upper case. Length must be shorter than cipher and not to long 
+*                     to prevent stack overflow
+* cribStartPosition : start position in the cipher that corresponds with the start of the crib
+* numOfThreads      : Use multiple threads to use multi processor cores. Rotor combinations are 
+*                     split up amongst the threads. Number of permutations (60) should be divisable 
+*                     by this number. Hence 1, 2, 3, 4, 5, 6, 10 will do.
 * 
 \**************************************************************************************************/
-void turingBombe(char* cipher, char* crib, int numOfThreads)
+void turingBombe(char* cipher, char* crib, int cribStartPosition, int numOfThreads)
 {
     int         w;
     int         numberOfPermutations;
@@ -795,7 +844,7 @@ void turingBombe(char* cipher, char* crib, int numOfThreads)
 
     turingBombeCipher=cipher;
 
-    turingFindLoops(cipher, crib, 0);
+    turingFindLoops(cipher, crib, cribStartPosition);
 
     // Choose from the 5 wehrmacht walzen on an M3 Enigma   
     permutations=createRotorPermutations(3, 5);

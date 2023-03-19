@@ -26,8 +26,8 @@ int main()
 	printf(" 0.     Enigma M3 example                       \n");
 	printf(" 1.     Enigma M4 \"Shark\" example               \n");
 
-	printf("10.     Turing crib circles/loops               \n");
-	printf("11.     Turing example                          \n");
+	printf("10.     Turing crib circles/loops                \n");
+	printf("11-13.  Turing examples                          \n");
 
 	printf("20.     Gillogly IoC example 1  - original      \n");
 	printf("21.     Gillogly IoC example 1A - no solution   \n");
@@ -35,13 +35,13 @@ int main()
 	printf("23.     Gillogly IoC example 1C - ??            \n");
 	printf("24.     Gillogly IoC example 2A long English    \n");
 	printf("25.     Gillogly IoC example 3C short English   \n");
-	printf("26.     Gillogly IoC example 7A                 \n");
+	printf("26.     Gillogly IoC example 7B                 \n");
 	
     printf("30.     The third problem                       \n");
 	printf("31.     The fourth problem                      \n");
 	printf("32.     The fifth problem                       \n");
 
-	printf("40-49.  Engima Challenge message 1-10   \n");
+	printf("40-50.  Engima Challenge message 1-10   \n");
 
 
     fgets(input, 10, stdin);
@@ -65,6 +65,14 @@ int main()
         case 11: 
             // The Turing method: working example -> readable message, not all steckersettings are found
             turingExample();
+            break;    
+        case 12: 
+            // The Turing method
+            turingExample2();
+            break;    
+        case 13: 
+            // The Turing method
+            turingExample3();
             break;    
 
         case 20: 
@@ -92,8 +100,8 @@ int main()
             iocExample03C();
             break;
         case 26:  
-            // Test
-            iocExample07A();
+            // Test; 7A does not succeed
+            iocExample07B();
             break;
         case 30:
             theThirdProblem();
@@ -138,7 +146,13 @@ int main()
             message09();
             break;
         case 49:
-            message10();
+            message10_step01();
+            break;
+        case 50:
+            message10_step02();
+            break;
+        case 51:
+            message10_exp();
             break;
     }
     return 0;

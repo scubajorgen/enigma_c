@@ -9,9 +9,9 @@
 #include "enigma.h"
 #include "turing.h"
 
-// EXAMPLE SET
+// EXAMPLE SET 1
 char turingCrib[]       ="WETTERVORHERSAGEBISKAYA";
-
+char turingCribPosition =0;
 EnigmaSettings turingTestSettings=
 {
     3,
@@ -31,7 +31,52 @@ EnigmaSettings turingTestSettings=
     "RPVPZILDGRNOPPLOFZNRUALXKHEXLDMQYCDFAQ"
 };
 
+// EXAMPLE SET 2
+char turingCrib2[]       ="VONBDUXPLANUNGOPERATIONJPAUKENSCH";
+char turingCribPosition2 =0;
+EnigmaSettings turingTestSettings2=
+{
+    3,
+    {
+        "II",
+        "IV",
+        "I"
+    },
+    "UKW C",
+    {
+        1, 3, 21
+    },
+    {
+        3, 11, 5
+    },
+    "bd cv el gn iz jo kw mt pr sx",
+    "KGBJNTWBQYFFJWQKKCTNZJVRKBWPQOFZQTBLCYCMWCWTRXSGKA"
+};
 
+// EXAMPLE SET 3
+char turingCrib3[]       ="XOBERSTESGEHEIMNISX";
+char turingCribPosition3 =0;
+EnigmaSettings turingTestSettings3=
+{
+    3,
+    {
+        "III",
+        "I",
+        "II"
+    },
+    "UKW B",
+    {
+        1, 4, 13
+    },
+    {
+        4, 17, 10
+    },
+    "bq cr di ej kw mt os px uz gh",
+    "LUYOPWJORDOPKGIJHTHPWKELDLXAWNJNVCMAVHIOCJXWCYKKZUIMUXLHCCECSGSCCUYAOQJZXYS"
+    "NLRUWBYXSFIRPDGCEOMKSSEZQFKITYSXOCIYYFRRJNIDIWXWRUIJITMGJNBWPJHJEXDJDAWOWQD"
+    "ZWVWFBYALXZSLGLMPDYFIFXRQRKQRXNPRULEYTMFXDRMBEWDNPHJFLYCPTCQJHDPNHHHMGQRWQL"
+    "LSJFUIKVAHLWCODRIRCDTBGOZXEIXJDCVKHNZQHOTVMVQYRRDVCH"
+};
 
 /**************************************************************************************************\
 * 
@@ -122,24 +167,12 @@ void turingProve()
 \**************************************************************************************************/
 void turingExample()
 {
-    printf("\n");
-    printf("#####################################################################################\n");
-    printf("# TURING BOMBE\n");
-    printf("# Cipher                    : %s\n",        turingTestSettings.cipher);
+    printEnigmaSettings(&turingTestSettings, "TURING BOMBE EXAMPLE 1");
     printf("# Crib                      : %s\n",        turingCrib);
-    printf("# Original Walzen           : %s %s %s\n",  turingTestSettings.rotors[0],
-                                                        turingTestSettings.rotors[1], 
-                                                        turingTestSettings.rotors[2]);
-    printf("# Original RingStellungen   : %d %d %d\n",  turingTestSettings.ringStellungen[0],
-                                                        turingTestSettings.ringStellungen[1],
-                                                        turingTestSettings.ringStellungen[2]);
-    printf("# Original GrundStellungen  : %d %d %d\n",  turingTestSettings.grundStellungen[0],
-                                                        turingTestSettings.grundStellungen[1],
-                                                        turingTestSettings.grundStellungen[2]);
-    printf("# Original Steckers         : %s\n",        turingTestSettings.steckers);
+    printf("# Crib position             : %d\n",        turingCribPosition);
     printf("#####################################################################################\n");
 
-    turingBombe(turingTestSettings.cipher, turingCrib, 4);
+    turingBombe(turingTestSettings.cipher, turingCrib, turingCribPosition, 4);
 }
 
 /**************************************************************************************************\
@@ -150,10 +183,27 @@ void turingExample()
 void turingExample2()
 {
     // II IV I, UKW C, R 1 3 21 G 3 11 5, bd cv el gn iz jo kw mt pr sx
-    turingBombe("KGBJNTWBQYFFJWQKKCTNZJVRKBWPQOFZQTBLCYCMWCWTRXSGKA",
-                "VONBDUXPLANUNGOPERATIONJPAUKENSCH", 3);    
+    printEnigmaSettings(&turingTestSettings2, "TURING BOMBE EXAMPLE 2");
+    printf("# Crib                      : %s\n",        turingCrib2);
+    printf("# Crib position             : %d\n",        turingCribPosition2);
+    printf("#####################################################################################\n");
+    turingBombe(turingTestSettings2.cipher, turingCrib2, turingCribPosition2, 3);
 }
 
+/**************************************************************************************************\
+* 
+* Another example. Does not work
+* 
+\**************************************************************************************************/
+void turingExample3()
+{
+    // II IV I, UKW C, R 1 3 21 G 3 11 5, bd cv el gn iz jo kw mt pr sx
+    printEnigmaSettings(&turingTestSettings3, "TURING BOMBE EXAMPLE 3");
+    printf("# Crib                      : %s\n",        turingCrib3);
+    printf("# Crib position             : %d\n",        turingCribPosition3);
+    printf("#####################################################################################\n");
+    turingBombe(turingTestSettings3.cipher, turingCrib3, turingCribPosition3, 3);
+}
 
 
 

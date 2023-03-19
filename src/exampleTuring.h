@@ -4,6 +4,7 @@
 * 
 \**************************************************************************************************/
 
-void    turingProve                 ();
-void    turingExample               ();
-void    turingExample2              ();
+void    turingProve     ();
+void    turingExample   ();
+void    turingExample2  ();
+void    turingExample3  ();

@@ -255,6 +255,7 @@ void message01()
     Enigma* enigma;
     char*   decoded;
     
+	printf("MESSAGE 01\n");
     enigma=createEnigmaM3(); 
 
     placeWalze(enigma, 1, "VIII");
@@ -293,8 +294,8 @@ void message02()
     Enigma* enigma;
     char*   decoded;
     
+	printf("MESSAGE 02\n");
     enigma=createEnigmaM3(); 
-
 
     placeWalze(enigma, 1, "III");
     placeWalze(enigma, 2, "V");
@@ -345,6 +346,7 @@ void message03()
     Enigma* enigma;
     char*   decoded;
     
+	printf("MESSAGE 03\n");
     enigma=createEnigmaM3(); 
 
 
@@ -385,7 +387,7 @@ void message04()
     int     count;
 	int     limit;
 
-    printf("Message 04\n");
+	printf("MESSAGE 04\n");
     enigma=createEnigmaM3(); 
 
 
@@ -436,6 +438,7 @@ void message04()
 
 void message05()
 {
+	printf("MESSAGE 05\n");
     Enigma*     enigma;
     int         g1;
     int         r1;
@@ -506,6 +509,7 @@ void message06()
     int     limit;
     int     count;
     
+	printf("MESSAGE 06\n");
     enigma=createEnigmaM3(); 
 
     placeWalze(enigma, 1, "V");
@@ -626,6 +630,7 @@ void message07()
     char            walzen[5][6]       ={"I", "II", "III", "IV", "V"};
     int             permElements[5]     ={0, 1, 2, 3, 4};
     
+	printf("MESSAGE 07\n");
     enigma=createEnigmaM3(); 
 
     placeSteckers(enigma, "au cm dp ev hl iz jw no qx st");
@@ -709,6 +714,7 @@ void message08()
     int         found;
 
     
+	printf("MESSAGE 08\n");
     char letters[12]={'a', 'c', 'e', 'f', 'g', 'h', 'i', 'j', 'o', 'q', 'w', 'y'};
     int  digits[12]={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
     
@@ -826,6 +832,7 @@ void message09()
     int         count;
 
     
+	printf("MESSAGE 09\n");
     enigma=createEnigmaM3(); 
 
     placeWalze(enigma, 1, "IV");
@@ -876,27 +883,28 @@ void message09()
 }
 
 
-void message10()
+
+
+void message10_step01()
 {
     int             i;
     LinkedList*     permutations;
     int				numOfThreads;
     
 	
+	printf("MESSAGE 10 - STEP 1\n");
     numOfThreads=4;
-	
     permutations=createRotorPermutations(3, 5);
 
-	
   	// STEP 1: INITIAL TRY: TRY ALL ROTOR POSTIONS
     // Start with 5 Wehrmacht rotors
-	
-
-    int length=linkedListLength(permutations);
+    // This function employs the IOC_DEEP, which basically is 
+    // brute forcing. It takes extemely long
    
     // Create the stack of work for the trheads
     iocNumberOfWorkItems=numOfThreads*2;
 
+    int length=linkedListLength(permutations);
     dispatcherClearWorkItems();
     i=0;
     while (i<numOfThreads)
@@ -905,6 +913,7 @@ void message10()
         iocWorkItems[i*2].permutations      =permutations;
         iocWorkItems[i*2].startPermutation  =i*length/numOfThreads;
         iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads;
+        iocWorkItems[i*2].R1                  =1;
         iocWorkItems[i*2].startR2           =1;
         iocWorkItems[i*2].endR2             =1;
         iocWorkItems[i*2].startR3           =1;
@@ -918,6 +927,7 @@ void message10()
         iocWorkItems[i*2+1].permutations    =permutations;
         iocWorkItems[i*2+1].startPermutation=i*length/numOfThreads;
         iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads;
+        iocWorkItems[i*2+1].R1               =1;
         iocWorkItems[i*2+1].startR2         =1;
         iocWorkItems[i*2+1].endR2           =1;
         iocWorkItems[i*2+1].startR3         =1;
@@ -927,42 +937,94 @@ void message10()
         dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i*2+1]);        
         i++;
     }
-
     setWalzePermutations(permutations);
     setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, "DE");
-
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);	
 	
-/*	
 	// THIS RESULTS IN THE BEST SOLUTION:
 	//  1: UKW B  II   V   I R  1  1 18 G 21  6 24 - AO BV DS EX FT HZ IQ JW KU PR - 0.071839
+    //  1: UKW B  II   V   I R  1  1 19 G 21  6 25 - AO BV DS EX FT HZ IQ JW KU PR - 0.053566 (IOC_DEEP, 10 steckers)
 
-	// STEP 2: NOW TRY THIS ROTOR SETTINGS AND VARY ALL R2
+}
+
+void message10_step02()
+{
+    int             i;
+    LinkedList*     permutations;
+    int				numOfThreads;
+    
+	printf("MESSAGE 10 - STEP 2\n");
+    numOfThreads=4;
+    permutations=createRotorPermutations(3, 5);
+
+    // Create the stack of work for the trheads
+    iocNumberOfWorkItems=numOfThreads*2;
+
+	// STEP 2: NOW TRY FOR THE BEST ROTOR SETTINGS OF STEP 01 AND VARY ALL R2
    
     // Create the stack of work for the trheads
     iocNumberOfWorkItems=numOfThreads;
-
+    dispatcherClearWorkItems();
     i=0;
     while (i<numOfThreads)
     {
 		iocWorkItems[i].cipher              =text10;
         iocWorkItems[i].permutations        =permutations;
         iocWorkItems[i].startPermutation    =23;
-        iocWorkItems[i].endPermutation      =24;
+        iocWorkItems[i].endPermutation      =23;
+        iocWorkItems[i].R1                  =1;
         iocWorkItems[i].startR2             =i*(MAX_POSITIONS-1)/numOfThreads+1;
         iocWorkItems[i].endR2               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
         iocWorkItems[i].startR3             =1;
         iocWorkItems[i].endR3               =MAX_POSITIONS;
         iocWorkItems[i].maxCipherChars      =MAX_TEXT;
         strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
+        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]); 
 
         i++;
     }
+    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, NULL);
+    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
+}
 
-    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, "DE");
-    iocExecuteWorkItems(numOfThreads, permutations);	
-*/	
+
+void message10_exp()
+{
+    int             i;
+    LinkedList*     permutations;
+    int				numOfThreads;
+    
 	
+    numOfThreads=4;
+	
+    permutations=createRotorPermutations(3, 5);
+  
+
+	// TEST
+    // Create the stack of work for the trheads
+    iocNumberOfWorkItems=numOfThreads;
+    dispatcherClearWorkItems();
+    i=0;
+    while (i<numOfThreads)
+    {
+		iocWorkItems[i].cipher              =text10;
+        iocWorkItems[i].permutations        =permutations;
+        iocWorkItems[i].startPermutation    =23;
+        iocWorkItems[i].endPermutation      =23;
+        iocWorkItems[i].R1                  =1;
+        iocWorkItems[i].startR3             =i*(MAX_POSITIONS-1)/numOfThreads+1;
+        iocWorkItems[i].endR3               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
+        iocWorkItems[i].startR2             =1;
+        iocWorkItems[i].endR2               =1;
+        iocWorkItems[i].maxCipherChars      =MAX_TEXT;
+        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
+        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]); 
+        i++;
+    }
+
+    //setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, NULL);
+    setEvaluationMethod(METHOD_IOC_R2R3, 10, 10, 0, NULL);
+    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);	
 }
 
 

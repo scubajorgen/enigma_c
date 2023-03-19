@@ -11,7 +11,9 @@ void    message06       ();
 void    message07       ();
 void    message08       ();
 void    message09       ();
-void    message10       ();
+void    message10_step01();
+void    message10_step02();
+void    message10_exp   ();
 
 void    theThirdProblem ();
 void    theFourthProblem();
