@@ -30,8 +30,6 @@ typedef struct
     char    ukw[MAX_ROTOR_NAME];    // UKW to use
 } ThreadWork;
 
-int                 threadsRunning;
-
 char                walzenString[80];
 
 // Thread stuff
@@ -45,7 +43,7 @@ LinkedLetters       menu[MAX_POSITIONS];
 // Defines the crib circle loops
 CribCircleSet       cribCircleSet[MAX_POSITIONS];
 
-LinkedList*         permutations;
+LinkedList*         tPermutations;
 
 // Consistency parameters
 int                 mallocs=0;
@@ -683,7 +681,7 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
     // Parse the rotor permutations
     while (w<permutationEnd)
     {
-        permutation=(int*)elementAt(permutations, w);
+        permutation=(int*)elementAt(tPermutations, w);
         
         if (permutation!=NULL)
         {
@@ -816,12 +814,12 @@ void turingFinishFunction(void* params)
 {
     int p;
     p=0;
-    while (p<linkedListLength(permutations))
+    while (p<linkedListLength(tPermutations))
     {
-        free(elementAt(permutations, p));
+        free(elementAt(tPermutations, p));
         p++;
     }            
-    destroyLinkedList(permutations);
+    destroyLinkedList(tPermutations);
 }
    
 /**************************************************************************************************\
@@ -847,9 +845,9 @@ void turingBombe(char* cipher, char* crib, int cribStartPosition, int numOfThrea
     turingFindLoops(cipher, crib, cribStartPosition);
 
     // Choose from the 5 wehrmacht walzen on an M3 Enigma   
-    permutations=createRotorPermutations(3, 5);
+    tPermutations=createRotorPermutations(3, 5);
     
-    numberOfPermutations=linkedListLength(permutations);
+    numberOfPermutations=linkedListLength(tPermutations);
     printf("Walzen permutations %d\n", numberOfPermutations);
 
     workItems=numOfThreads*2;
