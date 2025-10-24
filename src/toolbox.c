@@ -8,12 +8,9 @@
 
 #include "toolbox.h"
 
-
 // Permutations of rotors/walzen
 int                 walzenIndices[8]    ={0, 1, 2, 3, 4, 5, 6, 7};
-char                walzen[8][4]        ={"I", "II", "III", "IV", "V", "VI", "VII", "VIII"};
-LinkedList*         permutations;
-
+char                walzen[8][5]        ={"I", "II", "III", "IV", "V", "VI", "VII", "VIII"};
 
 /**************************************************************************************************\
 * 

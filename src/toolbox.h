@@ -20,7 +20,7 @@ LinkedList;
 
 // Permutations of rotors/walzen
 extern int                 walzenIndices[8];
-extern char                walzen[8][4];
+extern char                walzen[8][5];
 
 
 int         ipow                    (int base, int exp);
