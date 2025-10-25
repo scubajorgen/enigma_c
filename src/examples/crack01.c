@@ -16,7 +16,7 @@
 #include "crack.h"
 #include "toolbox.h"
 #include "coincidence.h"
-#include "workDispatcher.h"
+#include "generics/workDispatcher.h"
 
 char text01[]=
 "MUUQ JZVQ LORV MCOL YKXE"

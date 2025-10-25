@@ -1,8 +1,7 @@
-*.o
-enigma
-test
-enigma.exe
-test.exe
-result*
-backup/
-output/
+/enigma
+/test
+/enigma.exe
+/test.exe
+/obj/
+/backup/
+/output/
