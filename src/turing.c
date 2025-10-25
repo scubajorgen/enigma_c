@@ -747,9 +747,9 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
                                 {
                                     settings.numberOfRotors     =3;
                                     strncpy(settings.cipher, turingBombeCipher, MAX_TEXT-1);
-                                    strncpy(settings.rotors[0], w1, MAX_ROTOR_NAME);
-                                    strncpy(settings.rotors[1], w2, MAX_ROTOR_NAME);
-                                    strncpy(settings.rotors[2], w3, MAX_ROTOR_NAME);
+                                    strncpy(settings.rotors[0], w1, MAX_ROTOR_NAME-1);
+                                    strncpy(settings.rotors[1], w2, MAX_ROTOR_NAME-1);
+                                    strncpy(settings.rotors[2], w3, MAX_ROTOR_NAME-1);
                                     settings.ringStellungen[0]  =r1;
                                     settings.ringStellungen[1]  =r2;
                                     settings.ringStellungen[2]  =r3;
