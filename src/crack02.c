@@ -261,7 +261,16 @@ char fifth[]=
 "OAcmceATeccOaNtscEucptiEdtautraATDNIOpniPSrCOIIndGEEnltIStUs"
 "NEtDidNOcEUIlUpsaMqouditOeFMFpioCrIIAnDCEiSdeirDuunNtTM";
 
-
+/**************************************************************************************************\
+* Enigma cipher from GC6ZZBB geochache. It is a short cipher.
+* FROM THE GEOCACHE WE KNOW FOLLOWING:
+* - http://enigmaco.de/enigma/enigma_de.html was used to encrypt; therefore
+* - Three Walzen out of I-V
+* - R1 = R2 = R3 = 1
+* - UKW B
+* - up to 13 steckers
+* - Language is probably german
+\**************************************************************************************************/
 void theThirdProblem()
 {
     int             i;
@@ -270,18 +279,8 @@ void theThirdProblem()
     
 	
     numOfThreads=4;
-	
-    // FROM THE GEOCACHE WE KNOW FOLLOWING:
-    // (http://enigmaco.de/enigma/enigma_de.html was used to encrypt)
-    // Three Walzen out of I-V, R1 = R2 = R3 = 1, UKW B
-    // We know it because it was encrypted on
 
     permutations=createRotorPermutations(3, 5);
-
-	
-	// STEP 1: INITIAL TRY: TRY ALL ROTOR POSTIONS
-    // Start with 5 Wehrmacht rotors
-
 
     int length=linkedListLength(permutations);
    
@@ -292,8 +291,8 @@ void theThirdProblem()
     i=0;
     while (i<numOfThreads)
     {
-//        iocWorkItems[i].cipher            =textGC6ZZBB;
-        iocWorkItems[i].cipher            =replyGC6ZZBB;
+        iocWorkItems[i].cipher            =textGC6ZZBB;
+//        iocWorkItems[i].cipher            =replyGC6ZZBB;
         iocWorkItems[i].permutations      =permutations;
         iocWorkItems[i].startPermutation  =i*length/numOfThreads;
         iocWorkItems[i].endPermutation    =(i+1)*length/numOfThreads-1;
@@ -309,86 +308,21 @@ void theThirdProblem()
     }
 
     setWalzePermutations(permutations);
+//    setEvaluationMethod(METHOD_IOC, 13, 13, 0, NULL);
+//    setEvaluationMethod(METHOD_IOC_DEEP, 13, 13, 3, NULL);
+//    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "DE");
+//    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "GB");
     setEvaluationMethod(METHOD_IOC_NGRAM, 13, 0, 3, "DE");
 
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
-
-/*
-    numOfThreads=1;
-	
-    // FROM THE GEOCACHE WE KNOW FOLLOWING:
-    // (http://enigmaco.de/enigma/enigma_de.html was used to encrypt)
-    // Three Walzen out of I-V, R1 = R2 = R3 = 1, UKW B
-    // We know it because it was encrypted on
-
-    permutations=createRotorPermutations(3, 5);
-
-	
-	// STEP 1: INITIAL TRY: TRY ALL ROTOR POSTIONS
-    // Start with 5 Wehrmacht rotors
-
-
-    int length=linkedListLength(permutations);
-   
-    // Create the stack of work for the trheads
-    iocNumberOfWorkItems=numOfThreads;
-
-    i=0;
-    while (i<numOfThreads)
-    {
-        iocWorkItems[i].cipher            =textGC6ZZBB;
-        iocWorkItems[i].permutations      =permutations;
-        iocWorkItems[i].startPermutation  =47;
-        iocWorkItems[i].endPermutation    =47;
-        iocWorkItems[i].R1                =1;
-        iocWorkItems[i].startR2           =1;
-        iocWorkItems[i].endR2             =1;
-        iocWorkItems[i].startR3           =1;
-        iocWorkItems[i].endR3             =1;
-        iocWorkItems[i].maxCipherChars    =MAX_TEXT;
-        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
-        i++;
-    }
-
-
-    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 13, 3, "DE");
-
-    iocExecuteWorkItems(numOfThreads, permutations);	
-*/
-
-    
-	
-/*	
-	// THIS RESULTS IN THE BEST SOLUTION:
-	//  1: UKW B  II   V   I R  1  1 18 G 21  6 24 - AO BV DS EX FT HZ IQ JW KU PR - 0.071839
-
-	// STEP 2: NOW TRY THIS ROTOR SETTINGS AND VARY ALL R2
-   
-    // Create the stack of work for the trheads
-    iocNumberOfWorkItems=numOfThreads;
-
-    i=0;
-    while (i<numOfThreads)
-    {
-		iocWorkItems[i].cipher              =textGC6ZZBB;
-        iocWorkItems[i].permutations        =permutations;
-        iocWorkItems[i].startPermutation    =23;
-        iocWorkItems[i].endPermutation      =23;
-        iocWorkItems[i].startR2             =i*(MAX_POSITIONS-1)/numOfThreads+1;
-        iocWorkItems[i].endR2               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
-        iocWorkItems[i].maxCipherChars      =MAX_TEXT;
-        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
-
-        i++;
-    }
-
-    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, "DE");
-    iocExecuteWorkItems(numOfThreads, permutations);	
-*/	
 }
 
 
-
+/**************************************************************************************************\
+* 
+*
+*
+\**************************************************************************************************/
 void theFourthProblem()
 {
     int             i;
@@ -436,6 +370,11 @@ void theFourthProblem()
 }
 
 
+/**************************************************************************************************\
+* 
+* This is not an enigma problem, but the Geocache Codebreakers
+*
+\**************************************************************************************************/
 void theFifthProblem()
 {
     int i, j;

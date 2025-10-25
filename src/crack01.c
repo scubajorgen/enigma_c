@@ -973,7 +973,7 @@ void message10_step02()
         iocWorkItems[i].startPermutation    =23;
         iocWorkItems[i].endPermutation      =23;
         iocWorkItems[i].R1                  =1;
-        iocWorkItems[i].startR2             =i*(MAX_POSITIONS-1)/numOfThreads+1;
+        iocWorkItems[i].startR2             =i*(MAX_POSITIONS-1)/numOfThreads+1;     // Some double ringstellungen at 7, 13, 19
         iocWorkItems[i].endR2               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
         iocWorkItems[i].startR3             =1;
         iocWorkItems[i].endR3               =MAX_POSITIONS;

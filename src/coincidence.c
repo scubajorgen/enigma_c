@@ -2,7 +2,7 @@
 * 
 * This module implents the index-of-coincidence method of James Gillogly
 * (http://web.archive.org/web/20060720040135/http://members.fortunecity.com/jpeschel/gillog1.htm)
-* Different from the original article, this software tries all rotor settings, 
+* Different from the original article, this software can also try *all* rotor settings, 
 * RingStellungen included.
 *
 \**************************************************************************************************/
@@ -179,7 +179,7 @@ void sortTopResults()
 * Show the top results. En passant, translate the found steckertable into stecker pairs
 * 
 \**************************************************************************************************/
-void iocDumpTopResults(int withDecode)
+void iocDumpTopResults(int number, int withDecode)
 {
     int             i;
     int             s1, s2;
@@ -187,10 +187,15 @@ void iocDumpTopResults(int withDecode)
     EnigmaSettings* settings;   
     Enigma*         enigma;
 
-    printf("Top %d best results:\n", TOP_RESULTS_SIZE);
+    if (number>TOP_RESULTS_SIZE)
+    {
+        number=TOP_RESULTS_SIZE;
+    }
+
+    printf("Top %d best results of :\n", TOP_RESULTS_SHOW);
     enigma=createEnigmaM3();
     i=0;
-    while (i<iocNumberOfResults)
+    while (i<number)
     {
         results=&iocTopResults[i];
         settings=&results->settings;
@@ -737,6 +742,8 @@ void iocFindSteckeredCharsNgram(IocResults* results, int maxNumOfSteckers, int n
     // Convert the stecker positions to a stecker brett string
     steckerTableToSteckers(steckerTable, results->settings.steckers);
     
+    results->indexOfCoincidence=maxIoc;
+
     destroyEnigma(enigma);
     fflush(stdout);
 }
@@ -1060,6 +1067,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work, int maxSteckers)
                                 results->settings.grundStellungen[0]=g1;
                                 results->settings.grundStellungen[1]=g2;
                                 results->settings.grundStellungen[2]=g3;
+//iocDumpTopResults(TOP_RESULTS_SHOW, 1);
                                 mutexLock();
                                 iocMax=iocStoreResults(results);
                                 mutexUnlock();
@@ -1238,34 +1246,26 @@ void iocFinishFunction(void* params)
     maxSteckers             =evaluationMethod.maxSteckers;
     ngramSize               =evaluationMethod.ngramSize;
 
-    iocDumpTopResults(0);
+    // We now have a list of rotor settings sorted on IoC
+    iocDumpTopResults(TOP_RESULTS_SHOW, 0);
+
+    // First see if there are any ringstellungen left to find
     switch (method)
     {
         case METHOD_IOC_R2R3:
             // Now we have got the Top 10 best results for rotor position and Ringstellung R1 R2 R3
-            // Try to find
-            // - Stecker Positions for each of them (only for the not deep method)
-            i=0;
-            while (i<iocNumberOfResults)
-            {
-                printf("Finding steckers for %d\n", i);
-                iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
-                i++;
-            }
+            // Nothing to be done here
             break;
         case METHOD_IOC_R3:
             // Now we have got the Top 10 best results for rotor position and Ringstellung R1 R3
             // Try to find
             // - Ringstellung R2
-            // - Stecker Positions for each of them (only for the not deep method)
             i=0;
             while (i<iocNumberOfResults)
             {
                 // find ringstellung for rotor R2
                 printf("Finding ring setting R2 for %d\n", i);
                 iocFindRingStellung(&iocTopResults[i], 2, 2);
-                printf("Finding steckers for %d\n", i);
-                iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
                 i++;
             }
             break;           
@@ -1273,15 +1273,12 @@ void iocFinishFunction(void* params)
             // Now we have got the Top 10 best results for rotor position and Ringstellung R1
             // Try to find
             // - Ringstellung R2 and R3
-            // - Stecker Positions for each of them (only for the not deep method)
             i=0;
             while (i<iocNumberOfResults)
             {
                 // find ringstellung for rotor R2 and R3
                 printf("Finding ring setting R2 and R3 for %d\n", i);
                 iocFindRingStellung(&iocTopResults[i], 2, 3);
-                printf("Finding steckers for %d\n", i);
-                iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
                 i++;
             }
             break;
@@ -1297,11 +1294,37 @@ void iocFinishFunction(void* params)
             }
             break;
     }
+
+    // Lets sort the results
+    sortTopResults();
+    iocDumpTopResults(TOP_RESULTS_SHOW, 0);
+
+    // Finally we are going to look for the steckers for the best result
+    switch (method)
+    {
+        case METHOD_IOC_R2R3:
+        case METHOD_IOC_R3:
+        case METHOD_IOC:
+            for(i=0;i<TOP_RESULTS_SHOW;i++)
+            {
+                iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
+            }
+            break;
+        case METHOD_IOC_DEEP:
+            break;
+        case METHOD_IOC_NGRAM:            
+            for(i=0;i<TOP_RESULTS_SHOW;i++)
+            {
+                iocFindSteckeredCharsNgram(&iocTopResults[i], maxSteckers, ngramSize);
+            }
+            break;
+    }
+
     
     // Show the final result 
-    printf("FOUND SOLUTIONS: \n");
-    sortTopResults();
-    iocDumpTopResults(1);
+    printf("FOUND SOLUTION: \n");
+    //sortTopResults();
+    iocDumpTopResults(TOP_RESULTS_SHOW, 1);
 
     if (evaluationMethod.permutations!=NULL)
     {
@@ -1355,6 +1378,32 @@ void setWalzePermutations(LinkedList* permutations)
 }
 
 
+void reportMethod()
+{
+    switch (evaluationMethod.method)
+    {
+        case METHOD_IOC:
+            printf("Method          : IoC method, keeping R1, R2, R3 fixed (Gillogly)\n");
+            break;
+        case METHOD_IOC_R3:
+            printf("Method          : IoC method, Keeping R1, R2 fixed\n");
+            break;
+        case METHOD_IOC_R2R3:
+            printf("Method          : IoC method, Keeping R1 fixed\n");
+            break;
+        case METHOD_IOC_DEEP:
+            printf("Method          : Deep\n");
+            break;
+        case METHOD_IOC_NGRAM:
+            printf("Method          : Ngram method\n");
+            break;
+    }
+    printf("Max steckers    : %02d\n", evaluationMethod.maxSteckers);
+    printf("Max steckers IoC: %02d\n", evaluationMethod.maxSteckersIoc);
+    printf("NGRAM size      : %2d\n", evaluationMethod.ngramSize);
+    printf("#####################################################################################\n");
+}
+
 /**************************************************************************************************\
 * 
 * Tries to decode a cipher only text. 
@@ -1370,6 +1419,8 @@ void iocDecodeText(char* cipher, int numOfThreads)
     int             length;
     LinkedList*     permutations;
     
+    reportMethod();
+
     // Start with 5 Wehrmacht rotors in an M3 Enigma
     permutations        =createRotorPermutations(3, 5);
     length              =linkedListLength(permutations);

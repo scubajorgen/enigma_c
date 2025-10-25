@@ -20,7 +20,9 @@ EnigmaSettings settings;
 
 /**************************************************************************************************\
 * 
-* Converts text to the input array of unified positions
+* Sets the text to convert. Converts text to the input array of unified positions.
+* enigma: Enigma to use
+* text  : input text consisting of a-zA-Z or 1-26, any other char is omitted
 * 
 \**************************************************************************************************/
 void setText(Enigma* engima, char text[])
@@ -51,6 +53,7 @@ void setText(Enigma* engima, char text[])
 /**************************************************************************************************\
 * 
 * Advance the rotors. This is done prior to converting one character
+* enigma    : Enigma to use
 * 
 \**************************************************************************************************/
 void advance(Enigma* enigma)
@@ -209,6 +212,9 @@ void advances(Enigma* enigma, int steps)
 /**************************************************************************************************\
 * 
 * Encode character
+* enigma      : Enigma to use
+* theCharacter: The character to encode, 0-25
+* returns     : The encoded character, 0-25
 * 
 \**************************************************************************************************/
 

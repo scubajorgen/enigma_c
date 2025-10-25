@@ -21,3 +21,4 @@ void    ngramTest2          ();
 void    ngramTest3          ();
 void    ngramTest4          ();
 void    ngramTest5          ();
+void    ngramTest6          ();

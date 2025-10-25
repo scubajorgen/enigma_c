@@ -13,7 +13,8 @@
 * DEFINES
 \**************************************************************************************************/
 
-#define TOP_RESULTS_SIZE    10
+#define TOP_RESULTS_SHOW    10
+#define TOP_RESULTS_SIZE    500
 #define MAX_THREADS         10
 #define MAX_WORK_ITEMS      32
 
@@ -70,7 +71,7 @@ extern int                 iocNumberOfResults;
 void    iocEvaluateEngimaSettings   (IocWorkItem* work, int maxSteckers);
 void    iocFindSteckeredChars       (IocResults* results, int maxNumOfSteckers);
 void    iocFindSteckeredCharsNgram  (IocResults* results, int maxNumOfSteckers, int ngramSize);
-void    iocDumpTopResults           (int withDecode);
+void    iocDumpTopResults           (int number, int withDecode);
 void    iocFindRingStellung         (IocResults*  results, int startRotor, int endRotor);
 void    iocWorkerFunction           (int worker, int workItem, void* params);
 void    iocFinishFunction           (void* params);

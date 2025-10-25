@@ -23,23 +23,25 @@ int main()
     printf("# ENIGMA SIMULATION\n");
     printf("#####################################################################################\n");
 
-	printf(" 0.     Enigma M3 example                       \n");
-	printf(" 1.     Enigma M4 \"Shark\" example               \n");
+	printf(" 0.     Enigma M3 example                           \n");
+	printf(" 1.     Enigma M4 \"Shark\" example                 \n");
 
-	printf("10.     Turing crib circles/loops                \n");
-	printf("11-13.  Turing examples                          \n");
+	printf("10.     Turing crib circles/loops                   \n");
+	printf("11-13.  Turing examples                             \n");
 
-	printf("20.     Gillogly IoC example 1  - original      \n");
-	printf("21.     Gillogly IoC example 1A - no solution   \n");
-	printf("22.     Gillogly IoC example 1B - solution      \n");
-	printf("23.     Gillogly IoC example 1C - ??            \n");
-	printf("24.     Gillogly IoC example 2A long English    \n");
-	printf("25.     Gillogly IoC example 3C short English   \n");
-	printf("26.     Gillogly IoC example 7B                 \n");
+	printf("20.     Gillogly IoC example 1  - original 7 st     \n");
+	printf("21.     Gillogly IoC example 1A - 8 steckers        \n");
+	printf("22.     Gillogly IoC example 1B - 8 steckers IoC_R3 \n");
+	printf("23.     Gillogly IoC example 1C - 10 steckers       \n");
+	printf("24.     Gillogly IoC example 2 long English         \n");
+	printf("25.     Gillogly IoC example 3 short English        \n");
+	printf("26.     Gillogly IoC example 7 Geocache GC6ZZBB     \n");
+	printf("27.     Gillogly IoC example 7 Geocache GC6ZZBB log \n");
+	printf("28.     Gillogly IoC example NGRAMS                 \n");
 	
-    printf("30.     The third problem                       \n");
-	printf("31.     The fourth problem                      \n");
-	printf("32.     The fifth problem                       \n");
+    printf("30.     The third problem                           \n");
+	printf("31.     The fourth problem                          \n");
+	printf("32.     The fifth problem                           \n");
 
 	printf("40-50.  Engima Challenge message 1-10   \n");
 
@@ -80,11 +82,11 @@ int main()
             iocExample00();
             break;
         case 21: 
-            // 2nd IoC example, 8 steckers, won't work
+            // 2nd IoC example, METHOD_IOC, 8 steckers
             iocExample01A();
             break;
         case 22:  
-            // METHOD_IOC_R3 method, works
+            // 2nd IoC example, METHOD_IOC_R3 method, works
             iocExample01B();
             break;
         case 23:  
@@ -101,7 +103,15 @@ int main()
             break;
         case 26:  
             // Test; 7A does not succeed
+            iocExample07A();
+            break;
+        case 27:  
+            // Test; 7A does not succeed
             iocExample07B();
+            break;
+        case 28:  
+            // Test; 7A does not succeed
+            iocExampleNgram();
             break;
         case 30:
             theThirdProblem();
@@ -153,6 +163,9 @@ int main()
             break;
         case 51:
             message10_exp();
+            break;
+        case 99:
+            ngramTest6();
             break;
     }
     return 0;

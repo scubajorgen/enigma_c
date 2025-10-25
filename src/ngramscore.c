@@ -16,14 +16,14 @@ typedef struct
 {
     char    ngram[MAX_NGRAM];
     int     value;
-    int     frequency;
+    long    frequency;
     float   chance;
     float   logChance;
 } NgramFrequency;
 
 NgramFrequency  ngramFrequencies[MAX_NGRAM_SIZE];
 int             ngrams;
-int             minFrequency;
+long            minFrequency;
 float           minChance;
 float           minLogChance;
 
@@ -50,7 +50,7 @@ void readNgramFile(char* fileName, int n, NgramFileFormat format)
     FILE *fp;
     int  i;
     int  line;
-    int sum;
+    long sum;
  
     fp = fopen(fileName, "r"); // read mode
  
@@ -87,7 +87,7 @@ void readNgramFile(char* fileName, int n, NgramFileFormat format)
         }
         else
         {
-            ngramFrequencies[line].frequency=atoi(fileLine+i+1);
+            ngramFrequencies[line].frequency=strtol(fileLine+i+1, NULL, 10);
             sum+=ngramFrequencies[line].frequency;
             if (ngramFrequencies[line].frequency<minFrequency)
             {
@@ -108,13 +108,13 @@ void readNgramFile(char* fileName, int n, NgramFileFormat format)
             ngramFrequencies[i].chance      =(float)ngramFrequencies[i].frequency/(float)sum;
             ngramFrequencies[i].logChance   =log(ngramFrequencies[i].chance);
 /*
-            printf("%s (%d) - %d - %f - %f\n", 
+            printf("%s (%d) - %ld - %f - %f\n", 
                                 ngramFrequencies[i].ngram, 
                                 ngramFrequencies[i].value,
                                 ngramFrequencies[i].frequency,
                                 ngramFrequencies[i].chance,
                                 ngramFrequencies[i].logChance);
-*/  
+ */ 
             i++;
         }
         minChance=(float)minFrequency/(float)sum;

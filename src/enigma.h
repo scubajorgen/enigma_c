@@ -1,8 +1,8 @@
 /**************************************************************************************************\
 * 
-* This module implents the Enigma machine. It is optimized for performance required for cracking
+* This module implements the Enigma machine. It is optimized for performance required for cracking
 * enigma ciphers. All settings (A-Z, a-z) are translated to positions from 0-25 in tables, 
-* encoding/decoding consists merely of lookup in tables
+* encoding/decoding consists merely of lookup in rotor tables
 *
 * Position : UKW   2       1     0
 * Enigma M3: UKW rotor1 rotor2 rotor3
@@ -47,9 +47,9 @@ typedef struct
     int     steckerBrett[MAX_POSITIONS];
 
     int     textSize;
-    int     text[MAX_TEXT];
-    int     conversion[MAX_TEXT];
-    char    string[MAX_TEXT+1]; // add 1 for '\0'
+    int     text[MAX_TEXT];         // text as numbers 0-25
+    int     conversion[MAX_TEXT];   // encoded/decoded text as numbers 0-25
+    char    string[MAX_TEXT+1];     // encoded/decoded text as String of chars A-Z, add 1 for trailing '\0'
     
 } Enigma;
 
