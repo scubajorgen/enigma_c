@@ -9,63 +9,77 @@
 #include "enigma.h"
 #include "toolbox.h"
 
-#define ROTORS          10
-#define MAX_ROTORNAME   10
 
-    char    rotorNames[ROTORS][MAX_ROTORNAME]=
-    {
-        "I",
-        "II",
-        "III",
-        "IV",
-        "V",
-        "VI",
-        "VII",
-        "VIII",
-        "Beta",
-        "Gamma"
-            
-    };
-    
-    char    tables[ROTORS][MAX_POSITIONS]=
-    {
-        {
-            'E','K','M','F','L','G','D','Q','V','Z','N','T','O','W','Y','H','X','U','S','P','A','I','B','R','C','J'
-        },
-        {
-            'A','J','D','K','S','I','R','U','X','B','L','H','W','T','M','C','Q','G','Z','N','P','Y','F','V','O','E'
-        },
-        {
-            'B','D','F','H','J','L','C','P','R','T','X','V','Z','N','Y','E','I','W','G','A','K','M','U','S','Q','O'
-        },
-        {
-            'E','S','O','V','P','Z','J','A','Y','Q','U','I','R','H','X','L','N','F','T','G','K','D','C','M','W','B'
-        },
-        {
-            'V','Z','B','R','G','I','T','Y','U','P','S','D','N','H','L','X','A','W','M','J','Q','O','F','E','C','K'
-        },
-        {
-            'J','P','G','V','O','U','M','F','Y','Q','B','E','N','H','Z','R','D','K','A','S','X','L','I','C','T','W'
-        },
-        {
-            'N','Z','J','H','G','R','C','X','M','Y','S','W','B','O','U','F','A','I','V','L','P','E','K','Q','D','T'
-        },
-        {
-            'F','K','Q','H','T','L','X','O','C','B','J','S','P','D','Z','R','A','M','E','W','N','I','U','Y','G','V'
-        },
-        {
-            'L','E','Y','J','V','C','N','I','X','W','P','B','Q','M','D','R','T','A','K','Z','G','F','U','H','O','S'
-        },
-        {
-            'F','S','O','K','A','N','U','E','R','H','M','B','T','I','Y','C','W','L','Q','P','Z','X','V','G','J','D'
-        }
-    };
+char    rotorNames[ROTORS][MAX_ROTORNAME]=
+{
+    "I",
+    "II",
+    "III",
+    "IV",
+    "V",
+    "VI",
+    "VII",
+    "VIII",
+    "Beta", // 4th rotor in M4
+    "Gamma" // 4th roter in M4
+};
 
-    int                 hasSecondNotch[]={0, 0, 0, 0, 0, 1, 1, 1, 0, 0};
-    
-    /* Notch positions as seen from the window */
-    int                 notchPosition1[]={'Q','E','V','J','Z','Z','Z','Z','?','?'};
-    int                 notchPosition2[]={'?','?','?','?','?','M','M','M','?','?'};
+char    tables[ROTORS][MAX_POSITIONS]=
+{
+    {
+        'E','K','M','F','L','G','D','Q','V','Z','N','T','O','W','Y','H','X','U','S','P','A','I','B','R','C','J'
+    },
+    {
+        'A','J','D','K','S','I','R','U','X','B','L','H','W','T','M','C','Q','G','Z','N','P','Y','F','V','O','E'
+    },
+    {
+        'B','D','F','H','J','L','C','P','R','T','X','V','Z','N','Y','E','I','W','G','A','K','M','U','S','Q','O'
+    },
+    {
+        'E','S','O','V','P','Z','J','A','Y','Q','U','I','R','H','X','L','N','F','T','G','K','D','C','M','W','B'
+    },
+    {
+        'V','Z','B','R','G','I','T','Y','U','P','S','D','N','H','L','X','A','W','M','J','Q','O','F','E','C','K'
+    },
+    {
+        'J','P','G','V','O','U','M','F','Y','Q','B','E','N','H','Z','R','D','K','A','S','X','L','I','C','T','W'
+    },
+    {
+        'N','Z','J','H','G','R','C','X','M','Y','S','W','B','O','U','F','A','I','V','L','P','E','K','Q','D','T'
+    },
+    {
+        'F','K','Q','H','T','L','X','O','C','B','J','S','P','D','Z','R','A','M','E','W','N','I','U','Y','G','V'
+    },
+    {
+        'L','E','Y','J','V','C','N','I','X','W','P','B','Q','M','D','R','T','A','K','Z','G','F','U','H','O','S'
+    },
+    {
+        'F','S','O','K','A','N','U','E','R','H','M','B','T','I','Y','C','W','L','Q','P','Z','X','V','G','J','D'
+    }
+};
+
+int                 hasSecondNotch[]={0, 0, 0, 0, 0, 1, 1, 1, 0, 0};
+
+/* Notch positions as seen from the window */
+int                 notchPosition1[]={'Q','E','V','J','Z','Z','Z','Z','?','?'};
+int                 notchPosition2[]={'?','?','?','?','?','M','M','M','?','?'};
+
+
+int rotorSets[MAX_ROTOR_SETS][ROTORS]=
+{
+    { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
+    { 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
+    { 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+    { 1, 1, 1, 1, 1, 1, 1, 1, 0, 0}
+};
+
+int fourthRotorSets[MAX_ROTOR_SETS][ROTORS]=
+{
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1}
+};
 
 
 /**************************************************************************************************\

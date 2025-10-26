@@ -3,6 +3,8 @@
 * Toolbox functions
 *
 \**************************************************************************************************/
+#include <stdlib.h>
+#include <stdbool.h>
 #include <malloc.h>
 #include <string.h>
 
@@ -406,8 +408,62 @@ void printCipher(char* cipher)
       }
       i++;
   }
-  if (printed!=0)
+  if ((printed!=0) || (strlen(cipher)==0))
   {
     printf("\n");
   }
+}
+
+/**************************************************************************************************\
+* 
+* Create a random selection of indices randomly based on availability. Not very efficient, only 
+* to be used for small arrays.
+* available       : array of 0, 1 indicating availability, e.g. {0, 1, 1, 0, 1, 1, 1}
+* arrayLength     : length of available array, e.g. 7 in this example
+* number          : number of indices to select,  e.g. 3
+* resultingIndices: array of resulting indices, at least of size equal to number, e.g. {2, 6, 4}
+* 
+\**************************************************************************************************/
+void selectRandomIndices(int* available, int arrayLength, int number, int* resultingIndices)
+{
+    int* indices=malloc(arrayLength);
+    int  indexCount;
+    int  tryIndex;
+    int  i;
+
+    // Make a list of available indices
+    indexCount=0;
+    for (i=0;i<arrayLength;i++)
+    {
+        if (available[i]>0)
+        {
+            indices[indexCount]=i;
+            indexCount++;
+        }
+    }
+
+    // Feasibility check
+    if (number>indexCount)
+    {
+        printf("Invalid selectOf, trying to select more elements than are available\n");
+        exit(0);
+    }
+
+    // Now randomly select the indicated number
+    for(i=0; i<number;i++)
+    {
+        bool exit;
+        exit=false;
+        while (!exit)
+        {
+            tryIndex=rand() % indexCount;
+            if (indices[tryIndex]>=0)
+            {
+                resultingIndices[i]=indices[tryIndex];
+                indices[tryIndex]=-1;
+                exit=true;
+            }
+        }
+    }
+    free(indices);
 }

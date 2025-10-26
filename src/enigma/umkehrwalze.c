@@ -8,17 +8,13 @@
 
 #include "enigma.h"
 
-#define UMKEHR_WALZEN           5
-#define MAX_UMKEHRWALZE_NAME    10
-
-
-char umkehrWalzeNames[UMKEHR_WALZEN][MAX_UMKEHRWALZE_NAME]=
+char umkehrWalzeNames[UMKEHR_WALZEN][MAX_ROTOR_NAME]=
 {
-    "UKW A",
+    "UKW A",  // Used before WWII
     "UKW B",
     "UKW C",
-    "UKW B2",
-    "UKW C2"
+    "UKW B2", // thin B
+    "UKW C2"  // thin C
 };
 
 int umkehrWalzeTables[UMKEHR_WALZEN][MAX_POSITIONS]=
@@ -40,6 +36,15 @@ int umkehrWalzeTables[UMKEHR_WALZEN][MAX_POSITIONS]=
     }
 };
 
+
+// The sets of UKWs
+int ukwSets[MAX_ROTOR_SETS][UMKEHR_WALZEN]=
+{
+    { 0, 1, 1, 0, 0},
+    { 0, 1, 1, 0, 0},
+    { 0, 1, 1, 0, 0},
+    { 0, 0, 0, 1, 1}
+};
 
 /**************************************************************************************************\
 * 

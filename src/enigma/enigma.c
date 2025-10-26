@@ -6,6 +6,7 @@
 * 
 \**************************************************************************************************/
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 
@@ -491,6 +492,7 @@ void printEnigmaSettings(EnigmaSettings* settings, char* title)
 {
     Enigma *enigma;
     size_t cipherSize;
+    int    i;
 
     // Cipher size when given to Enigma
     enigma=createEnigmaM3();
@@ -504,8 +506,18 @@ void printEnigmaSettings(EnigmaSettings* settings, char* title)
     printf("# Cipher                    : \n");
     printCipher(settings->cipher);
     printf("# Cipher size               : %d characters\n", (int)cipherSize);
-    printf("# Original Walzen           : %s %s %s\n", settings->rotors[0], settings->rotors[1], settings->rotors[2]);
-    printf("# Original UKW              : %s \n", settings->ukw);
+    printf("# Number of Walzen          : %d\n", settings->numberOfRotors);
+    printf("# Original Walzen           : ");
+    printf("%s, ", settings->ukw);
+    for (i=0;i<settings->numberOfRotors;i++)
+    {
+        printf("%s", settings->rotors[i]);
+        if (i<settings->numberOfRotors-1)
+        {
+            printf(", ");
+        }
+    }
+    printf("\n");
     printf("# Original RingStellungen   : %d %d %d\n", settings->ringStellungen[0], 
                                                        settings->ringStellungen[1], 
                                                        settings->ringStellungen[2]);
@@ -514,6 +526,98 @@ void printEnigmaSettings(EnigmaSettings* settings, char* title)
                                                        settings->grundStellungen[2]);
     printf("# Original Steckers         : %s\n", settings->steckers);
     printf("#####################################################################################\n");
+}
+
+/**************************************************************************************************\
+* 
+* Create random settings for the Enigma
+* enigma   : enigma to create settings for
+* rotorSet : set of Walzen to use
+* steckers : number of steckers to use
+* 
+\**************************************************************************************************/
+EnigmaSettings* createRandomSettings(Enigma* enigma, RotorSet_t rotorSet, int numberOfSteckers)
+{
+    int i;
+    int offset;
+    int indices[54];
+
+    EnigmaSettings* random=malloc(sizeof(EnigmaSettings));
+
+    if ((enigma->numberOfRotors==4 && rotorSet!=M4_NAVAL_1941) ||
+        (enigma->numberOfRotors==3 && rotorSet==M4_NAVAL_1941))
+    {
+        printf("Illegal rotor set for given engima");
+        exit(0);
+    }
+
+    // Number of rotors
+    random->numberOfRotors=enigma->numberOfRotors;
+
+
+    // 4th rotor selection (rotor 1, M4)
+    if (enigma->numberOfRotors==4)
+    {
+        selectRandomIndices(fourthRotorSets[rotorSet], ROTORS, 1, indices);
+        strncpy(random->rotors[0], rotorNames[indices[0]], MAX_ROTOR_NAME-1);
+        offset=1;
+    }
+    else
+    {
+        offset=0;
+    }
+    // 1st 3 Rotor selection
+    selectRandomIndices(rotorSets[rotorSet], ROTORS, 3, indices);
+    for (i=0;i<3; i++)
+    {
+        strncpy(random->rotors[i+offset], rotorNames[indices[i]], MAX_ROTOR_NAME-1);
+    }
+    // UKW
+    selectRandomIndices(ukwSets[rotorSet], UMKEHR_WALZEN, 1, indices);
+    strncpy(random->ukw, umkehrWalzeNames[indices[0]], MAX_ROTOR_NAME-1);
+
+    // Grundstelling
+    for (i=0; i<random->numberOfRotors;i++)
+    {
+        random->grundStellungen[i]=1+rand() % 26;
+    }
+
+    // Ringstellung
+    for (i=0; i<random->numberOfRotors;i++)
+    {
+        random->ringStellungen[i]=1+rand() % 26;
+    }
+
+    // Steckers
+    int available[26]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+    selectRandomIndices(available, 26, numberOfSteckers*2, indices);
+    for(i=0; i<numberOfSteckers; i++)
+    {
+        random->steckers[i*3]  ='A'+indices[i*2];
+        random->steckers[i*3+1]='A'+indices[i*2+1];
+        if (i<numberOfSteckers-1)
+        {
+            random->steckers[i*3+2]=' ';
+        }
+        else
+        {
+            random->steckers[i*3+2]='\0';
+        }
+    }
+
+    // Cipher - empty
+    random->cipher[0]='\0';
+    return random;
+}
+
+/**************************************************************************************************\
+* 
+* Clean up the settings
+* 
+\**************************************************************************************************/
+void destroyEnigmaSettings(EnigmaSettings* settings)
+{
+    free(settings);
 }
 
 /**************************************************************************************************\
@@ -531,3 +635,4 @@ void dumpDecoded(EnigmaSettings* settings)
     printf("Solution: %s\n", toString(enigma));
     destroyEnigma(enigma);
 }
+

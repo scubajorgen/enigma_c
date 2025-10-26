@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <malloc.h>
@@ -40,6 +41,7 @@ void assertStringEquals(char* test, int testCase, char* expected, char* result)
     else
     {
         printf("Test %10s %3d: Failed! Expected %s, result was %s\n", test, testCase, expected, result);
+        exit(0);
     }
 }
 
@@ -57,6 +59,7 @@ void assertIntIsNull(char* test, int testCase, int* result)
     else
     {
         printf("Test %10s %3d: Failed! Expected NULL, result was %ld\n", test, testCase, (long)result);
+        exit(0);
     }
 }
 
@@ -74,6 +77,7 @@ void assertIntEquals(char* test, int testCase, int expected, int result)
     else
     {
         printf("Test %10s %3d: Failed! Expected %d, result was %d\n", test, testCase, expected, result);
+        exit(0);
     }
 }
 
@@ -93,6 +97,7 @@ void assertLongNotEquals(char* test, int testCase, long notExpected, long result
     else
     {
         printf("Test %10s %3d: Failed! Not expected %ld, result was %ld\n", test, testCase, notExpected, result);
+        exit(0);
     }
 }
 
@@ -110,10 +115,9 @@ void assertFloatEquals(char* test, int testCase, float expected, float result)
     else
     {
         printf("Test %10s %3d: Failed! Expected %f, result was %f\n", test, testCase, expected, result);
+        exit(0);
     }
 }
-
-
 
 
 /**************************************************************************************************\
@@ -397,6 +401,75 @@ void test05(void)
     
     destroyEnigma(enigma);  
 }
+
+/**************************************************************************************************\
+* 
+* Test the Engima M4
+* 
+\**************************************************************************************************/
+void test05B(void)
+{
+    Enigma*     enigma;
+    char*       result;
+
+    // Test 1
+    enigma=createEnigmaM4();
+    setText(enigma, "xfla kyyn ba");
+    placeWalze(enigma, 1, "Beta");
+    placeWalze(enigma, 2, "I");
+    placeWalze(enigma, 3, "II");
+    placeWalze(enigma, 4, "III");
+    
+    placeUmkehrWalze(enigma, "UKW B2");
+    
+    setRingStellung(enigma, 1, 1);
+    setRingStellung(enigma, 2, 17);
+    setRingStellung(enigma, 3, 12);
+    setRingStellung(enigma, 4, 15);
+
+    setGrundStellung(enigma, 1, 'A');
+    setGrundStellung(enigma, 2, 'B');
+    setGrundStellung(enigma, 3, 'C');
+    setGrundStellung(enigma, 4, 'D');
+
+    
+    clearSteckerBrett(enigma);
+    
+    encodeDecode(enigma);
+
+    result=toString(enigma);
+    assertStringEquals("enigma", 1, "HEILHITLER", result);
+
+
+
+    // Test 3
+    setText(enigma, "boot klar x bei j schnoor j etwa zwo siben x nov x sechs nul cbm x proviant bis zwo nul x dez x benoetige glaeser y noch vier klar x stehe marqu bruno bruno zwo funf x lage wie j schaefer j x nnn www funf y eins funf mb steigend y gute sicht vvv j rasch");
+
+    placeWalze(enigma, 1, "Beta");
+    placeWalze(enigma, 2, "VIII");
+    placeWalze(enigma, 3, "VI");
+    placeWalze(enigma, 4, "II");
+    
+
+    placeUmkehrWalze(enigma, "UKW B2");
+    
+    setRingStellungen(enigma, "23 17 15 15");
+
+    setGrundStellungen(enigma, "02 02 25 04");
+    
+    placeSteckers(enigma, "aj kf bc rt lm");
+    
+    encodeDecode(enigma);
+
+    result=toString(enigma);
+    assertStringEquals("enigma", 3, "SFNXFPQKKAISGWNNTBSTLMJOOWMFJXWIMCVRWALUSDDIIVQGXTEOAXZXURQUXPXDKZYNEMDZTDBEUPNKINOJHYUGZTPLKHAAMIZHSIWXGPHPQPTZDNBCFQDWACPFTXJKWVZGIFVBJYIAWFNXIWDIOXLAZDOXHNAPZXPSSJQSTTHKAIDMSCCNSBLYDLBOLRQNDZUO", result);
+
+    destroyEnigma(enigma);
+}
+
+
+
+
 
 /**************************************************************************************************\
 * 
@@ -797,6 +870,11 @@ void test11()
 
 }
 
+/**************************************************************************************************\
+* 
+* Test the work dispatcher
+* 
+\**************************************************************************************************/
 char* workItems[]=
 {
     "Item 1",
@@ -834,6 +912,87 @@ void test12()
     dispatcherStartWork(3, finalFunction, (void*)finalItem);
 } 
 
+/**************************************************************************************************\
+* 
+* Test the toolbox: selectRandomIndices()
+* 
+\**************************************************************************************************/
+void test13()
+{
+    int available[7]=
+    {
+        0, 1, 1, 0, 1, 1, 1
+    };
+    int resultingIndices[3];
+    srand(1);
+    selectRandomIndices     (available, 7, 3, resultingIndices);
+    // Note: might fail on other Systems
+    assertIntEquals("toolbox", 49, 5, resultingIndices[0]);
+    assertIntEquals("toolbox", 49, 2, resultingIndices[1]);
+    assertIntEquals("toolbox", 49, 4, resultingIndices[2]);
+}
+
+/**************************************************************************************************\
+*
+* Test creation of random settings
+* 
+\**************************************************************************************************/
+void test14()
+{
+    srand(1);
+
+    Enigma* enigma;
+    EnigmaSettings* settings;
+    enigma=createEnigmaM3();
+    settings=createRandomSettings(enigma, M3_ARMY_1938, 5);
+    printEnigmaSettings(settings, "Test 42");
+    assertIntEquals("enigma", 41, 3, settings->numberOfRotors);
+    destroyEnigmaSettings(settings);
+    destroyEnigma(enigma);
+
+    enigma=createEnigmaM4();
+    settings=createRandomSettings(enigma, M4_NAVAL_1941, 5);
+    printEnigmaSettings(settings, "Test 42");
+    assertIntEquals("enigma", 42, 4, settings->numberOfRotors);
+    destroyEnigmaSettings(settings);
+    destroyEnigma(enigma);
+}
+
+/**************************************************************************************************\
+*
+* Enigma with random settings, encode, decode
+* 
+\**************************************************************************************************/
+void test15()
+{
+    Enigma*         enigma;
+    EnigmaSettings* settings;
+    char*           test    ="TESTSTRING";
+    char*           result;
+    int             i;
+    enigma=createEnigmaM3();
+    for (i=0;i<1000;i++)
+    {
+        settings=createRandomSettings(enigma, M3_ARMY_1938, 5);
+
+        strncpy(settings->cipher, test, MAX_TEXT-1);
+        setEnigma(enigma, settings);
+        encodeDecode(enigma);
+        result=toString(enigma);
+
+        strncpy(settings->cipher, result, MAX_TEXT-1);
+        setEnigma(enigma, settings);
+        encodeDecode(enigma);
+        result=toString(enigma);
+
+        assertStringEquals("enigma", 43, test, result);
+
+        destroyEnigmaSettings(settings);
+    }
+    destroyEnigma(enigma);
+
+}
+
 
 /**************************************************************************************************\
 * 
@@ -852,6 +1011,7 @@ int main()
     test03();
     test04();
     test05();
+    test05B();
     test06();
     test07();
     test08();
@@ -860,6 +1020,10 @@ int main()
     test11();
     test06b();
     test06c();
+    test13();
+    test14();
+    test15();
+    
     test12();
     
     return 0;
