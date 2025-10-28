@@ -126,13 +126,10 @@ float iocStoreResults(IocResults* results)
     if (index>=0)
     {
         // Shift all top 10 entries below
-        i=iocNumberOfResults;
+        i=iocNumberOfResults-1;
         while (i>index)
         {
-            if (i<TOP_RESULTS_SIZE)
-            {
-                iocTopResults[i]=iocTopResults[i-1];
-            }
+            iocTopResults[i]=iocTopResults[i-1];
             i--;
         } 
         // Add the new record
@@ -1491,7 +1488,7 @@ void iocDecodeText(char* cipher, int numOfThreads)
         i++;
     }
 
-    dispatcherStartWork(6, iocFinishFunction, NULL);
+    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
 }
 
 
