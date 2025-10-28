@@ -97,6 +97,32 @@ float iocIndexOfCoincidence(Enigma* enigma)
 
 /**************************************************************************************************\
 * 
+* Create and initialize a results instance
+* 
+\**************************************************************************************************/
+IocResults* createIocResults()
+{
+    IocResults* results     =malloc(sizeof(IocResults));
+    int i;
+    for (i=0;i<MAX_POSITIONS;i++)
+    {
+        results->steckerTable[i]=0;
+    }
+    return results;
+}
+
+/**************************************************************************************************\
+* 
+* Create a results instance
+* 
+\**************************************************************************************************/
+void destroyIocResults(IocResults* results)
+{
+    free(results);
+}
+
+/**************************************************************************************************\
+* 
 * Store the results in the top 10 of best results
 * Returns the lowest index of coincidence value in the list
 * 
@@ -127,10 +153,13 @@ float iocStoreResults(IocResults* results)
     if (index>=0)
     {
         // Shift all top 10 entries below
-        i=iocNumberOfResults-1;
+        i=iocNumberOfResults;
         while (i>index)
         {
-            iocTopResults[i]=iocTopResults[i-1];
+            if (iocNumberOfResults<TOP_RESULTS_SIZE)
+            {
+                iocTopResults[i]=iocTopResults[i-1];
+            }
             i--;
         } 
         // Add the new record
@@ -816,7 +845,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     endR3           =work->endR3;
     threadId        =work->threadId;
     
-    results     =malloc(sizeof(IocResults));
+    results     =createIocResults();
     
     enigma      =createEnigmaM3(); 
 
@@ -934,7 +963,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     }
     destroyEnigma(enigma);  
 
-    free(results);
+    destroyIocResults(results);
     
     timeDiff=time(NULL)-startTime;
     if (timeDiff>0)
