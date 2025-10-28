@@ -13,7 +13,7 @@
 * DEFINES
 \**************************************************************************************************/
 
-#define TOP_RESULTS_SHOW    10
+#define TOP_RESULTS_SHOW    5
 #define TOP_RESULTS_SIZE    500
 #define MAX_THREADS         10
 #define MAX_WORK_ITEMS      32
@@ -21,12 +21,18 @@
 
 typedef enum 
 {
-    METHOD_IOC,             // James Gillogly, original described method, RING STELLUNG fixed to 1 1 1
-    METHOD_IOC_R3,          // James Gillogly, RING STELLUNG R1 and R2 fixed, varying R3
-    METHOD_IOC_R2R3,        // James Gillogly, RING STELLUNG R1 fixed, varying R2 and R3
-    METHOD_IOC_DEEP,        // Improved James Gillogly method, also tries for each Steckers for each situation (brute force)
-    METHOD_IOC_NGRAM        // Improved James Gillogly method combined with ngrams
-} Method_t;
+    DEPTH_NONE,             // James Gillogly, original described method, RING STELLUNG fixed to 1 1 1
+    DEPTH_R3,               // James Gillogly, RING STELLUNG R1 and R2 fixed, varying R3
+    DEPTH_R2_R3             // James Gillogly, RING STELLUNG R1 fixed, varying R2 and R3
+} Depth_t;
+
+typedef enum 
+{
+    EVAL_IOC,         // Evaluation by index of coincidence, James Gillogly
+    EVAL_NGRAM        // Evaluation by bigram or trigrams
+} Evaluation_t;
+
+
 
 
 typedef struct
@@ -68,7 +74,7 @@ extern int                 iocNumberOfResults;
 \**************************************************************************************************/
 
 // Methods for own cracking methods
-void    iocEvaluateEngimaSettings   (IocWorkItem* work, int maxSteckers);
+void    iocEvaluateEngimaSettings   (IocWorkItem* work);
 void    iocFindSteckeredChars       (IocResults* results, int maxNumOfSteckers);
 void    iocFindSteckeredCharsNgram  (IocResults* results, int maxNumOfSteckers, int ngramSize);
 void    iocDumpTopResults           (int number, int withDecode);
@@ -78,6 +84,6 @@ void    iocFinishFunction           (void* params);
 void    setWalzePermutations        (LinkedList* permutations);
 
 // Public methods
-void    setEvaluationMethod         (Method_t method, int maxSteckers, int maxSteckersIoc, int ngramSize, char* ngrams);
+void    setOperation                (Depth_t method, Evaluation_t evaluationWalzen, Evaluation_t evalSteckers, int maxSteckers, int ngramSize, char* ngrams);
 void    iocDecodeText               (char* cipher, int numOfThreads);
 

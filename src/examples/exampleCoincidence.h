@@ -6,11 +6,12 @@
 \**************************************************************************************************/
 
 void    iocExample00        ();
-void    iocExample01A       ();
-void    iocExample01B       ();
-void    iocExample01C       ();
-void    iocExample02A       ();
-void    iocExample03C       ();
+void    iocExample01Ioc     ();
+void    iocExample01IocR3   ();
+void    iocExample01Ngram2  ();
+void    iocExample02Ioc     ();
+void    iocExample03Ioc     ();
+void    iocExample04Ioc     ();
 
 void    iocExample07A       ();
 void    iocExample07B       ();

@@ -14,11 +14,11 @@ typedef enum {NGRAM_CHANCE, NGRAM_FREQUENCY} NgramFileFormat;
 
 typedef struct
 {
-    char    ngram[MAX_NGRAM];
-    int     value;
-    long    frequency;
-    float   chance;
-    float   logChance;
+    char    ngram[MAX_NGRAM];   // the ngram
+    int     value;              // the ngram represented as value: each letter takes 5 bits
+    long    frequency;          // the frequency of the ngram
+    float   chance;             // the chance of the ngram
+    float   logChance;          // natural log of the chance
 } NgramFrequency;
 
 NgramFrequency  ngramFrequencies[MAX_NGRAM_SIZE];
@@ -71,27 +71,27 @@ void readNgramFile(char* fileName, int n, NgramFileFormat format)
         i=0;
         while ((i<n) && (fileLine[i]!=' '))
         {
-            ngramFrequencies[line].ngram[i]=fileLine[i];
-            ngramFrequencies[line].value<<=5;
-            ngramFrequencies[line].value+=ngramFrequencies[line].ngram[i]-'A';
+            ngramFrequencies[line].ngram[i]     =fileLine[i];
+            ngramFrequencies[line].value        <<=5;
+            ngramFrequencies[line].value        +=ngramFrequencies[line].ngram[i]-'A';
             i++;
         }
         if (format==NGRAM_CHANCE)
         {
-            ngramFrequencies[line].chance=atof(fileLine+i+1);
-            ngramFrequencies[line].logChance=log(ngramFrequencies[line].chance);
+            ngramFrequencies[line].chance       =atof(fileLine+i+1);
+            ngramFrequencies[line].logChance    =log(ngramFrequencies[line].chance);
             if (ngramFrequencies[line].chance<minChance)
             {
-                minChance=ngramFrequencies[line].chance;
+                minChance                       =ngramFrequencies[line].chance;
             }
         }
         else
         {
-            ngramFrequencies[line].frequency=strtol(fileLine+i+1, NULL, 10);
+            ngramFrequencies[line].frequency    =strtol(fileLine+i+1, NULL, 10);
             sum+=ngramFrequencies[line].frequency;
             if (ngramFrequencies[line].frequency<minFrequency)
             {
-               minFrequency=ngramFrequencies[line].frequency;
+               minFrequency                     =ngramFrequencies[line].frequency;
             }
         }        
         
@@ -100,6 +100,7 @@ void readNgramFile(char* fileName, int n, NgramFileFormat format)
     
     ngrams=line;
     
+    // If frequencies were read, calculate the change of occurrence
     if (format==NGRAM_FREQUENCY)
     {
         i=0;
@@ -114,7 +115,7 @@ void readNgramFile(char* fileName, int n, NgramFileFormat format)
                                 ngramFrequencies[i].frequency,
                                 ngramFrequencies[i].chance,
                                 ngramFrequencies[i].logChance);
- */ 
+*/ 
             i++;
         }
         minChance=(float)minFrequency/(float)sum;
@@ -136,11 +137,15 @@ void prepareNgramScore(int n, char* language)
     {
         if (n==1)
         {
-            readNgramFile("ngrams/german_monograms.txt", 3, NGRAM_FREQUENCY);
+            readNgramFile("ngrams/german_monograms.txt" , 1, NGRAM_FREQUENCY);
+        }
+        else if (n==2)
+        {
+            readNgramFile("ngrams/german_bigrams.txt"   , 2, NGRAM_FREQUENCY);
         }
         else if (n==3)
         {
-            readNgramFile("ngrams/german_trigrams.txt", 3, NGRAM_FREQUENCY);
+            readNgramFile("ngrams/german_trigrams.txt"  , 3, NGRAM_FREQUENCY);
         }
     }
     else if (strncmp(language, "GB", 4)==0)

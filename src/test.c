@@ -687,6 +687,32 @@ void test08()
     destroyEnigma(enigma);
 }
 
+void test08B()
+{
+    int i;
+    Enigma* enigma;
+
+    char* text01="TOUGEVXHALJYNHDGTYFYTDQEWUNAKSGPUXLKTNIGGTJYFQNNVOOHMSQGMGMONGBNHBCYHJVMTERATBGMNUUQBPAXJWUAPKEHJJSL";
+    char* text02="AUFBEFEHLDESOBERSTENBEFEHLSHABERSSINDIMFALLEXZXZTXUNWAHRSCHEINLICHENXFRANZOESISQENANGRIFFSDIEWESTBEF";
+
+    enigma=createEnigmaM3();
+
+    prepareNgramScore(3, "DE");
+
+    enigma->textSize=100;
+    for(i=0;i<100;i++)
+    {
+        enigma->conversion[i]=text01[i]-'A';
+    }
+    printf("Random: %f\n", ngramScore(enigma, 3));
+    for(i=0;i<100;i++)
+    {
+        enigma->conversion[i]=text02[i]-'A';
+    }
+    printf("German: %f\n", ngramScore(enigma, 3));
+
+}
+
 
 /**************************************************************************************************\
 *
@@ -1023,8 +1049,10 @@ int main()
     test13();
     test14();
     test15();
+    test08B();
     
     test12();
+
     
     return 0;
 }

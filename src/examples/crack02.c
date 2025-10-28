@@ -312,7 +312,10 @@ void theThirdProblem()
 //    setEvaluationMethod(METHOD_IOC_DEEP, 13, 13, 3, NULL);
 //    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "DE");
 //    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "GB");
-    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 0, 3, "DE");
+//    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 0, 3, "DE");
+// TO DO
+    setOperation(DEPTH_NONE, EVAL_NGRAM, EVAL_NGRAM, 13, 3, "DE");
+    
 
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
 }
@@ -363,7 +366,10 @@ void theFourthProblem()
     }
 
     setWalzePermutations(permutations);
-    setEvaluationMethod(METHOD_IOC_NGRAM, 10, 10, 3, "GC");
+    //setEvaluationMethod(METHOD_IOC_NGRAM, 10, 10, 3, "GC");
+// TO DO
+    setOperation(DEPTH_NONE, EVAL_NGRAM, EVAL_NGRAM, 10, 3, "GC");
+
 
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
 	

@@ -831,8 +831,7 @@ void message09()
     int         limit;
     int         count;
 
-    
-	printf("MESSAGE 09\n");
+    printf("MESSAGE 09\n");
     enigma=createEnigmaM3(); 
 
     placeWalze(enigma, 1, "IV");
@@ -847,7 +846,6 @@ void message09()
 
     setText(enigma, text09);
     limit=enigma->textSize*12/100;
-
 
     g1=1;
     while (g1<MAX_POSITIONS)
@@ -879,20 +877,17 @@ void message09()
         g1++;
     }
     destroyEnigma(enigma);
-    
 }
-
-
 
 
 void message10_step01()
 {
-    int             i;
-    LinkedList*     permutations;
-    int				numOfThreads;
-    
-	
-	printf("MESSAGE 10 - STEP 1\n");
+    int         i;
+    LinkedList* permutations;
+    int         numOfThreads;
+
+    printf("MESSAGE 10 - STEP 1\n");
+
     numOfThreads=4;
     permutations=createRotorPermutations(3, 5);
 
@@ -901,7 +896,7 @@ void message10_step01()
     // This function employs the IOC_DEEP, which basically is 
     // brute forcing. It takes extemely long
    
-    // Create the stack of work for the trheads
+    // Create the stack of work for the threads
     iocNumberOfWorkItems=numOfThreads*2;
 
     int length=linkedListLength(permutations);
@@ -912,8 +907,8 @@ void message10_step01()
 		iocWorkItems[i*2].cipher            =text10;
         iocWorkItems[i*2].permutations      =permutations;
         iocWorkItems[i*2].startPermutation  =i*length/numOfThreads;
-        iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads;
-        iocWorkItems[i*2].R1                  =1;
+        iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads-1;
+        iocWorkItems[i*2].R1                =1;
         iocWorkItems[i*2].startR2           =1;
         iocWorkItems[i*2].endR2             =1;
         iocWorkItems[i*2].startR3           =1;
@@ -926,7 +921,7 @@ void message10_step01()
 		iocWorkItems[i*2+1].cipher          =text10;
         iocWorkItems[i*2+1].permutations    =permutations;
         iocWorkItems[i*2+1].startPermutation=i*length/numOfThreads;
-        iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads;
+        iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads-1;
         iocWorkItems[i*2+1].R1               =1;
         iocWorkItems[i*2+1].startR2         =1;
         iocWorkItems[i*2+1].endR2           =1;
@@ -938,12 +933,19 @@ void message10_step01()
         i++;
     }
     setWalzePermutations(permutations);
-    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, "DE");
+//    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, "DE");
+// TO DO
+    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
+
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);	
-	
-	// THIS RESULTS IN THE BEST SOLUTION:
-	//  1: UKW B  II   V   I R  1  1 18 G 21  6 24 - AO BV DS EX FT HZ IQ JW KU PR - 0.071839
+
+    // THIS RESULTS IN THE BEST SOLUTION:
+    //  1: UKW B  II   V   I R  1  1 18 G 21  6 24 - AO BV DS EX FT HZ IQ JW KU PR - 0.071839
     //  1: UKW B  II   V   I R  1  1 19 G 21  6 25 - AO BV DS EX FT HZ IQ JW KU PR - 0.053566 (IOC_DEEP, 10 steckers)
+
+//    setOperation(DEPTH_R3, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
+
+//    iocDecodeText(text10, 6);
 
 }
 
@@ -983,7 +985,10 @@ void message10_step02()
 
         i++;
     }
-    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, NULL);
+//    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, NULL);
+// TODO
+    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
+
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
 }
 
@@ -1023,7 +1028,8 @@ void message10_exp()
     }
 
     //setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, NULL);
-    setEvaluationMethod(METHOD_IOC_R2R3, 10, 10, 0, NULL);
+// TODO
+    setOperation(DEPTH_R2_R3, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);	
 }
 

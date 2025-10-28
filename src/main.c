@@ -29,15 +29,16 @@ int main()
 	printf("10.     Turing crib circles/loops                   \n");
 	printf("11-13.  Turing examples                             \n");
 
-	printf("20.     Gillogly IoC example 1  - original 7 st     \n");
-	printf("21.     Gillogly IoC example 1A - 8 steckers        \n");
-	printf("22.     Gillogly IoC example 1B - 8 steckers IoC_R3 \n");
-	printf("23.     Gillogly IoC example 1C - 10 steckers       \n");
-	printf("24.     Gillogly IoC example 2 long English         \n");
-	printf("25.     Gillogly IoC example 3 short English        \n");
-	printf("26.     Gillogly IoC example 7 Geocache GC6ZZBB     \n");
-	printf("27.     Gillogly IoC example 7 Geocache GC6ZZBB log \n");
-	printf("28.     Gillogly IoC example NGRAMS                 \n");
+	printf("20.     Gillogly IoC example 0  - original example 7 st - IOC     \n");
+	printf("21.     Gillogly IoC example 1  - 8 steckers            - IOC     \n");
+	printf("22.     Gillogly IoC example 1  - 8 steckers            - IOC_R3  \n");
+	printf("23.     Gillogly IoC example 1  - 8 steckers            - NGRAM   \n");
+	printf("24.     Gillogly IoC example 2  - 10 steckers           - IOC     \n");
+	printf("25.     Gillogly IoC example 3  - long English          - IOC     \n");
+	printf("26.     Gillogly IoC example 4  - short English         - IOC     \n");
+	printf("27.     Gillogly IoC example 7 Geocache GC6ZZBB     \n");
+	printf("28.     Gillogly IoC example 7 Geocache GC6ZZBB log \n");
+	printf("29.     Gillogly IoC example NGRAMS                 \n");
 	
     printf("30.     The third problem                           \n");
 	printf("31.     The fourth problem                          \n");
@@ -83,35 +84,40 @@ int main()
             break;
         case 21: 
             // 2nd IoC example, METHOD_IOC, 8 steckers
-            iocExample01A();
+            iocExample01Ioc();
             break;
         case 22:  
             // 2nd IoC example, METHOD_IOC_R3 method, works
-            iocExample01B();
+            iocExample01IocR3();
             break;
         case 23:  
-            // METHOD_IOC_R2R3 method, ?
-            iocExample01C();
+            // 2nd IoC example, METHOD_NGRAM method, works
+            iocExample01Ngram2();
             break;
         case 24:  
-            // Some long english text, piece of cake for METHOD_IOC
-            iocExample02A();
+            // 3rd example, 10 steckes
+            iocExample02Ioc();
             break;
         case 25:  
-            // Some short english text, METHOD_IOC_R2R3 finds a close solution
-            iocExample03C();
+            // Some long english text, piece of cake for METHOD_IOC
+            iocExample03Ioc();
             break;
         case 26:  
-            // Test; 7A does not succeed
-            iocExample07A();
+            // Some short english text, METHOD_IOC_R2R3 finds a close solution
+            iocExample04Ioc();
             break;
         case 27:  
             // Test; 7A does not succeed
-            iocExample07B();
+            iocExample07A();
             break;
         case 28:  
             // Test; 7A does not succeed
-            iocExampleNgram();
+            iocExample07B();
+            break;
+        case 29:  
+            // Test; 7A does not succeed
+            // TO DO
+            // iocExampleNgram();
             break;
         case 30:
             theThirdProblem();
@@ -126,7 +132,8 @@ int main()
             theSixthProblem();
             break;
         case 34:
-            iocExampleNgram();
+            // TO DO
+            //iocExampleNgram();
             break;    
         case 40:
             message01();
@@ -165,7 +172,7 @@ int main()
             message10_exp();
             break;
         case 99:
-            ngramTest6();
+//            ngramTest6();
             break;
     }
     return 0;

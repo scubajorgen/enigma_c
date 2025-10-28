@@ -16,221 +16,6 @@
 #include "toolbox.h"
 
 
-
-
-
-
-
-
-
-IocResults  iocExampleResults10=
-{
-    0.0440,
-    {
-        3,
-        {
-            "IV",
-            "III",
-            "I"
-        },
-        "UKW C",
-        {
-            7, 24, 15
-        },
-        {
-            11, 18, 9
-        },
-        "AT BG DV EW FR HN IQ JX KZ LU",
-        " INAVH YMVHI AGMJO PKVJH SGJYY"  
-        " KNHLF KRZWH WLAKK EGGHZ FEAKV"
-        " VIDDS YYVEY QFQJP VYHLF UZESA"
-        " OLGNH TXTTB DZJVO AGEAW HBBWC"
-        " ADYYT HSLRX MPEDI CATSM ALBZY"
-        " LBPZM QDSXZ HPFSX VYCBK GEBTG"
-        " QGZII DQJDB YDACS WJGXU CUXLT"
-        " RTMZH HWXZP ESSYE EPFCQ AOWOS"
-        " PLUZU CVOKY JXCPY GNJHS PNCFS"
-        " WTLLM SGACQ BSUTP SAVGU YFVKS"
-        " UBSQE GVZKV NRLXF IXZQW FKSXC"
-        " PPFRI MWQHT QSB"
-    }
-};
-
-// GC voorbeeld
-IocResults  iocExampleResults10Test2=
-{
-    0.0,
-    {
-        3,
-        {
-            "III",
-            "I",
-            "II"
-        },
-        "UKW B",
-        {
-            1, 1, 1
-        },
-        {
-            1, 17, 12
-        },
-//        "AZ BY CX DW EV FU GT HS IQ JR",
-        "AZ BY CX DW EV FU",
-
-        "QAVIM KGJZT XYFBC MVCON NTBZK LEZNB QMCLE UQXPY TYHEB VNCKO VACPK "
-        "GCWPW UVHUF WJFWT CNIJV ULFBV ADZRQ WMLVD DQFRJ AZUPS IXACS KJHLR "
-        "DQFMX PSZMK I"
-    }
-};
-
-
-
-// GC Code breakers
-IocResults  iocExampleResults10Test4=
-{
-    0.0,
-    {
-        3,
-        {
-            "III",
-            "I",
-            "II"
-        },
-        "UKW B",
-        {
-            13, 5, 20
-        },
-        {
-            2, 1, 8
-        },
-
-        "",
-        
-        "MCIKVFMLPDWBWMLQRVKEYPSFBVYHLSGSYAFZPXZCBFWPEUMWMBUMGCU"
-        "MKCZPQJEEXEEEWOSBXQJTHQEDNJMSJENPWYSCKWOVPMAYWNQ"
-    }
-};
-
-
-// GC GC6ZZBB
-IocResults  iocExampleResults10Test5=
-{
-    0.0,
-    {
-        3,
-        {
-            "II",
-            "III",
-            "IV"
-        },
-        "UKW B",
-        {
-            1, 1, 1
-        },
-        {
-            21, 9, 15
-        },
-
-        "",
-        "QLTPKMZRJFEKXOWPAZXPJJJQLCIVDSVFUMCNUGRVTLXEEVYT"
-        "WDEFZQAMITJUSFQCRNMYHXVIFGRPHKBJBEAPDPJWBYTIILQM"
-        "AZIMWFNGLJJISZXFQURMHWWVIKUJVJHRWYJDKHVPYXCBFUOL"
-        "FCMJWTXFMNJBRFONYOQTSWQGKETQFGTNKUIWHSTCOAFJKOHX"
-        "HYRIHNLZEWJQQBABYIKUWXGCINOCVQPEBQJYXKUMWEDGBJPA"
-        "LDRUSFELKUIHPRHDAEXHGKMAUMHIIKKIAHPSJUABXMJKDJHD"
-        "JVQEUHOIIYYJMIVKDUEBLVGRKJMHECFYAYIKDNJWYDWJSTBZ"
-        "PIJQMQAPNKWOOZEJUKYVZECNKAYGADJHMBZAFGWSGXZYHIUY"
-        "MRJUVZOZVMCHZGILJZGJOBEJHIXJQXQEGMTDFVHXMAVDHDRO"
-        "HBKKZNAHICTDMLUXHEULAYCPOSQTGDAPJMIXOMGGRIWRTPCQ"
-        "JUJTCJEWBKPYQHVEWURAKVMJIRNPRCEEPARIUMCWTHILQLDZ"
-        "MRSDSRMAOQTLSUFVUYPDKGHTIGTLRMMBZPVUKMCHUKZKUPRK"
-        "EVYJIBWVZCXVXNHMTZEFZXVVPQBGTTJJHMQTUSCYFAGXXQOJ"
-        "JFNKQTXAXRLZGDJEOMXNAJWHVXMSHIVUUAWGPDSZKBHUKJVA"
-        "NRSLCDRUYEETMZAMBODUPCIWSEOHZYMSTEAFNKDEXPPKMWUN"
-        "RCAVOKVSWQWOKSFBXANMMUUIAYFLWNMUAWGGOGASBYERVJCL"
-        "PCBVNWAGMWEMUYJIMAQJJGDADNAWMPKKPFFFKXXPSLMUZSLB"
-        "EQJILYZZAXLYSTAAVIPOSFBWYBPOSFBHNQVXICOKHFZVNKZG"
-        "FJLUTYUGFGGAGKPZOAJDCRWIFZPKMCDTSVMLUMPNKSKDGNYZ"
-        "PUJQMEBCIPYAIPWTAGQBSEYLNHNUFDGGTVLJWUYSSAWCZMFA"
-        "OUVUWJQIGQFTACHWENNSHUNNRUKXWCOPWFLAPAUTROCMEJVC"
-        "UZMHPJXWPEONLUWCEHXWDGTBOUKZWRTYGYHVTBAFOVPEHTYY"
-        "KWMLBGVIJIVMUEZYZPGKRTMBXLIXBYWOPVQXZBWYBDJGVLHA"
-        "VEPDOQZAPRTFETCRZUFUTKOOZWTGPOIUKJKQPPIUKKQXHRZP"
-        "LVINXQOCJGXNVRFWDNADOVZWPBUQVKYLTHICCXVMEPMQTCGQ"
-        "NILDTBOXXDAAUZYANLKWMLZNTRFMZUEJQRZFKDSOCOFVYLUV"
-        "MIIWOOKAXLQEKRJGGDCDQLJMNGKDKBHMZJZOPYKGHPNIMIDR"
-        "UXEMRGVFYNZDCTXKGMHUEYMGZAUEIQOCDKHMIGURNEVBXLJL"
-        "PYLGDEBAKZJXTTRRIZUFZKBAQWQWBUXMGNLRVXEAWJTPAFWQ"
-        "HALGLSHFAFPQMSADGINEXECUDJDCBWEOEQJCWBNGLHIPXGJU"
-        "BWRYLYLYNABZRUEWCKSUBWCYJGLYZBFVFLAMEVRPTRAHWYKH"
-        "UFQFRMYXPJOHNVZAOVBFIGCIJONBKNVZXMVNBSXAWVEECXKW"
-        "WNOVVRRGSAJAZEDTQMKCFSGLDWSDFJCNZQEUFDGJLPMFMAGC"
-        "BZEJEMGGHRXEDBDENGDJZVXZTJNKTYJXUGHDHXNKZBOWXJUC"
-        "IZNHHITGFEHAMFDQXKSYWBQILNXXMNRJBHKZPBVGQDPKMSGJ"
-        "XICNRGSPKQWMTBLOVSXQOVIIBLHZCAUFKQSBAGHHNLAPRJJG"
-        "PEAIOULZSNJVBPHIERCWSGVRAXRVBIZGALTMXRZLTCICAPAD"
-        "YSLBUTXVEBACZDXJGGMRBAIXSIEDPSACVTFPTXOQLHSEZTRQ"
-        "ETYTLABBKDDXUCHEBWNFUMGUQJTDQNCPYLNWPFZFJZUNFGQJ"
-        "CYQLSXDQKKNRJGPHFPKHDUPEWBJJJSVCLBCSIJMJVUDKUXRF"
-        "IQIUZTNENNHZNWLOJDVPNYPYIRMOUUXEFYMPCROOSKKGAJOH"
-        "UPLXLHDAOHDQEHYFTYFKZNUHUNXAGDPNUNDEZEFJBXUKQCAP"
-        "MXFCNKQWKKCLYUESQJLSFMACBYRDJUSJIHDCMXDARSAPDQGM"
-        "VJVQVNYGTRVBKURGCEZQTLMFTOTFSJOYXLATZHJARLNMKYXX"
-        "AIJIWMWVRECNJDXCVEUZLMNXIEVARCVUEHAMPAHCRZUJNTIJ"
-        "DAMACDLJCRIGNKXFGALBUAKHLCZWTMGQDRTWUMKGSBZDGQGK"
-        "QZCUQQXEVDDXBLZPIRQMPUHTQNKCNAAKYQLKWSUELLXDQBMU"
-        "MOLFXKEOZZLBVXSFTPULYPUZGFJYTMUPXIVOUYACHYVASEBI"
-        "NORMVEPMJKXCFNULBJURDBDDKXVADTGOUDDXTXZPZNTJFPIU"
-        "AUGSQSIAHSNBZLBBWVSSCYICSYATXDUJZEMFDQIVUTKWCFJZ"
-        "KHEEQNJAWDAVTOELFOKWBLXGSSFBFQAXMUGIJEXWKZPJOSNB"
-        "ZJFXLZHPXAJFGLOHNBWPMPNCMBCINDWLWODISOZXTARGYCNM"
-        "HIUMTZHLGGOCOGWPNQTBVGCBCVJGVAWSIJNMKBZMXMBVYWQD"
-        "RMBJHPILKIMTWPQBNFQMKKURZEOYRZHESYXHDWILXMZHMKWA"
-        "ZEFBOWEYJSKJSFHRMQIGMHYHMWPAQTXQYVRCBNKCGHITSQYH"
-        "SADFAJTINESFMNJMWTIXCEXTGRKOGOOIZIJGAYNFDQDZXARQ"
-        "IORJNYXHLECSWTFRGZVKWLUGTDBQRREESCNOBBVOLDBRVNKN"
-        "QOZRVOVZDTKGOCSRYTYJFLWTGLEIXFTZZHNCYKKBVLRZCYEN"
-        "UKMXQSCFDDIKTODTCFIUTIVXQLVKWTKRGETZXFRQKTPHMXPE"
-        "LOSOQYQUTCBSMLKEBBTUEKMLLBCQEFWQMLKDBWFHMBTUNGHG"
-        "CDSYVURJZSPOHYRUFETJKZKLYVUKUVRUEZDWBYAOKPLRBNPH"
-        "KWTJJUBLWXRLVODBNCHNZKLGXZMPZEQZLNORDSOLPFFBSIRL"
-        "FQSEURQWXHDSKLPXVFCVVEYKHLVUZAYYLQAIXKJZFPIYHKOA"
-        "AVAEAXVHJWTLISBNUSIDNWYTIWXXCVYUNZPCTVHMUEGVCSIN"
-        "XYPAFTJFQEWEMBNXCRMVOOTCBUMUAPMTFITWAQRGHUAWIHVC"
-        "JRZEMOQQNEQUDLMCMUQWJENQZAFFR"
-    }
-};
-
-
-
-
-// The orignal Gillogly cipher text and enigma settings, 7 steckers
-IocResults iocExampleResults04=
-{
-    0.0,
-    {
-        3,
-        {
-            "II",
-            "I",
-            "III"
-        },
-        "UKW B",
-        {
-            1, 23, 4
-        },
-        {
-            2, 7, 9
-        },
-        "MV PX EZ RW JO",
-//        "MV PX EZ RW JO BL IU AT CF DG HK NQ SY",
-        "whinw dnvzt cnzom jassm ksqwx bmefi wmrqw xqebn fwuwb cghmd sgien jzmct"
-        "cskcr czoac cvunj ljlvc qcdpy gpxno ffwlv afxze xrrzj xyyvl mulfd qgnfj"
-        "ppaki pmokx qimtg xdegi loiyb mdqls ykhrb ihqju zsdpb offck bqxot lvhow"
-        "qqxze taiet jvllc igums wroeu lcsbh pqkcd"
-    }
-};
-
 /**************************************************************************************************\
 * 
 * Example from the original James Gillogly article. 7 steckers
@@ -274,7 +59,7 @@ void iocExample00()
 {
     printEnigmaSettings(&iocExampleSettings00, "INDEX OF COINCIDENCE METHOD EXAMPLE 0 - James Gilloglys' example, 7 steckers");
 
-    setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
+    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
 
     iocDecodeText(iocExampleSettings00.cipher, 6);
 }
@@ -319,11 +104,11 @@ EnigmaSettings iocExampleSettings01A=
     "xzwij qhdwj aiyge sncou yzgay ucwdf rnqxf yxlym bwsdw hy"
 };
 
-void iocExample01A()
+void iocExample01Ioc()
 {
-    printEnigmaSettings(&iocExampleSettings01A, "INDEX OF COINCIDENCE METHOD EXAMPLE 1A - 8 steckers");
+    printEnigmaSettings(&iocExampleSettings01A, "INDEX OF COINCIDENCE METHOD EXAMPLE 1 - 8 steckers");
 
-    setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
+    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
 
     iocDecodeText(iocExampleSettings01A.cipher, 6);
 }
@@ -334,14 +119,30 @@ void iocExample01A()
 * Works
 * 
 \**************************************************************************************************/
-void iocExample01B()
+void iocExample01IocR3()
 {
-    printEnigmaSettings(&iocExampleSettings01A, "INDEX OF COINCIDENCE METHOD EXAMPLE 1B - 8 steckers");
+    printEnigmaSettings(&iocExampleSettings01A, "INDEX OF COINCIDENCE METHOD EXAMPLE 1 - 8 steckers");
 
-    setEvaluationMethod(METHOD_IOC_R3, 10, 10, 0, NULL);
+    setOperation(DEPTH_R3, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
 
     iocDecodeText(iocExampleSettings01A.cipher, 6);
 }
+
+/**************************************************************************************************\
+* 
+* Example from the original James Gillogly article - other encryption with 8 steckers
+* Works
+* 
+\**************************************************************************************************/
+void iocExample01Ngram2()
+{
+    printEnigmaSettings(&iocExampleSettings01A, "INDEX OF COINCIDENCE METHOD EXAMPLE 1 - 8 steckers");
+
+    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_NGRAM, 10, 3, "DE");
+
+    iocDecodeText(iocExampleSettings01A.cipher, 6);
+}
+
 
 /**************************************************************************************************\
 * 
@@ -351,7 +152,7 @@ void iocExample01B()
 \**************************************************************************************************/
 // The orignal Gillogly cipher text but other engima settings, 10 steckers
 // The original Gillogly method won't find the solution
-EnigmaSettings iocExampleSettings01C=
+EnigmaSettings iocExampleSettings02=
 {
     3,
     {
@@ -383,13 +184,13 @@ EnigmaSettings iocExampleSettings01C=
 };
 
 
-void iocExample01C()
+void iocExample02Ioc()
 {
-    printEnigmaSettings(&iocExampleSettings01C, "INDEX OF COINCIDENCE METHOD EXAMPLE 1C - 10 steckers");
+    printEnigmaSettings(&iocExampleSettings02, "INDEX OF COINCIDENCE METHOD EXAMPLE 1C - 10 steckers");
 
-    setEvaluationMethod(METHOD_IOC_R3, 10, 10, 0, NULL);
+    setOperation(DEPTH_R2_R3, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings01C.cipher, 6);
+    iocDecodeText(iocExampleSettings02.cipher, 6);
 }
 
 
@@ -402,7 +203,7 @@ void iocExample01C()
 
 // Some pretty large english message with only 4 steckers
 // rotor 3 just before step
-EnigmaSettings iocExampleSettings02=
+EnigmaSettings iocExampleSettings03=
 {
     3,
     {
@@ -434,13 +235,13 @@ EnigmaSettings iocExampleSettings02=
     "wukdh quraa bkucm rgqsk volqi zeare jfggf hqvyh nwwih dzt"
 };
 
-void iocExample02A()
+void iocExample03Ioc()
 {
-    printEnigmaSettings(&iocExampleSettings02, "INDEX OF COINCIDENCE METHOD EXAMPLE 2A");
+    printEnigmaSettings(&iocExampleSettings03, "INDEX OF COINCIDENCE METHOD EXAMPLE 2A");
 
-    setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
+    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings02.cipher, 6);
+    iocDecodeText(iocExampleSettings03.cipher, 6);
 }
 
 /**************************************************************************************************\
@@ -454,7 +255,7 @@ void iocExample02A()
 \**************************************************************************************************/
 
 // A short english text, 4 steckers
-EnigmaSettings iocExampleSettings03=
+EnigmaSettings iocExampleSettings04=
 {
     3,
     {
@@ -476,13 +277,13 @@ EnigmaSettings iocExampleSettings03=
     "hwc"
 };
 
-void iocExample03C()
+void iocExample04Ioc()
 {
-    printEnigmaSettings(&iocExampleSettings03, "INDEX OF COINCIDENCE METHOD EXAMPLE 3C - Short english text");
+    printEnigmaSettings(&iocExampleSettings04, "INDEX OF COINCIDENCE METHOD EXAMPLE 3C - Short english text");
 
-    setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
+    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
 
-    iocDecodeText(iocExampleSettings03.cipher, 6);
+    iocDecodeText(iocExampleSettings04.cipher, 6);
 }
 
 /**************************************************************************************************\
@@ -525,7 +326,7 @@ void iocExample07A()
 {
     printEnigmaSettings(&iocExampleSettings07A.settings, "INDEX OF COINCIDENCE METHOD EXAMPLE 7A");
 
-    setEvaluationMethod(METHOD_IOC, 10, 10, 0, NULL);
+    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
 
     iocDecodeText(iocExampleSettings07A.settings.cipher, 10);
 }
@@ -624,243 +425,10 @@ void iocExample07B()
 {
     printEnigmaSettings(&iocExampleSettings07B, "INDEX OF COINCIDENCE METHOD EXAMPLE 7B");
 
-    setEvaluationMethod(METHOD_IOC_R3, 10, 10, 0, NULL);
-//    setEvaluationMethod(METHOD_IOC_R3, 10, 10, 0, NULL);
-//    setEvaluationMethod(METHOD_IOC_R3, 13, 13, 3, "DE");
+    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
 
     iocDecodeText(iocExampleSettings07B.cipher, 10);
 }
 
 
-
-/**************************************************************************************************\
-* 
-* Example to play with short messages
-* 
-\**************************************************************************************************/
-void iocExampleDeep2()
-{
-    EnigmaSettings* settings;
-    LinkedList*     permutations;
-    
-    settings=&iocExampleResults10.settings;
-    
-    printEnigmaSettings(settings, "INDEX OF COINCIDENCE METHOD EXAMPLE 3C - IoC");
-
-    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 0, NULL);
-
-    // Start with 5 Wehrmacht rotors
-    permutations=createRotorPermutations(3, 5);
-
-    iocWorkItems[0].cipher            =settings->cipher;
-    iocWorkItems[0].permutations      =permutations;
-    iocWorkItems[0].startPermutation  =40;
-    iocWorkItems[0].endPermutation    =40;
-    iocWorkItems[0].R1                =1;
-    iocWorkItems[0].startR2           =24;
-    iocWorkItems[0].endR2             =24;
-    iocWorkItems[0].startR3           =15;
-    iocWorkItems[0].endR3             =15;
-    iocWorkItems[0].maxCipherChars    =MAX_TEXT;
-
-    
-    strncpy(iocWorkItems[0].ukw, "UKW C", MAX_ROTOR_NAME);
-
-    iocEvaluateEngimaSettings(&iocWorkItems[0], 10);
-
-    iocDumpTopResults(TOP_RESULTS_SHOW, 1);
-
-    destroyLinkedList(permutations);    
-}
-
-/**************************************************************************************************\
-* 
-* Example to play with short messages
-* 
-\**************************************************************************************************/
-void iocExampleNgram()
-{
-    EnigmaSettings* settings;
-    LinkedList*     permutations;
-    int             i;
-    
-    settings=&iocExampleResults10.settings;
-    
-    printEnigmaSettings(settings, "INDEX OF COINCIDENCE METHOD EXAMPLE - NGram");
-
-    setEvaluationMethod(METHOD_IOC_NGRAM, 10, 5, 3, "DE");
-
-
-    // Start with 5 Wehrmacht rotors
-    permutations=createRotorPermutations(3, 5);
-
-    iocWorkItems[0].cipher            =settings->cipher;
-    iocWorkItems[0].permutations      =permutations;
-    iocWorkItems[0].startPermutation  =40;
-    iocWorkItems[0].endPermutation    =40;
-    iocWorkItems[0].R1                =7;
-    iocWorkItems[0].startR2           =24;
-    iocWorkItems[0].endR2             =24;
-    iocWorkItems[0].startR3           =15;
-    iocWorkItems[0].endR3             =15;
-    iocWorkItems[0].maxCipherChars    =MAX_TEXT;
-
-    
-    strncpy(iocWorkItems[0].ukw, "UKW C", MAX_ROTOR_NAME);
-
-    iocEvaluateEngimaSettings(&iocWorkItems[0], 5);
-
-    iocDumpTopResults(TOP_RESULTS_SHOW, 1);
-
-    i=0;
-    while (i<iocNumberOfResults)
-    {
-        iocFindSteckeredCharsNgram(&iocTopResults[i], 10, 3);
-        i++;
-    }
-
-    iocDumpTopResults(TOP_RESULTS_SHOW, 1);
-
-    destroyLinkedList(permutations);    
-
-}
-
-/**************************************************************************************************\
-* 
-* Quicky to test iocFindSteckeredCharsNgram
-* 
-\**************************************************************************************************/
-void ngramTest()
-{
-    EnigmaSettings* settings;
-    
-    settings=&iocExampleResults10.settings;
-    printEnigmaSettings(settings, "INDEX OF COINCIDENCE METHOD EXAMPLE 3C - Ngram test");
-    
-    setEvaluationMethod(METHOD_IOC_NGRAM, 10, 6, 3, "DE");
-
-    strncpy(iocExampleResults10.settings.steckers, "AT BG DV EW FR HN IQ JX KZ LU PS", 35);
-    printf("\nSteckers %s\n", iocExampleResults10.settings.steckers);
-    iocFindSteckeredCharsNgram(&iocExampleResults10, 13, 3);
-    printf("Steckers %s\n", iocExampleResults10.settings.steckers);
-    dumpDecoded(&iocExampleResults10.settings);
-    
-    strncpy(iocExampleResults10.settings.steckers, "AT DV JX KZ QR IP", 35);
-    printf("\nSteckers %s\n", iocExampleResults10.settings.steckers);
-    iocFindSteckeredCharsNgram(&iocExampleResults10, 13, 3);
-    printf("Steckers %s\n", iocExampleResults10.settings.steckers);
-    dumpDecoded(&iocExampleResults10.settings);
-    
-    strncpy(iocExampleResults10.settings.steckers, "AT", 35);
-    printf("\nSteckers %s\n", iocExampleResults10.settings.steckers);
-    iocFindSteckeredCharsNgram(&iocExampleResults10, 13, 3);
-    printf("Steckers %s\n", iocExampleResults10.settings.steckers);
-    dumpDecoded(&iocExampleResults10.settings);
-    
-    strncpy(iocExampleResults10.settings.steckers, "", 35);
-    printf("\nSteckers %s\n", iocExampleResults10.settings.steckers);
-    iocFindSteckeredCharsNgram(&iocExampleResults10, 13, 3);
-    printf("Steckers %s\n", iocExampleResults10.settings.steckers);
-    dumpDecoded(&iocExampleResults10.settings);
-}
-
-
-/**************************************************************************************************\
-* 
-* Quicky to test iocFindSteckeredCharsNgram
-* 
-\**************************************************************************************************/
-void ngramTest2()
-{
-    setEvaluationMethod(METHOD_IOC_NGRAM, 10, 6, 3, "GC");
-
-
-    printf("Steckers %s\n", iocExampleResults10Test2.settings.steckers);
-
-    iocFindSteckeredCharsNgram(&iocExampleResults10Test2, 10, 3);
-    
-    printf("Steckers %s\n", iocExampleResults10Test2.settings.steckers);
-    
-    dumpDecoded(&iocExampleResults10Test2.settings);
-    
-}
-
-/**************************************************************************************************\
-* 
-* Quicky to test iocFindSteckeredCharsNgram
-* 
-\**************************************************************************************************/
-void ngramTest3()
-{
-    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "GC");
-
-
-    printf("Steckers %s\n", iocExampleSettings07A.settings.steckers);
-
-    iocFindSteckeredCharsNgram(&iocExampleSettings07A, 13, 3);
-    
-    printf("Steckers %s\n", iocExampleSettings07A.settings.steckers);
-    
-    dumpDecoded(&iocExampleSettings07A.settings);
-    
-}
-
-/**************************************************************************************************\
-* 
-* Quicky to test iocFindSteckeredCharsNgram
-* 
-\**************************************************************************************************/
-void ngramTest4()
-{
-    setEvaluationMethod(METHOD_IOC_NGRAM, 10, 10, 3, "GC");
-
-
-    printf("Steckers %s\n", iocExampleResults10Test4.settings.steckers);
-
-    iocFindSteckeredCharsNgram(&iocExampleResults10Test4, 13, 3);
-    
-    printf("Steckers %s\n", iocExampleResults10Test4.settings.steckers);
-    
-    dumpDecoded(&iocExampleResults10Test4.settings);
-    
-}
-
-/**************************************************************************************************\
-* 
-* Quicky to test iocFindSteckeredCharsNgram
-* 
-\**************************************************************************************************/
-void ngramTest5()
-{
-    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 3, 3, "DE");
-
-
-    printf("Steckers %s\n", iocExampleResults10Test5.settings.steckers);
-
-    iocFindSteckeredCharsNgram(&iocExampleResults10Test5, 13, 3);
-    
-    printf("Steckers %s\n", iocExampleResults10Test5.settings.steckers);
-    
-    dumpDecoded(&iocExampleResults10Test5.settings);
-    
-}
-
-/**************************************************************************************************\
-* 
-* Quicky to test iocFindSteckeredCharsNgram
-* 
-\**************************************************************************************************/
-void ngramTest6()
-{
-    printEnigmaSettings(&iocExampleResults04.settings, "NGRAMTEST 6 - 13 STECKERS");
-
-    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 0, 3, "DE");
-
-    iocFindSteckeredCharsNgram(&iocExampleResults04, 13, 3);
-    printf("Steckers %s\n", iocExampleResults04.settings.steckers);
-
-    
-    dumpDecoded(&iocExampleResults04.settings);
-    
-}
 
