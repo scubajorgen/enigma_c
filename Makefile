@@ -27,6 +27,7 @@ _SRCOBJ	        = enigma.o \
                   ngramscore.o \
                   adfgx.o \
                   toolbox.o \
+                  log.o \
                   workDispatcher.o
 
 _MAINOBJ        = main.o crack01.o crack02.o crack03.o

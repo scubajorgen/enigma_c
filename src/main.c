@@ -12,6 +12,7 @@
 #include "exampleEnigma.h"
 #include "exampleTuring.h"
 #include "exampleCoincidence.h"
+#include "log.h"
 
 int main()
 {
@@ -183,6 +184,9 @@ int main()
             break;
         case 99:
 //            ngramTest6();
+            break;
+        default:
+            logError("Invalid selection %d", i);
             break;
     }
     return 0;
