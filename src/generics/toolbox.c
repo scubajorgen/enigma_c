@@ -426,13 +426,11 @@ void printCipher(char* cipher)
 \**************************************************************************************************/
 void selectRandomIndices(int* available, int arrayLength, int number, int* resultingIndices)
 {
-    int* indices=malloc(arrayLength);
-    int  indexCount;
-    int  tryIndex;
+    int* indices=malloc(arrayLength*sizeof(int));
     int  i;
 
     // Make a list of available indices
-    indexCount=0;
+    int indexCount=0;
     for (i=0;i<arrayLength;i++)
     {
         if (available[i]>0)
@@ -456,7 +454,7 @@ void selectRandomIndices(int* available, int arrayLength, int number, int* resul
         exit=false;
         while (!exit)
         {
-            tryIndex=rand() % indexCount;
+            int tryIndex=rand() % indexCount;
             if (indices[tryIndex]>=0)
             {
                 resultingIndices[i]=indices[tryIndex];
