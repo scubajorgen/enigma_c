@@ -314,8 +314,17 @@ void theThirdProblem()
 //    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "GB");
 //    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 0, 3, "DE");
 // TO DO
-    setOperation(DEPTH_NONE, EVAL_NGRAM, EVAL_NGRAM, 13, 3, "DE");
-    
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_NGRAM;
+    recipe.evalSteckers     =EVAL_NGRAM;
+    recipe.maxSteckers      =13;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =3;
+    strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
 
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
 }
@@ -368,11 +377,19 @@ void theFourthProblem()
     setWalzePermutations(permutations);
     //setEvaluationMethod(METHOD_IOC_NGRAM, 10, 10, 3, "GC");
 // TO DO
-    setOperation(DEPTH_NONE, EVAL_NGRAM, EVAL_NGRAM, 10, 3, "GC");
-
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_NGRAM;
+    recipe.evalSteckers     =EVAL_NGRAM;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =3;
+    strncpy(recipe.ngramSet, "GC", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
 
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
-	
 }
 
 

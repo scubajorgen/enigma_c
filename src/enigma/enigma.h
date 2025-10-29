@@ -28,6 +28,12 @@
 #define UMKEHR_WALZEN           5
 
 
+typedef enum
+{
+    ENIGMATYPE_M3,
+    ENIGMATYPE_M4
+} Enigma_t;
+
 typedef enum RotorSet_t
 {
     M3_ENIGMA1_1930     =0, // 3 rotors + 2 UKWs

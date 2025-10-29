@@ -59,8 +59,17 @@ void iocExample00()
 {
     printEnigmaSettings(&iocExampleSettings00, "INDEX OF COINCIDENCE METHOD EXAMPLE 0 - James Gilloglys' example, 7 steckers");
 
-    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
-
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
     iocDecodeText(iocExampleSettings00.cipher, 6);
 }
 
@@ -108,8 +117,17 @@ void iocExample01Ioc()
 {
     printEnigmaSettings(&iocExampleSettings01A, "INDEX OF COINCIDENCE METHOD EXAMPLE 1 - 8 steckers");
 
-    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
-
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
     iocDecodeText(iocExampleSettings01A.cipher, 6);
 }
 
@@ -123,8 +141,17 @@ void iocExample01IocR3()
 {
     printEnigmaSettings(&iocExampleSettings01A, "INDEX OF COINCIDENCE METHOD EXAMPLE 1 - 8 steckers");
 
-    setOperation(DEPTH_R3, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
-
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_R3;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
     iocDecodeText(iocExampleSettings01A.cipher, 6);
 }
 
@@ -138,8 +165,17 @@ void iocExample01Ngram2()
 {
     printEnigmaSettings(&iocExampleSettings01A, "INDEX OF COINCIDENCE METHOD EXAMPLE 1 - 8 steckers");
 
-    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_NGRAM, 10, 3, "DE");
-
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_NGRAM;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =3;
+    strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
     iocDecodeText(iocExampleSettings01A.cipher, 6);
 }
 
@@ -188,8 +224,17 @@ void iocExample02Ioc()
 {
     printEnigmaSettings(&iocExampleSettings02, "INDEX OF COINCIDENCE METHOD EXAMPLE 1C - 10 steckers");
 
-    setOperation(DEPTH_R2_R3, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
-
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_R2_R3;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
     iocDecodeText(iocExampleSettings02.cipher, 6);
 }
 
@@ -239,8 +284,16 @@ void iocExample03Ioc()
 {
     printEnigmaSettings(&iocExampleSettings03, "INDEX OF COINCIDENCE METHOD EXAMPLE 2A");
 
-    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
-
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     iocDecodeText(iocExampleSettings03.cipher, 6);
 }
 
@@ -281,8 +334,17 @@ void iocExample04Ioc()
 {
     printEnigmaSettings(&iocExampleSettings04, "INDEX OF COINCIDENCE METHOD EXAMPLE 3C - Short english text");
 
-    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
-
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
     iocDecodeText(iocExampleSettings04.cipher, 6);
 }
 
@@ -326,8 +388,17 @@ void iocExample07A()
 {
     printEnigmaSettings(&iocExampleSettings07A.settings, "INDEX OF COINCIDENCE METHOD EXAMPLE 7A");
 
-    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
-
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
     iocDecodeText(iocExampleSettings07A.settings.cipher, 10);
 }
 
@@ -425,8 +496,17 @@ void iocExample07B()
 {
     printEnigmaSettings(&iocExampleSettings07B, "INDEX OF COINCIDENCE METHOD EXAMPLE 7B");
 
-    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
-
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
     iocDecodeText(iocExampleSettings07B.cipher, 10);
 }
 

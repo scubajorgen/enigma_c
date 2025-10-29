@@ -935,7 +935,17 @@ void message10_step01()
     setWalzePermutations(permutations);
 //    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, "DE");
 // TO DO
-    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
 
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);	
 
@@ -987,7 +997,17 @@ void message10_step02()
     }
 //    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, NULL);
 // TODO
-    setOperation(DEPTH_NONE, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
 
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
 }
@@ -1029,7 +1049,18 @@ void message10_exp()
 
     //setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, NULL);
 // TODO
-    setOperation(DEPTH_R2_R3, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_R2_R3;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
+
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);	
 }
 
