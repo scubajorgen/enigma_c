@@ -24,8 +24,8 @@
 #define MAX_NOTCHES             2
 #define MAX_ROTOR_SETS          4
 #define ROTORS                  10
-#define MAX_ROTORNAME           10
 #define UMKEHR_WALZEN           5
+#define MAX_ROTORNAME           10
 
 
 typedef enum
@@ -42,12 +42,11 @@ typedef enum RotorSet_t
     M4_NAVAL_1941       =3  // 8 rotors + 2 4th rotors + 2 thin UKWs
 } RotorSet_t;
 
-extern int  rotorSets[MAX_ROTOR_SETS][MAX_ROTORNAME];
-extern int  fourthRotorSets[MAX_ROTOR_SETS][ROTORS];
-extern int  forthRotorSets[MAX_ROTOR_SETS][MAX_ROTORNAME];
-extern int  ukwSets[MAX_ROTOR_SETS][UMKEHR_WALZEN];
-extern char umkehrWalzeNames[UMKEHR_WALZEN][MAX_ROTOR_NAME];
-extern char rotorNames[ROTORS][MAX_ROTORNAME];
+extern char rotorNames      [ROTORS]        [MAX_ROTORNAME];    // All Walzen
+extern char umkehrWalzeNames[UMKEHR_WALZEN] [MAX_ROTOR_NAME];   // All UKWs
+extern int  rotorSets       [MAX_ROTOR_SETS][ROTORS];           // Walze selections for the 3 rotors
+extern int  fourthRotorSets [MAX_ROTOR_SETS][ROTORS];           // Walze selections for the 4th rotor
+extern int  ukwSets         [MAX_ROTOR_SETS][UMKEHR_WALZEN];    // UKW selections
 
 typedef struct
 {

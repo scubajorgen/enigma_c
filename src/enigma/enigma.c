@@ -490,22 +490,16 @@ void setEnigma(Enigma* enigma, EnigmaSettings* settings)
 \**************************************************************************************************/
 void printEnigmaSettings(EnigmaSettings* settings, char* title)
 {
-    Enigma *enigma;
-    size_t cipherSize;
     int    i;
 
     // Cipher size when given to Enigma
-    enigma=createEnigmaM3();
-    setText(enigma, settings->cipher);
-    cipherSize=enigma->textSize;
-    destroyEnigma(enigma);
 
     printf("\n");
     printf("#####################################################################################\n");
     printf("# %s\n", title);
-    printf("# Cipher                    : \n");
+    printf("# Cipher/text               : \n");
     printCipher(settings->cipher);
-    printf("# Cipher size               : %d characters\n", (int)cipherSize);
+    printf("# Cipher size               : %ld characters\n", strlen(settings->cipher));
     printf("# Number of Walzen          : %d\n", settings->numberOfRotors);
     printf("# Original Walzen           : ");
     printf("%s, ", settings->ukw);
@@ -550,10 +544,8 @@ EnigmaSettings* createRandomSettings(Enigma* enigma, RotorSet_t rotorSet, int nu
         printf("Illegal rotor set for given engima");
         exit(0);
     }
-
     // Number of rotors
     random->numberOfRotors=enigma->numberOfRotors;
-
 
     // 4th rotor selection (rotor 1, M4)
     if (enigma->numberOfRotors==4)
@@ -566,12 +558,14 @@ EnigmaSettings* createRandomSettings(Enigma* enigma, RotorSet_t rotorSet, int nu
     {
         offset=0;
     }
+
     // 1st 3 Rotor selection
     selectRandomIndices(rotorSets[rotorSet], ROTORS, 3, indices);
     for (i=0;i<3; i++)
     {
         strncpy(random->rotors[i+offset], rotorNames[indices[i]], MAX_ROTOR_NAME-1);
     }
+
     // UKW
     selectRandomIndices(ukwSets[rotorSet], UMKEHR_WALZEN, 1, indices);
     strncpy(random->ukw, umkehrWalzeNames[indices[0]], MAX_ROTOR_NAME-1);
@@ -591,6 +585,7 @@ EnigmaSettings* createRandomSettings(Enigma* enigma, RotorSet_t rotorSet, int nu
     // Steckers
     int available[26]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
     selectRandomIndices(available, 26, numberOfSteckers*2, indices);
+
     for(i=0; i<numberOfSteckers; i++)
     {
         random->steckers[i*3]  ='A'+indices[i*2];
@@ -628,7 +623,6 @@ void destroyEnigmaSettings(EnigmaSettings* settings)
 void dumpDecoded(EnigmaSettings* settings)
 {
     Enigma* enigma;
-    
     enigma=createEnigmaM3();
     setEnigma(enigma, settings);
     encodeDecode(enigma);

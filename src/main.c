@@ -7,12 +7,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "crack.h"
 #include "enigma.h"
 #include "exampleEnigma.h"
 #include "exampleTuring.h"
 #include "exampleCoincidence.h"
-#include "crack.h"
-
 
 int main()
 {
@@ -23,11 +22,13 @@ int main()
     printf("# ENIGMA SIMULATION\n");
     printf("#####################################################################################\n");
 
-	printf(" 0.     Enigma M3 example                           \n");
-	printf(" 1.     Enigma M4 \"Shark\" example                 \n");
+	printf(" 0.     Enigma M3 example                               \n");
+	printf(" 1.     Enigma M4 \"Shark\" example                     \n");
+	printf(" 2.     Enigma M3 example - random settings             \n");
+	printf(" 3.     Enigma M4 \"Shark\" example - random settings   \n");
 
-	printf("10.     Turing crib circles/loops                   \n");
-	printf("11-13.  Turing examples                             \n");
+	printf("10.     Turing crib circles/loops                       \n");
+	printf("11-13.  Turing examples                                 \n");
 
 	printf("20.     Gillogly IoC example 0  - original example 7 st - IOC     \n");
 	printf("21.     Gillogly IoC example 1  - 8 steckers            - IOC     \n");
@@ -49,6 +50,7 @@ int main()
 
     fgets(input, 10, stdin);
     i=atoi(input);
+    printf("Selection: %d\n", i);
 
     switch(i)
     {
@@ -59,6 +61,14 @@ int main()
         case 1: 
             // Simple encode/decode example on Engima M4 v
             enigmaExampleM4();           
+            break;
+        case 2: 
+            // Simple encode/decode example on Engima M3 - Random settings v
+            enigmaExampleRandomM3();           
+            break;
+        case 3: 
+            // Simple encode/decode example on Engima M4 - Random settings v
+            enigmaExampleRandomM4();           
             break;
 
         case 10:

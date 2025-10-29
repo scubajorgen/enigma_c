@@ -17,10 +17,8 @@
 Enigma* createEnigmaM3(void)
 {
     Enigma* enigma;
-    
     enigma                  =malloc(sizeof(Enigma));
     enigma->numberOfRotors  =3;
-    
     return enigma;
 }
 

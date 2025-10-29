@@ -7,3 +7,5 @@
 
 void enigmaExampleM3();
 void enigmaExampleM4();
+void enigmaExampleRandomM3();
+void enigmaExampleRandomM4();
