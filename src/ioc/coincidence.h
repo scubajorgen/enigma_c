@@ -23,7 +23,6 @@
 * DEFINES
 \**************************************************************************************************/
 
-#define TOP_RESULTS_SHOW    5
 #define TOP_RESULTS_SIZE    500
 #define MAX_THREADS         10
 #define MAX_WORK_ITEMS      32
@@ -54,6 +53,7 @@ typedef struct
     int             maxSteckers;                // Maximum number of Steckers to try
     int             ngramSize;                  // NGRAMS: NGRAM size: 2 or 3
     char            ngramSet[MAX_NGRAMSETSIZE]; // NGRAM set: "DE", "EN", "GC"
+    int             numberOfSolutions;          // The number of solutions to show
 } IocRecipe;
 
 typedef struct
@@ -98,7 +98,6 @@ extern int                 iocNumberOfResults;
 void    iocEvaluateEngimaSettings   (IocWorkItem* work);
 void    iocFindSteckeredChars       (IocResults* results, int maxNumOfSteckers);
 void    iocFindSteckeredCharsNgram  (IocResults* results, int maxNumOfSteckers, int ngramSize);
-void    iocDumpTopResults           (int number, int withDecode);
 void    iocFindRingStellung         (IocResults*  results, int startRotor, int endRotor);
 void    iocWorkerFunction           (int worker, int workItem, void* params);
 void    iocFinishFunction           (void* params);

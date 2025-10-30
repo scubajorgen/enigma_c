@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <malloc.h>
 #include <string.h>
 #include <pthread.h>
@@ -204,20 +205,22 @@ void sortTopResults()
 * Show the top results. En passant, translate the found steckertable into stecker pairs
 * 
 \**************************************************************************************************/
-void iocDumpTopResults(int number, int withDecode)
+void iocDumpTopResults(bool withDecode)
 {
     int             i;
     int             s1, s2;
     IocResults*     results;
     EnigmaSettings* settings;   
     Enigma*         enigma;
+    int             number;
 
+    number=operation.recipe.numberOfSolutions;
     if (number>TOP_RESULTS_SIZE)
     {
         number=TOP_RESULTS_SIZE;
     }
 
-    printf("Top %d best results of :\n", TOP_RESULTS_SHOW);
+    printf("Top %d best results of :\n", number);
     enigma=createEnigmaM3();
     i=0;
     while (i<number)
@@ -1108,7 +1111,7 @@ void iocFinishFunction(void* params)
     maxSteckers             =operation.recipe.maxSteckers;
 
     // We now have a list of rotor settings sorted on IoC
-    iocDumpTopResults(TOP_RESULTS_SHOW, 0);
+    iocDumpTopResults(false);
 
     // First see if there are any ringstellungen left to find
     switch (method)
@@ -1147,10 +1150,10 @@ void iocFinishFunction(void* params)
 
     // Lets sort the results
     sortTopResults();
-    iocDumpTopResults(TOP_RESULTS_SHOW, 0);
+    iocDumpTopResults(false);
 
     // Finally we are going to look for the steckers for the best result
-    for(i=0;i<TOP_RESULTS_SHOW;i++)
+    for(i=0;i<MIN(TOP_RESULTS_SIZE, operation.recipe.numberOfSolutions);i++)
     {
         logInfo("Finding final steckers for result %d", i);
         iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
@@ -1159,7 +1162,7 @@ void iocFinishFunction(void* params)
     // Show the final result 
     printf("FOUND SOLUTION: \n");
     //sortTopResults();
-    iocDumpTopResults(TOP_RESULTS_SHOW, 1);
+    iocDumpTopResults(true);
 
     if (operation.permutations!=NULL)
     {

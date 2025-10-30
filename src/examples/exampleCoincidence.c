@@ -68,6 +68,7 @@ void iocExample00()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
+    recipe.numberOfSolutions=1;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings00.cipher, 6);
@@ -126,6 +127,7 @@ void iocExample01Ioc()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
+    recipe.numberOfSolutions=10;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings01A.cipher, 6);
@@ -150,6 +152,7 @@ void iocExample01IocR3()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
+    recipe.numberOfSolutions=1;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings01A.cipher, 6);
@@ -233,6 +236,7 @@ void iocExample02Ioc()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
+    recipe.numberOfSolutions=10;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings02.cipher, 6);
@@ -293,6 +297,7 @@ void iocExample03Ioc()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
+    recipe.numberOfSolutions=1;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     iocDecodeText(iocExampleSettings03.cipher, 6);
 }
@@ -343,6 +348,7 @@ void iocExample04Ioc()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
+    recipe.numberOfSolutions=10;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings04.cipher, 6);
@@ -397,6 +403,7 @@ void iocExample07A()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
+    recipe.numberOfSolutions=100;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings07A.settings.cipher, 10);
@@ -505,6 +512,7 @@ void iocExample07B()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
+    recipe.numberOfSolutions=10;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings07B.cipher, 10);
