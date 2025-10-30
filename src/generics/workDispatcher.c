@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <time.h>
+#include <log.h>
 
 #include "workDispatcher.h"
 
@@ -63,7 +64,7 @@ void dispatcherClearWorkItems()
     }
     else
     {
-        printf("Error adding workitem: threads have already been started\n");
+        logError("Error adding workitem: threads have already been started");
     }
     pthread_mutex_unlock(&workMutex);
 }
@@ -85,7 +86,7 @@ void dispatcherPushWorkItem        (void (*workfunction)(int worker, int workIte
     }
     else
     {
-        printf("Error adding workitem: threads have already been started\n");
+        logError("Error adding workitem: threads have already been started");
     }
     pthread_mutex_unlock(&workMutex);
 }
@@ -108,7 +109,7 @@ void* workThreadFunction(void *params)
     long                    timeDiff;
 
     workerParams    =(WorkerParameters*)params; 
-    printf("Started thread %d\n", workerParams->threadIndex);
+    logDebug("Started thread %d", workerParams->threadIndex);
 
     pthread_mutex_lock(&workMutex);   
     threadsRunning++;
@@ -154,13 +155,13 @@ void* workThreadFunction(void *params)
             // If this is the last thread running, execute the final function
             if (lastManStanding)
             {
-                printf("Last man standing: %d\n", workerParams->threadIndex);
+                logDebug("Last man standing: %d", workerParams->threadIndex);
                 dispatchWorkParameters.finishFunction(dispatchWorkParameters.finishParameters);
                 workEndTime =time(NULL);
                 timeDiff    =workEndTime-workStartTime;
-                printf("Time elapsed: %ld'%02ld\"\n", timeDiff/60, timeDiff%60);
+                logDebug("Time elapsed: %ld'%02ld\"", timeDiff/60, timeDiff%60);
             }
-            printf("Worker %d finished\n", workerParams->threadIndex);
+            logDebug("Worker %d finished", workerParams->threadIndex);
             fflush(stdout);
         }
     }
@@ -197,7 +198,7 @@ void dispatcherStartWork(int numberOfThreads, void (*finishFunction)(void* param
     }
     else
     {
-        printf("Workers are already running; wait till finished\n");
+        logWarning("Workers are already running; wait till finished");
         fflush(stdout);
     }
     pthread_mutex_unlock(&workMutex);

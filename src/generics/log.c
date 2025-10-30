@@ -17,7 +17,6 @@
 
 LogLevel_t theLogLevel=LOGLEVEL_INFO;
 
-
 void printLogMessage(char* message, va_list args, char* level)
 {
     printf("%-7s ", level);

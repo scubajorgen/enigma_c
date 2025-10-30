@@ -16,6 +16,7 @@
 
 #include "enigma.h"
 #include "coincidence.h"
+#include "log.h"
 #include "toolbox.h"
 #include "ngrams.h"
 #include "ngramscore.h"
@@ -55,6 +56,8 @@ int                 iocThreadsRunning=0;
 int                 iocLastThreadId=-1;
 
 int                 ioctrigramCount[MAX_TRIGRAMS];
+
+char                printBuffer[100];
 
 /**************************************************************************************************\
 * FUNCTIONS
@@ -350,29 +353,28 @@ void printSteckerTable(int* steckerTable)
 \**************************************************************************************************/
 void printFoundLetters(int s1Max, int s2Max, int s1aMax, int s2aMax, float maxIoc)
 {
-    printf("Found steckered chars %c-%c ", s1Max+'A', s2Max+'A');
-    printf("(");
-
+    char c1, c2, c3, c4;
     if (s1aMax>=0)
     {
-        printf("%c-%c", s1aMax+'A', s1Max+'A');
+        c1=s1aMax+'A';
+        c2=s1Max +'A';
     }
     else
     {
-        printf(" - ");
+        c1=' ';
+        c2=' ';
     }
     if (s2aMax>=0)
     {
-        printf(" %c-%c", s2Max+'A', s2aMax+'A');
+        c3=s2Max+'A';
+        c4=s2aMax +'A';
     }
     else
     {
-        printf("  - ");
+        c3=' ';
+        c4=' ';
     }
-
-    printf(") ");
-    printf("ioc %f\n", maxIoc);
-    fflush(stdout);  
+    logInfo("Found steckered chars %c-%c (%c-%c %c-%c)", s1Max+'A', s2Max+'A', c1, c2, c3, c4);
 }
 
 /**************************************************************************************************\
@@ -874,7 +876,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
         time(&now);
         timeString=ctime(&now);
         timeString[strlen(timeString)-1]='\0';
-        printf("%s: Worker %02d trying permutation %02d (%02d/%02d): %5s %5s %5s %5s R1 %02d R2 %02d-%02d R3 %02d-%02d\n",
+        logInfo("%s: Worker %02d trying permutation %02d (%02d/%02d): %5s %5s %5s %5s R1 %02d R2 %02d-%02d R3 %02d-%02d",
           timeString,
           threadId,
           w,
@@ -963,7 +965,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     timeDiff=time(NULL)-startTime;
     if (timeDiff>0)
     {
-        printf("Executed %ld decryptions in %ld minutes, %ld per sec\n", 
+        logInfo("Executed %ld decryptions in %ld minutes, %ld per sec", 
                 count,
                 timeDiff/60, 
                 count/timeDiff);
@@ -1055,7 +1057,7 @@ void iocFindRingStellung(IocResults*  results, int startRotor, int endRotor)
         settings->grundStellungen[2]        =maxG3;
         settings->ringStellungen[rotor-1]   =maxR;
         results->indexOfCoincidence         =maxIoc;
-        printf("Rotor %d: best Ringstellung %2d, best Grundstellung %2d %2d %2d - IoC %f\n", rotor, maxR, maxG1, maxG2, maxG3, maxIoc);
+        logInfo("Rotor %d: best Ringstellung %2d, best Grundstellung %2d %2d %2d - IoC %f", rotor, maxR, maxG1, maxG2, maxG3, maxIoc);
         rotor--;
     }
     destroyEnigma(enigma);
@@ -1077,7 +1079,7 @@ void iocWorkerFunction(int worker, int workItem, void* params)
 
     initialNumberOfWorkItems=dispatcherGetTotalWorkItems();
 
-    printf("Worker %02d starting work item: %02d-%02d (%02d/%02d), %s, R1 %02d R2 %02d-%02d R3: %02d-%02d\n", 
+    logInfo("Worker %02d starting work item: %02d-%02d (%02d/%02d), %s, R1 %02d R2 %02d-%02d R3: %02d-%02d", 
             worker, item->startPermutation, item->endPermutation,
             initialNumberOfWorkItems-workItem, initialNumberOfWorkItems, 
             item->ukw, 
@@ -1123,7 +1125,7 @@ void iocFinishFunction(void* params)
             while (i<iocNumberOfResults)
             {
                 // find ringstellung for rotor R2
-                printf("Finding ring setting R2 for %d\n", i);
+                logInfo("Finding ring setting R2 for %d", i);
                 iocFindRingStellung(&iocTopResults[i], 2, 2);
                 i++;
             }
@@ -1136,7 +1138,7 @@ void iocFinishFunction(void* params)
             while (i<iocNumberOfResults)
             {
                 // find ringstellung for rotor R2 and R3
-                printf("Finding ring setting R2 and R3 for %d\n", i);
+                logInfo("Finding ring setting R2 and R3 for %d", i);
                 iocFindRingStellung(&iocTopResults[i], 2, 3);
                 i++;
             }
@@ -1150,7 +1152,7 @@ void iocFinishFunction(void* params)
     // Finally we are going to look for the steckers for the best result
     for(i=0;i<TOP_RESULTS_SHOW;i++)
     {
-        printf("Finding final steckers for result %d\n", i);
+        logInfo("Finding final steckers for result %d", i);
         iocFindSteckeredChars(&iocTopResults[i], maxSteckers);
     }
 
@@ -1187,26 +1189,26 @@ void reportMethod()
     switch (operation.recipe.enigmaType)
     {
         case ENIGMATYPE_M3:
-            printf("Enigma machine              : Engima M3 (3 Walzen)");
+            printf("Enigma machine              : Engima M3 (3 Walzen)\n");
             break;
         case ENIGMATYPE_M4:
-            printf("Enigma machine              : Engima M4 (4 Walzen)");
+            printf("Enigma machine              : Engima M4 (4 Walzen)\n");
             break;
     }
 
     switch (operation.recipe.rotorSet)
     {
         case M3_ENIGMA1_1930:
-            printf("Walzen                      : Enigma 1, 3 walzen");
+            printf("Walzen                      : Enigma 1, 3 walzen\n");
             break;
         case M3_ARMY_1938:
-            printf("Walzen                      : Wehrmacht 1938, 5 walzen");
+            printf("Walzen                      : Wehrmacht 1938, 5 walzen\n");
             break;
         case M3_ARMY_1939:
-            printf("Walzen                      : Wehrmacht 1939, 8 walzen");
+            printf("Walzen                      : Wehrmacht 1939, 8 walzen\n");
             break;
         case M4_NAVAL_1941:
-            printf("Walzen                      : Kriegsmarine Engima M4");
+            printf("Walzen                      : Kriegsmarine Engima M4\n");
             break;
     }
 
@@ -1267,7 +1269,7 @@ void setOperation(IocRecipe recipe)
     // Initialise the NGRAM scoring
     if (recipe.ngramSize>0 && strcmp(recipe.ngramSet, "")!=0)
     {
-        printf("Preparing NGRAMs size %d, language %s\n", recipe.ngramSize, recipe.ngramSet);
+        logInfo("Preparing NGRAMs size %d, language %s", recipe.ngramSize, recipe.ngramSet);
         prepareNgramScore(recipe.ngramSize, recipe.ngramSet);
     }
 }
@@ -1367,8 +1369,7 @@ void prepareWorkM3(char* cipher, int numOfThreads)
 \**************************************************************************************************/
 void prepareWorkM4(char* cipher, int numOfThreads)
 {
-    printf("Not supported... yet\n");
-    exit(0);
+    logFatal("Not supported... yet\n");
 }
 
 /**************************************************************************************************\
@@ -1391,8 +1392,7 @@ void iocDecodeText(char* cipher, int numOfThreads)
     }
     else
     {
-        printf("Error: non existing Enigma\n");
-        exit(0);
+        logFatal("Error: non existing Enigma\n");
     }
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
 }
