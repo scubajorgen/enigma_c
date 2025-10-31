@@ -324,6 +324,7 @@ void theThirdProblem()
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =3;
     recipe.numberOfSolutions=10;
+    recipe.scoreListSize    =TOP_RESULTS_SIZE;
     strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
     setOperation(recipe);
 
@@ -388,6 +389,7 @@ void theFourthProblem()
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =3;
     recipe.numberOfSolutions=10;
+    recipe.scoreListSize    =TOP_RESULTS_SIZE;
     strncpy(recipe.ngramSet, "GC", MAX_NGRAMSETSIZE);
     setOperation(recipe);
 

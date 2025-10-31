@@ -6,7 +6,7 @@
 * RingStellungen included 
 *
 * Basically, the method consists of following steps
-* 1. Finding the rotor position and Grundstellung with the best IoC value, fixed Ringstellung
+* 1. Finding the rotor position and Grundstellung with the best IoC value, fixed Ringstellung (1-1-1)
 * 2. Finding the best Ringstellung/Grundstellung with the best IoC value
 * 3. Finding the steckers resulting in the best IoC value
 *
@@ -14,6 +14,18 @@
 * 1. Use NGRAM scoring i.s.o. IoC
 * 2. Vary Ringstellungen as well
 * 3. Use steckers during step 1.
+*
+* The programm calculates a list of N solutions that score highest.
+* A different number can be used for for the 1st 2 steps (e.g. N1=100) and for the 3rd step 
+* (e.g. N2=5). 
+* Following are the assumptions based on observation:
+* 1. After step 1 the solution is on the list, but may be down below (e.g. place 54)
+* 2. After step 2 the solution is on top of the list (e.g. place 1 or 2)
+* 3. Step 3 may lead to false positives if not applied to other configurations than the solution
+* Because of the list is fixed (its order doesn't change anymore based on score) and 
+* step 3 (finding steckers) is applied to the N2 items on top of the list
+* At step 2 the order of the list may change on improvement of IoC due to ring settings.
+* At step 3 the order of the list will not change
 *
 \**************************************************************************************************/
 
@@ -53,7 +65,8 @@ typedef struct
     int             maxSteckers;                // Maximum number of Steckers to try
     int             ngramSize;                  // NGRAMS: NGRAM size: 2 or 3
     char            ngramSet[MAX_NGRAMSETSIZE]; // NGRAM set: "DE", "EN", "GC"
-    int             numberOfSolutions;          // The number of solutions to show
+    int             scoreListSize;              // The number of solutions to take into account for finding Walzen (N1)
+    int             numberOfSolutions;          // The number of solutions to show (N2)
 } IocRecipe;
 
 typedef struct

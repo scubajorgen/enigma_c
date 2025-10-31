@@ -144,7 +144,7 @@ float iocStoreResults(IocResults* results)
         i++;
     }
     // If not and the list is not full yet add it
-    if ((index<0) && (i<TOP_RESULTS_SIZE))
+    if ((index<0) && (i<operation.recipe.scoreListSize))
     {
         index=i;
     }
@@ -155,7 +155,7 @@ float iocStoreResults(IocResults* results)
         i=iocNumberOfResults;
         while (i>index)
         {
-            if (i<TOP_RESULTS_SIZE)
+            if (i<operation.recipe.scoreListSize)
             {
                 iocTopResults[i]=iocTopResults[i-1];
             }
@@ -164,7 +164,7 @@ float iocStoreResults(IocResults* results)
         // Add the new record
         iocTopResults[index]=*results;
 
-        if (iocNumberOfResults<TOP_RESULTS_SIZE)
+        if (iocNumberOfResults<operation.recipe.scoreListSize)
         {
             iocNumberOfResults++;
         }   
@@ -205,16 +205,14 @@ void sortTopResults()
 * Show the top results. En passant, translate the found steckertable into stecker pairs
 * 
 \**************************************************************************************************/
-void iocDumpTopResults(bool withDecode)
+void iocDumpTopResults(int number, bool withDecode)
 {
     int             i;
     int             s1, s2;
     IocResults*     results;
     EnigmaSettings* settings;   
     Enigma*         enigma;
-    int             number;
 
-    number=operation.recipe.numberOfSolutions;
     if (number>TOP_RESULTS_SIZE)
     {
         number=TOP_RESULTS_SIZE;
@@ -1111,7 +1109,7 @@ void iocFinishFunction(void* params)
     maxSteckers             =operation.recipe.maxSteckers;
 
     // We now have a list of rotor settings sorted on IoC
-    iocDumpTopResults(false);
+    iocDumpTopResults(operation.recipe.scoreListSize, false);
 
     // First see if there are any ringstellungen left to find
     switch (method)
@@ -1150,7 +1148,7 @@ void iocFinishFunction(void* params)
 
     // Lets sort the results
     sortTopResults();
-    iocDumpTopResults(false);
+    iocDumpTopResults(operation.recipe.numberOfSolutions, true);
 
     // Finally we are going to look for the steckers for the best result
     for(i=0;i<MIN(TOP_RESULTS_SIZE, operation.recipe.numberOfSolutions);i++)
@@ -1162,7 +1160,7 @@ void iocFinishFunction(void* params)
     // Show the final result 
     printf("FOUND SOLUTION: \n");
     //sortTopResults();
-    iocDumpTopResults(true);
+    iocDumpTopResults(operation.recipe.numberOfSolutions, true);
 
     if (operation.permutations!=NULL)
     {
@@ -1249,6 +1247,8 @@ void reportMethod()
     }
 
     printf("Max steckers                : %02d\n", operation.recipe.maxSteckers);
+    printf("Result list size (Walzen)   : %d\n", operation.recipe.scoreListSize);
+    printf("Number to show (Steckers)   : %d\n", operation.recipe.numberOfSolutions);
     printf("#####################################################################################\n");
 }
 
@@ -1267,6 +1267,17 @@ void reportMethod()
 \**************************************************************************************************/
 void setOperation(IocRecipe recipe)
 {
+    if (recipe.scoreListSize>TOP_RESULTS_SIZE || recipe.scoreListSize<1)
+    {
+        logFatal("Illegal score list size, should be smaller than %d", TOP_RESULTS_SIZE);
+    }
+    if (recipe.numberOfSolutions>recipe.scoreListSize)
+    {
+        logFatal("Illegal number of solutions %d requested, should be smaller that score list size %d", 
+                 recipe.numberOfSolutions,
+                 recipe.scoreListSize);
+    }
+
     operation.recipe    = recipe;
     
     // Initialise the NGRAM scoring

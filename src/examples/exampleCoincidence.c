@@ -19,7 +19,9 @@
 /**************************************************************************************************\
 * 
 * Example from the original James Gillogly article. 7 steckers
-* Works. 
+* After step 1 (rotor position): solution on place 2 of the list
+* Note on place 1 is a UKW C solution; Gillogly did not ake UKW C into account in his example
+* After step 2 (ringstellungen): solution on place 1
 * 
 \**************************************************************************************************/
 
@@ -69,6 +71,7 @@ void iocExample00()
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
     recipe.numberOfSolutions=1;
+    recipe.scoreListSize    =5;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings00.cipher, 6);
@@ -78,7 +81,8 @@ void iocExample00()
 * 
 * Example from the original James Gillogly article - other encryption with 8 steckers
 * Works
-* 
+* After step 1: solution on place 52
+* After step 2: solution on place 1
 \**************************************************************************************************/
 
 // The orignal Gillogly cipher text but other engima settings, 8 steckers
@@ -127,7 +131,8 @@ void iocExample01Ioc()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
-    recipe.numberOfSolutions=10;
+    recipe.numberOfSolutions=3;
+    recipe.scoreListSize    =52;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings01A.cipher, 6);
@@ -136,7 +141,9 @@ void iocExample01Ioc()
 /**************************************************************************************************\
 * 
 * Example from the original James Gillogly article - other encryption with 8 steckers
-* Works
+* After step 1: solution on place 5
+* After step 2: solution on place 1
+* (Note that this method takes significantly longer than iocExample01Ioc(), with the same outcome)
 * 
 \**************************************************************************************************/
 void iocExample01IocR3()
@@ -152,7 +159,8 @@ void iocExample01IocR3()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
-    recipe.numberOfSolutions=1;
+    recipe.numberOfSolutions=3;
+    recipe.scoreListSize    =5;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings01A.cipher, 6);
@@ -177,11 +185,12 @@ void iocExample01Ngram2()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =3;
+    recipe.numberOfSolutions=3;
+    recipe.scoreListSize    =60;
     strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings01A.cipher, 6);
 }
-
 
 /**************************************************************************************************\
 * 
@@ -230,13 +239,14 @@ void iocExample02Ioc()
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
     recipe.rotorSet         =M3_ARMY_1938;
-    recipe.method           =DEPTH_R2_R3;
+    recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
-    recipe.numberOfSolutions=10;
+    recipe.numberOfSolutions=TOP_RESULTS_SIZE;
+    recipe.scoreListSize    =TOP_RESULTS_SIZE;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings02.cipher, 6);
@@ -298,6 +308,7 @@ void iocExample03Ioc()
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
     recipe.numberOfSolutions=1;
+    recipe.scoreListSize    =TOP_RESULTS_SIZE;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     iocDecodeText(iocExampleSettings03.cipher, 6);
 }
@@ -349,6 +360,7 @@ void iocExample04Ioc()
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
     recipe.numberOfSolutions=10;
+    recipe.scoreListSize    =TOP_RESULTS_SIZE;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings04.cipher, 6);
@@ -404,6 +416,7 @@ void iocExample07A()
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
     recipe.numberOfSolutions=100;
+    recipe.scoreListSize    =TOP_RESULTS_SIZE;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings07A.settings.cipher, 10);
@@ -513,6 +526,7 @@ void iocExample07B()
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
     recipe.numberOfSolutions=10;
+    recipe.scoreListSize    =TOP_RESULTS_SIZE;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings07B.cipher, 10);

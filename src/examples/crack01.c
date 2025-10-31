@@ -945,6 +945,7 @@ void message10_step01()
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
     recipe.numberOfSolutions=100;
+    recipe.scoreListSize    =TOP_RESULTS_SIZE;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
 
@@ -1008,6 +1009,7 @@ void message10_step02()
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
     recipe.numberOfSolutions=10;
+    recipe.scoreListSize    =TOP_RESULTS_SIZE;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
 
@@ -1061,6 +1063,7 @@ void message10_exp()
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
     recipe.numberOfSolutions=10;
+    recipe.scoreListSize    =TOP_RESULTS_SIZE;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
 
