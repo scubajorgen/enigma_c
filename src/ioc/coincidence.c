@@ -155,7 +155,7 @@ float iocStoreResults(IocResults* results)
         i=iocNumberOfResults;
         while (i>index)
         {
-            if (iocNumberOfResults<TOP_RESULTS_SIZE)
+            if (i<TOP_RESULTS_SIZE)
             {
                 iocTopResults[i]=iocTopResults[i-1];
             }
