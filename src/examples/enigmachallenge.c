@@ -1,5 +1,5 @@
 /**************************************************************************************************\
-* crack01.c
+* enigmachallenge.c
 * 
 * Enigma challenge (see /documents/engimaChallenge.pdf) or 
 * https://www.ciphermachinesandcryptology.com/en/challenge.htm
@@ -16,7 +16,7 @@
 #include "crack.h"
 #include "toolbox.h"
 #include "coincidence.h"
-#include "generics/workDispatcher.h"
+#include "workDispatcher.h"
 
 char text01[]=
 "MUUQ JZVQ LORV MCOL YKXE"

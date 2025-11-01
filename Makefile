@@ -21,6 +21,9 @@ _SRCOBJ	        = enigma.o \
                   steckerbrett.o\
                   turing.o\
                   exampleEnigma.o\
+                  enigmachallenge.o \
+                  crack02.o \
+                  crack03.o \
                   exampleTuring.o \
                   coincidence.o \
                   exampleCoincidence.o \
@@ -30,7 +33,7 @@ _SRCOBJ	        = enigma.o \
                   log.o \
                   workDispatcher.o
 
-_MAINOBJ        = main.o crack01.o crack02.o crack03.o
+_MAINOBJ        = main.o
 
 _TESTOBJ        = test.o
 
