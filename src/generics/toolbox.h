@@ -18,7 +18,7 @@ int         stellungToChar          (int stellung);
 
 void        permute                 (LinkedList* permutations, int elements[], int elementArraySize, int number, int start);
 LinkedList* createPermutations      (int* arrayToChooseFrom, int numberOfElements, int numberToChoose);
-LinkedList* combinePermutations     (LinkedList* list1, LinkedList* list2);
+LinkedList* combinePermutations     (LinkedList* list1, int permutation1Size, LinkedList* list2, int permutation2Size);
 
 LinkedList* createRotorPermutations (int numberOfWalzen, int numberToChooseFrom);
 void        printCipher             (char* cipher);

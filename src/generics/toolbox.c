@@ -217,19 +217,27 @@ LinkedList* createPermutations(int* arrayToChooseFrom, int numberOfElements, int
 * list2: 
 * 
 \**************************************************************************************************/
-LinkedList* combinePermutations(LinkedList* list1, LinkedList* list2)
+LinkedList* combinePermutations(LinkedList* list1, int permutation1Size, LinkedList* list2, int permutation2Size)
 {
     LinkedList* permutations=createLinkedList();
     resetLinkedList(list1);
     while (hasNext(list1))
     {
-        void* object=nextLinkedListObject(list1);
-        addObject(permutations, object);
+        int* object1=(int*)nextLinkedListObject(list1);
         resetLinkedList(list2);
         while (hasNext(list2))
         {
-            void* object=nextLinkedListObject(list2);
-            addObject(permutations, object);
+            int* object2=(int*)nextLinkedListObject(list2);
+            int* permutation=malloc((permutation1Size+permutation2Size)*sizeof(int));
+            for (int i=0;i<permutation1Size; i++)
+            {
+                permutation[i]=object1[i];
+            }
+            for (int i=0;i<permutation2Size; i++)
+            {
+                permutation[permutation1Size+i]=object2[i];
+            }
+            addObject(permutations, permutation);
         }
     }
     return permutations;
