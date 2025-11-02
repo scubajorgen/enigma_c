@@ -1166,7 +1166,6 @@ void iocFinishFunction(void* params)
     {
         destroyLinkedList(operation.permutations);
     }
-
 }
 
 /**************************************************************************************************\

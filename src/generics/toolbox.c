@@ -35,7 +35,6 @@ int ipow(int base, int exp)
     return result;
 }
 
-
 /**************************************************************************************************\
 * 
 * Converts an integer GrundStellung or RingStellung (A-Z, a-z, 1-26) to a unified position (0-25)
@@ -64,7 +63,6 @@ int stellungToPos(int stellung)
     
     return pos;
 }
-
 
 /**************************************************************************************************\
 * 
@@ -152,58 +150,6 @@ int stellungToChar(int stellung)
     return stellung+'A'-1;
 }
 
-/**************************************************************************************************\
-* 
-* 
-* 
-\**************************************************************************************************/
-LinkedList* createLinkedList()
-{
-    LinkedList* list;
-    
-    list                =malloc(sizeof(LinkedList));
-    list->firstElement  =NULL;
-    list->lastElement   =NULL;
-    list->length        =0;
-    list->next          =NULL;
-    
-    return list;
-}
-
-/**************************************************************************************************\
-* 
-* 
-* 
-\**************************************************************************************************/
-void addObject(LinkedList* list, void* newObject)
-{
-    LinkedListElement* newElement;
-    LinkedListElement* listEnd;
-    
-    newElement=malloc(sizeof(LinkedListElement));
-    
-    newElement->object=newObject;
-    newElement->next        =NULL;
-    
-    // Check if list is empty
-    if (list->firstElement==NULL)
-    {
-        // empty: add first element
-        newElement->previous    =NULL;
-        list->firstElement      =newElement;
-        list->lastElement       =newElement;
-        list->next              =newElement;
-    }
-    else
-    {
-        listEnd                 =list->lastElement;
-        newElement->previous    =listEnd;
-        listEnd->next           =newElement;
-        list->lastElement       =newElement;
-    }
-    list->length++;
-        
-}
 
 
 /**************************************************************************************************\
@@ -211,80 +157,6 @@ void addObject(LinkedList* list, void* newObject)
 * 
 * 
 \**************************************************************************************************/
-void destroyLinkedList(LinkedList* list)
-{
-    LinkedListElement* element;
-    LinkedListElement* nextElement;
-    
-    element=list->lastElement;
-    while (element!=NULL)
-    {
-        nextElement=element->previous;
-        free(element);
-        element=nextElement;
-    }
-    free(list);
-}
-
-/**************************************************************************************************\
-* 
-* 
-* 
-\**************************************************************************************************/
-void resetLinkedList(LinkedList* list)
-{
-    list->next=list->firstElement;
-}
-
-/**************************************************************************************************\
-* 
-* 
-* 
-\**************************************************************************************************/
-void* nextLinkedListObject(LinkedList* list)
-{
-    LinkedListElement*  nextElement;
-    void*               object;
-    
-    nextElement =list->next;
-    object      =NULL;
-    
-    if (nextElement!=NULL)
-    {
-        object      =nextElement->object;
-        list->next  =nextElement->next;
-    }
-    
-    return object;
-}
-
-/**************************************************************************************************\
-* 
-* 
-* 
-\**************************************************************************************************/
-int hasNext(LinkedList* list)
-{
-    int hasNext;
-    
-    if (list->next==NULL)
-    {
-        hasNext=0;
-    }
-    else
-    {
-        hasNext=1;
-    }
-    return hasNext;
-}
-
-
-/**************************************************************************************************\
-* 
-* 
-* 
-\**************************************************************************************************/
-
 void permute(LinkedList* permutations, int elements[], int elementArraySize, int number, int start)
 {
     int*    permutation;
@@ -319,42 +191,48 @@ void permute(LinkedList* permutations, int elements[], int elementArraySize, int
 
 /**************************************************************************************************\
 * 
-* 
+* Generic function to retrieve all permutations when selecting a number elements out of an array
+* For example choosing 3 elements from an array of 5, gets you 5*4*3=60 permutations.
+* It is implemented using a recursive permute() function
+* Permutations are returned as a linked list
+* arrayToChooseFrom: The array of elements to choose from 
+* numberOfElements : The number of elements in the array
+* numberToChoose   : The number of elements to choose from
 * 
 \**************************************************************************************************/
-
-int linkedListLength(LinkedList* list)
+LinkedList* createPermutations(int* arrayToChooseFrom, int numberOfElements, int numberToChoose)
 {
-    return list->length;
+    LinkedList* permutations;
+    permutations=createLinkedList();
+    permute(permutations, arrayToChooseFrom, numberOfElements, numberToChoose, 0);
+    return permutations;
 }
-
 
 /**************************************************************************************************\
 * 
-* 
+* This function combines to lists of permutations and creates a new list of combined permutations.
+* If the first list contains N elements and the second list M, the resulting list contains N*M
+* elements.
+* list1: first list
+* list2: 
 * 
 \**************************************************************************************************/
-
-void* elementAt(LinkedList* list, int index)
+LinkedList* combinePermutations(LinkedList* list1, LinkedList* list2)
 {
-    LinkedListElement*  element;
-    void*               object;
-    int                 i;
-    
-    object=NULL;
-    
-    if (index>=0 && index<list->length)
+    LinkedList* permutations=createLinkedList();
+    resetLinkedList(list1);
+    while (hasNext(list1))
     {
-        element=list->firstElement;
-        i=0;
-        while (i<index)
+        void* object=nextLinkedListObject(list1);
+        addObject(permutations, object);
+        resetLinkedList(list2);
+        while (hasNext(list2))
         {
-            element=element->next;
-            i++;
+            void* object=nextLinkedListObject(list2);
+            addObject(permutations, object);
         }
-        object=element->object;
     }
-    return object;
+    return permutations;
 }
 
 
@@ -371,6 +249,7 @@ LinkedList* createRotorPermutations(int numberOfWalzen, int numberToChooseFrom)
     permute(permutations, walzenIndices, numberToChooseFrom, numberOfWalzen, 0);
     return permutations;
 }
+
 
 
 /**************************************************************************************************\
