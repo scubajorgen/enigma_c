@@ -10,6 +10,7 @@
 \**************************************************************************************************/
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <pthread.h>
 #include <malloc.h>
 #include <string.h>     
@@ -869,7 +870,7 @@ void turingBombe(char* cipher, char* crib, int cribStartPosition, int numOfThrea
     }
 
     startTime=time(NULL); 
-    dispatcherStartWork(numOfThreads, turingFinishFunction, NULL);    
+    dispatcherStartWork(numOfThreads, turingFinishFunction, NULL, false);    
     pthread_exit(NULL); 
 }
 

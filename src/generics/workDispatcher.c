@@ -9,7 +9,8 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <time.h>
-#include <log.h>
+#include "log.h"
+#include <unistd.h>
 
 #include "workDispatcher.h"
 
@@ -19,6 +20,7 @@ typedef struct
 {
     int                 threadIndex;
     pthread_t           threadId;
+    bool                finished;
 } WorkerParameters;
 
 // This defines a work item for the workers
@@ -161,6 +163,11 @@ void* workThreadFunction(void *params)
                 timeDiff    =workEndTime-workStartTime;
                 logDebug("Time elapsed: %ld'%02ld\"", timeDiff/60, timeDiff%60);
             }
+
+            pthread_mutex_lock(&workMutex);
+            workerParams->finished=true; // signal work done!
+            pthread_mutex_unlock(&workMutex);   
+
             logDebug("Worker %d finished", workerParams->threadIndex);
             fflush(stdout);
         }
@@ -173,7 +180,7 @@ void* workThreadFunction(void *params)
 * This function starts indicted number of worker threads. 
 * 
 \**************************************************************************************************/
-void dispatcherStartWork(int numberOfThreads, void (*finishFunction)(void* params), void* finishParameters)
+void dispatcherStartWork(int numberOfThreads, void (*finishFunction)(void* params), void* finishParameters, bool waitUntilFinished)
 {
     int             i;
 
@@ -190,9 +197,11 @@ void dispatcherStartWork(int numberOfThreads, void (*finishFunction)(void* param
         while (i<numberOfThreads)
         {
             workerParams[i].threadIndex         =i;
+            workerParams[i].finished            =false;
             pthread_create(&(workerParams[i].threadId), 
-                        NULL, workThreadFunction, 
-                        (void *)(workerParams+i)); 
+                           NULL, 
+                           workThreadFunction, 
+                           (void *)(workerParams+i)); 
             i++;
         }
     }
@@ -202,7 +211,33 @@ void dispatcherStartWork(int numberOfThreads, void (*finishFunction)(void* param
         fflush(stdout);
     }
     pthread_mutex_unlock(&workMutex);
-    pthread_exit(NULL);  
+
+    // There are two exit methods:
+    // - Just wait till all work is done
+    // - Thread exit, to prevent programm to finish
+    if (waitUntilFinished)
+    {
+        bool exit=false;
+        while (!exit)
+        {
+
+            pthread_mutex_lock(&workMutex);
+            exit=true;
+            for (int j=0;j<numberOfThreads && exit;j++)
+            {
+                if (!workerParams[j].finished)
+                {
+                    exit=false;
+                }
+            }
+            pthread_mutex_unlock(&workMutex);
+            sleep(1);
+        }
+    }
+    else
+    {
+        pthread_exit(NULL);  
+    }
 }
 
 /**************************************************************************************************\

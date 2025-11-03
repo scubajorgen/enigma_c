@@ -9,6 +9,7 @@
 * 
 \**************************************************************************************************/
 #include <stdio.h>
+#include <stdbool.h>
 #include <malloc.h>
 #include <string.h>
 
@@ -250,6 +251,12 @@ char text04_test2[]=
 char buffer1[1000];
 char buffer2[1000];
 
+/**************************************************************************************************\
+* 
+* Enigma Challenge message 1
+* Simply decode with all info given
+* 
+\**************************************************************************************************/
 void message01()
 {
     Enigma* enigma;
@@ -289,54 +296,75 @@ void message01()
     
 }
 
+/**************************************************************************************************\
+* 
+* Enigma Challenge message 1
+* All info given, except rotor order. Leaves 6 possibilies
+* 
+\**************************************************************************************************/
+
+char message02Walzen[][MAX_ROTORNAME]   ={"I", "III", "V"};
+int message02Indices[]                  ={0, 1, 2};
+
 void message02()
 {
     Enigma* enigma;
     char*   decoded;
     
 	printf("MESSAGE 02\n");
+    LinkedList* permutations=createPermutations(message02Indices, 3, 3);
+
     enigma=createEnigmaM3(); 
+    resetLinkedList(permutations);
+    while (hasNext(permutations))
+    {
+        int* permutation=(int*)nextLinkedListObject(permutations);
+        printf("Permutation: UKW B - %3s - %3s - %3s\n",  
+                message02Walzen[permutation[0]],
+                message02Walzen[permutation[1]],
+                message02Walzen[permutation[2]]);
 
-    placeWalze(enigma, 1, "III");
-    placeWalze(enigma, 2, "V");
-    placeWalze(enigma, 3, "I");
-    placeSteckers(enigma, "BL CK DG FP IR MO QW ST VY UZ");
-    placeUmkehrWalze(enigma, "UKW B");
-    
-    setRingStellungen(enigma, "25 03 07");
-      
-    setGrundStellungen(enigma, "X L T");
-    setText(enigma, "VPM");
-    encodeDecode(enigma);
-    
-    decoded=toString(enigma);
-    
-    setGrundStellung(enigma, 1, decoded[0]);
-    setGrundStellung(enigma, 2, decoded[1]);
-    setGrundStellung(enigma, 3, decoded[2]);
+        placeWalze(enigma, 1, message02Walzen[permutation[0]]);
+        placeWalze(enigma, 2, message02Walzen[permutation[1]]);
+        placeWalze(enigma, 3, message02Walzen[permutation[2]]);
+        placeUmkehrWalze(enigma, "UKW B");
+        placeSteckers(enigma, "BL CK DG FP IR MO QW ST VY UZ");
+        setRingStellungen(enigma, "25 03 07");
+        
+        setGrundStellungen(enigma, "X L T");
+        setText(enigma, "VPM");
+        encodeDecode(enigma);
+        
+        decoded=toString(enigma);
+        
+        setGrundStellung(enigma, 1, decoded[0]);
+        setGrundStellung(enigma, 2, decoded[1]);
+        setGrundStellung(enigma, 3, decoded[2]);
 
-    setText(enigma, text02_1);
-    
-    encodeDecode(enigma);
-    
-    printf("Message 02/1: %s\n", toString(enigma));
-    
-    setGrundStellungen(enigma, "H N B");
-    setText(enigma, "SFA");
-    encodeDecode(enigma);
-    
-    decoded=toString(enigma);
-    
-    setGrundStellung(enigma, 1, decoded[0]);
-    setGrundStellung(enigma, 2, decoded[1]);
-    setGrundStellung(enigma, 3, decoded[2]);
+        setText(enigma, text02_1);
+        encodeDecode(enigma);
+        float ioc=iocIndexOfCoincidence(enigma);
+        printf("Index of Coincidence %f\n", ioc);
+        if (ioc>0.05)
+        {
+            printf("Message 02/1: %s\n", toString(enigma));
+            
+            setGrundStellungen(enigma, "H N B");
+            setText(enigma, "SFA");
+            encodeDecode(enigma);
+            
+            decoded=toString(enigma);
+            
+            setGrundStellung(enigma, 1, decoded[0]);
+            setGrundStellung(enigma, 2, decoded[1]);
+            setGrundStellung(enigma, 3, decoded[2]);
 
-    setText(enigma, text02_2);
-    
-    encodeDecode(enigma);
-    
-    printf("Message 02/2: %s\n", toString(enigma));
-    
+            setText(enigma, text02_2);
+            encodeDecode(enigma);
+            printf("Message 02/2: %s\n", toString(enigma));
+        }
+    }  
+    destroyPermutations(permutations);
     destroyEnigma(enigma);
 }
 
@@ -949,7 +977,7 @@ void message10_step01()
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
 
-    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);	
+    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, false);	
 
     // THIS RESULTS IN THE BEST SOLUTION:
     //  1: UKW B  II   V   I R  1  1 18 G 21  6 24 - AO BV DS EX FT HZ IQ JW KU PR - 0.071839
@@ -1013,7 +1041,7 @@ void message10_step02()
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
 
-    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
+    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, false);
 }
 
 
@@ -1067,7 +1095,7 @@ void message10_exp()
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
 
-    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);	
+    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, false);	
 }
 
 

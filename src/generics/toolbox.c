@@ -259,6 +259,26 @@ LinkedList* createRotorPermutations(int numberOfWalzen, int numberToChooseFrom)
 }
 
 
+/**************************************************************************************************\
+* 
+*  This function properly destroys the permutations linked list
+*  It destroys the objects. Then it destroys the linked list.
+*  If objects should not be destroyed, use destroyLinkedList()
+* 
+\**************************************************************************************************/
+void destroyPermutations(LinkedList* permutations)
+{
+    // First destroy the objects in the linked list
+    resetLinkedList(permutations);
+    while (hasNext(permutations))
+    {
+        int* permutation=(int*)nextLinkedListObject(permutations);
+        free(permutation);
+    }
+    // Then destroy the list itself
+    destroyLinkedList(permutations);
+}
+
 
 /**************************************************************************************************\
 * 

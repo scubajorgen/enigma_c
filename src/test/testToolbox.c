@@ -105,97 +105,67 @@ int permutationsExpected4c[12][3]=
 };
 
 
+
 /**************************************************************************************************\
 * 
-* Test the toolbox
+* Test the conversion functions
 * 
 \**************************************************************************************************/
-void testLinkedList()
+void testToolboxStellungPos()
 {
-    testStart("linkedList");
+    testStart("stellung/pos");
 
-    LinkedList* list;
-    int*        permutation;
-    int         objects[5]={0, 1, 2, 3, 4};
-    int         permutationElements[4]={1, 2, 3, 4};
-    int*        objectFromList;
-    int         i;
-    int         j;
-    
     // character/stellung to position [0..25]
     assertIntEquals(4, stellungToPos('e'));
     assertIntEquals(4, stellungToPos('E'));
     assertIntEquals(4, stellungToPos(5));
     assertIntEquals(9, charToPos('j'));
     assertIntEquals(9, charToPos('J'));
-    
-    // Linked list
-    list=createLinkedList();
-    assertLongNotEquals((long)NULL, (long)list);
-    
-    i=0;
-    while (i<5)
-    {
-        addObject(list, (void*)(objects+i));
-        i++;
-    }
-    
-    resetLinkedList(list);
-    i=0;
-    while (hasNext(list))
-    {
-        objectFromList  =(int*)nextLinkedListObject(list);
-        assertIntEquals(i, *objectFromList);
-        i++;
-    }
-    resetLinkedList(list);
-    i=0;
-    while (hasNext(list))
-    {
-        objectFromList  =(int*)nextLinkedListObject(list);
-        assertIntEquals(i, *objectFromList);
-        i++;
-    }
 
-    objectFromList=(int *)elementAt(list, 4);
-    assertIntEquals(4, *objectFromList);
+    testWrapUp();
+}
 
+/**************************************************************************************************\
+* 
+* Test the permute function
+* 
+\**************************************************************************************************/
+void testToolboxPermute()
+{
+    int         permutationElements[4]={1, 2, 3, 4};
 
-    objectFromList=(int *)elementAt(list, 2);
-    assertIntEquals(2, *objectFromList);
-    
-    objectFromList=(int *)elementAt(list, 0);
-    assertIntEquals(0, *objectFromList);
-    
-    objectFromList=(int *)elementAt(list, 6);
-    assertIntIsNull(objectFromList);
-    
-    destroyLinkedList(list);
-    
+    testStart("permute");
     // Permutations
-    list=createLinkedList();
+    LinkedList* list=createLinkedList();
     permute(list, permutationElements, 4, 2, 0);
     
     assertIntEquals(12, linkedListLength(list));   
     
     resetLinkedList(list);
-    i=0;
+    int i=0;
     while (hasNext(list))
     {
-        permutation=(int*)nextLinkedListObject(list);
-        j=0;
+        int* permutation=(int*)nextLinkedListObject(list);
+        int j=0;
         while (j<2)
         {
             assertIntEquals(permutationsExpected1[i][j], permutation[j]);
             j++;
         }
-        free((void *)permutation);
         i++;
     }
-    
+
+    resetLinkedList(list);
+    while (hasNext(list))
+    {
+        int* permutation=(int*)nextLinkedListObject(list);
+        free(permutation);
+        i++;
+    }
     destroyLinkedList(list);
     testWrapUp();
 }
+
 
 /**************************************************************************************************\
 * 
@@ -217,7 +187,6 @@ void testToolboxCreatePermutations()
         {
             assertIntEquals(permutationsExpected2[i][j], permutation[j]);
         }
-        free((void *)permutation);
         i++;
     }
 
@@ -231,12 +200,10 @@ void testToolboxCreatePermutations()
         {
             assertIntEquals(permutationsExpected3[i][j], permutation[j]);
         }
-        free((void *)permutation);
         i++;
     }
-
-    destroyLinkedList(permutations1);
-    destroyLinkedList(permutations2);
+    destroyPermutations(permutations1);
+    destroyPermutations(permutations2);
 
     testWrapUp();
 }
@@ -249,9 +216,9 @@ void testToolboxCreatePermutations()
 void testToolboxCombinePermutations()
 {
     testStart("combine perm");
-    LinkedList* permutations1=createPermutations(testSet1, 2, 1);
-    LinkedList* permutations2=createPermutations(testSet2, 3, 2);
-    LinkedList* combined=combinePermutations(permutations1, 1, permutations2, 2);
+    LinkedList* permutations1   =createPermutations(testSet1, 2, 1);
+    LinkedList* permutations2   =createPermutations(testSet2, 3, 2);
+    LinkedList* combined        =combinePermutations(permutations1, 1, permutations2, 2);
     assertIntEquals( 2, linkedListLength(permutations1));
     assertIntEquals( 6, linkedListLength(permutations2));
     assertIntEquals(12, linkedListLength(combined));
@@ -266,7 +233,6 @@ void testToolboxCombinePermutations()
         {
             assertIntEquals(permutationsExpected4a[i][j], permutation[j]);
         }
-        free((void *)permutation);
         i++;
     }
 
@@ -280,7 +246,6 @@ void testToolboxCombinePermutations()
         {
             assertIntEquals(permutationsExpected4b[i][j], permutation[j]);
         }
-        free((void *)permutation);
         i++;
     }
 
@@ -294,13 +259,12 @@ void testToolboxCombinePermutations()
         {
             assertIntEquals(permutationsExpected4c[i][j], permutation[j]);
         }
-        free((void *)permutation);
         i++;
     }
 
-    destroyLinkedList(permutations1);
-    destroyLinkedList(permutations2);
-    destroyLinkedList(combined);
+    destroyPermutations(permutations1);
+    destroyPermutations(permutations2);
+    destroyPermutations(combined);
 
     testWrapUp();
 }
@@ -318,6 +282,7 @@ void testToolboxRotorPermutations()
     int*        permutation;
 
     list=createRotorPermutations(3, 5);
+    
     assertIntEquals(60, linkedListLength(list));
     
     permutation=elementAt(list, 0);
@@ -333,6 +298,7 @@ void testToolboxRotorPermutations()
     assertStringEquals("II", walzen[permutation[2]]);
     
     destroyLinkedList(list);
+
     testWrapUp();
 }
 
@@ -367,7 +333,8 @@ void testToolboxRandomIndices()
 void testToolbox()
 {
     moduleTestStart("toolbox");
-    testLinkedList();
+    testToolboxStellungPos();
+    testToolboxPermute();
     testToolboxCreatePermutations();
     testToolboxCombinePermutations();
     testToolboxRotorPermutations();

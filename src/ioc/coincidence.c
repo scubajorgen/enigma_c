@@ -1407,7 +1407,7 @@ void iocDecodeText(char* cipher, int numOfThreads)
     {
         logFatal("Error: non existing Enigma\n");
     }
-    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
+    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, true);
 }
 
 

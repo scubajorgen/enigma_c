@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "testframe.h"
+#include "log.h"
 #include "workDispatcher.h"
 
 /**************************************************************************************************\
@@ -33,8 +34,9 @@ void workFunction(int worker, int workItem, void* params)
 {
     char* item;
     item=(char*) params;
-    printf("Workfunction: Worker # %d, Work Item# %d, data: %s\n", worker, workItem, item);
+    logInfo("Workfunction: Worker # %d, Work Item# %d, data: %s", worker, workItem, item);
     sleep(1);
+    logInfo("Workfunction: Worker # %d done", worker);
     fflush(stdout);
 }
 
@@ -47,7 +49,7 @@ void finalFunction(void* params)
 {
     char* item;
     item=(char*) params;
-    printf("Final function %s\n", item);
+    logInfo("Final function %s", item);
     assertStringEquals(finalItem, item);
     fflush(stdout);
 }
@@ -65,7 +67,7 @@ void testWorkDispatcherDispatch(void)
     dispatcherPushWorkItem(workFunction, (void*)workItems[0]);
     dispatcherPushWorkItem(workFunction, (void*)workItems[1]);
     dispatcherPushWorkItem(workFunction, (void*)workItems[2]);
-    dispatcherStartWork(3, finalFunction, (void*)finalItem);
+    dispatcherStartWork(3, finalFunction, (void*)finalItem, true);  // start, wait till work finished
     testWrapUp();
 } 
 
@@ -79,6 +81,5 @@ void testWorkDispatcher()
 {
     moduleTestStart("Work Dispatcher");
     testWorkDispatcherDispatch();
-    sleep(3);           // Make sure workers are finished
     moduleTestWrapUp();
 }

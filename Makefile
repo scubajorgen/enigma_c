@@ -36,6 +36,7 @@ _SRCOBJ	        = enigma.o \
 
 _TESTSRCOBJ     = testframe.o \
                   testToolbox.o \
+                  testLinkedList.o \
                   testWorkDispatcher.o \
                   testWalze.o \
                   testUkw.o \

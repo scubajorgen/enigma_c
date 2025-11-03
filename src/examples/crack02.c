@@ -5,6 +5,7 @@
 * 
 \**************************************************************************************************/
 #include <stdio.h>
+#include <stdbool.h>
 #include <malloc.h>
 #include <string.h>
 
@@ -328,7 +329,7 @@ void theThirdProblem()
     strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
     setOperation(recipe);
 
-    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
+    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, false);
 }
 
 
@@ -393,7 +394,7 @@ void theFourthProblem()
     strncpy(recipe.ngramSet, "GC", MAX_NGRAMSETSIZE);
     setOperation(recipe);
 
-    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL);
+    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, false);
 }
 
 

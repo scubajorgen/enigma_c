@@ -23,6 +23,7 @@ int main()
     testSessionStart("ENGIMA MODULES");
 
     testToolbox();
+    testLinkedList();
     testWalze();
     testUkw();
     testSteckerbrett();

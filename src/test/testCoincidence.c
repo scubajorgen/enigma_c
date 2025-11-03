@@ -69,6 +69,6 @@ void testCoincidenceDecodeText1(void)
 void testCoincidence()
 {
     moduleTestStart("IoC");
-    //testCoincidenceDecodeText1();
+    testCoincidenceDecodeText1();
     moduleTestWrapUp();
 }

@@ -108,6 +108,7 @@ extern int                 iocNumberOfResults;
 \**************************************************************************************************/
 
 // Methods for own cracking methods
+float   iocIndexOfCoincidence       (Enigma* enigma);
 void    iocEvaluateEngimaSettings   (IocWorkItem* work);
 void    iocFindSteckeredChars       (IocResults* results, int maxNumOfSteckers);
 void    iocFindSteckeredCharsNgram  (IocResults* results, int maxNumOfSteckers, int ngramSize);

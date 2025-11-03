@@ -2,6 +2,7 @@
 #define TEST_H
 
 void testToolbox            ();
+void testLinkedList         ();
 void testWorkDispatcher     ();
 void testWalze              ();
 void testUkw                ();
