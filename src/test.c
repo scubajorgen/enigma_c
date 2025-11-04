@@ -22,16 +22,21 @@ int main()
     setLogLevel(LOGLEVEL_INFO);
     testSessionStart("ENGIMA MODULES");
 
-    testToolbox();
+    // Generics
     testLinkedList();
+    testToolbox();
+    testWorkDispatcher();
+
+    // Enigma
     testWalze();
     testUkw();
     testSteckerbrett();
     testEnigma();
-    testTuring();
-    testCoincidence();
+
+    // Solving/decrypting
     testNgram();
-    testWorkDispatcher();
+    testCoincidence();
+    testTuring();
 
     testSessionWrapUp();
     return 0;
