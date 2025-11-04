@@ -10,19 +10,19 @@
 #include "coincidence.h"
 
 char* iocTestCipher=
-    "isxxr rfvuk ivvcf xozlr ewedp fggon aalyq avyrb ixwwk melvf"
-    "gcsne pawuq fgywg xapbs astop qyawu kqnau nfduu gdinf zksnt"
-    "rfsyo thctm yglkb kkgup wofxg jbzxp aslll rrusk avwoc oloxp"
-    "hvbnv mnuqb rumpo njczp fmxkw sszay heaxw cnezn rtqxc gsvcn"
-    "sqhfw zwlar zxyxz zuryj cclgv ntfno knjyb ubofb rnlce wvfgi"
-    "yhbko lzfof opndn sgeji ahgvf qqtvw uakaw jvrsg fzmtr jfvwb"
-    "mtdqt qmldn fnjuq gujdv dsfsv obbwt dgrdr xeryu irhpz vlqyd"
-    "ciexk eezmy suion bsrgf qsdhf uxows tykyp zoopr jsisg czpiw"
-    "hikww pheir qagld fgycz fqwyf zazct kstas gxycs powzx qgvie"
-    "iosrm felbh qftdw ctnvy tlhny lrgcl fqyzb ebbkm tfkdd vxeyp"
-    "sijlu jzhrl inmzj hhupz nqcch hzlnz pdbxk ebxcf quhcf aghia"
-    "qdpsn bapmv harup udvim bxwsq ajoen gsozk jteot fliqb rokyq"
-    "xzwij qhdwj aiyge sncou yzgay ucwdf rnqxf yxlym bwsdw hy";
+    "QKRQW UQTZK FXZOM JFOYR HYZWV BXYSI WMMVW BLEBD MWUWB TVHMR"
+    "FLKSD CCEXI YPAHR MPZIO VBBRV LNHZU POSYE IPWJT UGYOS LAOXR"
+    "HKVCH QOSVD TRBPD JEUKS BBXHT TGVHG FICAC VGUVO QFAQW BKXZJ"
+    "SQJFZ PEVJR OJTOE SLBQH QTRAA HXVYA UHTNB GIBVC LBLXC YBDMQ"
+    "RTVPY KFFZX NDDPC CJBHQ FDKXE EYWPB YQWDX DRDHN IGDXE UJJPV"
+    "MHUKP CFHLL FERAZ HZOHX DGBKO QXKTL DVDCW KAEDH CPHJI WZMMT"
+    "UAMQE NNFCH UIAWC CHNCF YPWUA RBBNI EPHGD DKMDQ LMSNM TWOHM"
+    "AUHRH GCUMQ PKQRK DVSWV MTYVN FFDDS KIISX ONXQH HLIYQ SDFHE"
+    "NCMCO MREZQ DRPBM RVPQT VRSWZ PGLPI TRVIB PXXHP RFISZ TPUEP"
+    "LKOTT XNAZM HTJPC HAASF ZLEFC EZUTP YBAOS KPZCJ CYZOV APZZV"
+    "ELBLL ZEVDC HRMIO YEPFV UGNDL ENISX YCHKS JUWVX USBIT DEQTC"
+    "NKRLS NXMXY ZGCUP AWFUL TZZSF AHMPX GLLNZ RXYJN SKYNQ AMZBU"
+    "GFZJC URWGT QZCTL LOIEK AOISK HAAQF OPFUZ IRTLW EVYWM DN";
 
 char* expected=
 "AUFBEFEHLDESOBERSTENBEFEHLSHABERSSINDIMFALLEXZXZTXUNWAHRSCHEINLICHEN"
@@ -54,7 +54,7 @@ void testCoincidenceDecodeText1(void)
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
-    recipe.scoreListSize    =52;
+    recipe.scoreListSize    =5;
     recipe.numberOfSolutions=1;
     setOperation(recipe);
     iocDecodeText(iocTestCipher, 6);
