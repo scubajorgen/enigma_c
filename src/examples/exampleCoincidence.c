@@ -194,11 +194,13 @@ void iocExample01Ngram2()
 
 /**************************************************************************************************\
 * 
-* Example from the original James Gillogly article - other encryption with 10 steckers
+* Example from the original James Gillogly article - other encryption with 9 steckers
 * Does not work
+* After step 1: position ?
+* After step 2: position 12, but wrong steckers
 * 
 \**************************************************************************************************/
-// The orignal Gillogly cipher text but other engima settings, 10 steckers
+// The orignal Gillogly cipher text but other engima settings, 9 steckers
 // The original Gillogly method won't find the solution
 EnigmaSettings iocExampleSettings02=
 {
@@ -215,7 +217,7 @@ EnigmaSettings iocExampleSettings02=
     {
         2, 7, 9
     },
-    "MV PX EZ RW JO BL IU KT AC SY",
+    "MV PX EZ RW JO BL IU KT AC",
     "ISPPG RUMUK CMMCB POESR ZSZCQ FGGON YALYX AMYUB IPWQZ RKTMZ"
     "GCSNZ QAWUB FGYWG PRQDS ASTKQ NYAWY LXNAU NFDUU GDBNK EKSKT"
     "XFSYO THCCV YULWB OKGUJ WRFYG JBEOQ ACLGL RMUVK AUWON OBOPQ" 
@@ -242,12 +244,12 @@ void iocExample02Ioc()
     recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
-    recipe.ngramSize        =0;
-    recipe.numberOfSolutions=TOP_RESULTS_SIZE;
+    recipe.numberOfSolutions=20;
     recipe.scoreListSize    =TOP_RESULTS_SIZE;
-    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
     iocDecodeText(iocExampleSettings02.cipher, 6);
 }
@@ -310,6 +312,7 @@ void iocExample03Ioc()
     recipe.numberOfSolutions=1;
     recipe.scoreListSize    =TOP_RESULTS_SIZE;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    setOperation(recipe);
     iocDecodeText(iocExampleSettings03.cipher, 6);
 }
 

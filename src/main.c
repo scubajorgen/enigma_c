@@ -46,7 +46,7 @@ int main()
 	printf("31.     The fourth problem                          \n");
 	printf("32.     The fifth problem                           \n");
 
-	printf("40-50.  Engima Challenge message 1-10   \n");
+	printf("41-50.  Engima Challenge message 1-10   \n");
 
 
     fgets(input, 10, stdin);
@@ -146,40 +146,40 @@ int main()
             // TO DO
             //iocExampleNgram();
             break;    
-        case 40:
+        case 41:
             message01();
             break;
-        case 41:
+        case 42:
             message02();
             break;
-        case 42:
+        case 43:
             message03();
             break;
-        case 43:
+        case 44:
             message04();
             break;
-        case 44:
+        case 45:
             message05();
             break;
-        case 45:
+        case 46:
             message06();
             break;
-        case 46:
+        case 47:
             message07();
             break;
-        case 47:
+        case 48:
             message08();
             break;
-        case 48:
+        case 49:
             message09();
             break;
-        case 49:
+        case 50:
             message10_step01();
             break;
-        case 50:
+        case 51:
             message10_step02();
             break;
-        case 51:
+        case 52:
             message10_exp();
             break;
         case 99:
