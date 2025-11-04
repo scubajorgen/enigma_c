@@ -18,19 +18,53 @@ On a simple low power Pentium it peforms 50.000-80.000 encryptions per second (r
 performs only 1000 or so. On a Linux VM on the Core I5-9600 @ 3.7 GHz it runs 200.000 - 300.000 decryptions per second (depending on the text size). 
 
 ## Building
-The software requires Linux and gcc.
-Simply call 'make clean', 'make'.
+The software requires Linux and gcc. I also made it run under Windows using Mingw (MSYS2 UCRT64), Visual Studio Code and GCC. 
+
+To build it, simply call 'make clean', 'make'.
 It delivers two executable files:
 * **enigma**, which executes a number of examples and demos on request
 * **test**, which execute module tests
 
-Run it as 
+## Running
+Run the tests as 
+```
+./test
+```
+
+Run the tests as 
 ```
 ./enigma
 ```
+Choose one of the examples by entering its number. For example 0 results in an encode decode cycle on the Engima M3 with random settings:
+
+```
+#####################################################################################
+# ENIGMA M3 ENCODE/DECODE EXAMPLE - Random Settings
+#####################################################################################
+
+#####################################################################################
+# Enigma settings
+# Cipher/text               :
+# TESTM ESSAG EENCO DEDON ENIGM AWITH RANDO MSETT INGS
+# Cipher size               : 51 characters
+# Number of Walzen          : 3
+# Original Walzen           : UKW C, V, IV, II
+# Original RingStellungen   : 10 8 6
+# Original GrundStellungen  : 20 8 11
+# Original Steckers         : ET GP FL XY IQ VM WK OU ND AZ
+#####################################################################################
+Original  : TEST MESSAGE ENCODED ON ENIGMA WITH RANDOM SETTINGS
+Cipher    : YWCRHGFDIKALRGUGZJEZHMQPYDIRVAYLYXKTJQKRBKXF
+Plain text: TESTMESSAGEENCODEDONENIGMAWITHRANDOMSETTINGS
+```
+
+
+
+
+
 
 ## Usage of the software
-
+### Basic Enigma
 Next code example shows how to create an Enigma, configure it, encode/decode and destory it:
 ```    
     enigma=createEnigmaM3();
@@ -64,6 +98,39 @@ In the code the internal representation is optimized for performance. Rotor numb
 
 TO DO: convert Ringstellung to change the lookup-tables in order to save more calculations during encryption/decryption. 
 
+### EnigmaSettings structure
+Settings of an enigma can be summarized in an EnigmaSettings instance. The Enigma can be programmed simply by
+
+```
+    Enigma* enigma=createEnigmaM3();
+    EnigmaSettings* settings;
+    // define settings
+    setEnigma(enigma, settings);
+    encodeDecode(enigma);
+    result=toString(enigma);
+    destroyEngima(enigma);
+```
+
+The method ```createRandomSettings()``` creates random settings by defining the Walzen set and the number of Steckers to use. you only have to copy the cipher to the structure.
+
+```
+    Enigma* enigma=createEnigmaM3();
+    EnigmaSettings* settings=createRandomSettings(enigma, M3_ARMY_1938, 5);
+    setEnigma(enigma, settings);
+    strncpy(settings->cipher, cipher, MAX_TEXT-1);
+    encodeDecode(enigma);
+    result=toString(enigma);
+    destroyEngima(enigma);
+```
+
+Walzen sets to choose from:
+
+* M3_ENIGMA1_1930 - 3 rotors (I, II, III) + 2 UKWs (UKW B, UKW C)
+* M3_ARMY_1938    - 5 rotors (I, II, III, IV, V) + 2 UKWs (UKW B, UKW C)
+* M3_ARMY_1939    - 8 rotors (I, II, III, IV, V, VI, VII, VIII) + 2 UKWs
+* M4_NAVAL_1941   - 8 rotors (I, II, III, IV, V, VI, VII, VIII)+ 2 4th rotors (beta, gamma) + 2 thin UKWs (UKW B2, UKW C2)
+
+Note that only the latter set can be used on the Enigma M4.
 ## Cracking ciphers: Turing method
 
 The software implements the method used by Alan Turing to crack the German encoded messages using 'the Bombe'. It assumes a piece of plain text (the crib) that corresponds to part of the cipher text. The software creates the letter links (the menu) and finds all loops in it. It then finds the rotor settings and start position that fullfills the loops.
@@ -88,6 +155,12 @@ The software results in all rotor settings that result in the loops defined by t
 
 ## Cracking ciphers: Index of Coincidence - James Gillogly
 ### The method
+For computerized code cracking by trying various permutations, it is essential to validate if the result found 'approaches' readable text.
+There are several methods:
+* Count the number of 'e's in the text. The 'e' is the most common syllable (18%). The permutation which results in a number of 'e's above a limit of, say, 12% is a good candidate
+* Index of Coincidence
+* NGRAM scores
+
 James Gillogly presented a method for finding the rotor settings and the steckers using the '_Index of Coincidence_' (IoC).
 It uses the fact that letter frequency in plain text isn't random. He uses the index of coincidence as measure of 'non-randomness'. The Gillogly method consists of following steps:
 1. Find the Waltzen and Grundstellung used that result in the largest IoC value, assuming a fixed Ringstellung of 1-1-1. It simply tries all combinations, perform a decryption and calculates the IoC.
@@ -102,21 +175,49 @@ See [the original article](http://web.archive.org/web/20060720040135/http://memb
 The method described and the original Gillogly cipher is implemented in the example 
 
 ```
-    iocExample00();
+    iocExample01Ioc();
 ```
 Note that the Ringstellung of Waltze 1 has no meaning. R1 G1 results in the same decryption as R2 G2 as R3 G3, etc.
 
-### Modes
-Several modes are implemented.
-* METHOD_IOC
-  The orginal method as described above
-* METHOD_IOC_R3
+### Improvements
+In the software the Gillogly method has been improved:
+* At step 1, take not one candidate (that scores best) as _the_ solution, but take a number of best scoreing candidates. Then execute step 2 on all found solutions.
+* At step 1, also vary the Grundstellung of rotor 3 or of rotor 2 and 3, exponentially increasing the time to solve
+* At step 1 also take a number of Steckers into account, exponentially increasing the time to solve (basically this is brute forcing)
+* Use NGRAMs for step 1/2 and/or step 3 instead of IoC
+
+All the variations can be described in a 'recipe'. In this way a cipher can be solved as follows
+
+```
+    IocRecipe recipe;
+    char cipher[]="cipher";
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    recipe.scoreListSize    =52;
+    recipe.numberOfSolutions=3;
+
+    setOperation(recipe);
+    iocDecodeText(cipher, 6);
+```
+
+The work is distributed over multiple threads (6 in this example), taking advantage of multiple cores of the processor.
+
+
+Following methods can be used
+* DEPTH_NONE
+  The orginal method as described above, keeping Ringstellungen at 1-1-1
+* DEPTH_R3
   As above, but now the fastest Waltze 3 is also taken into step 1, at the 
   penalty of more time (26x) being consumed. It sometimes is more successful than the original method and has been proposed by Gillogly. 
-* METHOD_IOC_R2R3
-  As above, but now both Waltzen 2 and 3 are taken into step 1, removing he necesity for step 2. The penalty with respect to the original is 25x26x more time. It sometimes is more successful than the original method and has been proposed by Gillogly. 
-* METHOD_IOC_DEEP
-  Experimental method in which also the Stecker finding is taken into step 1. Extremely slowly and not really succesful
+* DEPTH_R2_R3
+  As above, but now both Waltzen 2 and 3 are taken into step 1, removing the necesity for step 2. The penalty with respect to the original is 25x26x more time. It sometimes is more successful than the original method and has been proposed by Gillogly. 
 
 ### Findings
 The implementation distributes the work over a number of threads, so the cores of multi core processors can be used to speed up the work by parallel processing.
