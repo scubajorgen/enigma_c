@@ -3,7 +3,7 @@
 
 #define TEST_NAME_LENGTH    20
 
-void testSessionStart       ();
+void testSessionStart       (char* name);
 void testSessionWrapUp      ();
 void moduleTestStart        (char* name);
 void moduleTestWrapUp       ();

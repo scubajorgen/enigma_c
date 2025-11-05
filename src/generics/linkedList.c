@@ -42,6 +42,8 @@ int linkedListLength(LinkedList* list)
 /**************************************************************************************************\
 * 
 * Returns the element from the linked list at position indicated by index
+* This is an expensive method, especially for long linked lists. If parsing a linked list, use
+* nextLinkedListObject().
 * 
 \**************************************************************************************************/
 void* elementAt(LinkedList* list, int index)
