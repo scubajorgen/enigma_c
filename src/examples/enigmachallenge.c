@@ -13,6 +13,7 @@
 #include <malloc.h>
 #include <string.h>
 
+#include "log.h"
 #include "enigma.h"
 #include "crack.h"
 #include "toolbox.h"
@@ -253,17 +254,88 @@ char buffer2[1000];
 
 /**************************************************************************************************\
 * 
+* Helper: display decoded text in more digestible format
+* 
+\**************************************************************************************************/
+
+typedef enum
+{
+    MESSAGETYPE_KRIEGSMARINE,
+    MESSAGETYPE_WEHRMACHT
+} Message_t;
+// TO DO: improve
+void displayEnigmaMessage(char* message, Message_t type)
+{
+    switch (type)
+    {
+        // X=. ZZ=, FRAGE=? FRAQ=? 
+        case MESSAGETYPE_WEHRMACHT: 
+            for (int i=0;i<strlen(message);i++)
+            {
+                char c=message[i];
+                if (c=='X' || c=='x')
+                {
+                    printf(". ");
+                }
+                else if (c=='J' || c=='j')
+                {
+                    printf(" ");
+                }
+                else 
+                {
+                    printf("%c", c);
+                }
+            }
+            break;
+        // X=. Y=, UD=? Q=ch CENTA=00 MILLE=000 MYRIA=0000
+        case MESSAGETYPE_KRIEGSMARINE:
+            for (int i=0;i<strlen(message);i++)
+            {
+                char c=message[i];
+                if (c=='X' || c=='x')
+                {
+                    printf(". ");
+                }
+                else if (c=='y' || c=='Y')
+                {
+                    printf(", ");
+                }
+                else 
+                {
+                    printf("%c", c);
+                }
+            }
+            break;
+    }
+    printf("\n");
+}
+
+/**************************************************************************************************\
+* 
+* Helper: generate the grundstellung for deciphering; assumes a configured Engima
+* 
+\**************************************************************************************************/
+void generateGrundstellung(Enigma* enigma, char grundstellungen[3], char grundstellungText[3])
+{
+    setGrundStellungen(enigma, grundstellungen);
+    setText(enigma, grundstellungText);
+    encodeDecode(enigma);
+    char* decoded=toString(enigma);
+    setGrundStellungen(enigma, decoded);
+}
+
+/**************************************************************************************************\
+* 
 * Enigma Challenge message 1
 * Simply decode with all info given
 * 
 \**************************************************************************************************/
 void message01()
 {
-    Enigma* enigma;
-    char*   decoded;
-    
-	printf("MESSAGE 01\n");
-    enigma=createEnigmaM3(); 
+    printf("#####################################################################################\n");
+    printf("# ENIGMA CHALLENGE  - MESSAGE 01\n");
+    printf("#####################################################################################\n");
+    Enigma* enigma=createEnigmaM3(); 
 
     placeWalze(enigma, 1, "VIII");
     placeWalze(enigma, 2, "II");
@@ -274,26 +346,13 @@ void message01()
     setRingStellung(enigma, 1, 19);    
     setRingStellung(enigma, 2,  7);    
     setRingStellung(enigma, 3, 12);
-      
-    setGrundStellung(enigma, 1, 'W');
-    setGrundStellung(enigma, 2, 'T');
-    setGrundStellung(enigma, 3, 'G');
 
-    setText(enigma, "PLT");
-    encodeDecode(enigma);
-    
-    decoded=toString(enigma);
-    
-    setGrundStellung(enigma, 1, decoded[0]);
-    setGrundStellung(enigma, 2, decoded[1]);
-    setGrundStellung(enigma, 3, decoded[2]);
-
+    generateGrundstellung(enigma, "WTG", "PLT");
     setText(enigma, text01);
-    
     encodeDecode(enigma);
     
-    printf("Message 01: %s\n", toString(enigma));
-    
+    printf("Message 01:\n");
+    displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
 }
 
 /**************************************************************************************************\
@@ -302,19 +361,17 @@ void message01()
 * All info given, except rotor order. Leaves 6 possibilies
 * 
 \**************************************************************************************************/
-
 char message02Walzen[][MAX_ROTORNAME]   ={"I", "III", "V"};
 int message02Indices[]                  ={0, 1, 2};
 
 void message02()
 {
-    Enigma* enigma;
-    char*   decoded;
-    
-	printf("MESSAGE 02\n");
-    LinkedList* permutations=createPermutations(message02Indices, 3, 3);
+    printf("#####################################################################################\n");
+    printf("# ENIGMA CHALLENGE  - MESSAGE 02\n");
+    printf("#####################################################################################\n");
 
-    enigma=createEnigmaM3(); 
+    LinkedList* permutations=createPermutations(message02Indices, 3, 3);
+    Enigma* enigma=createEnigmaM3(); 
     resetLinkedList(permutations);
     while (hasNext(permutations))
     {
@@ -331,15 +388,7 @@ void message02()
         placeSteckers(enigma, "BL CK DG FP IR MO QW ST VY UZ");
         setRingStellungen(enigma, "25 03 07");
         
-        setGrundStellungen(enigma, "X L T");
-        setText(enigma, "VPM");
-        encodeDecode(enigma);
-        
-        decoded=toString(enigma);
-        
-        setGrundStellung(enigma, 1, decoded[0]);
-        setGrundStellung(enigma, 2, decoded[1]);
-        setGrundStellung(enigma, 3, decoded[2]);
+        generateGrundstellung(enigma, "XLT", "VPM");
 
         setText(enigma, text02_1);
         encodeDecode(enigma);
@@ -347,21 +396,14 @@ void message02()
         printf("Index of Coincidence %f\n", ioc);
         if (ioc>0.05)
         {
-            printf("Message 02/1: %s\n", toString(enigma));
-            
-            setGrundStellungen(enigma, "H N B");
-            setText(enigma, "SFA");
-            encodeDecode(enigma);
-            
-            decoded=toString(enigma);
-            
-            setGrundStellung(enigma, 1, decoded[0]);
-            setGrundStellung(enigma, 2, decoded[1]);
-            setGrundStellung(enigma, 3, decoded[2]);
+            printf("Message 02/1:\n");
+            displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
 
+            generateGrundstellung(enigma, "HNB", "SFA");
             setText(enigma, text02_2);
             encodeDecode(enigma);
-            printf("Message 02/2: %s\n", toString(enigma));
+            printf("Message 02/2:\n");
+            displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
         }
     }  
     destroyPermutations(permutations);
@@ -369,114 +411,144 @@ void message02()
 }
 
 
+/**************************************************************************************************\
+* 
+* Enigma Challenge message 3
+* Missing stecker CE
+* 
+\**************************************************************************************************/
+char message03NotUsed[]="BCDEGIMZ";
+char message03Steckers[]="AL FP HX JO KT NV QR SU WY ??";
+
 void message03()
 {
-    Enigma* enigma;
-    char*   decoded;
-    
-	printf("MESSAGE 03\n");
-    enigma=createEnigmaM3(); 
-
-
+    printf("#####################################################################################\n");
+    printf("# ENIGMA CHALLENGE  - MESSAGE 03\n");
+    printf("#####################################################################################\n");
+    Enigma* enigma=createEnigmaM3(); 
     placeWalze(enigma, 1, "III");
     placeWalze(enigma, 2, "II");
     placeWalze(enigma, 3, "V");
-    placeSteckers(enigma, "AL FP HX JO KT NV QR SU WY CE");
     placeUmkehrWalze(enigma, "UKW C");
-    
     setRingStellungen(enigma, "08 19 03");
-      
-    setGrundStellungen(enigma, "A S T");
-    setText(enigma, "SGT");
-    encodeDecode(enigma);
-    
-    decoded=toString(enigma);
-    
-    setGrundStellung(enigma, 1, decoded[0]);
-    setGrundStellung(enigma, 2, decoded[1]);
-    setGrundStellung(enigma, 3, decoded[2]);
 
+    float iocMax=0;
+    char  c1='\0';
+    char  c2='\0';
+    for (int i=0;i<strlen(message03NotUsed); i++)
+    {
+        for (int j=i+1;j<strlen(message03NotUsed); j++)
+        {
+            message03Steckers[27]=message03NotUsed[i];
+            message03Steckers[28]=message03NotUsed[j];
+            printf("Testing steckers: %s, ", message03Steckers);
+            clearSteckerBrett(enigma);
+            placeSteckers(enigma, message03Steckers);
+            generateGrundstellung(enigma, "AST", "SGT");
+            setText(enigma, text03);
+            encodeDecode(enigma);
+
+            float ioc=iocIndexOfCoincidence(enigma);
+            printf("IoC: %f\n", ioc);
+            if (ioc>iocMax)
+            {
+                iocMax=ioc;
+                c1=message03NotUsed[i];
+                c2=message03NotUsed[j];
+            }
+        }
+    }
+
+    message03Steckers[27]=c1;
+    message03Steckers[28]=c2;
+    //printf("%s\n", steckers);
+    clearSteckerBrett(enigma);
+    placeSteckers(enigma, message03Steckers);
+    generateGrundstellung(enigma, "AST", "SGT");
     setText(enigma, text03);
     
     encodeDecode(enigma);
-    
-    printf("Message 03: %s\n", toString(enigma));
-    
-    destroyEnigma(enigma);    
+    printf("Message 03: highest ioc %f, stecker added %c%c :\n", iocMax, c1, c2);
+    displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
+    destroyEnigma(enigma);
 }
 
-
-
+/**************************************************************************************************\
+* 
+* Enigma Challenge message 4
+* Missing Grunstellung and Ringstellung Walze 1
+* 
+\**************************************************************************************************/
 void message04()
 {
-    Enigma* enigma;
-    int     g1;
-    int     r1;
-    int     count;
-	int     limit;
+    printf("#####################################################################################\n");
+    printf("# ENIGMA CHALLENGE  - MESSAGE 04 - Missing Grundstellung/Ringstellung\n");
+    printf("#####################################################################################\n");
 
-	printf("MESSAGE 04\n");
-    enigma=createEnigmaM3(); 
+    char grundStellungen[4]="?KE";
 
-
-
+    Enigma* enigma=createEnigmaM3(); 
     placeWalze(enigma, 1, "II");
     placeWalze(enigma, 2, "IV");
     placeWalze(enigma, 3, "I");
     placeSteckers(enigma, "bd cv el gn iz jo kw mt pr sx");
     placeUmkehrWalze(enigma, "UKW C");
-    
     setRingStellung(enigma, 2, 3);    
     setRingStellung(enigma, 3, 21);    
-
-
-    
-
     setText(enigma, text04);
-    // Frequence e=18%, n=10%. Therefore we put the limit on 14%
-    limit=enigma->textSize*10/100;		
-    
-    g1=1;
+
+    int maxCount=0;
+    char theG1   =0;
+    char theR1   =0;
+    char g1=1;
     while (g1<=MAX_POSITIONS)
     {
-        r1=1;
+        char r1=1;
         while (r1<=MAX_POSITIONS)
         {
-            setGrundStellung(enigma, 2, 'K');    
-            setGrundStellung(enigma, 3, 'E');    
-            setRingStellung (enigma, 1, r1);    
-            setGrundStellung(enigma, 1, g1);
-
+            setRingStellung (enigma, 1, r1);
+            grundStellungen[0]=g1;
+            setGrundStellungen(enigma, grundStellungen);
             encodeDecode(enigma);
             
-            count=countLetter(enigma, 'E');
-            
-            if (count>limit)
+            int count=countLetter(enigma, 'E');
+            if (count>maxCount)
             {
-                printf("Found R %d G %d count %d:\n%s\n\n", r1, g1, count, toString(enigma));
+                maxCount=count;
+                theR1=r1;
+                theG1=g1;
             }
             
             r1++;
         }
         g1++;
     }
+    setRingStellung (enigma, 1, theR1);
+    grundStellungen[0]=theG1;
+    setGrundStellungen(enigma, grundStellungen);
+    encodeDecode(enigma);
+    float ioc=iocIndexOfCoincidence(enigma);
+    printf("Found R %d G %d count %d IoC %f:\n", theR1, theG1, maxCount, ioc);
+    displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
 
-    
+    destroyEnigma(enigma);
 }
 
+/**************************************************************************************************\
+* 
+* Enigma Challenge message 5
+* Missing Walze 3, Ringstellung and Grundstellung
+* 
+\**************************************************************************************************/
 void message05()
 {
-	printf("MESSAGE 05\n");
-    Enigma*     enigma;
-    int         g1;
-    int         r1;
-    int         count;
-	int         limit;
-    char        possibleWalzen[3][4]={"I","III","V"};
-    int         w;
+    printf("#####################################################################################\n");
+    printf("# ENIGMA CHALLENGE  - MESSAGE 05 - Missing Walze 3, Rinstellung 3 , Grundstellung 3\n");
+    printf("#####################################################################################\n");
+    char possibleWalzen[3][4]={"I","III","V"};
+    char grundStellungen[4]="EF?";
 
-    printf("Message 05\n");
-    enigma=createEnigmaM3(); 
+    Enigma* enigma=createEnigmaM3(); 
 
     placeWalze(enigma, 1, "II");
     placeWalze(enigma, 2, "IV");
@@ -484,43 +556,36 @@ void message05()
     placeSteckers(enigma, "AS CK DE FV GJ LU MW OT PX RZ");
     placeUmkehrWalze(enigma, "UKW B");
     
-    setRingStellung(enigma, 1, 9);    
-    setRingStellung(enigma, 2, 2);    
+    setRingStellung(enigma, 1, 9);
+    setRingStellung(enigma, 2, 2);
 
-
-    w=0;
+    int w=0;
     while (w<3)
     {
         placeWalze(enigma, 3, possibleWalzen[w]);
         
         setText(enigma, text05);
-        // Frequence e=18%, n=10%. 10 gives a good result 
-        limit=enigma->textSize*12/100;		
         
-        g1=1;
-        while (g1<=MAX_POSITIONS)
+        char g3=1;
+        while (g3<=MAX_POSITIONS)
         {
-            r1=1;
-            while (r1<=MAX_POSITIONS)
+            char r3=1;
+            while (r3<=MAX_POSITIONS)
             {
-                setGrundStellung(enigma, 1, 'E');    
-                setGrundStellung(enigma, 2, 'F');    
-                setRingStellung (enigma, 3, r1);    
-                setGrundStellung(enigma, 3, g1);
-
+                setRingStellung (enigma, 3, r3);
+                grundStellungen[2]=g3;
+                setGrundStellungen(enigma, grundStellungen);
                 encodeDecode(enigma);
-                
-                count=countLetter(enigma, 'E');
-                
-                if (count>22)
+                int count=countLetter(enigma, 'E');
+                float ioc=iocIndexOfCoincidence(enigma);
+                if (ioc>0.05)
                 {
-                    printf("Found %s R %d G %d count%d limit %d:\n%s\n", 
-                           possibleWalzen[w], r1, g1, count, limit, toString(enigma));
+                    printf("Found %s R %d G %d 'E' count %d %f:\n", possibleWalzen[w], r3, g3, count, ioc);
+                    displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
                 }
-                
-                r1++;
+                r3++;
             }
-            g1++;
+            g3++;
         }
         w++;
     }
@@ -528,17 +593,22 @@ void message05()
 }
 
 
+/**************************************************************************************************\
+* 
+* Enigma Challenge message 6
+* Missing characters
+* 
+\**************************************************************************************************/
 void message06()
 {
-    Enigma* enigma;
-    char*   decoded;
+    printf("#####################################################################################\n");
+    printf("# ENIGMA CHALLENGE  - MESSAGE 06 - Missing characters\n");
+    printf("#####################################################################################\n");
     char    test1;
     char    test2;
-    int     limit;
-    int     count;
-    
-	printf("MESSAGE 06\n");
-    enigma=createEnigmaM3(); 
+    char    grundstellungenText[4]="???";
+
+    Enigma* enigma=createEnigmaM3(); 
 
     placeWalze(enigma, 1, "V");
     placeWalze(enigma, 2, "I");
@@ -550,208 +620,161 @@ void message06()
     setRingStellung(enigma, 2, 12);    
     setRingStellung(enigma, 3, 14);
 
+    float maxIoc=0.0f;
+    char  theTest1='\0';
+    char  theTest2='\0';
     test1=0;
     while (test1<MAX_POSITIONS)
     {
-        setGrundStellung(enigma, 1, 'A');
-        setGrundStellung(enigma, 2, 'C');
-        setGrundStellung(enigma, 3, 'E');
-
-        buffer1[0]='A'+test1;
-        sprintf(buffer1+1, "WE");
-        setText(enigma, buffer1);
-        encodeDecode(enigma);
-        
-        decoded=toString(enigma);
-        
-        setGrundStellung(enigma, 1, decoded[0]);
-        setGrundStellung(enigma, 2, decoded[1]);
-        setGrundStellung(enigma, 3, decoded[2]);
-
+        grundstellungenText[0]='A'+test1;
+        grundstellungenText[1]='W';
+        grundstellungenText[2]='E';
+        generateGrundstellung(enigma, "ACE", grundstellungenText);
         setText(enigma, text06_1);
-        limit=enigma->textSize*9/100;
-        
         encodeDecode(enigma);
-        
-        count=countLetter(enigma, 'E');
-        if (count>limit)
+
+        float ioc=iocIndexOfCoincidence(enigma);
+        if (ioc>maxIoc)
         {
-            decoded=toString(enigma);
-            printf("Message 06-1: %s\n", decoded); 
-        }            
+            maxIoc=ioc;
+            theTest1=test1;
+        }
         test1++;
     }
-    
+    grundstellungenText[0]='A'+theTest1;
+    grundstellungenText[1]='W';
+    grundstellungenText[2]='E';
+    generateGrundstellung(enigma, "ACE", grundstellungenText);
+    setText(enigma, text06_1);
+    encodeDecode(enigma);
+    printf("Message 06-1, IoC %f:\n", maxIoc);
+    displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
+
     test1=0;
+    maxIoc=0.0f;
     while (test1<MAX_POSITIONS)
     {
         test2=0;
         while (test2<MAX_POSITIONS)
         {
-            setGrundStellung(enigma, 1, 'S');
-            setGrundStellung(enigma, 2, 'E');
-            setGrundStellung(enigma, 3, 'D');
-
-            buffer1[0]='A';
-            buffer1[1]='A'+test1;
-            buffer1[2]='A'+test2;
-            buffer1[3]='\0';
-            setText(enigma, buffer1);
-            encodeDecode(enigma);
-            
-            decoded=toString(enigma);
-            
-            setGrundStellung(enigma, 1, decoded[0]);
-            setGrundStellung(enigma, 2, decoded[1]);
-            setGrundStellung(enigma, 3, decoded[2]);
-
+            grundstellungenText[0]='A';
+            grundstellungenText[1]='A'+test1;
+            grundstellungenText[2]='A'+test2;
+            generateGrundstellung(enigma, "SED", grundstellungenText);
             setText(enigma, text06_2);
-            limit=enigma->textSize*6/100;
-            
             encodeDecode(enigma);
             
-            count=countLetter(enigma, 'E');
-            decoded=toString(enigma);
-            if (count>limit/*decoded[0]=='N' && decoded[1]=='S'*/)
+            float ioc=iocIndexOfCoincidence(enigma);
+            if (ioc>maxIoc)
             {
-                printf("Message 06-2: %s\n", toString(enigma)); 
-            }            
+                maxIoc=ioc;
+                theTest1=test1;
+                theTest2=test2;
+            }
             test2++;
         }
         test1++;
     }    
-
-    setGrundStellung(enigma, 1, 'H');
-    setGrundStellung(enigma, 2, 'I');
-    setGrundStellung(enigma, 3, 'P');
-
-    setText(enigma, "PYX");
+    grundstellungenText[0]='A';
+    grundstellungenText[1]='A'+theTest1;
+    grundstellungenText[2]='A'+theTest2;
+    generateGrundstellung(enigma, "SED", grundstellungenText);
+    setText(enigma, text06_2);
     encodeDecode(enigma);
-    
-    decoded=toString(enigma);
-    
-    setGrundStellung(enigma, 1, decoded[0]);
-    setGrundStellung(enigma, 2, decoded[1]);
-    setGrundStellung(enigma, 3, decoded[2]);
+    printf("Message 06-2, IoC %f:\n", maxIoc);
+    displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
 
+    generateGrundstellung(enigma, "HIP", "PYX");
     setText(enigma, text06_3);
-    
     encodeDecode(enigma);
-    
-    printf("Message 06-3: %s\n", toString(enigma)); 
-
+    printf("Message 06-3:\n");
+    displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
 }
 
 
+/**************************************************************************************************\
+* 
+* Enigma Challenge message 7
+* 
+* 
+\**************************************************************************************************/
 void message07()
 {
-    Enigma*         enigma;
-    char*           decoded;
+    printf("#####################################################################################\n");
+    printf("# ENIGMA CHALLENGE  - MESSAGE 07 - Missing Walzen\n");
+    printf("#####################################################################################\n");
     int*            permutation;
-    LinkedList*     permutations;
-    int             i;
-    int             found;
+    char            walzen[5][6]    ={"I", "II", "III", "IV", "V"};
+    int             permElements[5] ={0, 1, 2, 3, 4};
     
-    int             limit;
-    int             count;
-    
-    char            walzen[5][6]       ={"I", "II", "III", "IV", "V"};
-    int             permElements[5]     ={0, 1, 2, 3, 4};
-    
-	printf("MESSAGE 07\n");
-    enigma=createEnigmaM3(); 
-
+    Enigma* enigma=createEnigmaM3(); 
     placeSteckers(enigma, "au cm dp ev hl iz jw no qx st");
     placeUmkehrWalze(enigma, "UKW B");
-    
     setRingStellung(enigma, 1, 5);    
     setRingStellung(enigma, 2, 22);    
     setRingStellung(enigma, 3, 11);
-      
-    permutations=createLinkedList();
-    permute(permutations, permElements, 5, 3, 0);
 
-    found=0;
-    i=0;
-    while ((i<linkedListLength(permutations)) && !found)
+    LinkedList* permutations=createPermutations(permElements, 5, 3);
+    float maxIoc    =0.0f;
+    int*  maxPerm   =NULL;
+    for (int i=0; i<linkedListLength(permutations); i++)
     {
         permutation=(int*)elementAt(permutations, i);
         
-        printf("%d %d %d: %s-%s-%s\n", permutation[0], permutation[1], permutation[2], walzen[permutation[0]], walzen[permutation[1]], walzen[permutation[2]]);
-        
+        logDebug("%d %d %d: %s-%s-%s", permutation[0], permutation[1], permutation[2], walzen[permutation[0]], walzen[permutation[1]], walzen[permutation[2]]);
+
         placeWalze(enigma, 1, walzen[permutation[0]]);
         placeWalze(enigma, 2, walzen[permutation[1]]);
         placeWalze(enigma, 3, walzen[permutation[2]]);
-
-        setGrundStellungen(enigma, "A E G");
-
-        setText(enigma, "GJW");
-        encodeDecode(enigma);
-        
-        decoded=toString(enigma);
-        
-        setGrundStellung(enigma, 1, decoded[0]);
-        setGrundStellung(enigma, 2, decoded[1]);
-        setGrundStellung(enigma, 3, decoded[2]);
-
+        generateGrundstellung(enigma, "AEG", "GJW");
         setText(enigma, text07_1);
-        limit=enigma->textSize*9/100;
-        
         encodeDecode(enigma);
-        
-        count=countLetter(enigma, 'E');
-        if (count>limit)
+        float ioc=iocIndexOfCoincidence(enigma);
+        if (ioc>maxIoc)
         {
-            decoded=toString(enigma);
-            printf("Message 06-1: %s\n", decoded); 
-            found=1;
-        }   
-        free(permutation);
+            maxIoc=ioc;
+            maxPerm=permutation;
+        }
         i++;
     }
-
-    setGrundStellungen(enigma, "V S F");
-
-    setText(enigma, "DNA");
+    placeWalze(enigma, 1, walzen[maxPerm[0]]);
+    placeWalze(enigma, 2, walzen[maxPerm[1]]);
+    placeWalze(enigma, 3, walzen[maxPerm[2]]);
+    generateGrundstellung(enigma, "AEG", "GJW");
+    setText(enigma, text07_1);
     encodeDecode(enigma);
-    
-    decoded=toString(enigma);
-    
-    setGrundStellung(enigma, 1, decoded[0]);
-    setGrundStellung(enigma, 2, decoded[1]);
-    setGrundStellung(enigma, 3, decoded[2]);
+    printf("Message 07-1:\n");
+    displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
 
+    generateGrundstellung(enigma, "VSF", "DNA");
     setText(enigma, text07_2);
-    
     encodeDecode(enigma);
-    decoded=toString(enigma);
-    printf("Message 06-2: %s\n", decoded);     
+    printf("Message 07-2:\n");
+    displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
 
+    destroyPermutations(permutations);
     destroyEnigma(enigma);
-    destroyLinkedList(permutations);
 }
 
-
+/**************************************************************************************************\
+* 
+* Enigma Challenge message 8
+* Three missing steckers
+* 
+\**************************************************************************************************/
 void message08()
 {
-    Enigma*     enigma;
-    char*       decoded;
-    LinkedList* permutations;
+    printf("#####################################################################################\n");
+    printf("# ENIGMA CHALLENGE  - MESSAGE 08 - 3 missing steckers\n");
+    printf("#####################################################################################\n");
     int*        permutation;
-    int         i;
-    int         found;
 
-    
-	printf("MESSAGE 08\n");
     char letters[12]={'a', 'c', 'e', 'f', 'g', 'h', 'i', 'j', 'o', 'q', 'w', 'y'};
-    int  digits[12]={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    int  digits[12] ={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    char steckers[] ="bm dv kt ln rs up xz ?? ?? ??";
     
-    permutations=createLinkedList();
-    permute(permutations, digits, 12, 6, 0);
-    
-    printf("Permutations: %d\n", linkedListLength(permutations));
-    
-    enigma=createEnigmaM3(); 
+    LinkedList* permutations=createPermutations(digits, 12, 6);
+    Enigma* enigma=createEnigmaM3(); 
 
     placeWalze(enigma, 1, "II");
     placeWalze(enigma, 2, "I");
@@ -762,105 +785,72 @@ void message08()
     setRingStellung(enigma, 2,  3);    
     setRingStellung(enigma, 3, 16);
 
-    found=0;
-    i=0;
-    while (i<linkedListLength(permutations) && !found)
+    printf("Permutations to try: %d\n", linkedListLength(permutations));
+    float maxIoc    =0.0f;
+    int*  maxPerm   =NULL;
+    resetLinkedList(permutations);
+    while (hasNext(permutations))
     {
-        permutation=(int*)elementAt(permutations, i);
-        
-        sprintf(buffer1, "bm dv kt ln rs up xz ?? ?? ??");
-        buffer1[21]=letters[permutation[0]];
-        buffer1[22]=letters[permutation[1]];
-        buffer1[24]=letters[permutation[2]];
-        buffer1[25]=letters[permutation[3]];
-        buffer1[27]=letters[permutation[4]];
-        buffer1[28]=letters[permutation[5]];
-        
-        placeSteckers(enigma, buffer1);
-
-        setGrundStellungen(enigma, "BKL");
-
-        setText(enigma, "UPR");
-        encodeDecode(enigma);    
-
-        decoded=toString(enigma);
-        
-        setGrundStellung(enigma, 1, decoded[0]);
-        setGrundStellung(enigma, 2, decoded[1]);
-        setGrundStellung(enigma, 3, decoded[2]);
-
+        permutation=(int*)nextLinkedListObject(permutations);
+        steckers[21]=letters[permutation[0]];
+        steckers[22]=letters[permutation[1]];
+        steckers[24]=letters[permutation[2]];
+        steckers[25]=letters[permutation[3]];
+        steckers[27]=letters[permutation[4]];
+        steckers[28]=letters[permutation[5]];
+        placeSteckers(enigma, steckers);
+        generateGrundstellung(enigma, "BKL", "UPR");
         setText(enigma, text08_1);
-       
         encodeDecode(enigma);
-
-        decoded=toString(enigma);
-        strncpy(buffer2, decoded, 13);
-
-        
-        if (strncmp(buffer2, "VONGRUPPEWEST", 13)==0)
+        float ioc=iocIndexOfCoincidence(enigma);
+        if (ioc>maxIoc)
         {
-            decoded=toString(enigma);
-            printf("Message 08-1 @ %s\n%s\n", buffer1, decoded); 
-            found=1;
+            maxIoc=ioc;
+            maxPerm=permutation;
         }
-
-        free(permutation);
-        
-        i++;
     }   
+    steckers[21]=letters[maxPerm[0]];
+    steckers[22]=letters[maxPerm[1]];
+    steckers[24]=letters[maxPerm[2]];
+    steckers[25]=letters[maxPerm[3]];
+    steckers[27]=letters[maxPerm[4]];
+    steckers[28]=letters[maxPerm[5]];
+    placeSteckers(enigma, steckers);
+    generateGrundstellung(enigma, "BKL", "UPR");
+    setText(enigma, text08_1);
+    encodeDecode(enigma);
+    printf("Message 08-1\n");
+    displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
     
-    
-    setGrundStellungen(enigma, "SPL");
-
-    setText(enigma, "BKK");
-    encodeDecode(enigma);    
-
-    decoded=toString(enigma);
-    
-    setGrundStellung(enigma, 1, decoded[0]);
-    setGrundStellung(enigma, 2, decoded[1]);
-    setGrundStellung(enigma, 3, decoded[2]);
-
+    generateGrundstellung(enigma, "SPL", "BKK");
     setText(enigma, text08_2);
-   
     encodeDecode(enigma);
-
-    decoded=toString(enigma);
-    printf("%s\n", decoded);
+    printf("Message 08-2\n");
+    displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
     
-    setGrundStellungen(enigma, "DVB");
-
-    setText(enigma, "LTK");
-    encodeDecode(enigma);    
-
-    decoded=toString(enigma);
-    
-    setGrundStellung(enigma, 1, decoded[0]);
-    setGrundStellung(enigma, 2, decoded[1]);
-    setGrundStellung(enigma, 3, decoded[2]);
-
+    generateGrundstellung(enigma, "DVB", "LTK");
     setText(enigma, text08_3);
-   
     encodeDecode(enigma);
-    decoded=toString(enigma);
-    printf("%s\n", decoded);    
+    printf("Message 08-3\n");
+    displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
 
-
+    destroyPermutations(permutations);
     destroyEnigma(enigma);
-    destroyLinkedList(permutations);
 }
 
 
+/**************************************************************************************************\
+* 
+* Enigma Challenge message 9
+* Missing Grundstellungen
+* 
+\**************************************************************************************************/
 void message09()
 {
-    Enigma*     enigma;
-    char*       decoded;
-    int         g1, g2, g3;
-    int         limit;
-    int         count;
-
-    printf("MESSAGE 09\n");
-    enigma=createEnigmaM3(); 
+    printf("#####################################################################################\n");
+    printf("# ENIGMA CHALLENGE  - MESSAGE 09 - 3 missing Grundstellungen\n");
+    printf("#####################################################################################\n");
+    Enigma* enigma=createEnigmaM3(); 
 
     placeWalze(enigma, 1, "IV");
     placeWalze(enigma, 2, "III");
@@ -873,15 +863,15 @@ void message09()
     placeSteckers(enigma, "AT BG DV EW FR HN IQ JX KZ LU");
 
     setText(enigma, text09);
-    limit=enigma->textSize*12/100;
+    int limit=enigma->textSize*12/100;
 
-    g1=1;
+    int g1=1;
     while (g1<MAX_POSITIONS)
     {
-        g2=1;
+        int g2=1;
         while (g2<MAX_POSITIONS)
         {
-            g3=1;
+            int g3=1;
             while (g3<MAX_POSITIONS)
             {
                 setGrundStellung(enigma, 1, g1);
@@ -890,24 +880,27 @@ void message09()
                 
                 encodeDecode(enigma);
 
-                count=countLetter(enigma, 'E');
+                int count=countLetter(enigma, 'E');
                 if (count>limit)
                 {
-                    decoded=toString(enigma);
-                    printf("Message 09: G %d %d %d: %s\n", g1, g2, g3, decoded); 
+                    printf("Message 09: G %d %d %d: \n", g1, g2, g3); 
+                    displayEnigmaMessage(toString(enigma), MESSAGETYPE_WEHRMACHT);
                 }                  
                 g3++;
             }
-            
             g2++;
         }
-
         g1++;
     }
     destroyEnigma(enigma);
 }
 
-
+/**************************************************************************************************\
+* 
+* Enigma Challenge message 10 step 1 - brute force
+* 
+* 
+\**************************************************************************************************/
 void message10_step01()
 {
     int         i;
@@ -983,12 +976,26 @@ void message10_step01()
     //  1: UKW B  II   V   I R  1  1 18 G 21  6 24 - AO BV DS EX FT HZ IQ JW KU PR - 0.071839
     //  1: UKW B  II   V   I R  1  1 19 G 21  6 25 - AO BV DS EX FT HZ IQ JW KU PR - 0.053566 (IOC_DEEP, 10 steckers)
 
+/*
+    1: UKW B  II   V   I R  1  1 19 G 21  6 25 - AO BV DS EX FT HZ IQ JW KU PR - 0.071871
+    2: UKW B  II   V   I R  1  1 18 G 21  6 24 - AO BV DS EX FT HZ IQ JW KU PR - 0.071839
+    3: UKW B  II   V   I R  1  1 17 G 21  6 23 - AO BV DS EX FT HZ IQ JW KU PR - 0.070940
+    4: UKW B  II   V   I R  1  1 16 G 21  6 22 - AO BV DS EX FT HZ IQ JW KU PR - 0.069237
+    5: UKW B  II   V   I R  1  1 15 G 21  6 21 - AO BV DS EX FT HZ IQ JW KU PR - 0.068145
+    6: UKW B  II   V   I R  1  1 14 G 21  6 20 - AO BV DS EX FT HZ IQ JW KU PR - 0.067920
+*/
 //    setOperation(DEPTH_R3, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
 
 //    iocDecodeText(text10, 6);
 
 }
 
+/**************************************************************************************************\
+* 
+* Enigma Challenge message 10 step 2
+* 
+* 
+\**************************************************************************************************/
 void message10_step02()
 {
     int             i;
@@ -1045,13 +1052,19 @@ void message10_step02()
 }
 
 
+/**************************************************************************************************\
+* 
+* Enigma Challenge message 10
+* 
+* 
+\**************************************************************************************************/
 void message10_exp()
 {
+/*	
     int             i;
     LinkedList*     permutations;
     int				numOfThreads;
     
-	
     numOfThreads=4;
 	
     permutations=createRotorPermutations(3, 5);
@@ -1078,26 +1091,26 @@ void message10_exp()
         dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]); 
         i++;
     }
-
     //setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, NULL);
+
+    dispatcherStartWork(6, iocFinishFunction, NULL, false);	
+
+
+    */
 // TODO
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
     recipe.rotorSet         =M3_ARMY_1938;
-    recipe.method           =DEPTH_R2_R3;
+    recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
     recipe.maxSteckers      =10;
-    recipe.maxSteckersInline=0;
+    recipe.maxSteckersInline=4;
     recipe.ngramSize        =0;
-    recipe.numberOfSolutions=10;
     recipe.scoreListSize    =TOP_RESULTS_SIZE;
+    recipe.numberOfSolutions=10;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
-
-    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, false);	
+    iocDecodeText(text10, 6);
+    
 }
-
-
-
-
