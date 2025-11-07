@@ -361,7 +361,7 @@ void message01()
 * All info given, except rotor order. Leaves 6 possibilies
 * 
 \**************************************************************************************************/
-char message02Walzen[][MAX_ROTORNAME]   ={"I", "III", "V"};
+char message02Walzen[][MAX_ROTOR_NAME]  ={"I", "III", "V"};
 int message02Indices[]                  ={0, 1, 2};
 
 void message02()
@@ -898,64 +898,19 @@ void message09()
 /**************************************************************************************************\
 * 
 * Enigma Challenge message 10 step 1 - brute force
-* 
-* 
+* Vary
+* * Rotors
+* * Ringstellung R3
+* * Grundstellungen
+* * Steckers
+* It takes multiple days to solve, but it does
 \**************************************************************************************************/
+
 void message10_step01()
 {
-    int         i;
-    LinkedList* permutations;
-    int         numOfThreads;
-
-    printf("MESSAGE 10 - STEP 1\n");
-
-    numOfThreads=4;
-    permutations=createRotorPermutations(3, 5);
-
-  	// STEP 1: INITIAL TRY: TRY ALL ROTOR POSTIONS
-    // Start with 5 Wehrmacht rotors
-    // This function employs the IOC_DEEP, which basically is 
-    // brute forcing. It takes extemely long
-   
-    // Create the stack of work for the threads
-    iocNumberOfWorkItems=numOfThreads*2;
-
-    int length=linkedListLength(permutations);
-    dispatcherClearWorkItems();
-    i=0;
-    while (i<numOfThreads)
-    {
-		iocWorkItems[i*2].cipher            =text10;
-        iocWorkItems[i*2].permutations      =permutations;
-        iocWorkItems[i*2].startPermutation  =i*length/numOfThreads;
-        iocWorkItems[i*2].endPermutation    =(i+1)*length/numOfThreads-1;
-        iocWorkItems[i*2].R1                =1;
-        iocWorkItems[i*2].startR2           =1;
-        iocWorkItems[i*2].endR2             =1;
-        iocWorkItems[i*2].startR3           =1;
-        iocWorkItems[i*2].endR3             =MAX_POSITIONS;
-        iocWorkItems[i*2].maxCipherChars    =250;
-        strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
-        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i*2]);
-
-        
-		iocWorkItems[i*2+1].cipher          =text10;
-        iocWorkItems[i*2+1].permutations    =permutations;
-        iocWorkItems[i*2+1].startPermutation=i*length/numOfThreads;
-        iocWorkItems[i*2+1].endPermutation  =(i+1)*length/numOfThreads-1;
-        iocWorkItems[i*2+1].R1               =1;
-        iocWorkItems[i*2+1].startR2         =1;
-        iocWorkItems[i*2+1].endR2           =1;
-        iocWorkItems[i*2+1].startR3         =1;
-        iocWorkItems[i*2+1].endR3           =MAX_POSITIONS;
-        iocWorkItems[i*2+1].maxCipherChars  =250;
-        strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
-        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i*2+1]);        
-        i++;
-    }
-    setWalzePermutations(permutations);
-//    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, "DE");
-// TO DO
+    printf("#####################################################################################\n");
+    printf("# ENIGMA CHALLENGE  - MESSAGE 10 - Just cipher\n");
+    printf("#####################################################################################\n");
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
     recipe.rotorSet         =M3_ARMY_1938;
@@ -963,31 +918,113 @@ void message10_step01()
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
     recipe.maxSteckers      =10;
-    recipe.maxSteckersInline=0;
+    recipe.maxSteckersInline=10;
     recipe.ngramSize        =0;
     recipe.numberOfSolutions=100;
     recipe.scoreListSize    =TOP_RESULTS_SIZE;
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     setOperation(recipe);
+    iocDecodeText(text10, 6);
+// Results in:
+//    1: UKW B  II   V   I R  1  1 19 G 21  6 25 - AO BV DS EX FT HZ IQ JW KU PR - 0.071871
+//    2: UKW B  II   V   I R  1  1 18 G 21  6 24 - AO BV DS EX FT HZ IQ JW KU PR - 0.071839
+//    3: UKW B  II   V   I R  1  1 17 G 21  6 23 - AO BV DS EX FT HZ IQ JW KU PR - 0.070940
+//    4: UKW B  II   V   I R  1  1 16 G 21  6 22 - AO BV DS EX FT HZ IQ JW KU PR - 0.069237
+//    5: UKW B  II   V   I R  1  1 15 G 21  6 21 - AO BV DS EX FT HZ IQ JW KU PR - 0.068145
+//    6: UKW B  II   V   I R  1  1 14 G 21  6 20 - AO BV DS EX FT HZ IQ JW KU PR - 0.067920
+}
 
-    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, false);	
+/**************************************************************************************************\
+* 
+* Enigma Challenge message 10 step 1 - brute force
+* Just try one permutation - for testing purposes - takes hours iso days
+\**************************************************************************************************/
 
-    // THIS RESULTS IN THE BEST SOLUTION:
-    //  1: UKW B  II   V   I R  1  1 18 G 21  6 24 - AO BV DS EX FT HZ IQ JW KU PR - 0.071839
-    //  1: UKW B  II   V   I R  1  1 19 G 21  6 25 - AO BV DS EX FT HZ IQ JW KU PR - 0.053566 (IOC_DEEP, 10 steckers)
+void message10_step01Limited()
+{
+    printf("#####################################################################################\n");
+    printf("# ENIGMA CHALLENGE  - MESSAGE 10 - Just cipher - LIMITED\n");
+    printf("#####################################################################################\n");
 
-/*
-    1: UKW B  II   V   I R  1  1 19 G 21  6 25 - AO BV DS EX FT HZ IQ JW KU PR - 0.071871
-    2: UKW B  II   V   I R  1  1 18 G 21  6 24 - AO BV DS EX FT HZ IQ JW KU PR - 0.071839
-    3: UKW B  II   V   I R  1  1 17 G 21  6 23 - AO BV DS EX FT HZ IQ JW KU PR - 0.070940
-    4: UKW B  II   V   I R  1  1 16 G 21  6 22 - AO BV DS EX FT HZ IQ JW KU PR - 0.069237
-    5: UKW B  II   V   I R  1  1 15 G 21  6 21 - AO BV DS EX FT HZ IQ JW KU PR - 0.068145
-    6: UKW B  II   V   I R  1  1 14 G 21  6 20 - AO BV DS EX FT HZ IQ JW KU PR - 0.067920
-*/
-//    setOperation(DEPTH_R3, EVAL_IOC, EVAL_IOC, 10, 0, NULL);
+    int numOfThreads=6;
 
-//    iocDecodeText(text10, 6);
+    // FROM THE GEOCACHE WE KNOW FOLLOWING:
+    // III I II, UKW B, 
 
+    LinkedList*     permutations=createLinkedList();
+    int * permutation;
+    permutation   =malloc(4*sizeof(int)); // The winning permutation
+    permutation[0]=1; // Index of UKW B
+    permutation[1]=1; // II
+    permutation[2]=4; // V
+    permutation[3]=0; // I
+    addObject(permutations, permutation);
+    permutation   =malloc(4*sizeof(int));
+    permutation[0]=1; // Index of UKW B
+    permutation[1]=1; // II
+    permutation[2]=4; // V
+    permutation[3]=2; // III
+    addObject(permutations, permutation);
+    permutation   =malloc(4*sizeof(int));
+    permutation[0]=1; // Index of UKW B
+    permutation[1]=1; // II
+    permutation[2]=4; // V
+    permutation[3]=3; // IV
+    addObject(permutations, permutation);
+    permutation   =malloc(4*sizeof(int));
+    permutation[0]=1; // Index of UKW B
+    permutation[1]=2; // III
+    permutation[2]=4; // V
+    permutation[3]=0; // I
+    addObject(permutations, permutation);
+    permutation   =malloc(4*sizeof(int));
+    permutation[0]=1; // Index of UKW B
+    permutation[1]=3; // IV
+    permutation[2]=4; // V
+    permutation[3]=0; // I
+    addObject(permutations, permutation);
+    permutation   =malloc(4*sizeof(int));
+    permutation[0]=1; // Index of UKW B
+    permutation[1]=1; // II
+    permutation[2]=3; // IV
+    permutation[3]=0; // I
+    addObject(permutations, permutation);
+
+
+    // Create work item
+    dispatcherClearWorkItems();
+    for (int i=0;i<6;i++)
+    {
+        iocWorkItems[i].cipher              =text10;
+        iocWorkItems[i].permutations        =permutations;
+        iocWorkItems[i].startPermutation    =i;
+        iocWorkItems[i].endPermutation      =i;
+        iocWorkItems[i].R1                  =1;
+        iocWorkItems[i].startR2             =1;
+        iocWorkItems[i].endR2               =1;
+        iocWorkItems[i].startR3             =1;
+        iocWorkItems[i].endR3               =MAX_POSITIONS;
+        iocWorkItems[i].maxCipherChars      =MAX_TEXT;
+        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]);
+    }
+    iocSetCustomWalzePermutations(permutations);
+
+    // Define recipe
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =10;
+    recipe.maxSteckersInline=10;
+    recipe.ngramSize        =0;
+    recipe.ngramSet[0]      ='\0';
+    recipe.scoreListSize    =50;
+    recipe.numberOfSolutions=10;
+    setOperation(recipe);
+
+    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, false);
 }
 
 /**************************************************************************************************\
@@ -996,41 +1033,37 @@ void message10_step01()
 * 
 * 
 \**************************************************************************************************/
+
 void message10_step02()
 {
-    int             i;
-    LinkedList*     permutations;
-    int				numOfThreads;
-    
-	printf("MESSAGE 10 - STEP 2\n");
-    numOfThreads=4;
-    permutations=createRotorPermutations(3, 5);
+    printf("#####################################################################################\n");
+    printf("# ENIGMA CHALLENGE  - MESSAGE 10 - Just cipher\n");
+    printf("#####################################################################################\n");
 
-    // Create the stack of work for the trheads
-    iocNumberOfWorkItems=numOfThreads*2;
+    int numOfThreads        =4;
+    LinkedList* permutations=createLinkedList();
+    int* permutation        =malloc(4*sizeof(int));
+    permutation[0]=1; // Index of UKW B
+    permutation[1]=1; // II
+    permutation[2]=4; // V
+    permutation[3]=0; // I
+    addObject(permutations, permutation);
 
 	// STEP 2: NOW TRY FOR THE BEST ROTOR SETTINGS OF STEP 01 AND VARY ALL R2
-   
-    // Create the stack of work for the trheads
-    iocNumberOfWorkItems=numOfThreads;
     dispatcherClearWorkItems();
-    i=0;
-    while (i<numOfThreads)
+    for (int i=0;i<numOfThreads;i++)
     {
 		iocWorkItems[i].cipher              =text10;
         iocWorkItems[i].permutations        =permutations;
-        iocWorkItems[i].startPermutation    =23;
-        iocWorkItems[i].endPermutation      =23;
+        iocWorkItems[i].startPermutation    =0;
+        iocWorkItems[i].endPermutation      =0;
         iocWorkItems[i].R1                  =1;
         iocWorkItems[i].startR2             =i*(MAX_POSITIONS-1)/numOfThreads+1;     // Some double ringstellungen at 7, 13, 19
         iocWorkItems[i].endR2               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
         iocWorkItems[i].startR3             =1;
         iocWorkItems[i].endR3               =MAX_POSITIONS;
         iocWorkItems[i].maxCipherChars      =MAX_TEXT;
-        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
         dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]); 
-
-        i++;
     }
 //    setEvaluationMethod(METHOD_IOC_DEEP, 10, 10, 3, NULL);
 // TODO
@@ -1041,11 +1074,11 @@ void message10_step02()
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
     recipe.maxSteckers      =10;
-    recipe.maxSteckersInline=0;
+    recipe.maxSteckersInline=10;
     recipe.ngramSize        =0;
-    recipe.numberOfSolutions=10;
+    recipe.ngramSet[0]      ='\0';
     recipe.scoreListSize    =TOP_RESULTS_SIZE;
-    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    recipe.numberOfSolutions=10;
     setOperation(recipe);
 
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, false);

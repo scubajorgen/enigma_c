@@ -6,6 +6,7 @@
 \**************************************************************************************************/
 #include "enigma.h"
 #include "testframe.h"
+#include "toolbox.h"
 /**************************************************************************************************\
 * 
 * Test Ukw B
@@ -37,6 +38,46 @@ void testUkwC()
 
 /**************************************************************************************************\
 * 
+* Test the getUkwPermutations
+* 
+\**************************************************************************************************/
+void testUkwPermutations()
+{
+    testStart("permutations");
+
+    LinkedList* p=getUkwPermutations(ENIGMATYPE_M3, M3_ARMY_1938);
+    assertIntEquals(2, linkedListLength(p));
+    resetLinkedList(p);
+    int* permutation=(int *)nextLinkedListObject(p);
+    assertIntEquals(1, permutation[0]);
+    permutation=(int *)nextLinkedListObject(p);
+    assertIntEquals(2, permutation[0]);
+    destroyPermutations(p);
+
+    p=getUkwPermutations(ENIGMATYPE_M3, M3_ARMY_1939);
+    assertIntEquals(2, linkedListLength(p));
+    resetLinkedList(p);
+    permutation=(int *)nextLinkedListObject(p);
+    assertIntEquals(1, permutation[0]);
+    permutation=(int *)nextLinkedListObject(p);
+    assertIntEquals(2, permutation[0]);
+    destroyPermutations(p);
+
+    p=getUkwPermutations(ENIGMATYPE_M4, M4_NAVAL_1941);
+    assertIntEquals(2, linkedListLength(p));
+    resetLinkedList(p);
+    permutation=(int *)nextLinkedListObject(p);
+    assertIntEquals(3, permutation[0]);
+    permutation=(int *)nextLinkedListObject(p);
+    assertIntEquals(4, permutation[0]);
+    destroyPermutations(p);
+
+    testWrapUp();
+}
+
+
+/**************************************************************************************************\
+* 
 * Test main function
 * 
 \**************************************************************************************************/
@@ -45,5 +86,6 @@ void testUkw()
     moduleTestStart("ukw");
     testUkwB();
     testUkwC();
+    testUkwPermutations();
     moduleTestWrapUp();
 }

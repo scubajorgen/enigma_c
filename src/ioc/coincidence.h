@@ -81,7 +81,6 @@ typedef struct
     int         startR3;                // RingStellung 3 start
     int         endR3;                  // RingStellung 3 end; end included
     int         maxCipherChars;         // Part of the message to process; MAX_TEXT for full message
-    char        ukw[MAX_ROTOR_NAME];    // UKW to use
     int         threadId;               // Thread ID, to be filled in by the trhead
 } IocWorkItem;
 
@@ -108,16 +107,16 @@ extern int                 iocNumberOfResults;
 \**************************************************************************************************/
 
 // Methods for own cracking methods
-float   iocIndexOfCoincidence       (Enigma* enigma);
-void    iocEvaluateEngimaSettings   (IocWorkItem* work);
-void    iocFindSteckeredChars       (IocResults* results, int maxNumOfSteckers);
-void    iocFindSteckeredCharsNgram  (IocResults* results, int maxNumOfSteckers, int ngramSize);
-void    iocFindRingStellung         (IocResults*  results, int startRotor, int endRotor);
-void    iocWorkerFunction           (int worker, int workItem, void* params);
-void    iocFinishFunction           (void* params);
-void    setWalzePermutations        (LinkedList* permutations);
+float       iocIndexOfCoincidence           (Enigma* enigma);
+void        iocEvaluateEngimaSettings       (IocWorkItem* work);
+void        iocFindSteckeredChars           (IocResults* results, int maxNumOfSteckers);
+void        iocFindSteckeredCharsNgram      (IocResults* results, int maxNumOfSteckers, int ngramSize);
+void        iocFindRingStellung             (IocResults*  results, int startRotor, int endRotor);
+void        iocWorkerFunction               (int worker, int workItem, void* params);
+void        iocFinishFunction               (void* params);
 
 // Public methods
-void    setOperation                (IocRecipe recipe);
-void    iocDecodeText               (char* cipher, int numOfThreads);
-
+void        setOperation                    (IocRecipe recipe);
+void        iocDecodeText                   (char* cipher, int numOfThreads);
+void        iocReportMethod                 ();
+void        iocSetCustomWalzePermutations   (LinkedList* permutations);

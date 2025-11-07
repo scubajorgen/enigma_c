@@ -44,7 +44,7 @@ int main()
 	
     printf("30.     The third problem                           \n");
 	printf("31.     The fourth problem                          \n");
-	printf("32.     The fifth problem                           \n");
+	printf("32.     The sixth problem                          \n");
 
 	printf("41-50.  Engima Challenge message 1-10   \n");
 
@@ -137,12 +137,9 @@ int main()
             theFourthProblem();
             break;
         case 32:
-            theFifthProblem();
-            break;
-        case 33:
             theSixthProblem();
             break;
-        case 34:
+        case 33:
             // TO DO
             //iocExampleNgram();
             break;    
@@ -181,6 +178,9 @@ int main()
             break;
         case 52:
             message10_exp();
+            break;
+        case 53:
+            message10_step01Limited();
             break;
         case 99:
 //            ngramTest6();

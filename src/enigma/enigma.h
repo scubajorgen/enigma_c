@@ -15,6 +15,9 @@
 
 #define ENIGMA
 
+#include "linkedList.h"
+
+
 #define MAX_POSITIONS           26
 #define MAX_ROTORS              4
 #define MAX_ROTOR_NAME          10
@@ -25,7 +28,6 @@
 #define MAX_ROTOR_SETS          4
 #define ROTORS                  10
 #define UMKEHR_WALZEN           5
-#define MAX_ROTORNAME           10
 
 
 typedef enum
@@ -42,7 +44,7 @@ typedef enum RotorSet_t
     M4_NAVAL_1941       =3  // 8 rotors + 2 4th rotors + 2 thin UKWs
 } RotorSet_t;
 
-extern char rotorNames      [ROTORS]        [MAX_ROTORNAME];    // All Walzen
+extern char rotorNames      [ROTORS]        [MAX_ROTOR_NAME];  // All Walzen
 extern char umkehrWalzeNames[UMKEHR_WALZEN] [MAX_ROTOR_NAME];   // All UKWs
 extern int  rotorSets       [MAX_ROTOR_SETS][ROTORS];           // Walze selections for the 3 rotors
 extern int  fourthRotorSets [MAX_ROTOR_SETS][ROTORS];           // Walze selections for the 4th rotor
@@ -95,7 +97,9 @@ void                setRingStellungen       (Enigma* engima, char* ringStellunge
 void                setGrundStellung        (Enigma* enigma, int walze, int grundStellung);
 int                 getGrundStellung        (Enigma* enigma, int walze);
 void                setGrundStellungen      (Enigma* enigma, char* grundStellungen);
+LinkedList*         getWalzenPermutations   (Enigma_t enigmaType, RotorSet_t rotorSet);
 void                placeUmkehrWalze        (Enigma* engima, char name[]);
+LinkedList*         getUkwPermutations      (Enigma_t enigmaType, RotorSet_t rotorSet);
 void                clearSteckerBrett       (Enigma* engima);
 void                placeSteckers           (Enigma* engima, char steckers[]);
 void                encodeDecode            (Enigma* enigma);

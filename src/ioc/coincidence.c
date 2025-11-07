@@ -36,6 +36,7 @@ typedef struct
 {
     IocRecipe       recipe;
     LinkedList*     permutations;               // List of rotor permutations
+    int             numOfRotors;                // The number of Walzen (3 or 4)
 } Operation;
 
 /**************************************************************************************************\
@@ -50,7 +51,6 @@ IocResults          swap;
 
 Operation           operation;
 IocWorkItem         iocWorkItems[MAX_WORK_ITEMS];
-int                 iocNumberOfWorkItems;
 int                 iocInitialNumberOfWorkItems;
 
 int                 iocThreadsRunning=0;
@@ -953,7 +953,6 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     int         endR2;
     int         startR3;
     int         endR3;
-    char*       ukw;
     long        startTime;
     long        timeDiff;
     long        count;
@@ -971,7 +970,6 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     permutations    =work->permutations;
     start           =work->startPermutation;
     end             =work->endPermutation;
-    ukw             =work->ukw;
     R1              =work->R1;
     startR2         =work->startR2;
     endR2           =work->endR2;
@@ -983,8 +981,6 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     
     enigma      =createEnigmaM3(); 
 
-    placeUmkehrWalze(enigma, ukw);
-        
     clearSteckerBrett(enigma);
 
     setText(enigma, cipher);
@@ -1005,23 +1001,27 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     while (w<=end)
     {
         permutation=(int*)elementAt(permutations, w);
+        placeUmkehrWalze(enigma, umkehrWalzeNames[permutation[0]]);
 
-        placeWalze(enigma, 1, walzen[permutation[0]]);
-        placeWalze(enigma, 2, walzen[permutation[1]]);
-        placeWalze(enigma, 3, walzen[permutation[2]]);
+// TO DO: M4 engima
+        placeWalze(enigma, 1, rotorNames[permutation[1]]);
+        placeWalze(enigma, 2, rotorNames[permutation[2]]);
+        placeWalze(enigma, 3, rotorNames[permutation[3]]);
+        placeUmkehrWalze(enigma, umkehrWalzeNames[permutation[0]]);
 
         time(&now);
         timeString=ctime(&now);
         timeString[strlen(timeString)-1]='\0';
-        logInfo("%s: Worker %02d trying permutation %02d (%02d/%02d): %5s %5s %5s %5s R1 %02d R2 %02d-%02d R3 %02d-%02d",
+// TO DO: M4 engima
+        logInfo("%s: Worker %02d trying permutation %03d (%02d/%02d): %5s %5s %5s %5s R1 %02d R2 %02d-%02d R3 %02d-%02d",
           timeString,
           threadId,
           w,
           w-start+1, end-start+1,
-          ukw,
-          walzen[permutation[0]], 
+          umkehrWalzeNames[permutation[0]],
           walzen[permutation[1]], 
           walzen[permutation[2]], 
+          walzen[permutation[3]], 
           R1,
           startR2, endR2, 
           startR3, endR3);
@@ -1076,10 +1076,10 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
                                 results->indexOfCoincidence         =ioc;
                                 results->settings.numberOfRotors    =3;
                                 strncpy(results->settings.cipher, cipher, MAX_TEXT-1);
-                                strncpy(results->settings.rotors[0], walzen[permutation[0]], MAX_ROTOR_NAME-1);
-                                strncpy(results->settings.rotors[1], walzen[permutation[1]], MAX_ROTOR_NAME-1);
-                                strncpy(results->settings.rotors[2], walzen[permutation[2]], MAX_ROTOR_NAME-1);
-                                strncpy(results->settings.ukw, ukw, MAX_ROTOR_NAME);
+                                strncpy(results->settings.rotors[0], rotorNames[permutation[1]], MAX_ROTOR_NAME-1);
+                                strncpy(results->settings.rotors[1], rotorNames[permutation[2]], MAX_ROTOR_NAME-1);
+                                strncpy(results->settings.rotors[2], rotorNames[permutation[3]], MAX_ROTOR_NAME-1);
+                                strncpy(results->settings.ukw, umkehrWalzeNames[permutation[0]], MAX_ROTOR_NAME-1);
                                 results->settings.ringStellungen[0] =r1;
                                 results->settings.ringStellungen[1] =r2;
                                 results->settings.ringStellungen[2] =r3;
@@ -1211,10 +1211,9 @@ void iocWorkerFunction(int worker, int workItem, void* params)
 
     initialNumberOfWorkItems=dispatcherGetTotalWorkItems();
 
-    logInfo("Worker %02d starting work item: %02d-%02d (%02d/%02d), %s, R1 %02d R2 %02d-%02d R3: %02d-%02d", 
+    logInfo("Worker %02d starting work item: %02d-%02d (%02d/%02d), R1 %02d R2 %02d-%02d R3: %02d-%02d", 
             worker, item->startPermutation, item->endPermutation,
             initialNumberOfWorkItems-workItem, initialNumberOfWorkItems, 
-            item->ukw, 
             item->R1,
             item->startR2, item->endR2, 
             item->startR3, item->endR3);
@@ -1229,7 +1228,6 @@ void iocWorkerFunction(int worker, int workItem, void* params)
 * Finish function. Executed after the work is done
 * 
 \**************************************************************************************************/
-
 void iocFinishFunction(void* params)
 {
     Depth_t             method;
@@ -1301,10 +1299,53 @@ void iocFinishFunction(void* params)
 
 /**************************************************************************************************\
 * 
-* Set the list of Walze/rotor permutations
+* Creates a list of permutations of UKW/Walzen based on the recipe. 
+* The object contains 4 or 5 ints:
+* M3:
+* int 0: the UKW index
+* int 1: Walze 1
+* int 2: Walze 2
+* int 3: Walze 3
+*
+* M4:
+* int 0: the UKW index
+* int 1: Walze 1
+* int 2: Walze 2
+* int 3: Walze 3
+* int 4: Walze 4
+* The index is the index in rotorNames resp. umkerhWalzenNames!
 * 
 \**************************************************************************************************/
-void setWalzePermutations(LinkedList* permutations)
+LinkedList* generateWalzePermutations()
+{
+    LinkedList* ukwPermutations         =NULL;
+    LinkedList* walzenPermutations      =NULL;
+    LinkedList* permutations            =NULL;
+
+    walzenPermutations  =getWalzenPermutations(operation.recipe.enigmaType, operation.recipe.rotorSet);
+    ukwPermutations     =getUkwPermutations   (operation.recipe.enigmaType, operation.recipe.rotorSet);
+    if (operation.recipe.enigmaType==ENIGMATYPE_M4)
+    {
+        operation.numOfRotors=4;
+    }
+    else
+    {
+        operation.numOfRotors=3;
+    }
+    permutations=combinePermutations(ukwPermutations, 1, walzenPermutations, operation.numOfRotors);
+    destroyPermutations(walzenPermutations);
+    destroyPermutations(ukwPermutations);
+
+    operation.permutations   =permutations;
+    return permutations;
+}
+
+/**************************************************************************************************\
+* 
+* 
+* 
+\**************************************************************************************************/
+void iocSetCustomWalzePermutations(LinkedList* permutations)
 {
     operation.permutations   =permutations;
 }
@@ -1315,8 +1356,9 @@ void setWalzePermutations(LinkedList* permutations)
 * 
 \**************************************************************************************************/
 
-void reportMethod()
+void iocReportMethod()
 {
+    printf("#####################################################################################\n");
     switch (operation.recipe.enigmaType)
     {
         case ENIGMATYPE_M3:
@@ -1425,78 +1467,45 @@ void setOperation(IocRecipe recipe)
 * Prepare work items for M3
 * Currently it assumes 
 * - an Enigma M3
-* - only Walzen I, II, III, IV and V
-* - Umkehr Walzen UKW B and UKW C
 * 
 \**************************************************************************************************/
+
 void prepareWorkM3(char* cipher, int numOfThreads)
 {
-    // Start with 5 Wehrmacht rotors in an M3 Enigma
-    // TO DO: create permutations according to operation.recipe.rotorSet
-    LinkedList* permutations=createRotorPermutations(3, 5);
-   
-    setWalzePermutations(permutations);
+    // Create the permutations of Walzen 
+    LinkedList* permutations=generateWalzePermutations();
     
     // Create the stack of work for the trheads
     int length              =linkedListLength(permutations);
-    iocNumberOfWorkItems    =numOfThreads*2;
 
     dispatcherClearWorkItems();
     for (int i=0;i<numOfThreads; i++)
     {
-        iocWorkItems[i*2].cipher                =cipher;
-        iocWorkItems[i*2].permutations          =permutations;
-        iocWorkItems[i*2].startPermutation      =i*length/numOfThreads;
-        iocWorkItems[i*2].endPermutation        =(i+1)*length/numOfThreads-1;
-        iocWorkItems[i*2].R1                    =1;
-        iocWorkItems[i*2].startR2               =1;
+        iocWorkItems[i].cipher                =cipher;
+        iocWorkItems[i].permutations          =permutations;
+        iocWorkItems[i].startPermutation      =i*length/numOfThreads;
+        iocWorkItems[i].endPermutation        =(i+1)*length/numOfThreads-1;
+        iocWorkItems[i].R1                    =1;
+        iocWorkItems[i].startR2               =1;
         if (operation.recipe.method==DEPTH_R2_R3)
         {
-            iocWorkItems[i*2].endR2             =MAX_POSITIONS;
+            iocWorkItems[i].endR2             =MAX_POSITIONS;
         }
         else
         {
-            iocWorkItems[i*2].endR2             =1;
+            iocWorkItems[i].endR2             =1;
         }
-        iocWorkItems[i*2].startR3               =1;
+        iocWorkItems[i].startR3               =1;
         if (operation.recipe.method==DEPTH_R2_R3 || operation.recipe.method==DEPTH_R3)
         {
-            iocWorkItems[i*2].endR3             =MAX_POSITIONS;
+            iocWorkItems[i].endR3             =MAX_POSITIONS;
         }
         else
         {
-            iocWorkItems[i*2].endR3             =1;
+            iocWorkItems[i].endR3             =1;
         }
-        iocWorkItems[i*2].maxCipherChars        =MAX_TEXT;
-        strncpy(iocWorkItems[i*2].ukw, "UKW B", MAX_ROTOR_NAME);
-        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i*2]);
-
-        iocWorkItems[i*2+1].cipher              =cipher;
-        iocWorkItems[i*2+1].permutations        =permutations;
-        iocWorkItems[i*2+1].startPermutation    =i*length/numOfThreads;
-        iocWorkItems[i*2+1].endPermutation      =(i+1)*length/numOfThreads-1;
-        iocWorkItems[i*2+1].R1                  =1;
-        iocWorkItems[i*2+1].startR2             =1;
-        if (operation.recipe.method==DEPTH_R2_R3)
-        {
-            iocWorkItems[i*2+1].endR2           =MAX_POSITIONS;
-        }
-        else
-        {
-            iocWorkItems[i*2+1].endR2           =1;
-        }
-        iocWorkItems[i*2+1].startR3             =1;
-        if (operation.recipe.method==DEPTH_R2_R3 || operation.recipe.method==DEPTH_R3)
-        {
-            iocWorkItems[i*2+1].endR3           =MAX_POSITIONS;
-        }
-        else
-        {
-            iocWorkItems[i*2+1].endR3           =1;
-        }
-        iocWorkItems[i*2+1].maxCipherChars      =MAX_TEXT;
-        strncpy(iocWorkItems[i*2+1].ukw, "UKW C", MAX_ROTOR_NAME);
-        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i*2+1]);
+        iocWorkItems[i].maxCipherChars        =MAX_TEXT;
+        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]);
     }
 }
 
@@ -1505,6 +1514,7 @@ void prepareWorkM3(char* cipher, int numOfThreads)
 * Prepare work items for M4
 * 
 \**************************************************************************************************/
+
 void prepareWorkM4(char* cipher, int numOfThreads)
 {
     logFatal("Not supported... yet\n");
@@ -1515,11 +1525,10 @@ void prepareWorkM4(char* cipher, int numOfThreads)
 * Tries to decode a cipher only text. 
 * 
 \**************************************************************************************************/
+
 void iocDecodeText(char* cipher, int numOfThreads)
 {
-    
-    reportMethod();
-
+    iocReportMethod();
     if (operation.recipe.enigmaType==ENIGMATYPE_M3)
     {
         prepareWorkM3(cipher, numOfThreads);
@@ -1534,4 +1543,3 @@ void iocDecodeText(char* cipher, int numOfThreads)
     }
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, true);
 }
-

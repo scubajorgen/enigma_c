@@ -12,6 +12,7 @@ void    message07       ();
 void    message08       ();
 void    message09       ();
 void    message10_step01();
+void    message10_step01Limited();
 void    message10_step02();
 void    message10_exp   ();
 

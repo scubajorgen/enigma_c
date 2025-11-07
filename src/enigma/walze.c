@@ -7,10 +7,10 @@
 #include <string.h>
 
 #include "enigma.h"
+#include "log.h"
 #include "toolbox.h"
 
-
-char    rotorNames[ROTORS][MAX_ROTORNAME]=
+char    rotorNames[ROTORS][MAX_ROTOR_NAME]=
 {
     "I",
     "II",
@@ -261,7 +261,6 @@ int getGrundStellung(Enigma* enigma, int walze)
 *  Sets the GrundStellungen as string. Supported: "12 02 03", "G B C" or "GBC"
 * 
 \**************************************************************************************************/
-
 void setGrundStellungen(Enigma* enigma, char* grundStellungen)
 {
     int rotor;
@@ -309,4 +308,75 @@ void setGrundStellungen(Enigma* enigma, char* grundStellungen)
     {
         printf("ERROR: unexpected string length when defining the GrundStellungen\n");
     }    
+}
+
+
+/**************************************************************************************************\
+* 
+* Given the rotorSet, returns a linked list with all valid permutations of the rotors in the set
+* For the M4 the 1st rotor is chosed from the fourthRotorSets, for the remaining rotors (2-4) a 
+* selection is made from the regular rotorSets
+* User must destroy permutations after use, using destoryPermutations()
+* 
+\**************************************************************************************************/
+LinkedList* getWalzenPermutations(Enigma_t enigmaType, RotorSet_t rotorSet)
+{
+    LinkedList* permutations=NULL;
+    int indices[ROTORS];
+    int count;
+
+    // Sanity checks
+    if ((enigmaType==ENIGMATYPE_M3) && (rotorSet==M4_NAVAL_1941))
+    {
+        logFatal("Illegal combination of M3 Engima and Naval rotor set");
+    }
+    if ((enigmaType==ENIGMATYPE_M4) && (rotorSet!=M4_NAVAL_1941))
+    {
+        logFatal("Illegal combination of M4 Engima and rotor set for M3");
+    }
+
+    if (enigmaType==ENIGMATYPE_M4)
+    {
+        // Rotor 1 (thin one)
+        count=0;
+        for (int i=0; i<ROTORS; i++)
+        {
+            if (fourthRotorSets[rotorSet][i]>0)
+            {
+                indices[count]=i;
+                count++;
+            }
+        }
+        LinkedList* permutations1=createPermutations(indices, count, 1);
+
+        // Rotor 2-4 (normal)
+        count=0;
+        for (int i=0; i<ROTORS; i++)
+        {
+            if (rotorSets[rotorSet][i]>0)
+            {
+                indices[count]=i;
+                count++;
+            }
+        }
+        LinkedList* permutations2_4=createPermutations(indices, count, 3);
+        permutations=combinePermutations(permutations1, 1, permutations2_4, 3);
+        destroyPermutations(permutations1);
+        destroyPermutations(permutations2_4);
+    }
+    else if (enigmaType==ENIGMATYPE_M3)
+    {
+        // Rotors 1-3
+        count=0;
+        for (int i=0; i<ROTORS; i++)
+        {
+            if (rotorSets[rotorSet][i]>0)
+            {
+                indices[count]=i;
+                count++;
+            }
+        }
+        permutations=createPermutations(indices, count, 3);
+    }
+    return permutations;
 }

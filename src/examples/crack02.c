@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "enigma.h"
+#include "log.h"
 #include "crack.h"
 #include "toolbox.h"
 #include "coincidence.h"
@@ -220,48 +221,6 @@ EnigmaSettings  fourthProblemTest=
     "DQFMX PSZMK I"
 };
 
-
-char fifth[]=
-"joelhLeibTtAdneIemeIrDsEtleOlraeaMgigPeSkurMadaOkltOgresbirT"
-"uAimkEdteccohnescekCeTrEoTmusrtAedeidpsiesecnIhnignEtLvioTos"
-"reddedvOoElIguesnMdOedltaeaMgPtOervieNrckirDiIjdgUeNntxuzTil"
-"lavbeOrrvEleotodtoxLlOORReEMmAigPNsAUamLdIOqLUOArustIEtnAImm"
-"eatDCMOiNnsieMCVteeNTIuarmAqDUiiPsinsOcsITnrguEDleixtEsREcDI"
-"DToaEtiIuOsNMUoLdltAemmcpoOLRAiBnOCriIdsiNDiusNITUutTAllaIbq"
-"ouRiepeETXdeOalcOorMemmOaDGoNCaOanlsieqqUUaAuTTDEuniIsmaaUDT"
-"mEiiNriUmRVeedNoILaOmRqIUNirsEnPORseTHReUndDeExREirtcIIntVao"
-"tLiUoPNTUaltlEAVmecloILTaeBSOSreICsInliLsuImuDtOAlloIrqEUeiU"
-"pfEUxgEiaacToNmumLoldaOpCaoRNisAEtQuUrAETXdCUEipstAEUUtresII"
-"RnUtrOecDCoAlEOCrAitncRuePPiRDeahTEantdneoRnIptRIonIVDOElNut"
-"pstuaNtteivNeCluiltPEasQsueiCOiFlFLIUcMIdaODLeOSrEeReUUNftum"
-"goilALTinTualnliampIadReiLaoTruErmEixPcsEUpMTDeoUlrOsRIsnItT"
-"OacMcEatECcOaNtsCEUcpTieDtaUtrAatDniopNiPsrCOIInDGEenlTIsTUs"
-"neTDIDNoceUIlUpsAmqoUDiToeFmfPiocRIiandceiSDEIrDUunnttmuoTLL"
-"laibTOarneIEmTidDoeLLOorReEmMAiGpnsAUamLdioqlUoarUstieTnaImM"
-"eAtDcmoInnsIEmCvTEenTIuARMaqduiipsiNsoCsiTnrGUEdLEiXtesrecDI"
-"dTOaetIiUoSNMUoldltAEMmcPooLraiBnOcriIdsindIuSNitUuTTallaIBq"
-"oUriEPEeTXdeOalcOORMeMMoAdgoNcAoaNlSieQquUaAuttdeuNiiSMaaUDT"
-"MeiINRiuMRVeeDNoILaOMRqiuNIrSeNpORsEthReunDDeeXreirtCIinTVAo"
-"tLIUOPntUalTleAVMEClOiLTaebsOSrEiCsINlILsUimUDtOalloIRqeueiu"
-"PFEUxgeIaactoNMUMLolDaoPcAORniSaetQuuRaetXdCueIpStAeuuTREsiI"
-"rnUTroeCdCoaleOcRaiTNCrueppIrDeAhteantdneoRnIpTrIoNivDOeLNuT"
-"PsTUantTeIVneCLuILTPeASqSUeiCOiFLfLiuCmiDaoDlEosReEREuuNfTUm"
-"goilaltinTuaLNLIAmPiADReilaOtRueRMeIXpCsEUpmTdeOUlrosrISNiTt"
-"OacmCEatECCOAntSceucpTiEdtautRaATDNIOpNipsRcoiiNdgeeNltIstUs"
-"neTDidNOCeUIlupsAmQoUDitOeFmFPIocRIianDcEisDeIRdUUnnttMuotlL"
-"LaiBTOArnEieMTiDDoEllOORrEEmmaIgPnsAuAmldiOQLuOAruSTieTnAiMm"
-"EatDcMoiNnsiemcVTEEntiUArmAQduiIpsINsocsitNrGUEdLeixtEsreCdi"
-"DToaEtiiUosNmuOlDlTAEmmCPoolRaIbnOcRIiDSindiusniTUUttAlLAiBQ"
-"ouRIEpEEtxdeoalCOormemmOAdgOncaOanlsIeQqUUaaUttdEUniISmAauDt"
-"meiinRiuMRVeeDNOilAoMrqiUniRSENpoRsEThrEUNdDeexrEirtcIiNTvAO"
-"TliuOpntuALtlEAVmecLoiLTAeBSosreIcsINlILsuiMUdToAllOIrQeUeiU"
-"pfEUxGEIAactONMUmlOldaOPCAoRNiSaeTQUurAETxdCUeipStaEUUTrESii"
-"RnutrOecdCoaLeOcRaItNCrUEpPIrDEahtEANtdneoRnIpTRiONIvDoeLNut"
-"pSTuanttEIvNeCluilTPeaSqsueIcoiflflIUcmiDAodleoSREeREUUnFTuM"
-"GoiLALTintuAlNLIampIadrEIlAOTRUerMeIxPCsEuPmtDeoUlrosrISNiTt"
-"OAcmceATeccOaNtscEucptiEdtautraATDNIOpniPSrCOIIndGEEnltIStUs"
-"NEtDidNOcEUIlUpsaMqouditOeFMFpioCrIIAnDCEiSdeirDuunNtTM";
-
 /**************************************************************************************************\
 * Enigma cipher from GC6ZZBB geochache. It is a short cipher.
 * FROM THE GEOCACHE WE KNOW FOLLOWING:
@@ -272,28 +231,28 @@ char fifth[]=
 * - up to 13 steckers
 * - Language is probably german
 \**************************************************************************************************/
+
 void theThirdProblem()
 {
-    int             i;
-    LinkedList*     permutations;
-    int             numOfThreads;
-    
-	
-    numOfThreads=4;
+    int numOfThreads=4;
 
-    permutations=createRotorPermutations(3, 5);
+
+    LinkedList* walzenPermutations  =getWalzenPermutations   (ENIGMATYPE_M3, M3_ARMY_1938);
+    LinkedList* rotorPermutations   =createLinkedList();
+    int*        permutation         =malloc(sizeof(int));
+    permutation[0]=1; // Index of UKW B
+    addObject(rotorPermutations, permutation);
+    LinkedList* permutations=combinePermutations(rotorPermutations, 1, walzenPermutations, 3);
+    destroyPermutations(rotorPermutations);
+    destroyPermutations(walzenPermutations);
 
     int length=linkedListLength(permutations);
-   
-    // Create the stack of work for the trheads
-    iocNumberOfWorkItems=numOfThreads;
 
     dispatcherClearWorkItems();
-    i=0;
-    while (i<numOfThreads)
+    for (int i=0; i<numOfThreads; i++)
     {
-        iocWorkItems[i].cipher            =textGC6ZZBB;
-//        iocWorkItems[i].cipher            =replyGC6ZZBB;
+//        iocWorkItems[i].cipher            =textGC6ZZBB;
+        iocWorkItems[i].cipher            =replyGC6ZZBB;
         iocWorkItems[i].permutations      =permutations;
         iocWorkItems[i].startPermutation  =i*length/numOfThreads;
         iocWorkItems[i].endPermutation    =(i+1)*length/numOfThreads-1;
@@ -303,12 +262,10 @@ void theThirdProblem()
         iocWorkItems[i].startR3           =1;
         iocWorkItems[i].endR3             =1;
         iocWorkItems[i].maxCipherChars    =MAX_TEXT;
-        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
         dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]);
-        i++;
     }
 
-    setWalzePermutations(permutations);
+    iocSetCustomWalzePermutations(permutations);
 //    setEvaluationMethod(METHOD_IOC, 13, 13, 0, NULL);
 //    setEvaluationMethod(METHOD_IOC_DEEP, 13, 13, 3, NULL);
 //    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "DE");
@@ -319,15 +276,16 @@ void theThirdProblem()
     recipe.enigmaType       =ENIGMATYPE_M3;
     recipe.rotorSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_NONE;
-    recipe.evalWalzen       =EVAL_NGRAM;
-    recipe.evalSteckers     =EVAL_NGRAM;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
     recipe.maxSteckers      =13;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =3;
-    recipe.numberOfSolutions=10;
     recipe.scoreListSize    =TOP_RESULTS_SIZE;
+    recipe.numberOfSolutions=10;
     strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
     setOperation(recipe);
+    iocReportMethod();
 
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, false);
 }
@@ -338,147 +296,58 @@ void theThirdProblem()
 *
 *
 \**************************************************************************************************/
+
 void theFourthProblem()
 {
-    int             i;
-    LinkedList*     permutations;
-    int             numOfThreads;
-	
-    numOfThreads=1;
-	
+    int numOfThreads=1;
+
     // FROM THE GEOCACHE WE KNOW FOLLOWING:
     // III I II, UKW B, 
 
-    permutations=createRotorPermutations(3, 5);
+    LinkedList*     permutations=createLinkedList();
+    int*        permutation         =malloc(4*sizeof(int));
+    permutation[0]=1; // Index of UKW B
+    permutation[1]=2; // III
+    permutation[2]=0; // I
+    permutation[3]=1; // II
+    addObject(permutations, permutation);
 
-   
-    // Create the stack of work for the trheads
-    iocNumberOfWorkItems=numOfThreads;
 
     dispatcherClearWorkItems();
-    i=0;
-    while (i<numOfThreads)
-    {
-        iocWorkItems[i].cipher              =text11;
-//        iocWorkItems[i].cipher              =text11_test;
-        iocWorkItems[i].permutations        =permutations;
-        iocWorkItems[i].startPermutation    =27;
-        iocWorkItems[i].endPermutation      =27;
-        iocWorkItems[i].R1                  =13;
-        iocWorkItems[i].startR2             =5;
-        iocWorkItems[i].endR2               =5;
-        iocWorkItems[i].startR3             =20;
-        iocWorkItems[i].endR3               =20;
-//        iocWorkItems[i].startR3             =i*(MAX_POSITIONS-1)/numOfThreads+1;
-//        iocWorkItems[i].endR3               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
-        iocWorkItems[i].maxCipherChars      =MAX_TEXT;
-        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
-        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]);
-        i++;
-    }
+//    iocWorkItems[0].cipher              =text11;
+    iocWorkItems[0].cipher              =text11_test;
+    iocWorkItems[0].permutations        =permutations;
+    iocWorkItems[0].startPermutation    =0;
+    iocWorkItems[0].endPermutation      =0;
+    iocWorkItems[0].R1                  =13;
+    iocWorkItems[0].startR2             =5;
+    iocWorkItems[0].endR2               =5;
+    iocWorkItems[0].startR3             =20;
+    iocWorkItems[0].endR3               =20;
+//        iocWorkItems[0].startR3             =i*(MAX_POSITIONS-1)/numOfThreads+1;
+//        iocWorkItems[0].endR3               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
+    iocWorkItems[0].maxCipherChars      =MAX_TEXT;
+    dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[0]);
+    iocSetCustomWalzePermutations(permutations);
 
-    setWalzePermutations(permutations);
     //setEvaluationMethod(METHOD_IOC_NGRAM, 10, 10, 3, "GC");
 // TO DO
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
     recipe.rotorSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_NONE;
-    recipe.evalWalzen       =EVAL_NGRAM;
+    recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_NGRAM;
     recipe.maxSteckers      =10;
-    recipe.maxSteckersInline=0;
+    recipe.maxSteckersInline=5;
     recipe.ngramSize        =3;
-    recipe.numberOfSolutions=10;
-    recipe.scoreListSize    =TOP_RESULTS_SIZE;
     strncpy(recipe.ngramSet, "GC", MAX_NGRAMSETSIZE);
+    recipe.numberOfSolutions=10;
+    recipe.scoreListSize    =25;
     setOperation(recipe);
 
     dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, false);
 }
-
-
-/**************************************************************************************************\
-* 
-* This is not an enigma problem, but the Geocache Codebreakers
-*
-\**************************************************************************************************/
-void theFifthProblem()
-{
-    int i, j;
-    int count;
-    int value;
-    char* level01;
-    char* level02;
-    
-    int length;
-    
-    length=strlen(fifth);
-    printf("Length %d\n", length);
-    
-    level01=malloc(length);
-    i=0;
-    while (i<length/2+1)
-    {
-      level01[i]=fifth[2*i];
-      i++;
-    }
-    i=0;
-    while (i<length/2+1)
-    {
-      level01[length/2+i+1]=fifth[i*2+1];
-      i++;
-    }
-    i=0;
-    while(i<length)
-    {    
-        printf("%c", level01[i]);
-        i++;
-    }
-    printf("\n\n");
-
-
-    level02=malloc(length-100);
-    i=100;
-    count=0;
-    j=0;
-    value=0;
-    while(i<length)
-    {
-      value<<=1;
-      if (level01[i]>='a' && level01[i]<='z')
-      {
-          
-      }
-      else
-      {
-          value|=0x01;
-      }
-      j++;
-      if (j==5)
-      {
-//          printf("%02d ", value);
-          printf("%c", 'A'+value);
-          level02[count]='A'+value;
-          count++;
-          j=0;
-          value=0;
-      } 
-      
-      i++;
-    }
-    printf("\n\n");
-
-    i=72;
-    while (i<length-100)
-    {
-        i++;
-    }
-
-
-    free(level01);
-}
-
 
 
 

@@ -7,6 +7,8 @@
 #include <string.h>
 
 #include "enigma.h"
+#include "log.h"
+#include "toolbox.h"
 
 char umkehrWalzeNames[UMKEHR_WALZEN][MAX_ROTOR_NAME]=
 {
@@ -87,4 +89,42 @@ void placeUmkehrWalze(Enigma* enigma, char name[])
     {
         printf("ERROR: invalid umkehrwalze %s\n", name);
     }
+}
+
+/**************************************************************************************************\
+* 
+* Given the rotorSet, returns a linked list with all valid permutations of the rotors in the set
+* For the M4 the 1st rotor is chosed from the fourthRotorSets, for the remaining rotors (2-4) a 
+* selection is made from the regular rotorSets.
+* User must destroy permutations after use, using destoryPermutations()
+* 
+\**************************************************************************************************/
+LinkedList* getUkwPermutations(Enigma_t enigmaType, RotorSet_t rotorSet)
+{
+    LinkedList* permutations;
+    int indices[UMKEHR_WALZEN];
+
+    // Sanity checks
+    if ((enigmaType==ENIGMATYPE_M3) && (rotorSet==M4_NAVAL_1941))
+    {
+        logFatal("Illegal combination of M3 Engima and Naval rotor set");
+    }
+    if ((enigmaType==ENIGMATYPE_M4) && (rotorSet!=M4_NAVAL_1941))
+    {
+        logFatal("Illegal combination of M4 Engima and rotor set for M3");
+    }
+
+    // Rotors 1-3
+    int count=0;
+    for (int i=0; i<UMKEHR_WALZEN; i++)
+    {
+        if (ukwSets[rotorSet][i]>0)
+        {
+            indices[count]=i;
+            count++;
+        }
+    }
+    permutations=createPermutations(indices, count, 1);
+
+    return permutations;
 }
