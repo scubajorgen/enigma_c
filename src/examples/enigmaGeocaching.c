@@ -11,15 +11,12 @@
 
 #include "enigma.h"
 #include "log.h"
-#include "crack.h"
 #include "toolbox.h"
 #include "coincidence.h"
 #include "ngramscore.h"
 #include "generics/workDispatcher.h"
 
-
 // GC6ZZBB Engima-nano
-
 char textGC6ZZBB[]=
 "CRSMDDACIGRLKUPAHWCYFGDSEPBHSYPYYDDNWUDMBRKT"
 "GPDULRSDTRWWYWVLWKVRIBHHWFVCDXVIEREHLGSQSBIQU"
@@ -164,31 +161,6 @@ char replyGC6ZZBB_2[]=
 "KLCNSGWSDRJRZOAKPEZIBBGPOHZHNCZGSVGJNDETUHNJVUIP"
 "WEMRZBDDARDHQYZPZHDJWRADMNSSE";
 
-EnigmaSettings  GCXQHWTest=
-{
-    3,
-    {
-        "IV",
-        "III",
-        "V"
-    },
-    "UKW B",
-    {
-        1, 1, 1
-    },
-    {
-        1, 1, 1 // unknown
-    },
-    "",
-    "IFKIN OXPBU ELULE UEHNF KVJCW"
-    "XCTWM AFEFZ VGUVA CTASQ CYIAM"
-    "GEBFH DXRWK UOFNY JJWPI FUESJ"
-    "JGYUR IRAQI XQAPP QQ"
-};
-
-
-
-
 char text11[]       = "MCIKVFMLPDWBWMLQRVKEYPSFBVYHLSGSYAFZPXZCBFWPEUMWMBUM"
                       "GCUMKCZPQJEEXEEEWOSBXQJTHQEDNJMSJENPWYSCKWOVPMAYWNQ";
 
@@ -222,6 +194,71 @@ EnigmaSettings  fourthProblemTest=
 };
 
 /**************************************************************************************************\
+* 
+* Geocache GCXQHW, Athens enigma
+* https://www.geocaching.com/geocache/GCXQHW
+*
+\**************************************************************************************************/
+// https://www.geocaching.com/geocache/GCXQHW Athents Engima
+// Rotor settings as indicated, R1=1, R2=2, R3=3, no steckers
+EnigmaSettings  GCXQHWTest=
+{
+    3,
+    {
+        "IV",
+        "III",
+        "V"
+    },
+    "UKW B",
+    {
+        1, 1, 1
+    },
+    {
+        1, 1, 1 // unknown
+    },
+    "",
+    "IFKIN OXPBU ELULE UEHNF KVJCW"
+    "XCTWM AFEFZ VGUVA CTASQ CYIAM"
+    "GEBFH DXRWK UOFNY JJWPI FUESJ"
+    "JGYUR IRAQI XQAPP QQ"
+};
+
+void gcAthentsEnigma()
+{
+    printf("#####################################################################################\n");
+    printf("# GEOCACHE GCXQHW, Athens enigma\n");
+    printf("#####################################################################################\n");
+
+    // FROM THE GEOCACHE WE KNOW FOLLOWING:
+    // IV III V, UKW B, no steckers R1=1, R2=1, R3=1
+    // We create a custom permutations list with just one permutation
+    LinkedList*     permutations=createLinkedList();
+    int*        permutation         =malloc(4*sizeof(int));
+    permutation[0]=1; // Index of UKW B
+    permutation[1]=3; // IV
+    permutation[2]=2; // III
+    permutation[3]=4; // V
+    addObject(permutations, permutation);
+
+    // program the IoC solver
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =0;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "GC", MAX_NGRAMSETSIZE);
+    recipe.scoreListSize    =25;
+    recipe.numberOfSolutions=3;
+    recipe.numberOfThreads  =1;
+    recipe.cipher           =GCXQHWTest.cipher;
+    iocDecodeText(recipe, permutations);
+}
+
+/**************************************************************************************************\
 * Enigma cipher from GC6ZZBB geochache. It is a short cipher.
 * FROM THE GEOCACHE WE KNOW FOLLOWING:
 * - http://enigmaco.de/enigma/enigma_de.html was used to encrypt; therefore
@@ -231,13 +268,12 @@ EnigmaSettings  fourthProblemTest=
 * - up to 13 steckers
 * - Language is probably german
 \**************************************************************************************************/
-
-void theThirdProblem()
+void gcEnigmaNano()
 {
     int numOfThreads=4;
 
-
-    LinkedList* walzenPermutations  =getWalzenPermutations   (ENIGMATYPE_M3, M3_ARMY_1938);
+    // Create a list of permutations with only UKW B
+    LinkedList* walzenPermutations  =getWalzenPermutations(ENIGMATYPE_M3, M3_ARMY_1938);
     LinkedList* rotorPermutations   =createLinkedList();
     int*        permutation         =malloc(sizeof(int));
     permutation[0]=1; // Index of UKW B
@@ -246,26 +282,7 @@ void theThirdProblem()
     destroyPermutations(rotorPermutations);
     destroyPermutations(walzenPermutations);
 
-    int length=linkedListLength(permutations);
 
-    dispatcherClearWorkItems();
-    for (int i=0; i<numOfThreads; i++)
-    {
-//        iocWorkItems[i].cipher            =textGC6ZZBB;
-        iocWorkItems[i].cipher            =replyGC6ZZBB;
-        iocWorkItems[i].permutations      =permutations;
-        iocWorkItems[i].startPermutation  =i*length/numOfThreads;
-        iocWorkItems[i].endPermutation    =(i+1)*length/numOfThreads-1;
-        iocWorkItems[i].R1                =1;
-        iocWorkItems[i].startR2           =1;
-        iocWorkItems[i].endR2             =1;
-        iocWorkItems[i].startR3           =1;
-        iocWorkItems[i].endR3             =1;
-        iocWorkItems[i].maxCipherChars    =MAX_TEXT;
-        dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]);
-    }
-
-    iocSetCustomWalzePermutations(permutations);
 //    setEvaluationMethod(METHOD_IOC, 13, 13, 0, NULL);
 //    setEvaluationMethod(METHOD_IOC_DEEP, 13, 13, 3, NULL);
 //    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "DE");
@@ -280,14 +297,61 @@ void theThirdProblem()
     recipe.evalSteckers     =EVAL_IOC;
     recipe.maxSteckers      =13;
     recipe.maxSteckersInline=0;
-    recipe.ngramSize        =3;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
     recipe.scoreListSize    =TOP_RESULTS_SIZE;
     recipe.numberOfSolutions=10;
-    strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
-    setOperation(recipe);
-    iocReportMethod();
+    recipe.numberOfThreads  =numOfThreads;
+    recipe.cipher           =textGC6ZZBB;
+    iocDecodeText(recipe, permutations);
+}
 
-    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, false);
+/**************************************************************************************************\
+* Enigma cipher from GC6ZZBB geochache. It is a short cipher.
+* FROM THE GEOCACHE WE KNOW FOLLOWING:
+* - http://enigmaco.de/enigma/enigma_de.html was used to encrypt; therefore
+* - Three Walzen out of I-V
+* - R1 = R2 = R3 = 1
+* - UKW B
+* - up to 13 steckers
+* - Language is probably german
+\**************************************************************************************************/
+void gcEnigmaNanoReply()
+{
+    int numOfThreads=4;
+
+    // Create a list of permutations with only UKW B
+    LinkedList* walzenPermutations  =getWalzenPermutations(ENIGMATYPE_M3, M3_ARMY_1938);
+    LinkedList* rotorPermutations   =createLinkedList();
+    int*        permutation         =malloc(sizeof(int));
+    permutation[0]=1; // Index of UKW B
+    addObject(rotorPermutations, permutation);
+    LinkedList* permutations=combinePermutations(rotorPermutations, 1, walzenPermutations, 3);
+    destroyPermutations(rotorPermutations);
+    destroyPermutations(walzenPermutations);
+
+
+//    setEvaluationMethod(METHOD_IOC, 13, 13, 0, NULL);
+//    setEvaluationMethod(METHOD_IOC_DEEP, 13, 13, 3, NULL);
+//    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "DE");
+//    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "GB");
+//    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 0, 3, "DE");
+// TO DO
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =13;
+    recipe.maxSteckersInline=0;
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
+    recipe.scoreListSize    =TOP_RESULTS_SIZE;
+    recipe.numberOfSolutions=10;
+    recipe.numberOfThreads  =numOfThreads;
+    recipe.cipher           =replyGC6ZZBB;
+    iocDecodeText(recipe, permutations);
 }
 
 
@@ -296,14 +360,11 @@ void theThirdProblem()
 *
 *
 \**************************************************************************************************/
-
 void theFourthProblem()
 {
-    int numOfThreads=1;
-
     // FROM THE GEOCACHE WE KNOW FOLLOWING:
     // III I II, UKW B, 
-
+    // We create a custom permutations list with just one permutation
     LinkedList*     permutations=createLinkedList();
     int*        permutation         =malloc(4*sizeof(int));
     permutation[0]=1; // Index of UKW B
@@ -312,26 +373,7 @@ void theFourthProblem()
     permutation[3]=1; // II
     addObject(permutations, permutation);
 
-
-    dispatcherClearWorkItems();
-//    iocWorkItems[0].cipher              =text11;
-    iocWorkItems[0].cipher              =text11_test;
-    iocWorkItems[0].permutations        =permutations;
-    iocWorkItems[0].startPermutation    =0;
-    iocWorkItems[0].endPermutation      =0;
-    iocWorkItems[0].R1                  =13;
-    iocWorkItems[0].startR2             =5;
-    iocWorkItems[0].endR2               =5;
-    iocWorkItems[0].startR3             =20;
-    iocWorkItems[0].endR3               =20;
-//        iocWorkItems[0].startR3             =i*(MAX_POSITIONS-1)/numOfThreads+1;
-//        iocWorkItems[0].endR3               =(i+1)*(MAX_POSITIONS-1)/numOfThreads+1;
-    iocWorkItems[0].maxCipherChars      =MAX_TEXT;
-    dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[0]);
-    iocSetCustomWalzePermutations(permutations);
-
-    //setEvaluationMethod(METHOD_IOC_NGRAM, 10, 10, 3, "GC");
-// TO DO
+    // program the IoC solver
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
     recipe.rotorSet         =M3_ARMY_1938;
@@ -344,9 +386,10 @@ void theFourthProblem()
     strncpy(recipe.ngramSet, "GC", MAX_NGRAMSETSIZE);
     recipe.numberOfSolutions=10;
     recipe.scoreListSize    =25;
-    setOperation(recipe);
-
-    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, false);
+    recipe.numberOfThreads  =1;
+//    recipe.cipher           =text11;
+    recipe.cipher           =text11_test;
+    iocDecodeText(recipe, permutations);
 }
 
 

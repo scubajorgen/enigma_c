@@ -44,6 +44,13 @@ typedef enum RotorSet_t
     M4_NAVAL_1941       =3  // 8 rotors + 2 4th rotors + 2 thin UKWs
 } RotorSet_t;
 
+typedef enum
+{
+    MESSAGEFORMAT_TEXT,
+    MESSAGEFORMAT_KRIEGSMARINE,
+    MESSAGEFORMAT_WEHRMACHT
+} MessageFormat_t;
+
 extern char rotorNames      [ROTORS]        [MAX_ROTOR_NAME];  // All Walzen
 extern char umkehrWalzeNames[UMKEHR_WALZEN] [MAX_ROTOR_NAME];   // All UKWs
 extern int  rotorSets       [MAX_ROTOR_SETS][ROTORS];           // Walze selections for the 3 rotors
@@ -107,6 +114,7 @@ char*               toString                (Enigma* enigma);
 void                setEnigma               (Enigma* enigma, EnigmaSettings* settings);
 void                printEnigmaSettings     (EnigmaSettings* settings, char* title);
 void                dumpDecoded             (EnigmaSettings* settings);
+void                displayEnigmaMessage    (char* message, MessageFormat_t type);
 
 EnigmaSettings*     createRandomSettings    (Enigma* enigma, RotorSet_t rotorSet, int numberOfSteckers);
 void                destroyEnigmaSettings   (EnigmaSettings* settings);

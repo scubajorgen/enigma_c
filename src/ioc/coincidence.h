@@ -49,8 +49,8 @@ typedef enum
 
 typedef enum 
 {
-    EVAL_IOC,         // Evaluation by index of coincidence, James Gillogly
-    EVAL_NGRAM        // Evaluation by bigram or trigrams
+    EVAL_IOC,               // Evaluation by index of coincidence, James Gillogly
+    EVAL_NGRAM              // Evaluation by bigram or trigrams
 } Evaluation_t;
 
 
@@ -61,27 +61,28 @@ typedef struct
     Depth_t         method;                     // The method
     Evaluation_t    evalWalzen;                 // Evaluation to use for finding the Walzen, Ringstellungen and Grundstellungen
     Evaluation_t    evalSteckers;               // Evaluation to use for finding Steckers
-    int             maxSteckersInline;          // Maximum number of Steckers to try during finding of rotor positions
     int             maxSteckers;                // Maximum number of Steckers to try
-    int             ngramSize;                  // NGRAMS: NGRAM size: 2 or 3
+    int             maxSteckersInline;          // Maximum number of Steckers to try during finding of rotor positions
+    int             ngramSize;                  // NGRAMS: NGRAM size: 2, 3 or 4
     char            ngramSet[MAX_NGRAMSETSIZE]; // NGRAM set: "DE", "EN", "GC"
     int             scoreListSize;              // The number of solutions to take into account for finding Walzen (N1)
     int             numberOfSolutions;          // The number of solutions to show (N2)
+    int             numberOfThreads;            // Number of threads to use
+    char*           cipher;                     // Cipher to decrypt
+    MessageFormat_t displayFormat;              // Formatting for display of decoded text
 } IocRecipe;
 
 typedef struct
 {
-    char*       cipher;                 // The Cipher
-    LinkedList* permutations;           // List of Walzen permutations
-    int         startPermutation;       // Permutation start
-    int         endPermutation;         // permutation end; end included
-    int         R1;                     // Value of R1 to use
-    int         startR2;                // RingStellung 2 start
-    int         endR2;                  // RingStellung 2 end; end included
-    int         startR3;                // RingStellung 3 start
-    int         endR3;                  // RingStellung 3 end; end included
-    int         maxCipherChars;         // Part of the message to process; MAX_TEXT for full message
-    int         threadId;               // Thread ID, to be filled in by the trhead
+    int             startPermutation;           // Permutation start
+    int             endPermutation;             // permutation end; end included
+    int             R1;                         // Value of R1 to use
+    int             startR2;                    // RingStellung 2 start
+    int             endR2;                      // RingStellung 2 end; end included
+    int             startR3;                    // RingStellung 3 start
+    int             endR3;                      // RingStellung 3 end; end included
+    int             maxCipherChars;             // Part of the message to process; MAX_TEXT for full message
+    int             threadId;                   // Thread ID, to be filled in by the trhead
 } IocWorkItem;
 
 typedef struct
@@ -116,7 +117,7 @@ void        iocWorkerFunction               (int worker, int workItem, void* par
 void        iocFinishFunction               (void* params);
 
 // Public methods
-void        setOperation                    (IocRecipe recipe);
-void        iocDecodeText                   (char* cipher, int numOfThreads);
+void        iocInitialize                   (IocRecipe recipe, LinkedList* permutations);
+void        iocDecodeText                   (IocRecipe recipe, LinkedList* customPermutations);
 void        iocReportMethod                 ();
-void        iocSetCustomWalzePermutations   (LinkedList* permutations);
+

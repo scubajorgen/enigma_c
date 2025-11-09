@@ -70,11 +70,13 @@ void iocExample00()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
-    recipe.numberOfSolutions=1;
+    recipe.ngramSet[0]      ='\0';
     recipe.scoreListSize    =5;
-    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
-    setOperation(recipe);
-    iocDecodeText(iocExampleSettings00.cipher, 6);
+    recipe.numberOfSolutions=1;
+    recipe.numberOfThreads  =6;
+    recipe.cipher           =iocExampleSettings00.cipher;
+    recipe.displayFormat    =MESSAGEFORMAT_WEHRMACHT;
+    iocDecodeText(recipe, NULL);
 }
 
 /**************************************************************************************************\
@@ -131,11 +133,13 @@ void iocExample01Ioc()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
+    recipe.ngramSet[0]      ='\0';
+    recipe.scoreListSize    =53;
     recipe.numberOfSolutions=3;
-    recipe.scoreListSize    =52;
-    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
-    setOperation(recipe);
-    iocDecodeText(iocExampleSettings01A.cipher, 6);
+    recipe.numberOfThreads  =6;
+    recipe.cipher           =iocExampleSettings01A.cipher;
+    recipe.displayFormat    =MESSAGEFORMAT_WEHRMACHT;
+    iocDecodeText(recipe, NULL);
 }
 
 /**************************************************************************************************\
@@ -159,11 +163,13 @@ void iocExample01IocR3()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
+    recipe.ngramSet[0]      ='\0';
     recipe.numberOfSolutions=3;
     recipe.scoreListSize    =5;
-    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
-    setOperation(recipe);
-    iocDecodeText(iocExampleSettings01A.cipher, 6);
+    recipe.numberOfThreads  =6;
+    recipe.cipher           =iocExampleSettings01A.cipher;
+    recipe.displayFormat    =MESSAGEFORMAT_WEHRMACHT;
+    iocDecodeText(recipe, NULL);
 }
 
 /**************************************************************************************************\
@@ -185,11 +191,13 @@ void iocExample01Ngram2()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =3;
-    recipe.numberOfSolutions=3;
-    recipe.scoreListSize    =60;
     strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
-    setOperation(recipe);
-    iocDecodeText(iocExampleSettings01A.cipher, 6);
+    recipe.scoreListSize    =60;
+    recipe.numberOfSolutions=3;
+    recipe.numberOfThreads  =6;
+    recipe.cipher           =iocExampleSettings01A.cipher;
+    recipe.displayFormat    =MESSAGEFORMAT_WEHRMACHT;
+    iocDecodeText(recipe, NULL);
 }
 
 /**************************************************************************************************\
@@ -248,10 +256,12 @@ void iocExample02Ioc()
     strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
-    recipe.numberOfSolutions=20;
     recipe.scoreListSize    =TOP_RESULTS_SIZE;
-    setOperation(recipe);
-    iocDecodeText(iocExampleSettings02.cipher, 6);
+    recipe.numberOfSolutions=20;
+    recipe.numberOfThreads  =6;
+    recipe.cipher           =iocExampleSettings02.cipher;
+    recipe.displayFormat    =MESSAGEFORMAT_WEHRMACHT;
+    iocDecodeText(recipe, NULL);
 }
 
 
@@ -309,11 +319,13 @@ void iocExample03Ioc()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
-    recipe.numberOfSolutions=1;
+    recipe.ngramSet[0]      ='\0';
     recipe.scoreListSize    =TOP_RESULTS_SIZE;
-    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
-    setOperation(recipe);
-    iocDecodeText(iocExampleSettings03.cipher, 6);
+    recipe.numberOfSolutions=1;
+    recipe.numberOfThreads  =6;
+    recipe.cipher           =iocExampleSettings03.cipher;
+    recipe.displayFormat    =MESSAGEFORMAT_TEXT;
+    iocDecodeText(recipe, NULL);
 }
 
 /**************************************************************************************************\
@@ -362,178 +374,13 @@ void iocExample04Ioc()
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
+    recipe.ngramSet[0]      ='\0';
+    recipe.scoreListSize    =TOP_RESULTS_SIZE;
     recipe.numberOfSolutions=10;
-    recipe.scoreListSize    =TOP_RESULTS_SIZE;
-    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
-    setOperation(recipe);
-    iocDecodeText(iocExampleSettings04.cipher, 6);
+    recipe.numberOfThreads  =6;
+    recipe.cipher           =iocExampleSettings04.cipher;
+    recipe.displayFormat    =MESSAGEFORMAT_TEXT;
+    iocDecodeText(recipe, NULL);
 }
-
-/**************************************************************************************************\
-* 
-* Example from Geocaching GC6ZZBB - original text
-* 
-\**************************************************************************************************/
-// GC GC6ZZBB https://www.geocaching.com/geocache/GC6ZZBB The original cipher
-IocResults  iocExampleSettings07A=
-{
-    0.0,
-    {
-        3,
-        {
-            "IV",
-            "V",
-            "II"
-        },
-        "UKW B",
-        {
-            1, 1, 1
-        },
-        {
-            10, 21, 24
-        },
-
-//        "",
-        "AD BL EW FI HZ JR QU",
-        
-        "CRSMDDACIGRLKUPAHWCYFGDSEPBHSYPYYDDNWUDMBRKT"
-        "GPDULRSDTRWWYWVLWKVRIBHHWFVCDXVIEREHLGSQSBIQU"
-        "DGACRUFWBMYRSPYGBKESJLNNFTVAGSOXBDIOXJACSJRSAV"
-        "VXDAWBIMEDLQSLQKLFHATDCUGFPOYSBKPBSFLRHUPXDMM"
-        "TTDPRKZCOCNZDSULIHEJGLCLVQWXVAZZPWMOOKPPFWDSQ"
-        "VW"
-    }
-};
-
-void iocExample07A()
-{
-    printEnigmaSettings(&iocExampleSettings07A.settings, "INDEX OF COINCIDENCE METHOD EXAMPLE 7A");
-
-    IocRecipe recipe;
-    recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
-    recipe.method           =DEPTH_NONE;
-    recipe.evalWalzen       =EVAL_IOC;
-    recipe.evalSteckers     =EVAL_IOC;
-    recipe.maxSteckers      =10;
-    recipe.maxSteckersInline=0;
-    recipe.ngramSize        =0;
-    recipe.numberOfSolutions=100;
-    recipe.scoreListSize    =TOP_RESULTS_SIZE;
-    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
-    setOperation(recipe);
-    iocDecodeText(iocExampleSettings07A.settings.cipher, 10);
-}
-
-/**************************************************************************************************\
-* 
-* Example from Geocaching GC6ZZBB - response
-* 
-\**************************************************************************************************/
-EnigmaSettings iocExampleSettings07B=
-{
-    3,
-    {
-        "II",
-        "III",
-        "IV"
-    },
-    "UKW B",
-    {
-        1, 1, 1
-    },
-    {
-        21, 9, 15
-    },
-
-    "",
-    "DYGCXZMEWSRXKBJCNMKCWWWDYPVIQFISHZPAHTEIGYKRRILG"
-    "JQRSMDNZVGWHFSDPEAZLUKIVSTECUXOWORNCQCWJOLGVVYDZ"
-    "NMVZJSATYWWVFMKSDHEZUJJIVXHWIWUEJLWQXUICLKPOSHBY"
-    "SPZWJGKSZAWOESBALBDGFJDTXRGDSTGAXHVJUFGPBNSWXBUK"
-    "ULEVUAYMRJWDDONOLVXHJKTPVABPIDCRODWLKXHZJRQTOWCN"
-    "YQEHFSRYXHVUCEUQNRKUTXZNHZUVVXXVNUCFWHNOKZWXQWUQ"
-    "WIDRHUBVVLLWZVIXQHROYITEXWZURPSLNLVXQAWJLQJWFGOM"
-    "CVWDZDNCAXJBBMRWHXLIMRPAXNLTNQWUZOMNSTJFTKMLUVHL"
-    "ZEWHIMBMIZPUMTVYWMTWBORWUVKWDKDRTZGQSIUKZNIQUQEB"
-    "UOXXMANUVPGQZYHKURHYNLPCBFDGTQNCWZVKBZTTEVJEGCPD"
-    "WHWGPWRJOXCLDUIRJHENXIZWVEACEPRRCNEVHZPJGUVYDYQM"
-    "ZEFQFEZNBDGYFHSIHLCQXTUGVTGYEZZOMCIHXZPUHXMXHCEX"
-    "RILWVOJIMPKIKAUZGMRSMKIICDOTGGWWUZDGHFPLSNTKKDBW"
-    "WSAXDGKNKEYMTQWRBZKANWJUIKZFUVIHHNJTCQFMXOUHXWIN"
-    "AEFYPQEHLRRGZMNZOBQHCPVJFRBUMLZFGRNSAXQRKCCXZJHA"
-    "EPNIBXIFJDJBXFSOKNAZZHHVNLSYJAZHNJTTBTNFOLREIWPY"
-    "CPOIAJNTZJRZHLWVZNDWWTQNQANJZCXXCSSSXKKCFYZHMFYO"
-    "RDWVYLMMNKYLFGNNIVCBFSOJLOCBFSOUADIKVPBXUSMIAXMT"
-    "SWYHGLHTSTTNTXCMBNWQPEJVSMCXZPQGFIZYHZCAXFXQTALM"
-    "CHWDZROPVCLNVCJGNTDOFRLYAUAHSQTTGIYWJHLFFNJPMZSN"
-    "BHIHJWDVTDSGNPUJRAAFUHAAEHXKJPBCJSYNCNHGEBPZRWIP"
-    "HMZUCWKJCRBAYHJPRUKJQTGOBHXMJEGLTLUIGONSBICRUGLL"
-    "XJZYOTIVWVIZHRMLMCTXEGZOKYVKOLJBCIDKMOJLOQWTIYUN"
-    "IRCQBDMNCEGSRGPEMHSHGXBBMJGTCBVHXWXDCCVHXXDKUEMC"
-    "YIVAKDBPWTKAIESJQANQBIMJCOHDIXLYGUVPPKIZRCZDGPTD"
-    "AVYQGOBKKQNNHMLNAYXJZYMAGESZMHRWDEMSXQFBPBSILYHI"
-    "ZVVJBBXNKYDRXEWTTQPQDYWZATXQXOUZMWMBCLXTUCAVZVQE"
-    "HKRZETISLAMQPGKXTZUHRLZTMNHRVDBPQXUZVTHEARIOKYWY"
-    "CLYTQRONXMWKGGEEVMHSMXONDJDJOHKZTAYEIKRNJWGCNSJD"
-    "UNYTYFUSNSCDZFNQTVARKRPHQWQPOJRBRDWPJOATYUVCKTWH"
-    "OJELYLYLANOMEHRJPXFHOJPLWTYLMOSISYNZRIECGENUJLXU"
-    "HSDSEZLKCWBUAIMNBIOSVTPVWBAOXAIMKZIAOFKNJIRRPKXJ"
-    "JABIIEETFNWNMRQGDZXPSFTYQJFQSWPAMDRHSQTWYCZSZNTP"
-    "OMRWRZTTUEKRQOQRATQWMIKMGWAXGLWKHTUQUKAXMOBJKWHP"
-    "VMAUUVGTSRUNZSQDKXFLJODVYAKKZAEWOUXMCOITDQCXZFTW"
-    "KVPAETFCXDJZGOYBIFKDBIVVOYUMPNHSXDFONTUUAYNCEWWT"
-    "CRNVBHYMFAWIOCUVREPJFTIENKEIOVMTNYGZKEMYGPVPNCNQ"
-    "LFYOHGKIRONPMQKWTTZEONVKFVRQCFNPIGSCGKBDYUFRMGED"
-    "RGLGYNOOXQQKHPUROJASHZTHDWGQDAPCLYAJCSMSWMHASTDW"
-    "PLDYFKQDXXAEWTCUSCXUQHCRJOWWWFIPYOPFVWZWIHQXHKES"
-    "VDVHMGARAAUMAJYBWQICALCLVEZBHHKRSLZCPEBBFXXTNWBU"
-    "HCYKYUQNBUQDRULSGLSXMAHUHAKNTQCAHAQRMRSWOKHXDPNC"
-    "ZKSPAXDJXXPYLHRFDWYFSZNPOLEQWHFWVUQPZKQNEFNCQDTZ"
-    "IWIDIALTGEIOXHETPRMDGYZSGBGSFWBLKYNGMUWNEYAZXLKK"
-    "NVWVJZJIERPAWQKPIRHMYZAKVRINEPIHRUNZCNUPEMHWAGVW"
-    "QNZNPQYWPEVTAXKSTNYOHNXUYPMJGZTDQEGJHZXTFOMQTDTX"
-    "DMPHDDKRIQQKOYMCVEDZCHUGDAXPANNXLDYXJFHRYYKQDOZH"
-    "ZBYSKXRBMMYOIKFSGCHYLCHMTSWLGZHCKVIBHLNPULINFROV"
-    "ABEZIRCZWXKPSAHYOWHEQOQQXKINQGTBHQQKGKMCMAGWSCVH"
-    "NHTFDFVNUFAOMYOOJIFFPLVPFLNGKQHWMRZSQDVIHGXJPSWM"
-    "XURRDAWNJQNIGBRYSBXJOYKTFFSOSDNKZHTVWRKJXMCWBFAO"
-    "MWSKYMUCKNWSTYBUAOJCZCAPZOPVAQJYJBQVFBMKGNETLPAZ"
-    "UVHZGMUYTTBPBTJCADGOITPOPIWTINJFVWAZXOMZKZOILJDQ"
-    "EZOWUCVYXVZGJCDOASDZXXHEMRBLEMURFLKUQJVYKZMUZXJN"
-    "MRSOBJRLWFXWFSUEZDVTZULUZJCNDGKDLIEPOAXPTUVGFDLU"
-    "FNQSNWGVARFSZAWZJGVKPRKGTEXBTBBVMVWTNLASQDQMKNED"
-    "VBEWALKUYRPFJGSETMIXJYHTGQODEERRFPABOOIBYQOEIAXA"
-    "DBMEIBIMQGXTBPFELGLWSYJGTYRVKSGMMUAPLXXOIYEMPLRA"
-    "HXZKDFPSQQVXGBQGPSVHGVIKDYIXJGXETRGMKSEDXGCUZKCR"
-    "YBFBDLDHGPOFZYXROOGHRXZYYOPDRSJDZYXQOJSUZOGHATUT"
-    "PQFLIHEWMFCBULEHSRGWXMXYLIHXHIEHRMQJOLNBXCYEOACU"
-    "XJGWWHOYJKEYIBQOAPUAMXYTKMZCMRDMYABEQFBYCSSOFVEY"
-    "SDFRHEDJKUQFXYCKISPIIRLXUYIHMNLLYDNVKXWMSCVLUXBN"
-    "NINRNKIUWJGYVFOAHFVQAJLGVJKKPILHAMCPGIUZHRTIPFVA"
-    "KLCNSGWSDRJRZOAKPEZIBBGPOHZHNCZGSVGJNDETUHNJVUIP"
-    "WEMRZBDDARDHQYZPZHDJWRADMNSSE"
-};
-
-void iocExample07B()
-{
-    printEnigmaSettings(&iocExampleSettings07B, "INDEX OF COINCIDENCE METHOD EXAMPLE 7B");
-
-    IocRecipe recipe;
-    recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
-    recipe.method           =DEPTH_NONE;
-    recipe.evalWalzen       =EVAL_IOC;
-    recipe.evalSteckers     =EVAL_IOC;
-    recipe.maxSteckers      =10;
-    recipe.maxSteckersInline=0;
-    recipe.ngramSize        =0;
-    recipe.numberOfSolutions=10;
-    recipe.scoreListSize    =TOP_RESULTS_SIZE;
-    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
-    setOperation(recipe);
-    iocDecodeText(iocExampleSettings07B.cipher, 10);
-}
-
 
 

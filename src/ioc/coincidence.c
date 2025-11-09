@@ -257,9 +257,8 @@ void iocDumpTopResults(int number, bool withDecode)
         {
             setEnigma(enigma, settings);
             encodeDecode(enigma);
-            printf("%s\n", toString(enigma));
+            displayEnigmaMessage(toString(enigma), operation.recipe.displayFormat);
         }
-
         i++;
     }
     destroyEnigma(enigma);
@@ -478,7 +477,7 @@ void iocFindSteckeredChars(IocResults* results, int maxNumOfSteckers)
                 encodeDecode(enigma);
                 if (operation.recipe.evalSteckers==EVAL_NGRAM)
                 {
-                    ioc=ngramScore(enigma, operation.recipe.ngramSize);
+                    ioc=ngramScore(enigma);
                 }
                 else
                 {
@@ -938,14 +937,12 @@ void iocFindSteckeredCharsNgram(IocResults* results, int maxNumOfSteckers, int n
 \**************************************************************************************************/
 void iocEvaluateEngimaSettings(IocWorkItem* work)
 {
-    Enigma*     enigma;
     int         r1, r2, r3;
     int         g1, g2, g3;
     int*        permutation;
     int         w;
     float       ioc;
     float       iocMax;
-    IocResults* results;
     int         start;
     int         end;
     int         R1;
@@ -965,21 +962,21 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
 
 
     // The work item
-    cipher          =work->cipher;
-    maxCipherChars  =work->maxCipherChars;
-    permutations    =work->permutations;
-    start           =work->startPermutation;
-    end             =work->endPermutation;
-    R1              =work->R1;
-    startR2         =work->startR2;
-    endR2           =work->endR2;
-    startR3         =work->startR3;
-    endR3           =work->endR3;
-    threadId        =work->threadId;
+    cipher              =operation.recipe.cipher;
+    maxCipherChars      =work->maxCipherChars;
+    permutations        =operation.permutations;
+    start               =work->startPermutation;
+    end                 =work->endPermutation;
+    R1                  =work->R1;
+    startR2             =work->startR2;
+    endR2               =work->endR2;
+    startR3             =work->startR3;
+    endR3               =work->endR3;
+    threadId            =work->threadId;
     
-    results     =createIocResults();
+    IocResults* results =createIocResults();
     
-    enigma      =createEnigmaM3(); 
+    Enigma* enigma      =createEnigmaM3(); 
 
     clearSteckerBrett(enigma);
 
@@ -1003,7 +1000,6 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
         permutation=(int*)elementAt(permutations, w);
         placeUmkehrWalze(enigma, umkehrWalzeNames[permutation[0]]);
 
-// TO DO: M4 engima
         placeWalze(enigma, 1, rotorNames[permutation[1]]);
         placeWalze(enigma, 2, rotorNames[permutation[2]]);
         placeWalze(enigma, 3, rotorNames[permutation[3]]);
@@ -1012,7 +1008,6 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
         time(&now);
         timeString=ctime(&now);
         timeString[strlen(timeString)-1]='\0';
-// TO DO: M4 engima
         logInfo("%s: Worker %02d trying permutation %03d (%02d/%02d): %5s %5s %5s %5s R1 %02d R2 %02d-%02d R3 %02d-%02d",
           timeString,
           threadId,
@@ -1063,7 +1058,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
 
                                 if (operation.recipe.evalWalzen==EVAL_NGRAM)
                                 {
-                                    ioc=ngramScore(enigma, operation.recipe.ngramSize);
+                                    ioc=ngramScore(enigma);
                                 }
                                 else
                                 {
@@ -1168,7 +1163,7 @@ void iocFindRingStellung(IocResults*  results, int startRotor, int endRotor)
 
             if (operation.recipe.evalWalzen==EVAL_NGRAM)
             {
-                ioc=ngramScore(enigma, operation.recipe.ngramSize);
+                ioc=ngramScore(enigma);
             }
             else
             {
@@ -1277,7 +1272,7 @@ void iocFinishFunction(void* params)
 
     // Lets sort the results
     sortTopResults();
-    iocDumpTopResults(operation.recipe.numberOfSolutions, true);
+    iocDumpTopResults(operation.recipe.numberOfSolutions, false);
 
     // Finally we are going to look for the steckers for the best result
     for(i=0;i<MIN(TOP_RESULTS_SIZE, operation.recipe.numberOfSolutions);i++)
@@ -1362,42 +1357,42 @@ void iocReportMethod()
     switch (operation.recipe.enigmaType)
     {
         case ENIGMATYPE_M3:
-            printf("Enigma machine              : Engima M3 (3 Walzen)\n");
+            printf("# Enigma machine              : Engima M3 (3 Walzen)\n");
             break;
         case ENIGMATYPE_M4:
-            printf("Enigma machine              : Engima M4 (4 Walzen)\n");
+            printf("# Enigma machine              : Engima M4 (4 Walzen)\n");
             break;
     }
 
     switch (operation.recipe.rotorSet)
     {
         case M3_ENIGMA1_1930:
-            printf("Walzen                      : Enigma 1, 3 walzen\n");
+            printf("# Walzen                      : Enigma 1, 3 walzen\n");
             break;
         case M3_ARMY_1938:
-            printf("Walzen                      : Wehrmacht 1938, 5 walzen\n");
+            printf("# Walzen                      : Wehrmacht 1938, 5 walzen\n");
             break;
         case M3_ARMY_1939:
-            printf("Walzen                      : Wehrmacht 1939, 8 walzen\n");
+            printf("# Walzen                      : Wehrmacht 1939, 8 walzen\n");
             break;
         case M4_NAVAL_1941:
-            printf("Walzen                      : Kriegsmarine Engima M4\n");
+            printf("# Walzen                      : Kriegsmarine Engima M4\n");
             break;
     }
 
     switch (operation.recipe.method)
     {
         case DEPTH_NONE:
-            printf("Method                      : Keeping R1, R2, R3 fixed (Gillogly)\n");
+            printf("# Method                      : Keeping R1, R2, R3 fixed (Gillogly)\n");
             break;
         case DEPTH_R3:
-            printf("Method                      : Keeping R1, R2 fixed\n");
+            printf("# Method                      : Keeping R1, R2 fixed\n");
             break;
         case DEPTH_R2_R3:
-            printf("Method                      : Keeping R1 fixed\n");
+            printf("# Method                      : Keeping R1 fixed\n");
             break;
     }
-    printf("Evaluation for rotor        : ");
+    printf("# Evaluation for rotor        : ");
     switch (operation.recipe.evalWalzen)
     {
         case EVAL_IOC:
@@ -1407,7 +1402,7 @@ void iocReportMethod()
             printf("NGRAMs, size %d\n", operation.recipe.ngramSize);
             break;
     }
-    printf("Evaluation for stecker      : ");
+    printf("# Evaluation for stecker      : ");
     switch (operation.recipe.evalWalzen)
     {
         case EVAL_IOC:
@@ -1418,28 +1413,24 @@ void iocReportMethod()
             break;
     }
 
-    printf("Max steckers                : %02d\n", operation.recipe.maxSteckers);
-    printf("Max steckers inline         : %02d\n", operation.recipe.maxSteckersInline);
-    printf("Result list size (Walzen)   : %d\n", operation.recipe.scoreListSize);
-    printf("Number to show (Steckers)   : %d\n", operation.recipe.numberOfSolutions);
+    printf("# Max steckers                : %02d\n", operation.recipe.maxSteckers);
+    printf("# Max steckers inline         : %02d\n", operation.recipe.maxSteckersInline);
+    printf("# Result list size (Walzen)   : %d\n"  , operation.recipe.scoreListSize);
+    printf("# Number to show (Steckers)   : %d\n"  , operation.recipe.numberOfSolutions);
+    printf("# Number of threads to use    : %d\n"  , operation.recipe.numberOfThreads);
+    printf("# Cipher                      : \n");
+    printCipher(operation.recipe.cipher);
     printf("#####################################################################################\n");
 }
 
-
 /**************************************************************************************************\
 * 
-* Defines the decryption method
-* recipe        Defines the operation of the IoC decoding
-*   method        The method to use
-*   evalWalzen    Evaluation to use for finding walzen, ringstellungen and grundstellungen  
-*   evalSteckers  Evaluation to use for finding steckers
-*   maxSteckers   The maximum number of Steckers to try
-*   ngramSize     n in ngram (2 - bigrams, 3 - trigrams, etc), only used for evaluation=EVAL_NGRAM
-*   ngrams        Ngram set to use ('DE', 'EN', 'GC')
+* Initialize the IoC solver by setting the recipe and Walze permutations
 * 
 \**************************************************************************************************/
-void setOperation(IocRecipe recipe)
+void iocInitialize(IocRecipe recipe, LinkedList* permutations)
 {
+    // Sanity checks
     if (recipe.scoreListSize>TOP_RESULTS_SIZE || recipe.scoreListSize<1)
     {
         logFatal("Illegal score list size, should be smaller than %d", TOP_RESULTS_SIZE);
@@ -1450,15 +1441,9 @@ void setOperation(IocRecipe recipe)
                  recipe.numberOfSolutions,
                  recipe.scoreListSize);
     }
-
-    operation.recipe    = recipe;
-    
-    // Initialise the NGRAM scoring
-    if (recipe.ngramSize>0 && strcmp(recipe.ngramSet, "")!=0)
-    {
-        logInfo("Preparing NGRAMs size %d, language %s", recipe.ngramSize, recipe.ngramSet);
-        prepareNgramScore(recipe.ngramSize, recipe.ngramSet);
-    }
+    operation.recipe        =recipe;
+    operation.permutations  =permutations;
+    printf("PERMUTATION SIZE %d\n", linkedListLength(permutations));
 }
 
 
@@ -1469,20 +1454,15 @@ void setOperation(IocRecipe recipe)
 * - an Enigma M3
 * 
 \**************************************************************************************************/
-
-void prepareWorkM3(char* cipher, int numOfThreads)
+void prepareWorkM3()
 {
-    // Create the permutations of Walzen 
-    LinkedList* permutations=generateWalzePermutations();
-    
     // Create the stack of work for the trheads
-    int length              =linkedListLength(permutations);
+    int length              =linkedListLength(operation.permutations);
+    int numOfThreads        =operation.recipe.numberOfThreads;
 
     dispatcherClearWorkItems();
     for (int i=0;i<numOfThreads; i++)
     {
-        iocWorkItems[i].cipher                =cipher;
-        iocWorkItems[i].permutations          =permutations;
         iocWorkItems[i].startPermutation      =i*length/numOfThreads;
         iocWorkItems[i].endPermutation        =(i+1)*length/numOfThreads-1;
         iocWorkItems[i].R1                    =1;
@@ -1514,32 +1494,52 @@ void prepareWorkM3(char* cipher, int numOfThreads)
 * Prepare work items for M4
 * 
 \**************************************************************************************************/
-
-void prepareWorkM4(char* cipher, int numOfThreads)
+void prepareWorkM4()
 {
     logFatal("Not supported... yet\n");
 }
 
 /**************************************************************************************************\
 * 
-* Tries to decode a cipher only text. 
+* Tries to decode a cipher only text. Recipe defines how decryption takes. If you do not define
+* customPermutations, the software calculates the Walzen permutations based on the enigma (M3 or M4)
+* and the used Walzen set. If you have knowledge on the Walzen that have been used, you can provide
+* your own Walzen permutation.
+* recipe: Recipe to configure the decryption
+* customPermutations: Custom walzen permutation or NULL if all permutations should be tried.
 * 
 \**************************************************************************************************/
-
-void iocDecodeText(char* cipher, int numOfThreads)
+void iocDecodeText(IocRecipe recipe, LinkedList* customPermutations)
 {
+    operation.recipe=recipe;
+    // Initialise the NGRAM scoring
+    if (recipe.ngramSize>0 && strcmp(recipe.ngramSet, "")!=0)
+    {
+        logInfo("Preparing NGRAMs size %d, language %s", recipe.ngramSize, recipe.ngramSet);
+        prepareNgramScore(recipe.ngramSize, recipe.ngramSet);
+    }
+    // Create the permutations of Walzen 
+    if (customPermutations==NULL)
+    {
+        operation.permutations=generateWalzePermutations();
+    }
+    else
+    {
+        operation.permutations=customPermutations;
+    }
+
     iocReportMethod();
     if (operation.recipe.enigmaType==ENIGMATYPE_M3)
     {
-        prepareWorkM3(cipher, numOfThreads);
+        prepareWorkM3();
     }
     else if (operation.recipe.enigmaType==ENIGMATYPE_M4)
     {
-        prepareWorkM4(cipher, numOfThreads);
+        prepareWorkM4();
     }
     else
     {
         logFatal("Error: non existing Enigma\n");
     }
-    dispatcherStartWork(numOfThreads, iocFinishFunction, NULL, true);
+    dispatcherStartWork(operation.recipe.numberOfThreads, iocFinishFunction, NULL, true);
 }

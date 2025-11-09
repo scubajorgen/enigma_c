@@ -4,4 +4,4 @@
 
 
 void            prepareNgramScore       (int n, char* language);
-float           ngramScore              (Enigma* engima, int n);
+float           ngramScore              (Enigma* engima);

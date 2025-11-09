@@ -21,6 +21,7 @@ typedef struct
     float   logChance;          // natural log of the chance
 } NgramFrequency;
 
+int             ngramSize=0;
 NgramFrequency  ngramFrequencies[MAX_NGRAM_SIZE];
 int             ngrams;
 long            minFrequency;
@@ -133,6 +134,7 @@ void readNgramFile(char* fileName, int n, NgramFileFormat format)
 \**************************************************************************************************/
 void prepareNgramScore(int n, char* language)
 {
+    ngramSize=n;
     if (strncmp(language, "DE", 4)==0)
     {
         if (n==1)
@@ -147,12 +149,20 @@ void prepareNgramScore(int n, char* language)
         {
             readNgramFile("ngrams/german_trigrams.txt"  , 3, NGRAM_FREQUENCY);
         }
+        else
+        {
+            ngramSize=0;
+        }
     }
     else if (strncmp(language, "GB", 4)==0)
     {
         if (n==3)
         {
             readNgramFile("ngrams/english_trigrams.txt", 3, NGRAM_FREQUENCY);
+        }
+        else
+        {
+            ngramSize=0;
         }
     }
     else if (strncmp(language, "GC", 4)==0)
@@ -161,6 +171,10 @@ void prepareNgramScore(int n, char* language)
         {
             readNgramFile("ngrams/geocaching_trigrams.txt", 3, NGRAM_FREQUENCY);
         }
+        else
+        {
+            ngramSize=0;
+        }
     }
     else if (strncmp(language, "GC2", 4)==0)
     {
@@ -168,6 +182,14 @@ void prepareNgramScore(int n, char* language)
         {
             readNgramFile("ngrams/geocachingDe_trigrams.txt", 3, NGRAM_FREQUENCY);
         }
+        else
+        {
+            ngramSize=0;
+        }
+    }
+    else
+    {
+        ngramSize=0;
     }
 }
 
@@ -179,7 +201,7 @@ void prepareNgramScore(int n, char* language)
 * Calculate the ngram score. It assumes the array of ngrams is sorted alphabetically
 * 
 \**************************************************************************************************/
-float ngramScore(Enigma* engima, int n)
+float ngramScore(Enigma* engima)
 {
     int     c;
     int     ngram;
@@ -192,12 +214,12 @@ float ngramScore(Enigma* engima, int n)
     
     score   =0;
     c       =0;
-    while (c<engima->textSize-n+1)
+    while (c<engima->textSize-ngramSize+1)
     {
         // Construct the ngram value
         ngram           =0;
         ngramValue      =0;
-        while (ngram<n)
+        while (ngram<ngramSize)
         {
             ngramValue<<=5;
             ngramValue+=engima->conversion[c+ngram];

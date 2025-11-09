@@ -21,9 +21,8 @@ _SRCOBJ	        = enigma.o \
                   steckerbrett.o\
                   turing.o\
                   exampleEnigma.o\
-                  enigmachallenge.o \
-                  crack02.o \
-                  crack03.o \
+                  enigmaChallenge.o \
+                  enigmaGeocaching.o \
                   exampleTuring.o \
                   coincidence.o \
                   exampleCoincidence.o \

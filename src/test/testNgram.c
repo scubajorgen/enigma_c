@@ -26,7 +26,7 @@ void testNgramScore1()
     enigma->conversion[0]='E'-'A';  // ENS - -5.618547
     enigma->conversion[1]='N'-'A';
     enigma->conversion[2]='S'-'A';
-    assertFloatEquals(-5.618547, ngramScore(enigma, 3));   
+    assertFloatEquals(-5.618547, ngramScore(enigma));   
     
     enigma->textSize=8;
     enigma->conversion[0]='E'-'A';  //END -  -5.427283
@@ -38,7 +38,7 @@ void testNgramScore1()
     enigma->conversion[6]='I'-'A';  
     enigma->conversion[7]='C'-'A';
 
-    assertFloatEquals(-51.825572, ngramScore(enigma, 3));   
+    assertFloatEquals(-51.825572, ngramScore(enigma));   
     destroyEnigma(enigma);
     testWrapUp();
 }
@@ -65,14 +65,14 @@ void testNgramScore2()
     {
         enigma->conversion[i]=text01[i]-'A';
     }
-    logDebug("Random text of 100 chars: %f\n", ngramScore(enigma, 3));
-    assertFloatEquals(-1371.680908, ngramScore(enigma, 3)); 
+    logDebug("Random text of 100 chars: %f\n", ngramScore(enigma));
+    assertFloatEquals(-1371.680908, ngramScore(enigma)); 
     for(i=0;i<100;i++)
     {
         enigma->conversion[i]=text02[i]-'A';
     }
-    logDebug("German text of 100 chars: %f\n", ngramScore(enigma, 3));
-    assertFloatEquals(-857.664429, ngramScore(enigma, 3)); 
+    logDebug("German text of 100 chars: %f\n", ngramScore(enigma));
+    assertFloatEquals(-857.664429, ngramScore(enigma)); 
     destroyEnigma(enigma);
     testWrapUp();
 }

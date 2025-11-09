@@ -630,3 +630,72 @@ void dumpDecoded(EnigmaSettings* settings)
     destroyEnigma(enigma);
 }
 
+
+/**************************************************************************************************\
+* 
+* Display decoded text in more digestible format,
+* 
+\**************************************************************************************************/
+// TO DO: improve
+void displayEnigmaMessage(char* message, MessageFormat_t type)
+{
+    switch (type)
+    {
+        default:
+        case MESSAGEFORMAT_TEXT:
+            printf("%s", message);
+            break;
+        // X=. XX=: ZZ=, FRAGE=? FRAQ=? 
+        case MESSAGEFORMAT_WEHRMACHT: 
+            for (int i=0;i<strlen(message);i++)
+            {
+                char c=message[i];
+                if (c=='X' || c=='x')
+                {
+                    if ((i<strlen(message)-1) && (message[i+1]=='X' || message[i+1]=='x'))
+                    {
+                        printf(": ");
+                        i++;
+                    }
+                    else
+                    {
+                        printf(". ");
+                    }
+                }
+                else if (c=='Q')
+                {
+                    printf("CH");
+                }
+                else if (c=='q')
+                {
+                    printf("ch");
+                }
+                else 
+                {
+                    printf("%c", c);
+                }
+            }
+            break;
+        // X=. Y=, UD=? Q=ch CENTA=00 MILLE=000 MYRIA=0000
+        case MESSAGEFORMAT_KRIEGSMARINE:
+            for (int i=0;i<strlen(message);i++)
+            {
+                char c=message[i];
+                if (c=='X' || c=='x')
+                {
+                    printf(". ");
+                }
+                else if (c=='y' || c=='Y')
+                {
+                    printf(", ");
+                }
+                else 
+                {
+                    printf("%c", c);
+                }
+            }
+            break;
+    }
+    printf("\n");
+}
+

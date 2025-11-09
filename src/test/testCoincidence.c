@@ -56,8 +56,10 @@ void testCoincidenceDecodeText1(void)
     strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
     recipe.scoreListSize    =5;
     recipe.numberOfSolutions=1;
-    setOperation(recipe);
-    iocDecodeText(iocTestCipher, 6);
+    recipe.numberOfThreads  =6;
+    recipe.cipher           =iocTestCipher;
+    recipe.displayFormat    =MESSAGEFORMAT_TEXT;
+    iocDecodeText(recipe, NULL);
     testWrapUp();
 }
 
