@@ -11,7 +11,8 @@ void testStart              (char* name);
 void testWrapUp             ();
 
 void assertStringEquals     (char* expected, char* result);
-void assertIntIsNull        (int* result);
+void assertIsNull           (void* result);
+void assertNotNull          (void* result);
 void assertIntEquals        (int expected, int result);
 void assertLongNotEquals    (long notExpected, long result);
 void assertFloatEquals      (float expected, float result);

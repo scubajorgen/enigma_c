@@ -499,7 +499,7 @@ void printEnigmaSettings(EnigmaSettings* settings, char* title)
     printf("# %s\n", title);
     printf("# Cipher/text               : \n");
     printCipher(settings->cipher);
-    printf("# Cipher size               : %ld characters\n", strlen(settings->cipher));
+    printf("# Cipher size               : %d characters\n", (int)strlen(settings->cipher));
     printf("# Number of Walzen          : %d\n", settings->numberOfRotors);
     printf("# Original Walzen           : ");
     printf("%s, ", settings->ukw);

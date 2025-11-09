@@ -24,7 +24,7 @@ void testLinkedListCreate()
     
     // Linked list
     LinkedList* list=createLinkedList();
-    assertLongNotEquals((long)NULL, (long)list);
+    assertNotNull((void*)list);
     
     int i=0;
     while (i<5)
@@ -61,7 +61,7 @@ void testLinkedListCreate()
     assertIntEquals(0, *objectFromList);
     
     objectFromList=(int *)elementAt(list, 6);
-    assertIntIsNull(objectFromList);
+    assertIsNull((void*)objectFromList);
     
     destroyLinkedList(list);
 

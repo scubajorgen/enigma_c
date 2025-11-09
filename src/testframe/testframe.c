@@ -150,7 +150,7 @@ void assertStringEquals(char* expected, char* result)
 * Helper function
 * 
 \**************************************************************************************************/
-void assertIntIsNull(int* result)
+void assertIsNull(void* result)
 {
     if (result==NULL)
     {
@@ -158,7 +158,26 @@ void assertIntIsNull(int* result)
     }
     else
     {
-        logError("Test %s - %-20s (%03d): FAILED! Expected NULL, result was %ld", moduleName, testName, assertionsExecuted, (long)result);
+        logError("Test %s - %-20s (%03d): FAILED! Expected NULL, result was not NULL", moduleName, testName, assertionsExecuted);
+        passed=false;
+    }
+    assertionsExecuted++;
+}
+
+/**************************************************************************************************\
+* 
+* Helper function
+* 
+\**************************************************************************************************/
+void assertNotNull(void* result)
+{
+    if (result!=NULL)
+    {
+        logDebug("Test %s - %-20s (%03d): Passed!", moduleName, testName, assertionsExecuted);
+    }
+    else
+    {
+        logError("Test %s - %-20s (%03d): FAILED! Expected not NULL, result was NULL", moduleName, testName, assertionsExecuted);
         passed=false;
     }
     assertionsExecuted++;
