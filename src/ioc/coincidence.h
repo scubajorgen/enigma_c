@@ -35,10 +35,9 @@
 * DEFINES
 \**************************************************************************************************/
 
-#define TOP_RESULTS_SIZE    500
-#define MAX_THREADS         10
-#define MAX_WORK_ITEMS      32
-#define MAX_NGRAMSETSIZE    5
+#define MAX_THREADS             10
+#define MAX_WORK_ITEMS          32
+#define MAX_NGRAMSETSIZE        5
 
 typedef enum 
 {
@@ -58,18 +57,20 @@ typedef struct
 {
     Enigma_t        enigmaType;
     RotorSet_t      rotorSet;           
-    Depth_t         method;                     // The method
-    Evaluation_t    evalWalzen;                 // Evaluation to use for finding the Walzen, Ringstellungen and Grundstellungen
-    Evaluation_t    evalSteckers;               // Evaluation to use for finding Steckers
-    int             maxSteckers;                // Maximum number of Steckers to try
-    int             maxSteckersInline;          // Maximum number of Steckers to try during finding of rotor positions
-    int             ngramSize;                  // NGRAMS: NGRAM size: 2, 3 or 4
-    char            ngramSet[MAX_NGRAMSETSIZE]; // NGRAM set: "DE", "EN", "GC"
-    int             scoreListSize;              // The number of solutions to take into account for finding Walzen (N1)
-    int             numberOfSolutions;          // The number of solutions to show (N2)
-    int             numberOfThreads;            // Number of threads to use
-    char*           cipher;                     // Cipher to decrypt
-    MessageFormat_t displayFormat;              // Formatting for display of decoded text
+    Depth_t         method;                             // The method
+    Evaluation_t    evalWalzen;                         // Evaluation to use for finding the Walzen, Ringstellungen and Grundstellungen
+    Evaluation_t    evalSteckers;                       // Evaluation to use for finding Steckers
+    int             maxSteckers;                        // Maximum number of Steckers to try
+    int             maxSteckersInline;                  // Maximum number of Steckers to try during finding of rotor positions
+    char            knownSteckers[MAX_STECKER_STRING];  // If steckers are known, mention them here e.g. "AB DE", else "". USE CAPITALS
+    int             ngramSize;                          // NGRAMS: NGRAM size: 2, 3 or 4
+    char            ngramSet[MAX_NGRAMSETSIZE];         // NGRAM set: "DE", "EN", "GC"
+    int             scoreListSize;                      // The number of solutions to take into account for finding Walzen (N1)
+    int             numberOfSolutions;                  // The number of solutions to show (N2)
+    int             numberOfThreads;                    // Number of threads to use
+    char*           cipher;                             // Cipher to decrypt
+    int             cipherSize;                         // Length of the cipher to take into account or MAX_TEXT for full cipher
+    MessageFormat_t displayFormat;                      // Formatting for display of decoded text
 } IocRecipe;
 
 typedef struct
@@ -100,7 +101,7 @@ extern IocWorkItem         iocWorkItems[MAX_WORK_ITEMS];
 extern int                 iocNumberOfWorkItems;
 
 // temp
-extern IocResults          iocTopResults[TOP_RESULTS_SIZE];
+extern IocResults*         iocHighScores;
 extern int                 iocNumberOfResults;
 
 /**************************************************************************************************\
@@ -117,6 +118,8 @@ void        iocWorkerFunction               (int worker, int workItem, void* par
 void        iocFinishFunction               (void* params);
 
 // Public methods
+IocRecipe*  createDefaultRecipe             (char* cipher, int numberOfThreads);
+void        destroyRecipe                   (IocRecipe* recipe);
 void        iocInitialize                   (IocRecipe recipe, LinkedList* permutations);
 void        iocDecodeText                   (IocRecipe recipe, LinkedList* customPermutations);
 void        iocReportMethod                 ();

@@ -41,7 +41,7 @@ int main()
     printf("30.     Geocaching Athens Engima (GCXQHW)           \n");
     printf("31.     Geocaching Enigma nano (GC6ZZBB)            \n");
     printf("32.     Geocaching Enigma nano - reply (GC6ZZBB)    \n");
-    printf("33.     The second problem                          \n");
+    printf("33.     Geocaching Code Breakers (GC6R1M1)          \n");
 
     printf("41-49.  Engima Challenge message 1-9   \n");
     printf("50.     Engima Challenge message 10 - step 1 - brute force\n");
@@ -129,7 +129,7 @@ int main()
             gcEnigmaNanoReply();
             break;
         case 33:
-            theFourthProblem();
+            gcCodeBreakers();
             break;
         case 41:
             message01();

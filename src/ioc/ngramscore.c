@@ -165,6 +165,17 @@ void prepareNgramScore(int n, char* language)
             ngramSize=0;
         }
     }
+    else if (strncmp(language, "NL", 4)==0)
+    {
+        if (n==3)
+        {
+            readNgramFile("ngrams/dutch_trigrams.txt", 3, NGRAM_FREQUENCY);
+        }
+        else
+        {
+            ngramSize=0;
+        }
+    }
     else if (strncmp(language, "GC", 4)==0)
     {
         if (n==3)

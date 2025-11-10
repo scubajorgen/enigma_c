@@ -161,8 +161,8 @@ char replyGC6ZZBB_2[]=
 "KLCNSGWSDRJRZOAKPEZIBBGPOHZHNCZGSVGJNDETUHNJVUIP"
 "WEMRZBDDARDHQYZPZHDJWRADMNSSE";
 
-char text11[]       = "MCIKVFMLPDWBWMLQRVKEYPSFBVYHLSGSYAFZPXZCBFWPEUMWMBUM"
-                      "GCUMKCZPQJEEXEEEWOSBXQJTHQEDNJMSJENPWYSCKWOVPMAYWNQ";
+
+
 
 
 // R: 1 1 1 G: 1 17 12, SB: AZ BY CX DW EV FU GT HS IQ JR
@@ -255,6 +255,7 @@ void gcAthentsEnigma()
     recipe.numberOfSolutions=3;
     recipe.numberOfThreads  =1;
     recipe.cipher           =GCXQHWTest.cipher;
+    recipe.cipherSize       =MAX_TEXT;
     iocDecodeText(recipe, permutations);
 }
 
@@ -299,10 +300,11 @@ void gcEnigmaNano()
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
     strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
-    recipe.scoreListSize    =TOP_RESULTS_SIZE;
+    recipe.scoreListSize    =400;
     recipe.numberOfSolutions=10;
     recipe.numberOfThreads  =numOfThreads;
     recipe.cipher           =textGC6ZZBB;
+    recipe.cipherSize       =MAX_TEXT;
     iocDecodeText(recipe, permutations);
 }
 
@@ -347,26 +349,38 @@ void gcEnigmaNanoReply()
     recipe.maxSteckersInline=0;
     recipe.ngramSize        =0;
     strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
-    recipe.scoreListSize    =TOP_RESULTS_SIZE;
+    recipe.scoreListSize    =400;
     recipe.numberOfSolutions=10;
     recipe.numberOfThreads  =numOfThreads;
     recipe.cipher           =replyGC6ZZBB;
+    recipe.cipherSize       =MAX_TEXT;
     iocDecodeText(recipe, permutations);
 }
 
 
 /**************************************************************************************************\
 * 
-*
+* Geocache Code Breakers, GC6R1M1, level 5
+* Hint: met twee een acht x ab x cd x ef
 *
 \**************************************************************************************************/
-void theFourthProblem()
+
+// Code breakers GC6R1M1
+char textCodeBreakers[]= "MCIKVFMLPDWBWMLQRVKEYPSFBVYHLSGSYAFZPXZCBFWPEUMWMBUM"
+                         "GCUMKCZPQJEEXEEEWOSBXQJTHQEDNJMSJENPWYSCKWOVPMAYWNQ";
+
+void gcCodeBreakers()
 {
+    printf("#####################################################################################\n");
+    printf("# GEOCACHE GC6R1M1, Code Breakers - Level 5\n");
+    printf("#####################################################################################\n");
+
+
     // FROM THE GEOCACHE WE KNOW FOLLOWING:
     // III I II, UKW B, 
     // We create a custom permutations list with just one permutation
-    LinkedList*     permutations=createLinkedList();
-    int*        permutation         =malloc(4*sizeof(int));
+    LinkedList* permutations=createLinkedList();
+    int*        permutation =malloc(4*sizeof(int));
     permutation[0]=1; // Index of UKW B
     permutation[1]=2; // III
     permutation[2]=0; // I
@@ -379,17 +393,21 @@ void theFourthProblem()
     recipe.rotorSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
-    recipe.evalSteckers     =EVAL_NGRAM;
-    recipe.maxSteckers      =10;
-    recipe.maxSteckersInline=5;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =3;
+    recipe.maxSteckersInline=0;
+    strncpy(recipe.knownSteckers, "AB CD EF", MAX_STECKER_STRING-1);
     recipe.ngramSize        =3;
-    strncpy(recipe.ngramSet, "GC", MAX_NGRAMSETSIZE);
-    recipe.numberOfSolutions=10;
+    strncpy(recipe.ngramSet, "NL", MAX_NGRAMSETSIZE);
     recipe.scoreListSize    =25;
+    recipe.numberOfSolutions=5;
     recipe.numberOfThreads  =1;
-//    recipe.cipher           =text11;
-    recipe.cipher           =text11_test;
+    recipe.cipher           =textCodeBreakers;
+    recipe.cipherSize       =MAX_TEXT;
+    recipe.displayFormat    =MESSAGEFORMAT_TEXT;
+//    recipe.cipher           =text11_test;
     iocDecodeText(recipe, permutations);
+
 }
 
 

@@ -15,7 +15,6 @@
 #include "coincidence.h"
 #include "toolbox.h"
 
-
 /**************************************************************************************************\
 * 
 * Example from the original James Gillogly article. 7 steckers
@@ -24,7 +23,6 @@
 * After step 2 (ringstellungen): solution on place 1
 * 
 \**************************************************************************************************/
-
 // The orignal Gillogly cipher text and enigma settings, 7 steckers
 EnigmaSettings iocExampleSettings00=
 {
@@ -60,23 +58,12 @@ EnigmaSettings iocExampleSettings00=
 void iocExample00()
 {
     printEnigmaSettings(&iocExampleSettings00, "INDEX OF COINCIDENCE METHOD EXAMPLE 0 - James Gilloglys' example, 7 steckers");
-
-    IocRecipe recipe;
-    recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
-    recipe.method           =DEPTH_NONE;
-    recipe.evalWalzen       =EVAL_IOC;
-    recipe.evalSteckers     =EVAL_IOC;
-    recipe.maxSteckers      =10;
-    recipe.maxSteckersInline=0;
-    recipe.ngramSize        =0;
-    recipe.ngramSet[0]      ='\0';
-    recipe.scoreListSize    =5;
-    recipe.numberOfSolutions=1;
-    recipe.numberOfThreads  =6;
-    recipe.cipher           =iocExampleSettings00.cipher;
-    recipe.displayFormat    =MESSAGEFORMAT_WEHRMACHT;
-    iocDecodeText(recipe, NULL);
+    IocRecipe* recipe           =createDefaultRecipe(iocExampleSettings00.cipher, 6);
+    recipe->scoreListSize       =5;
+    recipe->numberOfSolutions   =1;
+    recipe->displayFormat       =MESSAGEFORMAT_WEHRMACHT;
+    iocDecodeText(*recipe, NULL);
+    destroyRecipe(recipe);
 }
 
 /**************************************************************************************************\
@@ -123,23 +110,12 @@ EnigmaSettings iocExampleSettings01A=
 void iocExample01Ioc()
 {
     printEnigmaSettings(&iocExampleSettings01A, "INDEX OF COINCIDENCE METHOD EXAMPLE 1 - 8 steckers");
-
-    IocRecipe recipe;
-    recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
-    recipe.method           =DEPTH_NONE;
-    recipe.evalWalzen       =EVAL_IOC;
-    recipe.evalSteckers     =EVAL_IOC;
-    recipe.maxSteckers      =10;
-    recipe.maxSteckersInline=0;
-    recipe.ngramSize        =0;
-    recipe.ngramSet[0]      ='\0';
-    recipe.scoreListSize    =53;
-    recipe.numberOfSolutions=3;
-    recipe.numberOfThreads  =6;
-    recipe.cipher           =iocExampleSettings01A.cipher;
-    recipe.displayFormat    =MESSAGEFORMAT_WEHRMACHT;
-    iocDecodeText(recipe, NULL);
+    IocRecipe* recipe           =createDefaultRecipe(iocExampleSettings00.cipher, 6);
+    recipe->scoreListSize       =53;
+    recipe->numberOfSolutions   =3;
+    recipe->displayFormat       =MESSAGEFORMAT_WEHRMACHT;
+    iocDecodeText(*recipe, NULL);
+    destroyRecipe(recipe);
 }
 
 /**************************************************************************************************\
@@ -153,23 +129,13 @@ void iocExample01Ioc()
 void iocExample01IocR3()
 {
     printEnigmaSettings(&iocExampleSettings01A, "INDEX OF COINCIDENCE METHOD EXAMPLE 1 - 8 steckers");
-
-    IocRecipe recipe;
-    recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
-    recipe.method           =DEPTH_R3;
-    recipe.evalWalzen       =EVAL_IOC;
-    recipe.evalSteckers     =EVAL_IOC;
-    recipe.maxSteckers      =10;
-    recipe.maxSteckersInline=0;
-    recipe.ngramSize        =0;
-    recipe.ngramSet[0]      ='\0';
-    recipe.numberOfSolutions=3;
-    recipe.scoreListSize    =5;
-    recipe.numberOfThreads  =6;
-    recipe.cipher           =iocExampleSettings01A.cipher;
-    recipe.displayFormat    =MESSAGEFORMAT_WEHRMACHT;
-    iocDecodeText(recipe, NULL);
+    IocRecipe* recipe           =createDefaultRecipe(iocExampleSettings00.cipher, 6);
+    recipe->method              =DEPTH_R3;
+    recipe->scoreListSize       =5;
+    recipe->numberOfSolutions   =3;
+    recipe->displayFormat       =MESSAGEFORMAT_WEHRMACHT;
+    iocDecodeText(*recipe, NULL);
+    destroyRecipe(recipe);
 }
 
 /**************************************************************************************************\
@@ -190,12 +156,14 @@ void iocExample01Ngram2()
     recipe.evalSteckers     =EVAL_NGRAM;
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
+    recipe.knownSteckers[0] ='\0';
     recipe.ngramSize        =3;
     strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
     recipe.scoreListSize    =60;
     recipe.numberOfSolutions=3;
     recipe.numberOfThreads  =6;
     recipe.cipher           =iocExampleSettings01A.cipher;
+    recipe.cipherSize       =MAX_TEXT;
     recipe.displayFormat    =MESSAGEFORMAT_WEHRMACHT;
     iocDecodeText(recipe, NULL);
 }
@@ -252,14 +220,16 @@ void iocExample02Ioc()
     recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
-    recipe.ngramSize        =0;
-    strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
-    recipe.scoreListSize    =TOP_RESULTS_SIZE;
+    recipe.knownSteckers[0] ='\0';
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);
+    recipe.scoreListSize    =400;
     recipe.numberOfSolutions=20;
     recipe.numberOfThreads  =6;
     recipe.cipher           =iocExampleSettings02.cipher;
+    recipe.cipherSize       =MAX_TEXT;
     recipe.displayFormat    =MESSAGEFORMAT_WEHRMACHT;
     iocDecodeText(recipe, NULL);
 }
@@ -318,12 +288,14 @@ void iocExample03Ioc()
     recipe.evalSteckers     =EVAL_IOC;
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=0;
+    recipe.knownSteckers[0] ='\0';
     recipe.ngramSize        =0;
     recipe.ngramSet[0]      ='\0';
-    recipe.scoreListSize    =TOP_RESULTS_SIZE;
+    recipe.scoreListSize    =400;
     recipe.numberOfSolutions=1;
     recipe.numberOfThreads  =6;
     recipe.cipher           =iocExampleSettings03.cipher;
+    recipe.cipherSize       =MAX_TEXT;
     recipe.displayFormat    =MESSAGEFORMAT_TEXT;
     iocDecodeText(recipe, NULL);
 }
@@ -364,23 +336,10 @@ EnigmaSettings iocExampleSettings04=
 void iocExample04Ioc()
 {
     printEnigmaSettings(&iocExampleSettings04, "INDEX OF COINCIDENCE METHOD EXAMPLE 3C - Short english text");
-
-    IocRecipe recipe;
-    recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
-    recipe.method           =DEPTH_NONE;
-    recipe.evalWalzen       =EVAL_IOC;
-    recipe.evalSteckers     =EVAL_IOC;
-    recipe.maxSteckers      =10;
-    recipe.maxSteckersInline=0;
-    recipe.ngramSize        =0;
-    recipe.ngramSet[0]      ='\0';
-    recipe.scoreListSize    =TOP_RESULTS_SIZE;
-    recipe.numberOfSolutions=10;
-    recipe.numberOfThreads  =6;
-    recipe.cipher           =iocExampleSettings04.cipher;
-    recipe.displayFormat    =MESSAGEFORMAT_TEXT;
-    iocDecodeText(recipe, NULL);
+    IocRecipe* recipe           =createDefaultRecipe(iocExampleSettings04.cipher, 6);
+    recipe->numberOfSolutions   =10;
+    iocDecodeText(*recipe, NULL);
+    destroyRecipe(recipe);
 }
 
 

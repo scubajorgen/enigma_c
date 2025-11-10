@@ -859,12 +859,14 @@ void message10_step01()
     recipe.evalSteckers     =EVAL_IOC;
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=10;
+    recipe.knownSteckers[0] ='\0';
     recipe.ngramSize        =0;
     recipe.ngramSet[0]      ='\0';
-    recipe.scoreListSize    =TOP_RESULTS_SIZE;
+    recipe.scoreListSize    =400;
     recipe.numberOfSolutions=100;
     recipe.numberOfThreads  =6;
     recipe.cipher           =text10;
+    recipe.cipherSize       =250; // part of the text to save time
     iocDecodeText(recipe, NULL);
 // Results in:
 //    1: UKW B  II   V   I R  1  1 19 G 21  6 25 - AO BV DS EX FT HZ IQ JW KU PR - 0.071871
@@ -938,12 +940,14 @@ void message10_step01Limited()
     recipe.evalSteckers     =EVAL_IOC;
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=10;
+    recipe.knownSteckers[0] ='\0';
     recipe.ngramSize        =0;
     recipe.ngramSet[0]      ='\0';
     recipe.scoreListSize    =50;
     recipe.numberOfSolutions=10;
     recipe.numberOfThreads  =6;
     recipe.cipher           =text10;
+    recipe.cipherSize       =250; // part of the text to save time
     iocDecodeText(recipe, permutations);
 }
 
@@ -971,12 +975,15 @@ void message10_step02()
     recipe.evalSteckers     =EVAL_IOC;
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=10;
+    recipe.knownSteckers[0] ='\0';
     recipe.ngramSize        =0;
     recipe.ngramSet[0]      ='\0';
-    recipe.scoreListSize    =TOP_RESULTS_SIZE;
+    recipe.scoreListSize    =400;
     recipe.numberOfSolutions=10;
     recipe.numberOfThreads  =numOfThreads;
     recipe.cipher           =text10;
+    recipe.cipherSize       =MAX_TEXT;
+    recipe.displayFormat    =MESSAGEFORMAT_TEXT;
 
     // Create the list of permuations: add the solution
     LinkedList* permutations=createLinkedList();
@@ -1069,12 +1076,15 @@ void message10_exp()
     recipe.evalSteckers     =EVAL_IOC;
     recipe.maxSteckers      =10;
     recipe.maxSteckersInline=4;
+    recipe.knownSteckers[0] ='\0';
     recipe.ngramSize        =0;
     recipe.ngramSet[0]      ='\0';
-    recipe.scoreListSize    =TOP_RESULTS_SIZE;
+    recipe.scoreListSize    =400;
     recipe.numberOfSolutions=10;
     recipe.numberOfThreads  =6;
     recipe.cipher           =text10;
+    recipe.cipherSize       =250; // part of the text to save time
+    recipe.displayFormat    =MESSAGEFORMAT_TEXT;
     iocDecodeText(recipe, NULL);
     
 }

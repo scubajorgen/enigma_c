@@ -58,6 +58,7 @@ void testCoincidenceDecodeText1(void)
     recipe.numberOfSolutions=1;
     recipe.numberOfThreads  =6;
     recipe.cipher           =iocTestCipher;
+    recipe.cipherSize       =MAX_TEXT;
     recipe.displayFormat    =MESSAGEFORMAT_TEXT;
     iocDecodeText(recipe, NULL);
     testWrapUp();

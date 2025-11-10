@@ -33,4 +33,4 @@ void    message10_exp   ();
 void    gcAthentsEnigma();
 void    gcEnigmaNano();
 void    gcEnigmaNanoReply();
-void    theFourthProblem();
+void    gcCodeBreakers();
