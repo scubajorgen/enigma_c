@@ -313,6 +313,7 @@ void testEnigmaCounts()
     
     char trigram[3]="AZZ";
     char bigram[2]="ZZ";
+    int  counts[MAX_POSITIONS];
     
     Enigma* enigma=createEnigmaM3();
     
@@ -333,13 +334,15 @@ void testEnigmaCounts()
     enigma->conversion[13]='Z'-'A';
     enigma->conversion[14]='Z'-'A';
     
-    assertIntEquals(4, countLetter(enigma, 'A'));   
-    assertIntEquals(2, countLetter(enigma, 'B'));   
-    assertIntEquals(4, countConvertedChar(enigma, 0));   
-    assertIntEquals(2, countConvertedChar(enigma, 1));   
+    assertIntEquals(4, countLetter(enigma, 'A'));
+    assertIntEquals(2, countLetter(enigma, 'B'));
 
-    assertIntEquals(3, countTrigram(enigma, trigram));   
-    assertIntEquals(4, countNgram(enigma, bigram, 2));   
+    countConvertedChars(enigma, counts);
+    assertIntEquals(4, counts[0]);
+    assertIntEquals(2, counts[1]);
+
+    assertIntEquals(3, countTrigram(enigma, trigram));
+    assertIntEquals(4, countNgram(enigma, bigram, 2));
 
     destroyEnigma(enigma);
     testWrapUp();
@@ -358,12 +361,16 @@ void testEnigmaRandomSettings()
     EnigmaSettings* settings;
     enigma=createEnigmaM3();
     settings=createRandomSettings(enigma, M3_ARMY_1938, 5);
+    // Might fail on other machines
+    // TO DO: solve
     assertIntEquals(3, settings->numberOfRotors);
     destroyEnigmaSettings(settings);
     destroyEnigma(enigma);
 
     enigma=createEnigmaM4();
     settings=createRandomSettings(enigma, M4_NAVAL_1941, 5);
+    // Might fail on other machines
+    // TO DO: solve
     assertIntEquals(4, settings->numberOfRotors);
     destroyEnigmaSettings(settings);
     destroyEnigma(enigma);

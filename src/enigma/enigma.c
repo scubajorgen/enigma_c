@@ -59,18 +59,13 @@ void setText(Enigma* engima, char text[])
 \**************************************************************************************************/
 void advance(Enigma* enigma)
 {
-    int rotor;
-    int revolveNext;        
-    int notch;
-  
     // Advance rotors
-    rotor           =0;
-    revolveNext     =1;
+    int revolveNext     =1;
     // Only the 1st three rotors advance
-    while (rotor<ROTATING_WALZEN && revolveNext)
+    for (int rotor=0; rotor<ROTATING_WALZEN && revolveNext; rotor++)
     {
         revolveNext=0;
-        notch=0;
+        int notch=0;
         while (notch<enigma->numberOfNotches[rotor])
         {
             if (enigma->grundStellung[rotor]==enigma->notches[rotor][notch])
@@ -99,8 +94,6 @@ void advance(Enigma* enigma)
         {
             enigma->grundStellung[rotor]=0;
         }
-        
-        rotor++;
     }
 }
 
@@ -112,17 +105,15 @@ void advance(Enigma* enigma)
 \**************************************************************************************************/
 void reverse(Enigma* enigma)
 {
-    int rotor;
     int test;
     int reverseNext;        
     int notch;
     int found;
     
     // Reverse rotors
-    rotor           =0;
     reverseNext     =1;
     // Only the 1st three rotors advance
-    while (rotor<ROTATING_WALZEN && reverseNext)
+    for (int rotor=0; rotor<ROTATING_WALZEN && reverseNext; rotor++)
     {
         reverseNext=0;
         enigma->grundStellung[rotor]--;
@@ -178,7 +169,6 @@ void reverse(Enigma* enigma)
                 }
             }
         }
-        rotor++;
     }
 }
 
@@ -192,18 +182,16 @@ void reverse(Enigma* enigma)
 \**************************************************************************************************/
 void advances(Enigma* enigma, int steps)
 {
-    int i;
-    
     if (steps>0)
     {
-        for(i = 0; i < steps; i++)
+        for(int i = 0; i < steps; i++)
         {
             advance(enigma);
         }
     }
     else
     {
-        for(i = 0; i < -steps; i++)
+        for(int i = 0; i < -steps; i++)
         {
             reverse(enigma);
         }        
@@ -300,16 +288,10 @@ int encodeCharacter(Enigma* enigma, int theCharacter)
 \**************************************************************************************************/
 void encodeDecode(Enigma* enigma)
 {
-    int charIndex;
-    
-    charIndex=0;
-    while (charIndex<enigma->textSize)
+    for (int charIndex=0; charIndex<enigma->textSize; charIndex++)
     {
         advance(enigma);
-
         enigma->conversion[charIndex]=encodeCharacter(enigma, enigma->text[charIndex]);
-        
-        charIndex++;
     }
 }
 
@@ -359,30 +341,22 @@ int countLetter(Enigma* enigma, char letter)
     return count;
 }
 
-
 /**************************************************************************************************\
 * 
-* Count occurences of specified letter, where the letter is passed as 0-25
+* Count occurences of specified letter
 * 
 \**************************************************************************************************/
-int countConvertedChar(Enigma* enigma, int letter)
+void countConvertedChars(Enigma* enigma, int counts[MAX_POSITIONS])
 {
-    int i;
-    int max;
-    int count;
-    
-    count=0;
-    max=enigma->textSize;
-    i=0;
-    while (i<max)
+    int max     =enigma->textSize;
+    for (int i=0; i<MAX_POSITIONS; i++)
     {
-        if (enigma->conversion[i]==letter)
-        {
-            count++;
-        }
-        i++;
+        counts[i]=0;
     }
-    return count;
+    for (int i=0; i<max; i++)
+    {
+        counts[enigma->conversion[i]]++;
+    }
 }
 
 /**************************************************************************************************\

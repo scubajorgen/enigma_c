@@ -83,7 +83,7 @@ void gcAthentsEnigma()
     // IV III V, UKW B, no steckers R1=1, R2=1, R3=1
     // We create a custom permutations list with just one permutation
     LinkedList*     permutations=createLinkedList();
-    int*        permutation         =malloc(4*sizeof(int));
+    int*            permutation =malloc(4*sizeof(int));
     permutation[0]=1; // Index of UKW B
     permutation[1]=3; // IV
     permutation[2]=2; // III

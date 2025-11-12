@@ -89,39 +89,41 @@ typedef struct
 
 
 // Functions that come in handy for cracking codes
-void                advances                (Enigma* enigma, int steps);
-int                 encodeCharacter         (Enigma* enigma, int theCharacter);
+void                advances                    (Enigma* enigma, int steps);
+int                 encodeCharacter             (Enigma* enigma, int theCharacter);
 
 // Main functions for encoding/decoding
-Enigma*             createEnigmaM3          ();
-Enigma*             createEnigmaM4          ();
-void                destroyEnigma           (Enigma* enigma);
-void                setText                 (Enigma* engima, char text[]);
-void                placeWalze              (Enigma* enigma, int walze, char rotorName[]);
-void                setRingStellung         (Enigma* enigma, int walze, int ringStellung);
-int                 getRingStellung         (Enigma* enigma, int walze);
-void                setRingStellungen       (Enigma* engima, char* ringStellungen);
-void                setGrundStellung        (Enigma* enigma, int walze, int grundStellung);
-int                 getGrundStellung        (Enigma* enigma, int walze);
-void                setGrundStellungen      (Enigma* enigma, char* grundStellungen);
-LinkedList*         getWalzenPermutations   (Enigma_t enigmaType, RotorSet_t rotorSet);
-void                placeUmkehrWalze        (Enigma* engima, char name[]);
-LinkedList*         getUkwPermutations      (Enigma_t enigmaType, RotorSet_t rotorSet);
-void                clearSteckerBrett       (Enigma* engima);
-void                placeSteckers           (Enigma* engima, char steckers[]);
-void                encodeDecode            (Enigma* enigma);
-char*               toString                (Enigma* enigma);
-void                setEnigma               (Enigma* enigma, EnigmaSettings* settings);
-void                printEnigmaSettings     (EnigmaSettings* settings, char* title);
-void                dumpDecoded             (EnigmaSettings* settings);
-void                displayEnigmaMessage    (char* message, MessageFormat_t type);
+Enigma*             createEnigmaM3              ();
+Enigma*             createEnigmaM4              ();
+void                destroyEnigma               (Enigma* enigma);
+void                setText                     (Enigma* engima, char text[]);
+void                placeWalze                  (Enigma* enigma, int walze, char rotorName[]);
+void                setRingStellung             (Enigma* enigma, int walze, int ringStellung);
+int                 getRingStellung             (Enigma* enigma, int walze);
+void                setRingStellungen           (Enigma* engima, char* ringStellungen);
+void                setGrundStellung            (Enigma* enigma, int walze, int grundStellung);
+int                 getGrundStellung            (Enigma* enigma, int walze);
+void                setGrundStellungen          (Enigma* enigma, char* grundStellungen);
+LinkedList*         getWalzenPermutations       (Enigma_t enigmaType, RotorSet_t rotorSet);
+void                placeUmkehrWalze            (Enigma* engima, char name[]);
+LinkedList*         getUkwPermutations          (Enigma_t enigmaType, RotorSet_t rotorSet);
+void                clearSteckerBrett           (Enigma* engima);
+void                placeSteckers               (Enigma* engima, char steckers[]);
+int                 steckersToSteckerbrettTable (char steckers[], int* steckerBrettTable);
+void                steckerbrettTableToSteckers (int *steckerBrettTable, char steckers[]);
+void                encodeDecode                (Enigma* enigma);
+char*               toString                    (Enigma* enigma);
+void                setEnigma                   (Enigma* enigma, EnigmaSettings* settings);
+void                printEnigmaSettings         (EnigmaSettings* settings, char* title);
+void                dumpDecoded                 (EnigmaSettings* settings);
+void                displayEnigmaMessage        (char* message, MessageFormat_t type);
 
-EnigmaSettings*     createRandomSettings    (Enigma* enigma, RotorSet_t rotorSet, int numberOfSteckers);
-void                destroyEnigmaSettings   (EnigmaSettings* settings);
+EnigmaSettings*     createRandomSettings        (Enigma* enigma, RotorSet_t rotorSet, int numberOfSteckers);
+void                destroyEnigmaSettings       (EnigmaSettings* settings);
 
-int                 countLetter             (Enigma* enigma, char letter);
-int                 countConvertedChar      (Enigma* enigma, int  letter);
-int                 countTrigram            (Enigma* enigma, char* trigram);
-int                 countNgram              (Enigma* enigma, char* ngram, int n);
+int                 countLetter                 (Enigma* enigma, char letter);
+void                countConvertedChars         (Enigma* enigma, int counts[MAX_POSITIONS]);
+int                 countTrigram                (Enigma* enigma, char* trigram);
+int                 countNgram                  (Enigma* enigma, char* ngram, int n);
 
 #endif

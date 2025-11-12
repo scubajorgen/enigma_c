@@ -318,6 +318,7 @@ void testToolboxRandomIndices()
     srand(1);
     selectRandomIndices     (available, 7, 3, resultingIndices);
     // Note: might fail on other Systems
+    // TO DO: improve
     assertIntEquals(5, resultingIndices[0]);
     assertIntEquals(2, resultingIndices[1]);
     assertIntEquals(4, resultingIndices[2]);

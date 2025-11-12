@@ -41,6 +41,7 @@ _TESTSRCOBJ     = testframe.o \
                   testUkw.o \
                   testSteckerbrett.o \
                   testEnigma.o \
+                  testEnigmaPerformance.o \
                   testTuring.o \
                   testCoincidence.o \
                   testNgram.o
