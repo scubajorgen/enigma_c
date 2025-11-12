@@ -1069,16 +1069,6 @@ void iocFinishFunction(void* params)
         logInfo("Finding final steckers for result %d", i);
         iocFindSteckeredChars(&iocHighScores[i], maxSteckers);
     }
-
-    // Show the final result 
-    printf("FOUND SOLUTION: \n");
-    iocDumpHighScores(operation.recipe.numberOfSolutions, true);
-
-    if (operation.permutations!=NULL)
-    {
-        destroyLinkedList(operation.permutations);
-    }
-    destroyHighScoreList();
 }
 
 /**************************************************************************************************\
@@ -1338,7 +1328,20 @@ void iocDecodeText(IocRecipe recipe, LinkedList* customPermutations)
     {
         logFatal("Error: non existing Enigma\n");
     }
+    // Start work, distribute it over the threads. 
+    // This function returns if all threads finished their work
+    // and the iocFinishFunction has been executed.
     dispatcherStartWork(operation.recipe.numberOfThreads, iocFinishFunction, NULL, true);
+
+    // Show the final result 
+    printf("FOUND SOLUTION: \n");
+    iocDumpHighScores(operation.recipe.numberOfSolutions, true);
+
+    if (operation.permutations!=NULL)
+    {
+        destroyLinkedList(operation.permutations);
+    }
+    destroyHighScoreList();
 }
 
 /**************************************************************************************************\

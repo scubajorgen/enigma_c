@@ -131,6 +131,9 @@ int main()
         case 33:
             gcCodeBreakers();
             break;
+        case 34:
+            gcEnigma();
+            break;
         case 41:
             message01();
             break;

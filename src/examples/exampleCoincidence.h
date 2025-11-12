@@ -34,3 +34,4 @@ void    gcAthentsEnigma();
 void    gcEnigmaNano();
 void    gcEnigmaNanoReply();
 void    gcCodeBreakers();
+void    gcEnigma();

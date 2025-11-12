@@ -1,6 +1,11 @@
 #ifndef TEST_H
 #define TEST_H
 
+extern char testTextGerman[];
+extern char testTextMax[];
+extern char testTextRandom[];
+
+
 void testToolbox            ();
 void testLinkedList         ();
 void testWorkDispatcher     ();
