@@ -46,19 +46,6 @@ char* expected01=
 * 
 \**************************************************************************************************/
 
-char testTextRandom[]="TLTILVLISZYYBNJVXERIOHFHZNCAHXWEMZOYIAODVSTGJVUNYC"
-                      "XUJTGQIGJBGLOIJBHXMTTOPCBZMMWIVEUIPRCZDUIGGHOPZSEC"
-                      "UDBJNWHLYNMYPVKJSBZNSNDYNVVUWRVRBVHOEVXYBERZTBRPJT"
-                      "PCFPFIKFMFIXXFYXWOZZHWSEJIFJRXVGFUDOCPAWBUXYOQZLVT";
-char testTextMax[]   ="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                      "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                      "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                      "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-char testTextGerman[]="DADIEDEUTSCHENMILITARSEINEWIEDERHOLUNGDERINZWISCHE"
-                      "NBEKANNTGEWORDENENKRYPTOGRAPHISCHENKATASTROPHEDESE"
-                      "RSTENWELTKRIEGSUNBEDINGTVERMEIDENWOLLTENBETRACHTET"
-                      "ENSIEDIENEUEARTDERMASCHINELLENVERSCHLUSSELUNGALSDI";
-
 void testCoincidenceIndexOfCoincidence(void)
 {
     float ioc;
@@ -70,7 +57,7 @@ void testCoincidenceIndexOfCoincidence(void)
     {
         enigma->conversion[i]=testTextRandom[i]-'A';
     }
-    enigma->textSize=strlen(testTextRandom);
+    enigma->textSize=200;
     ioc=iocIndexOfCoincidence(enigma);
     logInfo("IOC Random text %f", ioc);
     assertFloatEquals(0.038442, ioc);

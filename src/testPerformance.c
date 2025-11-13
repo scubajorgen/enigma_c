@@ -20,24 +20,8 @@
 int main()
 {
     setLogLevel(LOGLEVEL_INFO);
-    testSessionStart("ENGIMA MODULES");
-
-    // Generics
-    testLinkedList();
-    testToolbox();
-    testWorkDispatcher();
-
-    // Enigma
-    testWalze();
-    testUkw();
-    testSteckerbrett();
-    testEnigma();
-
-    // Solving/decrypting
-    testNgram();
-    testCoincidence();
-    testTuring();
-
+    testSessionStart("ENGIMA PERFORMANCE TEST");
+    testEnigmaPerformance();
     testSessionWrapUp();
     return 0;
 }

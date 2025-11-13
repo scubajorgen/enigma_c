@@ -1,8 +1,10 @@
 /.vscode
 /enigma
 /test
+/testPerformance
 /enigma.exe
 /test.exe
+/testPerformance.exe
 /obj/
 /backup/
 /output/

@@ -10,6 +10,61 @@
 #include "testframe.h"
 #include "toolbox.h"
 
+
+// 1000 chars
+char testTextRandom[]="TLTILVLISZYYBNJVXERIOHFHZNCAHXWEMZOYIAODVSTGJVUNYC"
+                      "XUJTGQIGJBGLOIJBHXMTTOPCBZMMWIVEUIPRCZDUIGGHOPZSEC"
+                      "UDBJNWHLYNMYPVKJSBZNSNDYNVVUWRVRBVHOEVXYBERZTBRPJT"
+                      "PCFPFIKFMFIXXFYXWOZZHWSEJIFJRXVGFUDOCPAWBUXYOQZLVT"
+                      "SCWLAMRHUZKENQKETAWZFUYXXXDDTGUBDDOPYYTVEOKCGVNVTY"
+                      "GLSPPYJXPBLLCNIFOIEREIKGLDGTBKGQNNKIKKKBQZZGKZDHGU"
+                      "FEGWLVTRTUHRBDKKOAYYNCJSPFEMBMRGWMBLHESRQPOMCPDNMK"
+                      "IUDVKYOFCZGPGKOHUXQRDOKELYARFWIBRGCLHDCXFQOXHSWWDS"
+                      "BZNKYYPZCSATQTHCWOGSWNWRRFGBJLORWBYFKLVQNGGSNPUWXC"
+                      "YYTOPNLDUDDFMPSOFARDUTRUDAFJGFYOCTXNUVAXIQGRGHSANZ"
+                      "MHLFLSFOJRNKGLHPEACGPOTCESQCNNKMYNNKKMCADQJJENBCHC"
+                      "QADKGWDEZJASPOTQFJUKMUDEOIJOHHNKOZGGJTHZAZWATWSCAR"
+                      "VZUQUJCWIVKTPTBWNKFWFVNBTUKOXGGHCGYYZYQVMVXWJZNGYW"
+                      "SEXRLKKEUGEXMCIPADSUBCAQQOTVTMBNOBOPHRPQGTBKUBHLCM"
+                      "VTYHNBPORKOCFFEFETFWEWUAKLJKSKRSDMHIJMPBJKZBUAANOS"
+                      "DBSJMXNMEJSSDNEXWFHKGHVYEIIXNFYNAWKIKKTCPQVMUWPAFL"
+                      "NWEWVIMNNEJXADIHCSQJEHLPBEMGHAGQLCEHFRIOZXWCALIAVX"
+                      "FWTXFNFLNQYQGECVQOJKVYNGLJNAVMTNAHQSIUXMBBXQUQGEDK"
+                      "DCKPZYHWSSTBJLNJULWOYKALPBTQAEUGVJONKOZNZPQOXKMIDE"
+                      "GCETLJVUESNSOSCVVLVAKDCBGAWXBVHMFIABYQRJQHEJYTXMBF";
+// 200 chars
+char testTextMax[]   ="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                      "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                      "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                      "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+// 200 chars
+char testTextGerman[]="DADIEDEUTSCHENMILITARSEINEWIEDERHOLUNGDERINZWISCHE"
+                      "NBEKANNTGEWORDENENKRYPTOGRAPHISCHENKATASTROPHEDESE"
+                      "RSTENWELTKRIEGSUNBEDINGTVERMEIDENWOLLTENBETRACHTET"
+                      "ENSIEDIENEUEARTDERMASCHINELLENVERSCHLUSSELUNGALSDI";
+
+char longTextExpected[]=
+                    "RCGYXHBPLODPQOERWVDDYLAOTKTNZQEMUIUOKNJEBWOBISTBGU"
+                    "YIYXOJZIHPRZFWWPAFWFSVJFYVDZJLQYXRJKKDYQVWXGSQUFOU"
+                    "QQRHUOFYTJHGONBLBSNBHRELPQITJQKCPXUDSPLNYOBKVVBORY"
+                    "XMDAKUWAZINQKONFNJNARLXGAJDHYCGXGQAGJXOEJVKQVCQPLK"
+                    "PTCXYLBCNLSIKRLSHUKQKMCHDCCLADKPEGUILAGUXADAXIWOGG"
+                    "PBMZFAUTWCMHLQQMEKJQPDXAYOEVYLUZPYTLCRRKYTSYWFMPKY"
+                    "ASIFTFYTVVLTQBWEJUDQCNYGHRIULFESGAECZMLSTETKLLUIZL"
+                    "ZYEUNBXLPPDAJECJNAPAUKAPKNKLVUCGNTVQTIGBQPZDTQSFKK"
+                    "JKQONXHTVRWHRWBWLVLYKWEGBTIRUOINSROSIPRGMHANFEOFKY"
+                    "ZIUXTJHYJBQWDYCEODEROHHSPNAESXNMQIOIORMRZCXWVQCGBC"
+                    "XSSCGGBJDLVPVRDRBNMJDBQXJPMECOFEFDDRLFSWCYUWJREGPE"
+                    "RCZCPTSYVHSVHFDINOYLBZQZUTRANPJWYXZMIVMQHPIVOIQYZM"
+                    "SMTYQELLUFFPAUPUEYTNGEYKZDQUMJLDRIWZPNPUZBNVIWSZXC"
+                    "NBTATWDDJDUCILPCUSGYKOCNFSMQLZSCCTBRQNEEPBSIETTJJP"
+                    "XREOJZAALUSQGVAYGDQLOJNQOPLIBCDUSAZWQPWAQVAPECLCTZ"
+                    "LLAPSAWNAZPDNZCFJYGDZCTJYPBZIBZBYXSPRRMEOYGZWRFDEB"
+                    "CSWBYOYTCWSMDPPETWPXFYTCIIZFEQEUHEMVOGYGCSQWPGUFPO"
+                    "CCAJKFPTKYBUZPNWMZCCXIEBFZEXXFYOWVIWSZHCHMIRLYNSPP"
+                    "WBOSMIDNNMDKQFFAHZSMOLTYTIYZQLAMWKEYPHQGKJBRPBLEHL"
+                    "MVTPMLINLGYQUIURZDZSMUQREGGTKKFOODEKAWTUAKVMNVFWSD";
+
 /**************************************************************************************************\
 * 
 * Test the Engima M3
@@ -80,6 +135,42 @@ void testEnigmaM3(void)
     destroyEnigma(enigma);  
     testWrapUp();
 }
+
+/**************************************************************************************************\
+* 
+* Long text (1000 char) so the left most rotor has been advanced at least 1 position
+* 
+\**************************************************************************************************/
+void testEngimaM3Long()
+{
+    testStart("Enigma M3 Long");
+    // Test 1
+    Enigma* enigma=createEnigmaM3();
+    setText(enigma, testTextRandom);
+    placeWalze(enigma, 1, "VI");
+    placeWalze(enigma, 2, "I");
+    placeWalze(enigma, 3, "III");
+    
+    placeUmkehrWalze(enigma, "UKW B");
+    
+    setRingStellung(enigma, 1, 1);
+    setRingStellung(enigma, 2, 3);
+    setRingStellung(enigma, 3, 2);
+
+    setGrundStellung(enigma, 1, 1);
+    setGrundStellung(enigma, 2, 17);
+    setGrundStellung(enigma, 3, 12);
+
+    clearSteckerBrett(enigma);
+    placeSteckers(enigma, "bq cr di ej kw mt os px uz gh");
+    encodeDecode(enigma);
+
+    char* result=toString(enigma);
+    assertStringEquals(longTextExpected, result);
+
+    testWrapUp();
+}
+
 
 /**************************************************************************************************\
 * 
@@ -423,6 +514,7 @@ void testEnigma()
 {
     moduleTestStart("Enigma");
     testEnigmaM3();
+    testEngimaM3Long();
     testEnigmaM4();
     testEnigmaDoubleStep();
     testEnigmaAdvanceReverse();

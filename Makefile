@@ -46,20 +46,26 @@ _TESTSRCOBJ     = testframe.o \
                   testCoincidence.o \
                   testNgram.o
 
+# Main programm
 _MAINOBJ        = main.o
 
+# Module tests
 _TESTOBJ        = test.o 
+
+# Performance tests
+_TESTPERFOBJ    =testPerformance.o
 
 SRCOBJ          = $(patsubst %,$(OBJDIR)/%,$(_SRCOBJ))
 TESTSRCOBJ      = $(patsubst %,$(OBJDIR)/%,$(_TESTSRCOBJ))
 MAINOBJ         = $(patsubst %,$(OBJDIR)/%,$(_MAINOBJ))
 TESTOBJ         = $(patsubst %,$(OBJDIR)/%,$(_TESTOBJ))
+TESTPERFOBJ     = $(patsubst %,$(OBJDIR)/%,$(_TESTPERFOBJ))
 
 OBJ             = $(MAINOBJ) $(SRCOBJ) $(TESTOBJ)
 
 VPATH = ./src ./src/generics ./src/enigma ./src/turing ./src/ioc ./src/various ./src/examples ./src/testframe ./src/test
 
-all: enigma test
+all: enigma test testPerformance
 
 enigma: $(MAINOBJ) $(SRCOBJ) 
 	$(CC) $(LDFLAGS) -o $@ $(MAINOBJ) $(SRCOBJ) $(LIBS)
@@ -67,9 +73,12 @@ enigma: $(MAINOBJ) $(SRCOBJ)
 test: $(TESTOBJ) $(SRCOBJ) $(TESTSRCOBJ)
 	$(CC) $(LDFLAGS) -o $@ $(TESTOBJ) $(SRCOBJ) $(TESTSRCOBJ) $(LIBS)
 
+testPerformance: $(TESTPERFOBJ) $(SRCOBJ) $(TESTSRCOBJ)
+	$(CC) $(LDFLAGS) -o $@ $(TESTPERFOBJ) $(SRCOBJ) $(TESTSRCOBJ) $(LIBS)
+
 $(OBJDIR)/%.o:%.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 
 clean:
-	 rm -f $(OBJDIR)/*.o enigma test enigma.exe test.exe
+	 rm -f $(OBJDIR)/*.o enigma test testPerformance enigma.exe test.exe testPerformance.exe

@@ -13,9 +13,10 @@ void testWalze              ();
 void testUkw                ();
 void testSteckerbrett       ();
 void testEnigma             ();
-void testEnigmaPerformance  ();
 void testCoincidence        ();
 void testTuring             ();
 void testNgram              ();
+
+void testEnigmaPerformance  ();
 
 #endif
