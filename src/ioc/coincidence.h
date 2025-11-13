@@ -2,11 +2,11 @@
 * 
 * This module implents the index-of-coincidence method of James Gillogly
 * (http://web.archive.org/web/20060720040135/http://members.fortunecity.com/jpeschel/gillog1.htm)
-* Different from the original article, this software tries all rotor settings, 
+* Different from the original article, this software tries all Walze settings, 
 * RingStellungen included 
 *
 * Basically, the method consists of following steps
-* 1. Finding the rotor position and Grundstellung with the best IoC value, fixed Ringstellung (1-1-1)
+* 1. Finding the Walze position and Grundstellung with the best IoC value, fixed Ringstellung (1-1-1)
 * 2. Finding the best Ringstellung/Grundstellung with the best IoC value
 * 3. Finding the steckers resulting in the best IoC value
 *
@@ -56,12 +56,12 @@ typedef enum
 typedef struct
 {
     Enigma_t        enigmaType;
-    RotorSet_t      rotorSet;           
+    WalzeSet_t      walzeSet;           
     Depth_t         method;                             // The method
     Evaluation_t    evalWalzen;                         // Evaluation to use for finding the Walzen, Ringstellungen and Grundstellungen
     Evaluation_t    evalSteckers;                       // Evaluation to use for finding Steckers
     int             maxSteckers;                        // Maximum number of Steckers to try
-    int             maxSteckersInline;                  // Maximum number of Steckers to try during finding of rotor positions
+    int             maxSteckersInline;                  // Maximum number of Steckers to try during finding of Walze positions
     char            knownSteckers[MAX_STECKER_STRING];  // If steckers are known, mention them here e.g. "AB DE", else "". USE CAPITALS
     int             ngramSize;                          // NGRAMS: NGRAM size: 2, 3 or 4
     char            ngramSet[MAX_NGRAMSETSIZE];         // NGRAM set: "DE", "EN", "GC"
@@ -114,7 +114,7 @@ int         iocIndexOfCoincidenceFast       (Enigma* enigma);
 void        iocEvaluateEngimaSettings       (IocWorkItem* work);
 void        iocFindSteckeredChars           (IocResults* results, int maxNumOfSteckers);
 void        iocFindSteckeredCharsNgram      (IocResults* results, int maxNumOfSteckers, int ngramSize);
-void        iocFindRingStellung             (IocResults*  results, int startRotor, int endRotor);
+void        iocFindRingStellung             (IocResults*  results, int startWalze, int endWalze);
 void        iocWorkerFunction               (int worker, int workItem, void* params);
 void        iocFinishFunction               (void* params);
 

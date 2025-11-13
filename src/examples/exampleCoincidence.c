@@ -18,7 +18,7 @@
 /**************************************************************************************************\
 * 
 * Example from the original James Gillogly article. 7 steckers
-* After step 1 (rotor position): solution on place 2 of the list
+* After step 1 (Walze position): solution on place 2 of the list
 * Note on place 1 is a UKW C solution; Gillogly did not ake UKW C into account in his example
 * After step 2 (ringstellungen): solution on place 1
 * 
@@ -150,7 +150,7 @@ void iocExample01Ngram2()
 
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.walzeSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_NGRAM;
@@ -216,7 +216,7 @@ void iocExample02Ioc()
 
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.walzeSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
@@ -243,7 +243,7 @@ void iocExample02Ioc()
 \**************************************************************************************************/
 
 // Some pretty large english message with only 4 steckers
-// rotor 3 just before step
+// Walze 3 just before step
 EnigmaSettings iocExampleSettings03=
 {
     3,
@@ -282,7 +282,7 @@ void iocExample03Ioc()
 
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.walzeSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
@@ -306,7 +306,7 @@ void iocExample03Ioc()
 * Works pretty well. Result is almost correct:
 * ENIGMA MESSAGES CAN BE SOLVXD BY RECOVERING THE MESSAGE KEE SETTINGS THE RING SETTINGS ANY THE 
 * PLUG SETTINGS INDIVIDUALTY RECOVERY OF THE MESSAGE KEY SATTING IS SENSITIVE ENOUGH TO DMSTINGUISH
-* THE CORRECT ROTOR OUDER
+* THE CORRECT WALZE OUDER
 * 
 \**************************************************************************************************/
 

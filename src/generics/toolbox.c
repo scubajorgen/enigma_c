@@ -251,7 +251,7 @@ LinkedList* combinePermutations(LinkedList* list1, int permutation1Size, LinkedL
 * TO DO: incorporate beta and gamma walzen at the right spot
 * 
 \**************************************************************************************************/
-LinkedList* createRotorPermutations(int numberOfWalzen, int numberToChooseFrom)
+LinkedList* createWalzePermutations(int numberOfWalzen, int numberToChooseFrom)
 {
     LinkedList* permutations;
     permutations=createLinkedList();

@@ -2,7 +2,7 @@
 * 
 * This module implents the index-of-coincidence method of James Gillogly
 * (http://web.archive.org/web/20060720040135/http://members.fortunecity.com/jpeschel/gillog1.htm)
-* Different from the original article, this software can also try *all* rotor settings, 
+* Different from the original article, this software can also try *all* Walze settings, 
 * RingStellungen included.
 *
 \**************************************************************************************************/
@@ -36,8 +36,8 @@
 typedef struct
 {
     IocRecipe       recipe;
-    LinkedList*     permutations;               // List of rotor permutations
-    int             numOfRotors;                // The number of Walzen (3 or 4)
+    LinkedList*     permutations;               // List of Walze permutations
+    int             numOfWalzen;                // The number of Walzen (3 or 4)
     int             knownSteckerBrett[MAX_POSITIONS];
     int             numberOfKnownSteckers;
 } Operation;
@@ -259,7 +259,7 @@ void iocDumpHighScores(int number, bool withDecode)
         printf("%2d: %s %3s %3s %3s R %2d %2d %2d G %2d %2d %2d - %s - %f\n",
                i+1,
                settings->ukw,
-               settings->rotors[0], settings->rotors[1], settings->rotors[2],
+               settings->walzen[0], settings->walzen[1], settings->walzen[2],
                settings->ringStellungen[0], settings->ringStellungen[1], settings->ringStellungen[2],
                settings->grundStellungen[0], settings->grundStellungen[1], settings->grundStellungen[2],
                settings->steckers,
@@ -329,12 +329,12 @@ void printFoundLetters(int s1Max, int s2Max, int s1aMax, int s2aMax, float maxIo
 
 /**************************************************************************************************\
 * 
-* After the rotor settings and Ringstellungs have been found, this method finds the steckers. 
+* After the Walze settings and Ringstellungs have been found, this method finds the steckers. 
 * It uses the Index of Coincidence or NGRAM as measure of plain text fitness
 * It uses a 'hill climbing algorithm': try a stecker on each pair of unsteckered letters and
 * calculate de IoC. Place the one with the highest IoC. Proceed to the next round until the
 * requested number of steckers has been placed or no better IoC can be found.
-* This function is meant to be called after the rotor settings and Ringstellungs have been established 
+* This function is meant to be called after the Walze settings and Ringstellungs have been established 
 * (Gillogly method)
 *
 * Steckering: if on a location a stecker is already present, this stecker is removed
@@ -355,7 +355,7 @@ void iocFindSteckeredChars(IocResults* results, int maxNumOfSteckers)
     Enigma* enigma=createEnigmaM3();
     setEnigma(enigma, &results->settings);
     
-    // The IoC found by just moving the rotors, no steckers
+    // The IoC found by just moving the Walzen, no steckers
     //float maxIoc          =results->indexOfCoincidence;
     // Just reset the max; needed when switching from IoC to NGRAMs 
     float maxIoc          =MIN_IOC;
@@ -500,7 +500,7 @@ void iocFindSteckeredChars(IocResults* results, int maxNumOfSteckers)
 
 /**************************************************************************************************\
 * 
-* This method is meant to try to find best stecker settings for each rotor setting. 
+* This method is meant to try to find best stecker settings for each Walze setting. 
 * To be used inline
 * 
 \**************************************************************************************************/
@@ -673,15 +673,15 @@ void iocFindSteckeredCharsInline(Enigma* enigma, IocResults* results, int g1, in
 * This method processes the indicated Walzen permutations with UKW. It looks for the setting with
 * the best index of coincidence or ngram score. The best solutions are stored in the Top 10. 
 * Whereas the original James Gillogly method fixed the R1, R2 and R3 setting and tries to find the 
-* best R2 and R3 setting after the rotor settings have been found, this function might also vary
+* best R2 and R3 setting after the Walze settings have been found, this function might also vary
 * the R2 and R3 setting. Takes more time, but all settings are tried.
 *
 * Set to 0 to just try Walzen positions and use Index of Coincidence (original Gillogly method).
 *
 * Set to >0 to try to find the best steckers for each Walzen position.
-* For each rotor setting the steckers are tried, which makes this very slow.
+* For each Walze setting the steckers are tried, which makes this very slow.
 * Best approach is to fix R2 to one setting, and try to find the best result. Then finalize 
-* by trying all R2 for the found rotor setting.
+* by trying all R2 for the found Walze setting.
 * Works for short messages and >5 steckers
 * 
 \**************************************************************************************************/
@@ -752,9 +752,9 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
         permutation=(int*)elementAt(permutations, w);
         placeUmkehrWalze(enigma, umkehrWalzeNames[permutation[0]]);
 
-        placeWalze(enigma, 1, rotorNames[permutation[1]]);
-        placeWalze(enigma, 2, rotorNames[permutation[2]]);
-        placeWalze(enigma, 3, rotorNames[permutation[3]]);
+        placeWalze(enigma, 1, walzeNames[permutation[1]]);
+        placeWalze(enigma, 2, walzeNames[permutation[2]]);
+        placeWalze(enigma, 3, walzeNames[permutation[3]]);
         placeUmkehrWalze(enigma, umkehrWalzeNames[permutation[0]]);
 
         time(&now);
@@ -822,12 +822,12 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
                             if (ioc>iocMax)
                             {
                                 results->indexOfCoincidence         =ioc;
-                                results->settings.numberOfRotors    =3;
+                                results->settings.numberOfWalzen    =3;
                                 strncpy(results->settings.cipher, cipher, MAX_TEXT-1);
-                                strncpy(results->settings.rotors[0], rotorNames[permutation[1]], MAX_ROTOR_NAME-1);
-                                strncpy(results->settings.rotors[1], rotorNames[permutation[2]], MAX_ROTOR_NAME-1);
-                                strncpy(results->settings.rotors[2], rotorNames[permutation[3]], MAX_ROTOR_NAME-1);
-                                strncpy(results->settings.ukw, umkehrWalzeNames[permutation[0]], MAX_ROTOR_NAME-1);
+                                strncpy(results->settings.walzen[0], walzeNames[permutation[1]], MAX_WALZE_NAME-1);
+                                strncpy(results->settings.walzen[1], walzeNames[permutation[2]], MAX_WALZE_NAME-1);
+                                strncpy(results->settings.walzen[2], walzeNames[permutation[3]], MAX_WALZE_NAME-1);
+                                strncpy(results->settings.ukw, umkehrWalzeNames[permutation[0]], MAX_WALZE_NAME-1);
                                 results->settings.ringStellungen[0] =r1;
                                 results->settings.ringStellungen[1] =r2;
                                 results->settings.ringStellungen[2] =r3;
@@ -868,8 +868,8 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
 
 /**************************************************************************************************\
 * 
-* In the original Gillogly method, rotors are found assuming Ringstellung 1-1-1. After finding
-* the rotors and Grundstellung, the Ringstellung is found by varying the Ringstellungen and 
+* In the original Gillogly method, Walzen are found assuming Ringstellung 1-1-1. After finding
+* the Walzen and Grundstellung, the Ringstellung is found by varying the Ringstellungen and 
 * calculating the index of coincidence. First the 26 positions for R3 are tried. The best 
 * solution is selected. Then the 26 positions of R2 are tried. The best solution is selected.
 * 
@@ -878,7 +878,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
 * This improved version simulates the allowed Walzen combinations.
 * 
 \**************************************************************************************************/
-void iocFindRingStellung(IocResults*  results, int startRotor, int endRotor)
+void iocFindRingStellung(IocResults*  results, int startWalze, int endWalze)
 {
     int             steps;
     int             ring;
@@ -889,9 +889,9 @@ void iocFindRingStellung(IocResults*  results, int startRotor, int endRotor)
 
     EnigmaSettings* settings    =&results->settings;
     Enigma*         enigma      =createEnigmaM3();
-    for (int rotor=endRotor;rotor>=startRotor; rotor--)
+    for (int walze=endWalze;walze>=startWalze; walze--)
     {
-        int   maxR      =settings->ringStellungen[rotor-1];
+        int   maxR      =settings->ringStellungen[walze-1];
         int   maxG1     =settings->grundStellungen[0];
         int   maxG2     =settings->grundStellungen[1];
         int   maxG3     =settings->grundStellungen[2];
@@ -906,9 +906,9 @@ void iocFindRingStellung(IocResults*  results, int startRotor, int endRotor)
             }            
             setEnigma(enigma, settings);
 
-            setRingStellung(enigma, rotor, ring);
+            setRingStellung(enigma, walze, ring);
             
-            steps=ipow(MAX_POSITIONS, enigma->numberOfRotors-rotor)*inc;
+            steps=ipow(MAX_POSITIONS, enigma->numberOfWalzen-walze)*inc;
             advances(enigma, steps);
 
             g1=getGrundStellung(enigma, 1);
@@ -938,9 +938,9 @@ void iocFindRingStellung(IocResults*  results, int startRotor, int endRotor)
         settings->grundStellungen[0]        =maxG1;
         settings->grundStellungen[1]        =maxG2;
         settings->grundStellungen[2]        =maxG3;
-        settings->ringStellungen[rotor-1]   =maxR;
+        settings->ringStellungen[walze-1]   =maxR;
         results->indexOfCoincidence         =maxIoc;
-        logInfo("Rotor %d: best Ringstellung %2d, best Grundstellung %2d %2d %2d - IoC %f", rotor, maxR, maxG1, maxG2, maxG3, maxIoc);
+        logInfo("Walze %d: best Ringstellung %2d, best Grundstellung %2d %2d %2d - IoC %f", walze, maxR, maxG1, maxG2, maxG3, maxIoc);
     }
     destroyEnigma(enigma);
 }
@@ -982,34 +982,34 @@ void iocFinishFunction(void* params)
     Depth_t method  =operation.recipe.method; 
     int maxSteckers =operation.recipe.maxSteckers;
 
-    // We now have a list of rotor settings sorted on IoC
+    // We now have a list of Walze settings sorted on IoC
     iocDumpHighScores(operation.recipe.scoreListSize, false);
 
     // First see if there are any ringstellungen left to find
     switch (method)
     {
         case DEPTH_R2_R3:
-            // Now we have got the Top 10 best results for rotor position and Ringstellung R1 R2 R3
+            // Now we have got the Top 10 best results for Walze position and Ringstellung R1 R2 R3
             // Nothing to be done here
             break;
         case DEPTH_R3:
-            // Now we have got the Top 10 best results for rotor position and Ringstellung R1 R3
+            // Now we have got the Top 10 best results for Walze position and Ringstellung R1 R3
             // Try to find
             // - Ringstellung R2
             for (int i=0; i<iocNumberOfResults; i++)
             {
-                // find ringstellung for rotor R2
+                // find ringstellung for Walze R2
                 logInfo("Finding ring setting R2 for %d", i);
                 iocFindRingStellung(&iocHighScores[i], 2, 2);
             }
             break;           
         case DEPTH_NONE:
-            // Now we have got the Top 10 best results for rotor position and Ringstellung R1
+            // Now we have got the Top 10 best results for Walze position and Ringstellung R1
             // Try to find
             // - Ringstellung R2 and R3
             for (int i=0; i<iocNumberOfResults; i++)
             {
-                // find ringstellung for rotor R2 and R3
+                // find ringstellung for Walze R2 and R3
                 logInfo("Finding ring setting R2 and R3 for %d", i);
                 iocFindRingStellung(&iocHighScores[i], 2, 3);
             }
@@ -1044,7 +1044,7 @@ void iocFinishFunction(void* params)
 * int 2: Walze 2
 * int 3: Walze 3
 * int 4: Walze 4
-* The index is the index in rotorNames resp. umkerhWalzenNames!
+* The index is the index in walzeNames resp. umkerhWalzenNames!
 * 
 \**************************************************************************************************/
 LinkedList* generateWalzePermutations(IocRecipe recipe)
@@ -1053,17 +1053,17 @@ LinkedList* generateWalzePermutations(IocRecipe recipe)
     LinkedList* walzenPermutations      =NULL;
     LinkedList* permutations            =NULL;
 
-    walzenPermutations  =getWalzenPermutations(recipe.enigmaType, recipe.rotorSet);
-    ukwPermutations     =getUkwPermutations   (recipe.enigmaType, recipe.rotorSet);
+    walzenPermutations  =getWalzenPermutations(recipe.enigmaType, recipe.walzeSet);
+    ukwPermutations     =getUkwPermutations   (recipe.enigmaType, recipe.walzeSet);
     if (recipe.enigmaType==ENIGMATYPE_M4)
     {
-        operation.numOfRotors=4;
+        operation.numOfWalzen=4;
     }
     else
     {
-        operation.numOfRotors=3;
+        operation.numOfWalzen=3;
     }
-    permutations=combinePermutations(ukwPermutations, 1, walzenPermutations, operation.numOfRotors);
+    permutations=combinePermutations(ukwPermutations, 1, walzenPermutations, operation.numOfWalzen);
     destroyPermutations(walzenPermutations);
     destroyPermutations(ukwPermutations);
     return permutations;
@@ -1098,7 +1098,7 @@ void iocReportMethod()
             break;
     }
 
-    switch (operation.recipe.rotorSet)
+    switch (operation.recipe.walzeSet)
     {
         case M3_ENIGMA1_1930:
             printf("# Walzen                      : Enigma 1, 3 walzen\n");
@@ -1126,7 +1126,7 @@ void iocReportMethod()
             printf("# Method                      : Keeping R1 fixed\n");
             break;
     }
-    printf("# Evaluation for rotor        : ");
+    printf("# Evaluation for Walze        : ");
     switch (operation.recipe.evalWalzen)
     {
         case EVAL_IOC:
@@ -1311,7 +1311,7 @@ IocRecipe* createDefaultRecipe(char* cipher, int numberOfThreads)
 {
     IocRecipe* recipe=malloc(sizeof(IocRecipe));
     recipe->enigmaType          =ENIGMATYPE_M3;
-    recipe->rotorSet            =M3_ARMY_1938;
+    recipe->walzeSet            =M3_ARMY_1938;
     recipe->method              =DEPTH_NONE;
     recipe->evalWalzen          =EVAL_IOC;
     recipe->evalSteckers        =EVAL_IOC;

@@ -138,7 +138,7 @@ void testEnigmaM3(void)
 
 /**************************************************************************************************\
 * 
-* Long text (1000 char) so the left most rotor has been advanced at least 1 position
+* Long text (1000 char) so the left most Walze has been advanced at least 1 position
 * 
 \**************************************************************************************************/
 void testEngimaM3Long()
@@ -221,7 +221,7 @@ void testEnigmaM4(void)
 
 /**************************************************************************************************\
 *
-* Test The double step thing for rotor 2
+* Test The double step thing for Walze 2
 * QPP -> QPQ -> QQR -> RRS -> RRT -> RRU -> ...
 * 
 \**************************************************************************************************/
@@ -275,61 +275,61 @@ void testEnigmaAdvanceReverse()
     setGrundStellung(enigma, 3, 'D');
     clearSteckerBrett(enigma);
     
-    // Rotor 3
+    // Walze 3
     advances(enigma, 1);
     assertIntEquals('Q', stellungToChar(getGrundStellung(enigma, 1)));
     assertIntEquals('U', stellungToChar(getGrundStellung(enigma, 2)));
     assertIntEquals('E', stellungToChar(getGrundStellung(enigma, 3)));
     
-    // Rotor 1, 2, 3
+    // Walze 1, 2, 3
     advances(enigma, 1);
     assertIntEquals('Q', stellungToChar(getGrundStellung(enigma, 1)));
     assertIntEquals('V', stellungToChar(getGrundStellung(enigma, 2)));
     assertIntEquals('F', stellungToChar(getGrundStellung(enigma, 3)));
 
-    // Rotor 2, 3 (double step of rotor 2)
+    // Walze 2, 3 (double step of Walze 2)
     advances(enigma, 1);
     assertIntEquals('R', stellungToChar(getGrundStellung(enigma, 1)));
     assertIntEquals('W', stellungToChar(getGrundStellung(enigma, 2)));
     assertIntEquals('G', stellungToChar(getGrundStellung(enigma, 3)));
 
-    // Rotor 3
+    // Walze 3
     advances(enigma, 1);
     assertIntEquals('R', stellungToChar(getGrundStellung(enigma, 1)));
     assertIntEquals('W', stellungToChar(getGrundStellung(enigma, 2)));
     assertIntEquals('H', stellungToChar(getGrundStellung(enigma, 3)));
 
-    // Rotor 3
+    // Walze 3
     advances(enigma, 1);
     assertIntEquals('R', stellungToChar(getGrundStellung(enigma, 1)));
     assertIntEquals('W', stellungToChar(getGrundStellung(enigma, 2)));
     assertIntEquals('I', stellungToChar(getGrundStellung(enigma, 3)));
 
-    // Rotor 3 reverses
+    // Walze 3 reverses
     advances(enigma, -1);
     assertIntEquals('R', stellungToChar(getGrundStellung(enigma, 1))); 
     assertIntEquals('W', stellungToChar(getGrundStellung(enigma, 2))); 
     assertIntEquals('H', stellungToChar(getGrundStellung(enigma, 3)));
 
-    // Rotor 3 reverses
+    // Walze 3 reverses
     advances(enigma, -1);
     assertIntEquals('R', stellungToChar(getGrundStellung(enigma, 1))); 
     assertIntEquals('W', stellungToChar(getGrundStellung(enigma, 2))); 
     assertIntEquals('G', stellungToChar(getGrundStellung(enigma, 3)));
 
-    // Rotor 2, 3 (double step) reverse
+    // Walze 2, 3 (double step) reverse
     advances(enigma, -1);
     assertIntEquals('Q', stellungToChar(getGrundStellung(enigma, 1))); // R
     assertIntEquals('V', stellungToChar(getGrundStellung(enigma, 2))); // W
     assertIntEquals('F', stellungToChar(getGrundStellung(enigma, 3)));
 
-    // Rotor 1, 2, 3 reverse
+    // Walze 1, 2, 3 reverse
     advances(enigma, -1);
     assertIntEquals('Q', stellungToChar(getGrundStellung(enigma, 1)));
     assertIntEquals('U', stellungToChar(getGrundStellung(enigma, 2)));
     assertIntEquals('E', stellungToChar(getGrundStellung(enigma, 3)));
 
-    // Rotor 3 reverse -> returned to start position
+    // Walze 3 reverse -> returned to start position
     advances(enigma, -1);
     assertIntEquals('Q', stellungToChar(getGrundStellung(enigma, 1)));
     assertIntEquals('U', stellungToChar(getGrundStellung(enigma, 2)));
@@ -454,7 +454,7 @@ void testEnigmaRandomSettings()
     settings=createRandomSettings(enigma, M3_ARMY_1938, 5);
     // Might fail on other machines
     // TO DO: solve
-    assertIntEquals(3, settings->numberOfRotors);
+    assertIntEquals(3, settings->numberOfWalzen);
     destroyEnigmaSettings(settings);
     destroyEnigma(enigma);
 
@@ -462,7 +462,7 @@ void testEnigmaRandomSettings()
     settings=createRandomSettings(enigma, M4_NAVAL_1941, 5);
     // Might fail on other machines
     // TO DO: solve
-    assertIntEquals(4, settings->numberOfRotors);
+    assertIntEquals(4, settings->numberOfWalzen);
     destroyEnigmaSettings(settings);
     destroyEnigma(enigma);
     testWrapUp();

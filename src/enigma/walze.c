@@ -1,6 +1,6 @@
 /**************************************************************************************************\
 *
-* This file implements the functions and definitions of the Enigma Walze, or rotors
+* This file implements the functions and definitions of the Enigma Walzen, or rotors
 * 
 \**************************************************************************************************/
 #include <stdio.h>
@@ -11,7 +11,7 @@
 #include "log.h"
 #include "toolbox.h"
 
-char    rotorNames[ROTORS][MAX_ROTOR_NAME]=
+char    walzeNames[WALZEN][MAX_WALZE_NAME]=
 {
     "I",
     "II",
@@ -21,11 +21,11 @@ char    rotorNames[ROTORS][MAX_ROTOR_NAME]=
     "VI",
     "VII",
     "VIII",
-    "Beta", // 4th rotor in M4
-    "Gamma" // 4th roter in M4
+    "Beta", // 4th Walze in M4
+    "Gamma" // 4th Walze in M4
 };
 
-char    tables[ROTORS][MAX_POSITIONS]=
+char    tables[WALZEN][MAX_POSITIONS]=
 {
     {
         'E','K','M','F','L','G','D','Q','V','Z','N','T','O','W','Y','H','X','U','S','P','A','I','B','R','C','J'
@@ -66,7 +66,7 @@ int                 notchPosition1[]={'Q','E','V','J','Z','Z','Z','Z','?','?'};
 int                 notchPosition2[]={'?','?','?','?','?','M','M','M','?','?'};
 
 
-int rotorSets[MAX_ROTOR_SETS][ROTORS]=
+int walzeSets[MAX_WALZE_SETS][WALZEN]=
 {
     { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
     { 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
@@ -74,7 +74,7 @@ int rotorSets[MAX_ROTOR_SETS][ROTORS]=
     { 1, 1, 1, 1, 1, 1, 1, 1, 0, 0}
 };
 
-int fourthRotorSets[MAX_ROTOR_SETS][ROTORS]=
+int fourthWalzeSets[MAX_WALZE_SETS][WALZEN]=
 {
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -85,32 +85,32 @@ int fourthRotorSets[MAX_ROTOR_SETS][ROTORS]=
 
 /**************************************************************************************************\
 * 
-* Place the given rotor at given position
+* Place the given Walze at given position
 * enigima: enigma definition
-* walze    : rotor position counted from left to right (1..4)
-* rotorName: name of the rotor to place, like 'I', 'VI' 
+* walze    : Walze position counted from left to right (1..4)
+* walzeName: name of the Walze to place, like 'I', 'VI' 
 * 
 \**************************************************************************************************/
-void placeWalze(Enigma* enigma, int walze, char rotorName[])
+void placeWalze(Enigma* enigma, int walze, char walzeName[])
 {
-    int     pos     =enigma->numberOfRotors-walze;
+    int     pos     =enigma->numberOfWalzen-walze;
     bool    found   =false;
-    for (int index=0; index<ROTORS && !found; index++)
+    for (int index=0; index<WALZEN && !found; index++)
     {
-        if (!strcmp(rotorName, rotorNames[index]))
+        if (!strcmp(walzeName, walzeNames[index]))
         {
             found=true;
             
             if ((index==8 || index==9) && 
-                (enigma->numberOfRotors<4 || (enigma->numberOfRotors==4 && walze!=1)))
+                (enigma->numberOfWalzen<4 || (enigma->numberOfWalzen==4 && walze!=1)))
             {
-                logError("Beta and Gamma rotors are only allowed on position 1 of Enigma M4");
+                logError("Beta and Gamma Walzen are only allowed on position 1 of Enigma M4");
             }
             
             for (int j=0; j<MAX_POSITIONS; j++)
             {
-                enigma->rotorFunction[pos][j]                           =tables[index][j]-'A';
-                enigma->rotorInverseFunction[pos][tables[index][j]-'A'] =j;
+                enigma->walzeFunction[pos][j]                           =tables[index][j]-'A';
+                enigma->walzeInverseFunction[pos][tables[index][j]-'A'] =j;
             }
             enigma->notches[pos][0]=notchPosition1[index]-'A';
             if (hasSecondNotch[index])
@@ -135,13 +135,13 @@ void placeWalze(Enigma* enigma, int walze, char rotorName[])
 * 
 * Set the Ringstellung of the Walze at given position
 * enigima: enigma definition
-* walze: rotor position counted from left to right (1..4)
+* walze  : Walze position counted from left to right (1..4)
 * ringStellung: the Ringstellung. Supported: "12", "G" or "G" or "g"
 *
 \**************************************************************************************************/
 void setRingStellung(Enigma* enigma, int walze, int ringStellung)
 {
-    int pos=enigma->numberOfRotors-walze;
+    int pos=enigma->numberOfWalzen-walze;
     enigma->ringStellung[pos]=stellungToPos(ringStellung);
 }
 
@@ -152,7 +152,7 @@ void setRingStellung(Enigma* enigma, int walze, int ringStellung)
 \**************************************************************************************************/
 int getRingStellung(Enigma* enigma, int walze)
 {
-    int pos=enigma->numberOfRotors-walze;
+    int pos=enigma->numberOfWalzen-walze;
     return posToStellung(enigma->ringStellung[pos]);
 }
 
@@ -165,16 +165,16 @@ int getRingStellung(Enigma* enigma, int walze)
 
 void setRingStellungen(Enigma* enigma, char* ringStellungen)
 {
-    int numberOfRotors=enigma->numberOfRotors;
+    int numberOfWalzen=enigma->numberOfWalzen;
     
-    if (strlen(ringStellungen)==numberOfRotors*3-1)
+    if (strlen(ringStellungen)==numberOfWalzen*3-1)
     {
-        for (int rotor=0; rotor<enigma->numberOfRotors; rotor++)
+        for (int walze=0; walze<enigma->numberOfWalzen; walze++)
         {
-            int stellung=(ringStellungen[rotor*3]-'0')*10+(ringStellungen[rotor*3+1]-'0');
+            int stellung=(ringStellungen[walze*3]-'0')*10+(ringStellungen[walze*3+1]-'0');
             if (stellung>=1 && stellung<=26)
             {
-                enigma->ringStellung[numberOfRotors-rotor-1]=stellung-1;
+                enigma->ringStellung[numberOfWalzen-walze-1]=stellung-1;
             }
             else
             {
@@ -182,18 +182,18 @@ void setRingStellungen(Enigma* enigma, char* ringStellungen)
             }    
         }
     }
-    else if (strlen(ringStellungen)==numberOfRotors*2-1)
+    else if (strlen(ringStellungen)==numberOfWalzen*2-1)
     {
-        for (int rotor=0; rotor<enigma->numberOfRotors; rotor++)
+        for (int walze=0; walze<enigma->numberOfWalzen; walze++)
         {
-            enigma->ringStellung[numberOfRotors-rotor-1]=stellungToPos(ringStellungen[rotor*2]);
+            enigma->ringStellung[numberOfWalzen-walze-1]=stellungToPos(ringStellungen[walze*2]);
         }
     }
-    else if (strlen(ringStellungen)==numberOfRotors)
+    else if (strlen(ringStellungen)==numberOfWalzen)
     {
-        for (int rotor=0; rotor<enigma->numberOfRotors; rotor++)
+        for (int walze=0; walze<enigma->numberOfWalzen; walze++)
         {
-            enigma->ringStellung[numberOfRotors-rotor-1]=stellungToPos(ringStellungen[rotor]);
+            enigma->ringStellung[numberOfWalzen-walze-1]=stellungToPos(ringStellungen[walze]);
         }
     }
     else
@@ -209,7 +209,7 @@ void setRingStellungen(Enigma* enigma, char* ringStellungen)
 \**************************************************************************************************/
 void setGrundStellung(Enigma* enigma, int walze, int grundStellung)
 {
-    int pos=enigma->numberOfRotors-walze;
+    int pos=enigma->numberOfWalzen-walze;
     enigma->grundStellung[pos]=stellungToPos(grundStellung);
 }
 
@@ -220,7 +220,7 @@ void setGrundStellung(Enigma* enigma, int walze, int grundStellung)
 \**************************************************************************************************/
 int getGrundStellung(Enigma* enigma, int walze)
 {
-    int pos=enigma->numberOfRotors-walze;
+    int pos=enigma->numberOfWalzen-walze;
     return posToStellung(enigma->grundStellung[pos]);
 }
 
@@ -231,16 +231,16 @@ int getGrundStellung(Enigma* enigma, int walze)
 \**************************************************************************************************/
 void setGrundStellungen(Enigma* enigma, char* grundStellungen)
 {
-    int numberOfRotors=enigma->numberOfRotors;
-    if (strlen(grundStellungen)==numberOfRotors*3-1)
+    int numberOfWalzen=enigma->numberOfWalzen;
+    if (strlen(grundStellungen)==numberOfWalzen*3-1)
     {
 
-        for (int rotor=0; rotor<enigma->numberOfRotors; rotor++)
+        for (int walze=0; walze<enigma->numberOfWalzen; walze++)
         {
-            int stellung=(grundStellungen[rotor*3]-'0')*10+(grundStellungen[rotor*3+1]-'0');
+            int stellung=(grundStellungen[walze*3]-'0')*10+(grundStellungen[walze*3+1]-'0');
             if (stellung>=1 && stellung<=26)
             {
-                enigma->grundStellung[numberOfRotors-rotor-1]=stellung-1;
+                enigma->grundStellung[numberOfWalzen-walze-1]=stellung-1;
             }
             else
             {
@@ -248,19 +248,19 @@ void setGrundStellungen(Enigma* enigma, char* grundStellungen)
             }    
         }
     }
-    else if (strlen(grundStellungen)==numberOfRotors*2-1)
+    else if (strlen(grundStellungen)==numberOfWalzen*2-1)
     {
-        for (int rotor=0; rotor<enigma->numberOfRotors; rotor++)
+        for (int walze=0; walze<enigma->numberOfWalzen; walze++)
         {
-            enigma->grundStellung[numberOfRotors-rotor-1]=stellungToPos(grundStellungen[rotor*2]);
-            rotor++;
+            enigma->grundStellung[numberOfWalzen-walze-1]=stellungToPos(grundStellungen[walze*2]);
+            walze++;
         }
     }
-    else if (strlen(grundStellungen)==numberOfRotors)
+    else if (strlen(grundStellungen)==numberOfWalzen)
     {
-        for (int rotor=0; rotor<enigma->numberOfRotors; rotor++)
+        for (int walze=0; walze<enigma->numberOfWalzen; walze++)
         {
-            enigma->grundStellung[numberOfRotors-rotor-1]=stellungToPos(grundStellungen[rotor]);
+            enigma->grundStellung[numberOfWalzen-walze-1]=stellungToPos(grundStellungen[walze]);
         }
     }
     else
@@ -272,35 +272,35 @@ void setGrundStellungen(Enigma* enigma, char* grundStellungen)
 
 /**************************************************************************************************\
 * 
-* Given the rotorSet, returns a linked list with all valid permutations of the rotors in the set
-* For the M4 the 1st rotor is chosed from the fourthRotorSets, for the remaining rotors (2-4) a 
-* selection is made from the regular rotorSets
+* Given the walzeSet, returns a linked list with all valid permutations of the Walzen in the set
+* For the M4 the 1st Walze is chosed from the fourthWalzeSets, for the remaining Walzen (2-4) a 
+* selection is made from the regular walzeSets
 * User must destroy permutations after use, using destoryPermutations()
 * 
 \**************************************************************************************************/
-LinkedList* getWalzenPermutations(Enigma_t enigmaType, RotorSet_t rotorSet)
+LinkedList* getWalzenPermutations(Enigma_t enigmaType, WalzeSet_t walzeSet)
 {
     LinkedList* permutations=NULL;
-    int indices[ROTORS];
+    int indices[WALZEN];
     int count;
 
     // Sanity checks
-    if ((enigmaType==ENIGMATYPE_M3) && (rotorSet==M4_NAVAL_1941))
+    if ((enigmaType==ENIGMATYPE_M3) && (walzeSet==M4_NAVAL_1941))
     {
-        logFatal("Illegal combination of M3 Engima and Naval rotor set");
+        logFatal("Illegal combination of M3 Engima and Naval Walze set");
     }
-    if ((enigmaType==ENIGMATYPE_M4) && (rotorSet!=M4_NAVAL_1941))
+    if ((enigmaType==ENIGMATYPE_M4) && (walzeSet!=M4_NAVAL_1941))
     {
-        logFatal("Illegal combination of M4 Engima and rotor set for M3");
+        logFatal("Illegal combination of M4 Engima and Walze set for M3");
     }
 
     if (enigmaType==ENIGMATYPE_M4)
     {
-        // Rotor 1 (thin one)
+        // Walze 1 (thin one)
         count=0;
-        for (int i=0; i<ROTORS; i++)
+        for (int i=0; i<WALZEN; i++)
         {
-            if (fourthRotorSets[rotorSet][i]>0)
+            if (fourthWalzeSets[walzeSet][i]>0)
             {
                 indices[count]=i;
                 count++;
@@ -308,11 +308,11 @@ LinkedList* getWalzenPermutations(Enigma_t enigmaType, RotorSet_t rotorSet)
         }
         LinkedList* permutations1=createPermutations(indices, count, 1);
 
-        // Rotor 2-4 (normal)
+        // Walze 2-4 (normal)
         count=0;
-        for (int i=0; i<ROTORS; i++)
+        for (int i=0; i<WALZEN; i++)
         {
-            if (rotorSets[rotorSet][i]>0)
+            if (walzeSets[walzeSet][i]>0)
             {
                 indices[count]=i;
                 count++;
@@ -325,11 +325,11 @@ LinkedList* getWalzenPermutations(Enigma_t enigmaType, RotorSet_t rotorSet)
     }
     else if (enigmaType==ENIGMATYPE_M3)
     {
-        // Rotors 1-3
+        // Walzen 1-3
         count=0;
-        for (int i=0; i<ROTORS; i++)
+        for (int i=0; i<WALZEN; i++)
         {
-            if (rotorSets[rotorSet][i]>0)
+            if (walzeSets[walzeSet][i]>0)
             {
                 indices[count]=i;
                 count++;

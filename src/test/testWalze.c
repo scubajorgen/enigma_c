@@ -23,14 +23,14 @@ void testWalzePlaceWalze()
     placeWalze(enigma, 2, "II");
     placeWalze(enigma, 3, "III");
 
-    // Walze 3 is stored in rotorFunction[0]
-    assertIntEquals( 1, enigma->rotorFunction[0][ 0]); // III: B = 1
-    assertIntEquals( 3, enigma->rotorFunction[0][ 1]); // III: D = 3
-    assertIntEquals(14, enigma->rotorFunction[0][25]); // III: O = 14
+    // Walze 3 is stored in walzeFunction[0]
+    assertIntEquals( 1, enigma->walzeFunction[0][ 0]); // III: B = 1
+    assertIntEquals( 3, enigma->walzeFunction[0][ 1]); // III: D = 3
+    assertIntEquals(14, enigma->walzeFunction[0][25]); // III: O = 14
 
-    assertIntEquals(0, enigma->rotorFunction[1][ 0]); // II  : A = 0
+    assertIntEquals(0, enigma->walzeFunction[1][ 0]); // II  : A = 0
 
-    assertIntEquals(9, enigma->rotorFunction[2][25]); // I   : J = 9
+    assertIntEquals(9, enigma->walzeFunction[2][25]); // I   : J = 9
 
     destroyEnigma(enigma);
 
@@ -40,12 +40,12 @@ void testWalzePlaceWalze()
     placeWalze(enigma, 3, "IV");
     placeWalze(enigma, 4, "III");
 
-    // Walze 3 is stored in rotorFunction[0]
-    assertIntEquals( 1, enigma->rotorFunction[0][ 0]); // III: B = 1
-    assertIntEquals( 3, enigma->rotorFunction[0][ 1]); // III: D = 3
-    assertIntEquals(14, enigma->rotorFunction[0][25]); // III: O = 14
+    // Walze 3 is stored in walzeFunction[0]
+    assertIntEquals( 1, enigma->walzeFunction[0][ 0]); // III: B = 1
+    assertIntEquals( 3, enigma->walzeFunction[0][ 1]); // III: D = 3
+    assertIntEquals(14, enigma->walzeFunction[0][25]); // III: O = 14
 
-    assertIntEquals(9, enigma->rotorFunction[3][25]); // I   : J = 9
+    assertIntEquals(9, enigma->walzeFunction[3][25]); // I   : J = 9
 
     destroyEnigma(enigma);
     testWrapUp();

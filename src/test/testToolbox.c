@@ -169,7 +169,7 @@ void testToolboxPermute()
 
 /**************************************************************************************************\
 * 
-* Test the rotorPermutation function
+* Test the walzePermutation function
 * 
 \**************************************************************************************************/
 void testToolboxCreatePermutations()
@@ -210,7 +210,7 @@ void testToolboxCreatePermutations()
 
 /**************************************************************************************************\
 * 
-* Test the rotorPermutation function
+* Test the walzePermutation function
 * 
 \**************************************************************************************************/
 void testToolboxCombinePermutations()
@@ -272,16 +272,16 @@ void testToolboxCombinePermutations()
 
 /**************************************************************************************************\
 * 
-* Test the rotorPermutation function
+* Test the walzePermutation function
 * 
 \**************************************************************************************************/
-void testToolboxRotorPermutations()
+void testToolboxWalzePermutations()
 {
-    testStart("rotorPermutation");
+    testStart("walzePermutation");
     LinkedList* list;
     int*        permutation;
 
-    list=createRotorPermutations(3, 5);
+    list=createWalzePermutations(3, 5);
     
     assertIntEquals(60, linkedListLength(list));
     
@@ -338,7 +338,7 @@ void testToolbox()
     testToolboxPermute();
     testToolboxCreatePermutations();
     testToolboxCombinePermutations();
-    testToolboxRotorPermutations();
+    testToolboxWalzePermutations();
     testToolboxRandomIndices();
     moduleTestWrapUp();
 }

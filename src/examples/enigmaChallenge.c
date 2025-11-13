@@ -299,10 +299,10 @@ void message01()
 /**************************************************************************************************\
 * 
 * Enigma Challenge message 1
-* All info given, except rotor order. Leaves 6 possibilies
+* All info given, except Walze order. Leaves 6 possibilies
 * 
 \**************************************************************************************************/
-char message02Walzen[][MAX_ROTOR_NAME]  ={"I", "III", "V"};
+char message02Walzen[][MAX_WALZE_NAME]  ={"I", "III", "V"};
 int message02Indices[]                  ={0, 1, 2};
 
 void message02()
@@ -840,7 +840,7 @@ void message09()
 * 
 * Enigma Challenge message 10 step 1 - brute force
 * Vary
-* * Rotors
+* * Walzen
 * * Ringstellung R3
 * * Grundstellungen
 * * Steckers
@@ -853,7 +853,7 @@ void message10_step01()
     printf("#####################################################################################\n");
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.walzeSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_R3;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
@@ -934,7 +934,7 @@ void message10_step01Limited()
     // Define recipe
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.walzeSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_R3;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
@@ -969,7 +969,7 @@ void message10_step02()
     // Create the recipe for the solver
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.walzeSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
@@ -996,7 +996,7 @@ void message10_step02()
 
     iocInitialize(recipe, permutations);
 
-	// STEP 2: NOW TRY FOR THE BEST ROTOR SETTINGS OF STEP 01 AND VARY ALL R2
+	// STEP 2: NOW TRY FOR THE BEST WALZE SETTINGS OF STEP 01 AND VARY ALL R2
     dispatcherClearWorkItems();
     for (int i=0;i<numOfThreads;i++)
     {
@@ -1037,7 +1037,7 @@ void message10_exp()
     
     numOfThreads=4;
 	
-    permutations=createRotorPermutations(3, 5);
+    permutations=createWalzePermutations(3, 5);
   
 
 	// TEST
@@ -1057,7 +1057,7 @@ void message10_exp()
         iocWorkItems[i].startR2             =1;
         iocWorkItems[i].endR2               =1;
         iocWorkItems[i].maxCipherChars      =MAX_TEXT;
-        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_ROTOR_NAME);
+        strncpy(iocWorkItems[i].ukw, "UKW B", MAX_WALZE_NAME);
         dispatcherPushWorkItem(iocWorkerFunction, &iocWorkItems[i]); 
         i++;
     }
@@ -1070,7 +1070,7 @@ void message10_exp()
 // TODO
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.walzeSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;

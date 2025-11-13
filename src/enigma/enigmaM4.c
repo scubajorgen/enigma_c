@@ -17,7 +17,7 @@
 Enigma* createEnigmaM4(void)
 {
     Enigma* enigma                  =malloc(sizeof(Enigma));
-    enigma->numberOfRotors  =4;
+    enigma->numberOfWalzen  =4;
     return enigma;
 }
 

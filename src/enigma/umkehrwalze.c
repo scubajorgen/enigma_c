@@ -11,7 +11,7 @@
 #include "log.h"
 #include "toolbox.h"
 
-char umkehrWalzeNames[UMKEHR_WALZEN][MAX_ROTOR_NAME]=
+char umkehrWalzeNames[UMKEHR_WALZEN][MAX_WALZE_NAME]=
 {
     "UKW A",  // Used before WWII
     "UKW B",
@@ -41,7 +41,7 @@ int umkehrWalzeTables[UMKEHR_WALZEN][MAX_POSITIONS]=
 
 
 // The sets of UKWs
-int ukwSets[MAX_ROTOR_SETS][UMKEHR_WALZEN]=
+int ukwSets[MAX_WALZE_SETS][UMKEHR_WALZEN]=
 {
     { 0, 1, 1, 0, 0},
     { 0, 1, 1, 0, 0},
@@ -66,7 +66,7 @@ void placeUmkehrWalze(Enigma* enigma, char name[])
         
         if (!strcmp(name, umkehrWalzeNames[index]))
         {
-            if ((index==3 || index==4) && (enigma->numberOfRotors<4))
+            if ((index==3 || index==4) && (enigma->numberOfWalzen<4))
             {
                 printf("UKW B2 an C2 are only allowed on Engima M4\n");
             }
@@ -85,32 +85,32 @@ void placeUmkehrWalze(Enigma* enigma, char name[])
 
 /**************************************************************************************************\
 * 
-* Given the rotorSet, returns a linked list with all valid permutations of the rotors in the set
-* For the M4 the 1st rotor is chosed from the fourthRotorSets, for the remaining rotors (2-4) a 
-* selection is made from the regular rotorSets.
+* Given the walzeSet, returns a linked list with all valid permutations of the Walzen in the set
+* For the M4 the 1st Walze is chosed from the fourthWalzeSets, for the remaining Walzen (2-4) a 
+* selection is made from the regular walzeSets.
 * User must destroy permutations after use, using destoryPermutations()
 * 
 \**************************************************************************************************/
-LinkedList* getUkwPermutations(Enigma_t enigmaType, RotorSet_t rotorSet)
+LinkedList* getUkwPermutations(Enigma_t enigmaType, WalzeSet_t walzeSet)
 {
     LinkedList* permutations;
     int indices[UMKEHR_WALZEN];
 
     // Sanity checks
-    if ((enigmaType==ENIGMATYPE_M3) && (rotorSet==M4_NAVAL_1941))
+    if ((enigmaType==ENIGMATYPE_M3) && (walzeSet==M4_NAVAL_1941))
     {
-        logFatal("Illegal combination of M3 Engima and Naval rotor set");
+        logFatal("Illegal combination of M3 Engima and Naval Walze set");
     }
-    if ((enigmaType==ENIGMATYPE_M4) && (rotorSet!=M4_NAVAL_1941))
+    if ((enigmaType==ENIGMATYPE_M4) && (walzeSet!=M4_NAVAL_1941))
     {
-        logFatal("Illegal combination of M4 Engima and rotor set for M3");
+        logFatal("Illegal combination of M4 Engima and Walze set for M3");
     }
 
-    // Rotors 1-3
+    // Walzen 1-3
     int count=0;
     for (int i=0; i<UMKEHR_WALZEN; i++)
     {
-        if (ukwSets[rotorSet][i]>0)
+        if (ukwSets[walzeSet][i]>0)
         {
             indices[count]=i;
             count++;

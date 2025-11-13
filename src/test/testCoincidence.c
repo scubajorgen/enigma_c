@@ -92,7 +92,7 @@ void testCoincidenceDecodeText1(void)
     testStart("Decode text 1");
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.walzeSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;

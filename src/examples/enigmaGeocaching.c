@@ -50,7 +50,7 @@ EnigmaSettings  fourthProblemTest=
 *
 \**************************************************************************************************/
 // https://www.geocaching.com/geocache/GCXQHW Athents Engima
-// Rotor settings as indicated, R1=1, R2=2, R3=3, no steckers
+// Walze settings as indicated, R1=1, R2=2, R3=3, no steckers
 EnigmaSettings  GCXQHWTest=
 {
     3,
@@ -93,7 +93,7 @@ void gcAthentsEnigma()
     // program the IoC solver
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.walzeSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
@@ -272,12 +272,12 @@ void gcEnigmaNano()
 
     // Create a list of permutations with only UKW B
     LinkedList* walzenPermutations  =getWalzenPermutations(ENIGMATYPE_M3, M3_ARMY_1938);
-    LinkedList* rotorPermutations   =createLinkedList();
+    LinkedList* walzePermutations   =createLinkedList();
     int*        permutation         =malloc(sizeof(int));
     permutation[0]                  =1; // Index of UKW B
-    addObject(rotorPermutations, permutation);
-    LinkedList* permutations=combinePermutations(rotorPermutations, 1, walzenPermutations, 3);
-    destroyPermutations(rotorPermutations);
+    addObject(walzePermutations, permutation);
+    LinkedList* permutations=combinePermutations(walzePermutations, 1, walzenPermutations, 3);
+    destroyPermutations(walzePermutations);
     destroyPermutations(walzenPermutations);
 
 //    setEvaluationMethod(METHOD_IOC, 13, 13, 0, NULL);
@@ -287,7 +287,7 @@ void gcEnigmaNano()
 //    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 0, 3, "DE");
 // TO DO
     IocRecipe* recipe=createDefaultRecipe(textGC6ZZBB, numOfThreads);
-    recipe->method           =DEPTH_NONE;
+    recipe->method           =DEPTH_R3;
     recipe->evalWalzen       =EVAL_IOC;
     recipe->evalSteckers     =EVAL_IOC;
     recipe->maxSteckers      =13;
@@ -317,12 +317,12 @@ void gcEnigmaNanoReply()
 
     // Create a list of permutations with only UKW B
     LinkedList* walzenPermutations  =getWalzenPermutations(ENIGMATYPE_M3, M3_ARMY_1938);
-    LinkedList* rotorPermutations   =createLinkedList();
+    LinkedList* walzePermutations   =createLinkedList();
     int*        permutation         =malloc(sizeof(int));
     permutation[0]=1; // Index of UKW B
-    addObject(rotorPermutations, permutation);
-    LinkedList* permutations=combinePermutations(rotorPermutations, 1, walzenPermutations, 3);
-    destroyPermutations(rotorPermutations);
+    addObject(walzePermutations, permutation);
+    LinkedList* permutations=combinePermutations(walzePermutations, 1, walzenPermutations, 3);
+    destroyPermutations(walzePermutations);
     destroyPermutations(walzenPermutations);
 
 
@@ -334,7 +334,7 @@ void gcEnigmaNanoReply()
 // TO DO
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.walzeSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
@@ -384,7 +384,7 @@ void gcCodeBreakers()
     // program the IoC solver
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.walzeSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
@@ -439,7 +439,7 @@ void gcEnigma()
     // program the IoC solver
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
-    recipe.rotorSet         =M3_ARMY_1938;
+    recipe.walzeSet         =M3_ARMY_1938;
     recipe.method           =DEPTH_NONE;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;

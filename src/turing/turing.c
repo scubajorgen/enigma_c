@@ -28,7 +28,7 @@ typedef struct
 {
     int     permutationStart;       // Start permutation in the permutations array
     int     permutationEnd;         // End permutation (not included)
-    char    ukw[MAX_ROTOR_NAME];    // UKW to use
+    char    ukw[MAX_WALZE_NAME];    // UKW to use
 } ThreadWork;
 
 char                walzenString[80];
@@ -559,7 +559,7 @@ void turingPrintSolution(EnigmaSettings* settings)
 {
     printf("Solution found: %s - %s %s %s R %d %d %d, G %d %d %d, %s\n",
            settings->ukw,
-           settings->rotors[0], settings->rotors[1], settings->rotors[2],
+           settings->walzen[0], settings->walzen[1], settings->walzen[2],
            settings->ringStellungen[0], settings->ringStellungen[1], settings->ringStellungen[2],
            settings->grundStellungen[0], settings->grundStellungen[1], settings->grundStellungen[2],
            settings->steckers);
@@ -638,7 +638,7 @@ void convertSteckeredCharsToString(SteckeredChars* chars, char* string)
 
 /**************************************************************************************************\
 * 
-* Simulates the Turing solution: finds the rotors, RingStellungen and GrundStellungen based
+* Simulates the Turing solution: finds the Walzen, RingStellungen and GrundStellungen based
 * on a 'crib'
 * 
 \**************************************************************************************************/
@@ -679,7 +679,7 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
     prevCounting    =0;
     w               =permutationStart;
 
-    // Parse the rotor permutations
+    // Parse the Walze permutations
     while (w<permutationEnd)
     {
         permutation=(int*)elementAt(tPermutations, w);
@@ -708,7 +708,7 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
                    permutation[0], permutation[1], permutation[2], w, walzenString, currentTime, convPerSec);
             fflush(stdout);
            
-            // Set the rotor
+            // Set the Walzen
             placeWalze(enigma, 1, w1);
             placeWalze(enigma, 2, w2);
             placeWalze(enigma, 3, w3);
@@ -724,7 +724,7 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
                         // In theory the 2nd ring should be taken into account. However
                         // For short cribs most of the times taking one value is sufficient
                         // It must be taken into account when the if the notch position of
-                        // the second rotor is reached after a few rotations...
+                        // the second Walze is reached after a few rotations...
                         r1=1; r2=3;
 /*            
                         for (r2=1; r2<=26; r2++)
@@ -746,24 +746,23 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
                                 
                                 if (found)
                                 {
-                                    settings.numberOfRotors     =3;
+                                    settings.numberOfWalzen     =3;
                                     strncpy(settings.cipher, turingBombeCipher, MAX_TEXT-1);
-                                    strncpy(settings.rotors[0], w1, MAX_ROTOR_NAME-1);
-                                    strncpy(settings.rotors[1], w2, MAX_ROTOR_NAME-1);
-                                    strncpy(settings.rotors[2], w3, MAX_ROTOR_NAME-1);
+                                    strncpy(settings.walzen[0], w1, MAX_WALZE_NAME-1);
+                                    strncpy(settings.walzen[1], w2, MAX_WALZE_NAME-1);
+                                    strncpy(settings.walzen[2], w3, MAX_WALZE_NAME-1);
                                     settings.ringStellungen[0]  =r1;
                                     settings.ringStellungen[1]  =r2;
                                     settings.ringStellungen[2]  =r3;
                                     settings.grundStellungen[0] =g1;
                                     settings.grundStellungen[1] =g2;
                                     settings.grundStellungen[2] =g3;
-                                    strncpy(settings.ukw, ukw, MAX_ROTOR_NAME-1);
+                                    strncpy(settings.ukw, ukw, MAX_WALZE_NAME-1);
                                     
                                     convertSteckeredCharsToString(steckeredChars, settings.steckers);
                                     turingPrintSolution(&settings);
                                             
                                 }
-
                                 counting++;
                                 
                             }
@@ -830,7 +829,7 @@ void turingFinishFunction(void* params)
 * crib              : crib, upper case. Length must be shorter than cipher and not to long 
 *                     to prevent stack overflow
 * cribStartPosition : start position in the cipher that corresponds with the start of the crib
-* numOfThreads      : Use multiple threads to use multi processor cores. Rotor combinations are 
+* numOfThreads      : Use multiple threads to use multi processor cores. Walze combinations are 
 *                     split up amongst the threads. Number of permutations (60) should be divisable 
 *                     by this number. Hence 1, 2, 3, 4, 5, 6, 10 will do.
 * 
@@ -846,7 +845,7 @@ void turingBombe(char* cipher, char* crib, int cribStartPosition, int numOfThrea
     turingFindLoops(cipher, crib, cribStartPosition);
 
     // Choose from the 5 wehrmacht walzen on an M3 Enigma   
-    tPermutations=createRotorPermutations(3, 5);
+    tPermutations=createWalzePermutations(3, 5);
     
     numberOfPermutations=linkedListLength(tPermutations);
     printf("Walzen permutations %d\n", numberOfPermutations);
@@ -859,12 +858,12 @@ void turingBombe(char* cipher, char* crib, int cribStartPosition, int numOfThrea
     {
         work[w  ].permutationStart  =(w/2)*numberOfPermutations/numOfThreads;
         work[w  ].permutationEnd    =(w/2+1)*numberOfPermutations/numOfThreads;
-        strncpy(work[w  ].ukw, "UKW B", MAX_ROTOR_NAME);
+        strncpy(work[w  ].ukw, "UKW B", MAX_WALZE_NAME);
         dispatcherPushWorkItem(turingWorkerFunction, &work[w]);
         
         work[w+1].permutationStart  =(w/2)*numberOfPermutations/numOfThreads;
         work[w+1].permutationEnd    =(w/2+1)*numberOfPermutations/numOfThreads;
-        strncpy(work[w+1].ukw, "UKW C", MAX_ROTOR_NAME);
+        strncpy(work[w+1].ukw, "UKW C", MAX_WALZE_NAME);
         dispatcherPushWorkItem(turingWorkerFunction, &work[w+1]);
         w+=2;
     }
