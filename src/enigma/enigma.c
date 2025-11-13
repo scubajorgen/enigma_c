@@ -6,6 +6,7 @@
 * 
 \**************************************************************************************************/
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
@@ -28,28 +29,20 @@ EnigmaSettings settings;
 \**************************************************************************************************/
 void setText(Enigma* engima, char text[])
 {
-    int  i;
-    int  count;
-    int  maxCount;
-    char digit;
-    
     // to upper case, remove non chars and get position
-    i=0;
-    count=0;
-    maxCount=min(strlen(text), MAX_TEXT);
-    while (i<maxCount)
+    int count=0;
+    int maxCount=min(strlen(text), MAX_TEXT);
+    for (int i=0; i<maxCount; i++)
     {
-        digit=charToPos(text[i]);
+        char digit=charToPos(text[i]);
         if (digit>=0 && digit<MAX_POSITIONS)
         {
             engima->text[count]=digit;
             count++;
         }
-        i++;
     }
     engima->textSize=count;
 }
-
 
 /**************************************************************************************************\
 * 
@@ -60,32 +53,28 @@ void setText(Enigma* engima, char text[])
 void advance(Enigma* enigma)
 {
     // Advance rotors
-    int revolveNext     =1;
+    int revolveNext=1;
     // Only the 1st three rotors advance
     for (int rotor=0; rotor<ROTATING_WALZEN && revolveNext; rotor++)
     {
         revolveNext=0;
-        int notch=0;
-        while (notch<enigma->numberOfNotches[rotor])
+        for (int notch=0; notch<enigma->numberOfNotches[rotor]; notch++)
         {
             if (enigma->grundStellung[rotor]==enigma->notches[rotor][notch])
             {
                 revolveNext=1;
             }
-            notch++;
         }
         
         // The double step of the 2nd rotor
         if (rotor==0)
         {
-            notch=0;
-            while (notch<enigma->numberOfNotches[rotor+1])
+            for (int notch=0; notch<enigma->numberOfNotches[rotor+1]; notch++)
             {
                 if (enigma->grundStellung[rotor+1]==enigma->notches[rotor+1][notch])
                 {
                     revolveNext=1;
                 }
-                notch++;
             }
         }
         
@@ -105,13 +94,8 @@ void advance(Enigma* enigma)
 \**************************************************************************************************/
 void reverse(Enigma* enigma)
 {
-    int test;
-    int reverseNext;        
-    int notch;
-    int found;
-    
     // Reverse rotors
-    reverseNext     =1;
+    int reverseNext     =1;
     // Only the 1st three rotors advance
     for (int rotor=0; rotor<ROTATING_WALZEN && reverseNext; rotor++)
     {
@@ -122,33 +106,29 @@ void reverse(Enigma* enigma)
             enigma->grundStellung[rotor]=MAX_POSITIONS-1;
         }
 
-        notch=0;
-        while (notch<enigma->numberOfNotches[rotor])
+        for (int notch=0; notch<enigma->numberOfNotches[rotor]; notch++)
         {
             if (enigma->grundStellung[rotor]==enigma->notches[rotor][notch])
             {
                 reverseNext=1;
             }
-            notch++;
         }
         
         // The double step of the 2nd rotor
         if (rotor==0)
         {
-            test=enigma->grundStellung[rotor]-1;
+            int test=enigma->grundStellung[rotor]-1;
             if (test<0)
             {
                 test=MAX_POSITIONS-1;
             }            
-            notch=0;
-            found=0;
-            while (notch<enigma->numberOfNotches[rotor])
+            bool found=false;
+            for (int notch=0; notch<enigma->numberOfNotches[rotor]; notch++)
             {
                 if (test==enigma->notches[rotor][notch])
                 {
-                    found=1;
+                    found=true;
                 }
-                notch++;
             }
 
             if (found)
@@ -158,14 +138,12 @@ void reverse(Enigma* enigma)
                 {
                     test=MAX_POSITIONS-1;
                 }
-                notch=0;
-                while (notch<enigma->numberOfNotches[rotor+1])
+                for (int notch=0; notch<enigma->numberOfNotches[rotor+1]; notch++)
                 {
                     if (test==enigma->notches[rotor+1][notch])
                     {
                         reverseNext=1;
                     }
-                    notch++;
                 }
             }
         }
@@ -209,31 +187,24 @@ void advances(Enigma* enigma, int steps)
 
 int encodeCharacter(Enigma* enigma, int theCharacter)
 {
-    int intermediate;
-    int rotor;
-    int realPosition;
-    int entry;
-    int exit;
-    
     // Via switchboard
-    intermediate=enigma->steckerBrett[theCharacter];
+    int intermediate=enigma->steckerBrett[theCharacter];
     
     // right to left through the rotors
-    rotor=0;
-    while (rotor<enigma->numberOfRotors)
+    for (int rotor=0; rotor<enigma->numberOfRotors; rotor++)
     {
-        realPosition=enigma->grundStellung[rotor]-enigma->ringStellung[rotor];
+        int realPosition=enigma->grundStellung[rotor]-enigma->ringStellung[rotor];
         
         if (realPosition<0)
         {
             realPosition+=MAX_POSITIONS;
         }
-        entry=realPosition+intermediate;
+        int entry=realPosition+intermediate;
         if (entry>=MAX_POSITIONS)
         {
             entry-=MAX_POSITIONS;
         }
-        exit=enigma->rotorFunction[rotor][entry];
+        int exit=enigma->rotorFunction[rotor][entry];
         
         intermediate=exit-realPosition;
         
@@ -241,28 +212,26 @@ int encodeCharacter(Enigma* enigma, int theCharacter)
         {
             intermediate+=MAX_POSITIONS;
         }
-        rotor++;
     }
     
     // Reflector
     intermediate=enigma->umkehrWalzeFunction[intermediate];
    
     // left to right through the rotors
-    rotor=enigma->numberOfRotors-1;
-    while (rotor>=0)
+    for (int rotor= enigma->numberOfRotors-1; rotor>=0; rotor--)
     {
-        realPosition=enigma->grundStellung[rotor]-enigma->ringStellung[rotor];
+        int realPosition=enigma->grundStellung[rotor]-enigma->ringStellung[rotor];
         
         if (realPosition<0)
         {
             realPosition+=MAX_POSITIONS;
         }
-        entry=realPosition+intermediate;
+        int entry=realPosition+intermediate;
         if (entry>=MAX_POSITIONS)
         {
             entry-=MAX_POSITIONS;
         }
-        exit=enigma->rotorInverseFunction[rotor][entry];
+        int exit=enigma->rotorInverseFunction[rotor][entry];
         
         intermediate=exit-realPosition;
         
@@ -270,16 +239,12 @@ int encodeCharacter(Enigma* enigma, int theCharacter)
         {
             intermediate+=MAX_POSITIONS;
         }
-        
-        rotor--;
-    }       
+    }
 
     // Via switchboard
     intermediate=enigma->steckerBrett[intermediate];
-
     return intermediate;
 }
-
 
 /**************************************************************************************************\
 * 
@@ -302,14 +267,11 @@ void encodeDecode(Enigma* enigma)
 \**************************************************************************************************/
 char* toString(Enigma* enigma)
 {
-    int i;
-    i=0;
-    while (i<enigma->textSize)
+    for (int i=0; i<enigma->textSize; i++)
     {
         enigma->string[i]=enigma->conversion[i]+'A';
-        i++;
     }
-    enigma->string[i]='\0';
+    enigma->string[enigma->textSize]='\0';
     return enigma->string;
 }
 
@@ -320,23 +282,15 @@ char* toString(Enigma* enigma)
 \**************************************************************************************************/
 int countLetter(Enigma* enigma, char letter)
 {
-    int i;
-    int max;
-    int count;
-    int letterPos;
-    
-    letterPos=charToPos(letter);
-    
-    count=0;
-    max=enigma->textSize;
-    i=0;
-    while (i<max)
+    int letterPos=charToPos(letter);
+    int count=0;
+    int max=enigma->textSize;
+    for (int i=0; i<max; i++)
     {
         if (enigma->conversion[i]==letterPos)
         {
             count++;
         }
-        i++;
     }
     return count;
 }
@@ -366,17 +320,12 @@ void countConvertedChars(Enigma* enigma, int counts[MAX_POSITIONS])
 \**************************************************************************************************/
 int countTrigram(Enigma* enigma, char* trigram)
 {
-    int i;
-    int count;
-    int tri0, tri1, tri2;
+    int tri0=trigram[0]-'A';
+    int tri1=trigram[1]-'A';
+    int tri2=trigram[2]-'A';
     
-    tri0=trigram[0]-'A';
-    tri1=trigram[1]-'A';
-    tri2=trigram[2]-'A';
-    
-    count=0;
-    i=0;
-    while (i<enigma->textSize-2)
+    int count=0;
+    for (int i=0; i<enigma->textSize-2; i++)
     {
         if ((enigma->conversion[i  ]==tri0) &&
             (enigma->conversion[i+1]==tri1) &&
@@ -384,9 +333,7 @@ int countTrigram(Enigma* enigma, char* trigram)
         {
             count++;
         }
-        i++;
     }
-    
     return count;
 }
 
@@ -397,31 +344,21 @@ int countTrigram(Enigma* enigma, char* trigram)
 \**************************************************************************************************/
 int countNgram(Enigma* enigma, char* ngram, int n)
 {
-    int i;
-    int j;
-    int found;
-    int count;
-    
-    count=0;
-    i=0;
-    while (i<enigma->textSize-(n-1))
+    int count=0;
+    for (int i=0; i<enigma->textSize-(n-1); i++)
     {
-        j=0;
-        found=1;
-        while ((j<n) && found)
+        bool found=true;
+        for (int j=0; (j<n) && found; j++)
         {
             if (enigma->conversion[i+j]!=ngram[j]-'A')
             {
-                found=0;
+                found=false;
             }
-            j++;
         }
         if (found)
         {
             count++;
         }
-        
-        i++;
     }
     
     return count;
@@ -434,16 +371,12 @@ int countNgram(Enigma* enigma, char* ngram, int n)
 \**************************************************************************************************/
 void setEnigma(Enigma* enigma, EnigmaSettings* settings)
 {
-    int i;
-    
     enigma->numberOfRotors=settings->numberOfRotors;
-    i=0;
-    while (i<settings->numberOfRotors)
+    for (int i=0; i<settings->numberOfRotors; i++)
     {
         placeWalze          (enigma, i+1, settings->rotors[i]);
         setRingStellung     (enigma, i+1, settings->ringStellungen[i]);
         setGrundStellung    (enigma, i+1, settings->grundStellungen[i]);
-        i++;
     }
     placeUmkehrWalze        (enigma, settings->ukw);
     if (strncmp(settings->steckers, "", MAX_STECKER_STRING)==0)
@@ -464,10 +397,7 @@ void setEnigma(Enigma* enigma, EnigmaSettings* settings)
 \**************************************************************************************************/
 void printEnigmaSettings(EnigmaSettings* settings, char* title)
 {
-    int    i;
-
     // Cipher size when given to Enigma
-
     printf("\n");
     printf("#####################################################################################\n");
     printf("# %s\n", title);
@@ -477,7 +407,7 @@ void printEnigmaSettings(EnigmaSettings* settings, char* title)
     printf("# Number of Walzen          : %d\n", settings->numberOfRotors);
     printf("# Original Walzen           : ");
     printf("%s, ", settings->ukw);
-    for (i=0;i<settings->numberOfRotors;i++)
+    for (int i=0;i<settings->numberOfRotors;i++)
     {
         printf("%s", settings->rotors[i]);
         if (i<settings->numberOfRotors-1)
@@ -506,7 +436,6 @@ void printEnigmaSettings(EnigmaSettings* settings, char* title)
 \**************************************************************************************************/
 EnigmaSettings* createRandomSettings(Enigma* enigma, RotorSet_t rotorSet, int numberOfSteckers)
 {
-    int i;
     int offset;
     int indices[54];
 
@@ -535,7 +464,7 @@ EnigmaSettings* createRandomSettings(Enigma* enigma, RotorSet_t rotorSet, int nu
 
     // 1st 3 Rotor selection
     selectRandomIndices(rotorSets[rotorSet], ROTORS, 3, indices);
-    for (i=0;i<3; i++)
+    for (int i=0;i<3; i++)
     {
         strncpy(random->rotors[i+offset], rotorNames[indices[i]], MAX_ROTOR_NAME-1);
     }
@@ -545,13 +474,13 @@ EnigmaSettings* createRandomSettings(Enigma* enigma, RotorSet_t rotorSet, int nu
     strncpy(random->ukw, umkehrWalzeNames[indices[0]], MAX_ROTOR_NAME-1);
 
     // Grundstelling
-    for (i=0; i<random->numberOfRotors;i++)
+    for (int i=0; i<random->numberOfRotors;i++)
     {
         random->grundStellungen[i]=1+rand() % 26;
     }
 
     // Ringstellung
-    for (i=0; i<random->numberOfRotors;i++)
+    for (int i=0; i<random->numberOfRotors;i++)
     {
         random->ringStellungen[i]=1+rand() % 26;
     }
@@ -560,7 +489,7 @@ EnigmaSettings* createRandomSettings(Enigma* enigma, RotorSet_t rotorSet, int nu
     int available[26]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
     selectRandomIndices(available, 26, numberOfSteckers*2, indices);
 
-    for(i=0; i<numberOfSteckers; i++)
+    for(int i=0; i<numberOfSteckers; i++)
     {
         random->steckers[i*3]  ='A'+indices[i*2];
         random->steckers[i*3+1]='A'+indices[i*2+1];
@@ -596,8 +525,7 @@ void destroyEnigmaSettings(EnigmaSettings* settings)
 \**************************************************************************************************/
 void dumpDecoded(EnigmaSettings* settings)
 {
-    Enigma* enigma;
-    enigma=createEnigmaM3();
+    Enigma* enigma=createEnigmaM3();
     setEnigma(enigma, settings);
     encodeDecode(enigma);
     printf("Solution: %s\n", toString(enigma));

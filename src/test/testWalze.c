@@ -9,6 +9,48 @@
 #include "testframe.h"
 #include "toolbox.h"
 
+
+/**************************************************************************************************\
+* 
+* Test the Walze placememt
+* 
+\**************************************************************************************************/
+void testWalzePlaceWalze()
+{
+    testStart("place walze");
+    Enigma* enigma=createEnigmaM3();
+    placeWalze(enigma, 1, "I");
+    placeWalze(enigma, 2, "II");
+    placeWalze(enigma, 3, "III");
+
+    // Walze 3 is stored in rotorFunction[0]
+    assertIntEquals( 1, enigma->rotorFunction[0][ 0]); // III: B = 1
+    assertIntEquals( 3, enigma->rotorFunction[0][ 1]); // III: D = 3
+    assertIntEquals(14, enigma->rotorFunction[0][25]); // III: O = 14
+
+    assertIntEquals(0, enigma->rotorFunction[1][ 0]); // II  : A = 0
+
+    assertIntEquals(9, enigma->rotorFunction[2][25]); // I   : J = 9
+
+    destroyEnigma(enigma);
+
+    enigma=createEnigmaM4();
+    placeWalze(enigma, 1, "I");
+    placeWalze(enigma, 2, "II");
+    placeWalze(enigma, 3, "IV");
+    placeWalze(enigma, 4, "III");
+
+    // Walze 3 is stored in rotorFunction[0]
+    assertIntEquals( 1, enigma->rotorFunction[0][ 0]); // III: B = 1
+    assertIntEquals( 3, enigma->rotorFunction[0][ 1]); // III: D = 3
+    assertIntEquals(14, enigma->rotorFunction[0][25]); // III: O = 14
+
+    assertIntEquals(9, enigma->rotorFunction[3][25]); // I   : J = 9
+
+    destroyEnigma(enigma);
+    testWrapUp();
+}
+
 /**************************************************************************************************\
 * 
 * Test the Ringstellungen
@@ -53,7 +95,7 @@ void testWalzeRingstellung()
 \**************************************************************************************************/
 void testWalzeGrundstellung()
 {
-    testStart("ringstellungen");
+    testStart("grundstellungen");
 
     Enigma* enigma=createEnigmaM3();
 
@@ -118,6 +160,7 @@ void testWalzePermutations()
 void testWalze()
 {
     moduleTestStart("walze");
+    testWalzePlaceWalze();
     testWalzeRingstellung();
     testWalzeGrundstellung();
     testWalzePermutations();

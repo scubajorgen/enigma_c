@@ -409,16 +409,16 @@ void testEnigmaCounts()
     Enigma* enigma=createEnigmaM3();
     
     enigma->textSize=15;
-    enigma->conversion[0]='A'-'A';
-    enigma->conversion[1]='Z'-'A';
-    enigma->conversion[2]='Z'-'A';
-    enigma->conversion[3]='A'-'A';
-    enigma->conversion[4]='B'-'A';
-    enigma->conversion[5]='C'-'A';
-    enigma->conversion[6]='A'-'A';
-    enigma->conversion[7]='Z'-'A';
-    enigma->conversion[8]='Z'-'A';
-    enigma->conversion[9]='Z'-'A';
+    enigma->conversion[ 0]='A'-'A';
+    enigma->conversion[ 1]='Z'-'A';
+    enigma->conversion[ 2]='Z'-'A';
+    enigma->conversion[ 3]='A'-'A';
+    enigma->conversion[ 4]='B'-'A';
+    enigma->conversion[ 5]='C'-'A';
+    enigma->conversion[ 6]='A'-'A';
+    enigma->conversion[ 7]='Z'-'A';
+    enigma->conversion[ 8]='Z'-'A';
+    enigma->conversion[ 9]='Z'-'A';
     enigma->conversion[10]='B'-'A';
     enigma->conversion[11]='P'-'A';
     enigma->conversion[12]='A'-'A';

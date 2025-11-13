@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include "enigma.h"
+#include "log.h"
 #include "toolbox.h"
 
 
@@ -34,37 +35,29 @@ void clearSteckerBrett(Enigma* enigma)
 \**************************************************************************************************/
 void placeSteckers(Enigma* enigma, char steckers[])
 {
-    int length;
-    int pos1;
-    int pos2;
-    int i;
-    
     clearSteckerBrett(enigma);
     
-    length=strlen(steckers);
+    int length=strlen(steckers);
     
     if (length%3!=2)
     {
-        printf("WARNING: unexpected length of Stecker string\n");
+        logWarning("WARNING: unexpected length of Stecker string");
     }
-    i=0;
-    while (i<strlen(steckers)+1)
+    for (int i=0; i<strlen(steckers)+1; i+=3)
     {
         if (steckers[i]!=' ' && steckers[i+1]!=' ')
         {
-            pos1=stellungToPos(steckers[i]);
-            pos2=stellungToPos(steckers[i+1]);
+            int pos1=stellungToPos(steckers[i]);
+            int pos2=stellungToPos(steckers[i+1]);
             enigma->steckerBrett[pos1]=pos2;
             enigma->steckerBrett[pos2]=pos1;
         }
         else
         {
-            printf("ERROR: Steckerstring appears not correct: %s", steckers);
+            logFatal("ERROR: Steckerstring appears not correct: %s", steckers);
         }    
-        i+=3;
     }
 }
-
 
 /**************************************************************************************************\
 * 
@@ -101,9 +94,8 @@ void steckerbrettTableToSteckers(int *steckerbrettTable, char steckers[])
 {
     steckers[0]='\0';
     // Convert the stecker positions to a stecker brett string
-    int s1=0;
     int s2=0;
-    while (s1<MAX_POSITIONS)
+    for (int s1=0; s1<MAX_POSITIONS; s1++)
     {
         if (steckerbrettTable[s1]>s1)
         {
@@ -116,7 +108,6 @@ void steckerbrettTableToSteckers(int *steckerbrettTable, char steckers[])
             steckers[3*s2+2]='\0';
             s2++;
         }
-        s1++;
     }
 }
 

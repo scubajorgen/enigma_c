@@ -4,6 +4,7 @@
 * 
 \**************************************************************************************************/
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include "enigma.h"
@@ -59,13 +60,8 @@ int ukwSets[MAX_ROTOR_SETS][UMKEHR_WALZEN]=
 \**************************************************************************************************/
 void placeUmkehrWalze(Enigma* enigma, char name[])
 {
-    int     index;
-    int     found;
-    int     j;
-    
-    index=0;
-    found=0;
-    while (index<UMKEHR_WALZEN && !found)
+    bool found=false;
+    for (int index=0; index<UMKEHR_WALZEN && !found; index++)
     {
         
         if (!strcmp(name, umkehrWalzeNames[index]))
@@ -74,20 +70,16 @@ void placeUmkehrWalze(Enigma* enigma, char name[])
             {
                 printf("UKW B2 an C2 are only allowed on Engima M4\n");
             }
-            found=1;
-            j=0;
-            while (j<MAX_POSITIONS)
+            found=true;
+            for (int j=0; j<MAX_POSITIONS; j++)
             {
                 enigma->umkehrWalzeFunction[j]=umkehrWalzeTables[index][j]-'A';
-                j++;
             }
         }
-
-        index++;
     }  
     if (!found)
     {
-        printf("ERROR: invalid umkehrwalze %s\n", name);
+        logFatal("ERROR: invalid umkehrwalze %s", name);
     }
 }
 

@@ -10,6 +10,28 @@
 
 /**************************************************************************************************\
 * 
+* Test clearSteckerBrett
+* 
+\**************************************************************************************************/
+void testClearSteckerbrett(void)
+{
+    testStart("clear steckerbrett");
+    Enigma*enigma=createEnigmaM3();
+    for (int i=0; i<MAX_POSITIONS;i++)
+    {
+        enigma->steckerBrett[i]=-1;
+    }
+    clearSteckerBrett(enigma);
+    for (int i=0; i<MAX_POSITIONS;i++)
+    {
+        assertIntEquals(i, enigma->steckerBrett[i]);
+    }
+    destroyEnigma(enigma);
+    testWrapUp();
+}
+
+/**************************************************************************************************\
+* 
 * Test placeSteckers
 * 
 \**************************************************************************************************/
@@ -91,6 +113,7 @@ void testSteckerbrettTableToSteckers()
 void testSteckerbrett()
 {
     moduleTestStart("steckerbrett");
+    testClearSteckerbrett();
     testPlaceSteckers();
     testSteckersToSteckerbrettTable();
     testSteckerbrettTableToSteckers();

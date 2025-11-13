@@ -4,6 +4,7 @@
 * 
 \**************************************************************************************************/
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include "enigma.h"
@@ -86,39 +87,30 @@ int fourthRotorSets[MAX_ROTOR_SETS][ROTORS]=
 * 
 * Place the given rotor at given position
 * enigima: enigma definition
-* walze: rotor position counted from left to right (1..4)
+* walze    : rotor position counted from left to right (1..4)
 * rotorName: name of the rotor to place, like 'I', 'VI' 
 * 
 \**************************************************************************************************/
 void placeWalze(Enigma* enigma, int walze, char rotorName[])
 {
-    int     index;
-    int     found;
-    int     j;
-    int     pos;
-    
-    pos=enigma->numberOfRotors-walze;
-    
-    index=0;
-    found=0;
-    while (index<ROTORS && !found)
+    int     pos     =enigma->numberOfRotors-walze;
+    bool    found   =false;
+    for (int index=0; index<ROTORS && !found; index++)
     {
         if (!strcmp(rotorName, rotorNames[index]))
         {
-            found=1;
+            found=true;
             
             if ((index==8 || index==9) && 
                 (enigma->numberOfRotors<4 || (enigma->numberOfRotors==4 && walze!=1)))
             {
-                printf("Beta and Gamma rotors are only allowed on position 1 of Enigma M4\n");
+                logError("Beta and Gamma rotors are only allowed on position 1 of Enigma M4");
             }
             
-            j=0;
-            while (j<MAX_POSITIONS)
+            for (int j=0; j<MAX_POSITIONS; j++)
             {
                 enigma->rotorFunction[pos][j]                           =tables[index][j]-'A';
                 enigma->rotorInverseFunction[pos][tables[index][j]-'A'] =j;
-                j++;
             }
             enigma->notches[pos][0]=notchPosition1[index]-'A';
             if (hasSecondNotch[index])
@@ -131,12 +123,10 @@ void placeWalze(Enigma* enigma, int walze, char rotorName[])
                 enigma->numberOfNotches[pos]=1;
             }
         }
-
-        index++;
     }
     if (!found)
     {
-        printf("ERROR: invalid walze\n");
+        logFatal("invalid walze");
     }
 }
 
@@ -151,10 +141,7 @@ void placeWalze(Enigma* enigma, int walze, char rotorName[])
 \**************************************************************************************************/
 void setRingStellung(Enigma* enigma, int walze, int ringStellung)
 {
-    int     pos;
-    
-    pos=enigma->numberOfRotors-walze;
-    
+    int pos=enigma->numberOfRotors-walze;
     enigma->ringStellung[pos]=stellungToPos(ringStellung);
 }
 
@@ -165,10 +152,7 @@ void setRingStellung(Enigma* enigma, int walze, int ringStellung)
 \**************************************************************************************************/
 int getRingStellung(Enigma* enigma, int walze)
 {
-    int     pos;
-    
-    pos=enigma->numberOfRotors-walze;
-    
+    int pos=enigma->numberOfRotors-walze;
     return posToStellung(enigma->ringStellung[pos]);
 }
 
@@ -181,50 +165,40 @@ int getRingStellung(Enigma* enigma, int walze)
 
 void setRingStellungen(Enigma* enigma, char* ringStellungen)
 {
-    int rotor;
-    int numberOfRotors;
-    int stellung;
-    
-    numberOfRotors=enigma->numberOfRotors;
+    int numberOfRotors=enigma->numberOfRotors;
     
     if (strlen(ringStellungen)==numberOfRotors*3-1)
     {
-        rotor=0;
-        while (rotor<enigma->numberOfRotors)
+        for (int rotor=0; rotor<enigma->numberOfRotors; rotor++)
         {
-            stellung=(ringStellungen[rotor*3]-'0')*10+(ringStellungen[rotor*3+1]-'0');
+            int stellung=(ringStellungen[rotor*3]-'0')*10+(ringStellungen[rotor*3+1]-'0');
             if (stellung>=1 && stellung<=26)
             {
                 enigma->ringStellung[numberOfRotors-rotor-1]=stellung-1;
             }
             else
             {
-                printf("ERROR: Error during coversion of RingStellungen string");
+                logFatal("Error during coversion of RingStellungen string");
             }    
-            rotor++;
         }
     }
     else if (strlen(ringStellungen)==numberOfRotors*2-1)
     {
-        rotor=0;
-        while (rotor<enigma->numberOfRotors)
+        for (int rotor=0; rotor<enigma->numberOfRotors; rotor++)
         {
             enigma->ringStellung[numberOfRotors-rotor-1]=stellungToPos(ringStellungen[rotor*2]);
-            rotor++;
         }
     }
     else if (strlen(ringStellungen)==numberOfRotors)
     {
-        rotor=0;
-        while (rotor<enigma->numberOfRotors)
+        for (int rotor=0; rotor<enigma->numberOfRotors; rotor++)
         {
             enigma->ringStellung[numberOfRotors-rotor-1]=stellungToPos(ringStellungen[rotor]);
-            rotor++;
         }
     }
     else
     {
-        printf("ERROR: unexpected string length when defining the ringstellungen\n");
+        logFatal("Unexpected string length when defining the ringstellungen");
     }    
 }
 
@@ -235,10 +209,7 @@ void setRingStellungen(Enigma* enigma, char* ringStellungen)
 \**************************************************************************************************/
 void setGrundStellung(Enigma* enigma, int walze, int grundStellung)
 {
-    int     pos;
-    
-    pos=enigma->numberOfRotors-walze;
-    
+    int pos=enigma->numberOfRotors-walze;
     enigma->grundStellung[pos]=stellungToPos(grundStellung);
 }
 
@@ -249,10 +220,7 @@ void setGrundStellung(Enigma* enigma, int walze, int grundStellung)
 \**************************************************************************************************/
 int getGrundStellung(Enigma* enigma, int walze)
 {
-    int     pos;
-    
-    pos=enigma->numberOfRotors-walze;
-    
+    int pos=enigma->numberOfRotors-walze;
     return posToStellung(enigma->grundStellung[pos]);
 }
 
@@ -263,33 +231,26 @@ int getGrundStellung(Enigma* enigma, int walze)
 \**************************************************************************************************/
 void setGrundStellungen(Enigma* enigma, char* grundStellungen)
 {
-    int rotor;
-    int numberOfRotors;
-    int stellung;
-    
-    numberOfRotors=enigma->numberOfRotors;
-    
+    int numberOfRotors=enigma->numberOfRotors;
     if (strlen(grundStellungen)==numberOfRotors*3-1)
     {
-        rotor=0;
-        while (rotor<enigma->numberOfRotors)
+
+        for (int rotor=0; rotor<enigma->numberOfRotors; rotor++)
         {
-            stellung=(grundStellungen[rotor*3]-'0')*10+(grundStellungen[rotor*3+1]-'0');
+            int stellung=(grundStellungen[rotor*3]-'0')*10+(grundStellungen[rotor*3+1]-'0');
             if (stellung>=1 && stellung<=26)
             {
                 enigma->grundStellung[numberOfRotors-rotor-1]=stellung-1;
             }
             else
             {
-                printf("ERROR: Error during coversion of GrundStellungen string");
+                logFatal("Error during coversion of GrundStellungen string");
             }    
-            rotor++;
         }
     }
     else if (strlen(grundStellungen)==numberOfRotors*2-1)
     {
-        rotor=0;
-        while (rotor<enigma->numberOfRotors)
+        for (int rotor=0; rotor<enigma->numberOfRotors; rotor++)
         {
             enigma->grundStellung[numberOfRotors-rotor-1]=stellungToPos(grundStellungen[rotor*2]);
             rotor++;
@@ -297,16 +258,14 @@ void setGrundStellungen(Enigma* enigma, char* grundStellungen)
     }
     else if (strlen(grundStellungen)==numberOfRotors)
     {
-        rotor=0;
-        while (rotor<enigma->numberOfRotors)
+        for (int rotor=0; rotor<enigma->numberOfRotors; rotor++)
         {
             enigma->grundStellung[numberOfRotors-rotor-1]=stellungToPos(grundStellungen[rotor]);
-            rotor++;
         }
     }
     else
     {
-        printf("ERROR: unexpected string length when defining the GrundStellungen\n");
+        logFatal("Unexpected string length when defining the GrundStellungen");
     }    
 }
 

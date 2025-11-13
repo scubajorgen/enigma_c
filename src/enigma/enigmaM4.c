@@ -16,8 +16,7 @@
 \**************************************************************************************************/
 Enigma* createEnigmaM4(void)
 {
-    Enigma* enigma;
-    enigma                  =malloc(sizeof(Enigma));
+    Enigma* enigma                  =malloc(sizeof(Enigma));
     enigma->numberOfRotors  =4;
     return enigma;
 }
