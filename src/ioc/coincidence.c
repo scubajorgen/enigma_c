@@ -137,6 +137,7 @@ void initializeHighScoreList()
     {
         iocHighScores[i].indexOfCoincidence=MIN_IOC;
     }
+    iocNumberOfResults=0;
 }
 
 /**************************************************************************************************\
