@@ -20,7 +20,7 @@
 int main()
 {
     setLogLevel(LOGLEVEL_INFO);
-    testSessionStart("ENGIMA PERFORMANCE TEST");
+    testSessionStart("PERFORMANCE TEST");
     testEnigmaPerformance();
     testSessionWrapUp();
     return 0;

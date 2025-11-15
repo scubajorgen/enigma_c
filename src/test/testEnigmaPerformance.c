@@ -12,10 +12,14 @@
 #include "test.h"
 #include "enigma.h"
 #include "coincidence.h"
+#include "ngramScore.h"
 #include "testframe.h"
 #include "toolbox.h"
 
-#define TEST_SIZE 10000000
+#define TEST_SIZE       1000000
+#define TEST_TEXT_MAX   1000
+int testTextLengths[]={2, 5, 10, 12, 25, 50, 75, 100, 125, 150, 200, 400, 600, 800, 1000};
+
 
 /**************************************************************************************************\
 *
@@ -27,6 +31,8 @@ float timeDifference(struct timeval t0, struct timeval t1)
     return (t1.tv_sec - t0.tv_sec) * 1000.0f + (t1.tv_usec - t0.tv_usec) / 1000.0f;
 }
 
+
+
 /**************************************************************************************************\
 *
 * Enigma with random settings, encode, decode
@@ -35,7 +41,6 @@ float timeDifference(struct timeval t0, struct timeval t1)
 void testEnigmaEncodeDecodePerformance()
 {
     testStart("decode");
-    int textLengths[]={2, 5, 10, 12, 25, 50, 75, 100, 125, 150, 200, 400, 600, 800, 1000};
 
     struct timeval stop, start;
     float diff;
@@ -45,13 +50,11 @@ void testEnigmaEncodeDecodePerformance()
     strncpy(settings->cipher, testTextRandom, MAX_TEXT-1);
     setEnigma(enigma, settings);
 
-
-
-    printf("Encode/decode\n");
+    printf("ENCODE/DECODE\n");
     printf("text size, encodes, elapsed time (ms), rate (/s), time/decode (us)\n");
     for (int i=0; i<15; i++)
     {
-        enigma->textSize=textLengths[i];
+        enigma->textSize=testTextLengths[i];
 
         // Just the encode/decode
         gettimeofday(&start, NULL);
@@ -61,14 +64,14 @@ void testEnigmaEncodeDecodePerformance()
         }
         gettimeofday(&stop, NULL);
         diff=timeDifference(start, stop);
-        printf("%3d, %d, %.0f, %.0f, %.3f\n", textLengths[i], TEST_SIZE, diff, 1e9/diff, 1000.0*diff/TEST_SIZE);
+        printf("%3d, %d, %.0f, %.0f, %.3f\n", testTextLengths[i], TEST_SIZE, diff, 1e9/diff, 1000.0*diff/TEST_SIZE);
     }
 
-    printf("\nConfigure, Encode/decode\n");
+    printf("\nCONFIGURE, ENCODE/DECODE\n");
     printf("text size, encodes, elapsed time (ms), rate (/s), time/decode (us)\n");
     for (int i=0; i<15; i++)
     {
-        enigma->textSize=textLengths[i];
+        enigma->textSize=testTextLengths[i];
 
         // Configuration + encode/decode
         clearSteckerBrett(enigma);
@@ -97,14 +100,14 @@ void testEnigmaEncodeDecodePerformance()
         }
         gettimeofday(&stop, NULL);
         diff=timeDifference(start, stop);
-        printf("%3d, %d, %.0f, %.0f, %.3f\n", textLengths[i], TEST_SIZE, diff, 1e9/diff, 1000.0*diff/TEST_SIZE);
+        printf("%3d, %d, %.0f, %.0f, %.3f\n", testTextLengths[i], TEST_SIZE, diff, 1e9/diff, 1000.0*diff/TEST_SIZE);
     }
 
-    printf("\nConfigure, Encode/decode, IoC\n");
+    printf("\nCONFIGURE, ENCODE/DECODE, IOC\n");
     printf("text size, encodes, elapsed time (ms), rate (/s), time/decode (us)\n");
     for (int i=0; i<15; i++)
     {
-        enigma->textSize=textLengths[i];
+        enigma->textSize=testTextLengths[i];
         // Configuration + encode/decode
         clearSteckerBrett(enigma);
         gettimeofday(&start, NULL);
@@ -134,11 +137,69 @@ void testEnigmaEncodeDecodePerformance()
         }
         gettimeofday(&stop, NULL);
         diff=timeDifference(start, stop);
-        printf("%3d, %d, %.0f, %.0f, %.3f\n", textLengths[i], TEST_SIZE, diff, 1e9/diff, 1000.0*diff/TEST_SIZE);
+        printf("%3d, %d, %.0f, %.0f, %.3f\n", testTextLengths[i], TEST_SIZE, diff, 1e9/diff, 1000.0*diff/TEST_SIZE);
+    }
+
+    destroyEnigma(enigma);
+    testWrapUp();
+}
+
+/**************************************************************************************************\
+*
+* Test calculation of the Index of Coincidence
+* 
+\**************************************************************************************************/
+void testEnigmaIocPerformance()
+{
+    testStart("IoC");
+
+    struct  timeval stop, start;
+    float           diff;
+    int             iocInt;
+    float           iocFloat;
+
+    Enigma*         enigma  =createEnigmaM3();
+    EnigmaSettings* settings=createRandomSettings(enigma, M3_ARMY_1938, 5);
+    setEnigma(enigma, settings);
+    for (int i=0;i<TEST_TEXT_MAX;i++)
+    {
+        enigma->conversion[i]=testTextRandom[i]-'A';
+    }
+
+    printf("\nFLOAT BASED IOC CALCULATION\n");
+    printf("text size, calculations, elapsed time (ms), rate (/s), time/decode (us)\n");
+    for (int i=0; i<15; i++)
+    {   
+        enigma->textSize=testTextLengths[i];
+
+        // Calculating IoC - float
+        gettimeofday(&start, NULL);
+        for (int i=0;i<TEST_SIZE; i++)
+        {
+            iocFloat=iocIndexOfCoincidence(enigma);
+        }
+        gettimeofday(&stop, NULL);
+        diff=timeDifference(start, stop);
+        printf("%3d, %d, %.0f, %.0f, %.3f\n", testTextLengths[i], TEST_SIZE, diff, 1e9/diff, 1000.0*diff/TEST_SIZE);
     }
 
 
-
+    printf("\nFLOAT BASED IOC CALCULATION\n");
+    printf("text size, calculations, elapsed time (ms), rate (/s), time/decode (us)\n");
+    for (int i=0; i<15; i++)
+    {   
+        enigma->textSize=testTextLengths[i];
+        // Calculating IoC - int
+        gettimeofday(&start, NULL);
+        for (int i=0;i<TEST_SIZE; i++)
+        {
+            iocInt=iocIndexOfCoincidenceFast(enigma);
+        }
+        gettimeofday(&stop, NULL);
+        diff=timeDifference(start, stop);
+        printf("%3d, %d, %.0f, %.0f, %.3f\n", testTextLengths[i], TEST_SIZE, diff, 1e9/diff, 1000.0*diff/TEST_SIZE);
+    }
+    printf("Last calculated ioc: float %f int %i\n", iocFloat, iocInt);
     destroyEnigma(enigma);
     testWrapUp();
 }
@@ -148,40 +209,39 @@ void testEnigmaEncodeDecodePerformance()
 * Enigma with random settings, encode, decode
 * 
 \**************************************************************************************************/
-void testEnigmaIocPerformance()
+void testEnigmaNgramPerformance()
 {
-    testStart("decode");
+    testStart("NGRAM");
 
-    struct timeval stop, start;
-    float diff;
+    struct timeval  stop, start;
+    float           diff;
+    float           score;
+
+    prepareNgramScore(3, "GB");
 
     Enigma*         enigma  =createEnigmaM3();
     EnigmaSettings* settings=createRandomSettings(enigma, M3_ARMY_1938, 5);
-    strncpy(settings->cipher, testTextGerman, MAX_TEXT-1);
     setEnigma(enigma, settings);
-
-    // Calculating IoC - float
-    gettimeofday(&start, NULL);
-    float ioc;
-    for (int i=0;i<TEST_SIZE; i++)
+    for (int i=0;i<TEST_TEXT_MAX;i++)
     {
-        ioc=iocIndexOfCoincidence(enigma);
+        enigma->conversion[i]=testTextEnglish[i]-'A';
     }
-    gettimeofday(&stop, NULL);
-    diff=timeDifference(start, stop);
-    logInfo("IoC: %f Time elapsed %.0f ms for %d IoC, %.3f million/sec", ioc, diff, TEST_SIZE, 1000.0f/diff);
 
-    // Calculating IoC - int
-    gettimeofday(&start, NULL);
-    int iocInt;
-    for (int i=0;i<TEST_SIZE; i++)
-    {
-        iocInt=iocIndexOfCoincidenceFast(enigma);
+    printf("\nNGRAM CALCULATION\n");
+    printf("text size, calculations, elapsed time (ms), rate (/s), time/decode (us)\n");
+    for (int i=0; i<15; i++)
+    {   
+        enigma->textSize=testTextLengths[i];
+        gettimeofday(&start, NULL);
+        for (int i=0;i<TEST_SIZE; i++)
+        {
+            score=ngramScore(enigma);
+        }
+        gettimeofday(&stop, NULL);
+        diff=timeDifference(start, stop);
+        printf("%3d, %d, %.0f, %.0f, %.3f\n", testTextLengths[i], TEST_SIZE, diff, 1e9/diff, 1000.0*diff/TEST_SIZE);
     }
-    gettimeofday(&stop, NULL);
-    diff=timeDifference(start, stop);
-    logInfo("IoC: %d Time elapsed %.0f ms for %d IoC, %.3f million/sec", iocInt, diff, TEST_SIZE, 1000.0f/diff);
-
+    printf("Latest score calculated: %f\n", score);
     destroyEnigma(enigma);
     testWrapUp();
 }
@@ -193,8 +253,9 @@ void testEnigmaIocPerformance()
 \**************************************************************************************************/
 void testEnigmaPerformance()
 {
-    moduleTestStart("Enigma Performance");
+    moduleTestStart("PERFORMANCE");
     testEnigmaEncodeDecodePerformance();
     testEnigmaIocPerformance();
+    testEnigmaNgramPerformance();
     moduleTestWrapUp();
 }

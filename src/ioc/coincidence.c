@@ -20,7 +20,7 @@
 #include "log.h"
 #include "toolbox.h"
 #include "ngrams.h"
-#include "ngramscore.h"
+#include "ngramScore.h"
 #include "workDispatcher.h"
 
 /**************************************************************************************************\
@@ -37,7 +37,6 @@ typedef struct
 {
     IocRecipe       recipe;
     LinkedList*     permutations;               // List of Walze permutations
-    int             numOfWalzen;                // The number of Walzen (3 or 4)
     int             knownSteckerBrett[MAX_POSITIONS];
     int             numberOfKnownSteckers;
 } Operation;
@@ -46,7 +45,7 @@ typedef struct
 * VARIABLES
 \**************************************************************************************************/
 
-EnigmaSettings      iocSettings;
+EnigmaSettings      iocBestSettings;
 
 int                 iocNumberOfResults=0;      
 IocResults*         iocHighScores;
@@ -88,6 +87,7 @@ float iocIndexOfCoincidence(Enigma* enigma)
 * 
 * Calculates the index of coincidence (Gillogly). Interger based so a little bit faster.
 * Basically it calculates the IoC value times 1000000
+* Note: hardly faster (0.6%) than the float version iocIndexOfCoincidence()
 * 
 \**************************************************************************************************/
 int iocIndexOfCoincidenceFast(Enigma* enigma)
@@ -99,8 +99,12 @@ int iocIndexOfCoincidenceFast(Enigma* enigma)
     {
         ioc+=iocCharCounts[c]*(iocCharCounts[c]-1);
     }
-    ioc*=1000000;
-    ioc/=enigma->textSize*(enigma->textSize-1);
+    // In two steps to prevent int overflow
+    // Longs won't solve this because it is slower
+    ioc*=1000;
+    ioc/=enigma->textSize;
+    ioc*=1000;
+    ioc/=(enigma->textSize-1);
     return ioc;
 }
 
@@ -169,7 +173,7 @@ float iocStoreResults(IocResults* results)
             index=i;
         }
     }
-    // If not and the list is not full yet add it
+    // If not and the list is not full yet: add it
     if ((index<0) && (i<operation.recipe.scoreListSize))
     {
         index=i;
@@ -278,25 +282,6 @@ void iocDumpHighScores(int number, bool withDecode)
     fflush(stdout);
 }
 
-/**************************************************************************************************\
-* 
-* Helper: print the steckertable as letters
-* 
-\**************************************************************************************************/
-/*
-void printSteckerTable(int* steckerTable)
-{
-    int i;
-    printf("Stecker table: ");
-    i=0;
-    while (i<26)
-    {
-      printf("%c", steckerTable[i]+'A');
-      i++;
-    }
-    printf("\n");  
-}
-*/
 /**************************************************************************************************\
 * 
 * Helper: print found letters in a nifty string
@@ -1056,15 +1041,16 @@ LinkedList* generateWalzePermutations(IocRecipe recipe)
 
     walzenPermutations  =getWalzenPermutations(recipe.enigmaType, recipe.walzeSet);
     ukwPermutations     =getUkwPermutations   (recipe.enigmaType, recipe.walzeSet);
+    int numberOfWalzen;
     if (recipe.enigmaType==ENIGMATYPE_M4)
     {
-        operation.numOfWalzen=4;
+        numberOfWalzen=4;
     }
     else
     {
-        operation.numOfWalzen=3;
+        numberOfWalzen=3;
     }
-    permutations=combinePermutations(ukwPermutations, 1, walzenPermutations, operation.numOfWalzen);
+    permutations=combinePermutations(ukwPermutations, 1, walzenPermutations, numberOfWalzen);
     destroyPermutations(walzenPermutations);
     destroyPermutations(ukwPermutations);
     return permutations;
@@ -1072,20 +1058,9 @@ LinkedList* generateWalzePermutations(IocRecipe recipe)
 
 /**************************************************************************************************\
 * 
-* 
-* 
-\**************************************************************************************************/
-void iocSetCustomWalzePermutations(LinkedList* permutations)
-{
-    operation.permutations   =permutations;
-}
-
-/**************************************************************************************************\
-* 
 * Verbose onm operation method
 * 
 \**************************************************************************************************/
-
 void iocReportMethod()
 {
     printf("#####################################################################################\n");
@@ -1197,7 +1172,6 @@ void iocInitialize(IocRecipe recipe, LinkedList* permutations)
     initializeHighScoreList();
 }
 
-
 /**************************************************************************************************\
 * 
 * Prepare work items for M3
@@ -1260,7 +1234,7 @@ void prepareWorkM4()
 * customPermutations: Custom walzen permutation or NULL if all permutations should be tried.
 * 
 \**************************************************************************************************/
-void iocDecodeText(IocRecipe recipe, LinkedList* customPermutations)
+EnigmaSettings* iocDecodeText(IocRecipe recipe, LinkedList* customPermutations)
 {
     LinkedList* permutations;
     if (customPermutations==NULL)
@@ -1294,12 +1268,15 @@ void iocDecodeText(IocRecipe recipe, LinkedList* customPermutations)
     // Show the final result 
     printf("FOUND SOLUTION: \n");
     iocDumpHighScores(operation.recipe.numberOfSolutions, true);
+    iocBestSettings=iocHighScores[0].settings;
 
     if (operation.permutations!=NULL)
     {
         destroyLinkedList(operation.permutations);
+        operation.permutations=NULL;
     }
     destroyHighScoreList();
+    return &iocBestSettings;
 }
 
 /**************************************************************************************************\

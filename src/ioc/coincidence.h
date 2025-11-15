@@ -109,19 +109,20 @@ extern int                 iocNumberOfResults;
 \**************************************************************************************************/
 
 // Methods for own cracking methods
-float       iocIndexOfCoincidence           (Enigma* enigma);
-int         iocIndexOfCoincidenceFast       (Enigma* enigma);
-void        iocEvaluateEngimaSettings       (IocWorkItem* work);
-void        iocFindSteckeredChars           (IocResults* results, int maxNumOfSteckers);
-void        iocFindSteckeredCharsNgram      (IocResults* results, int maxNumOfSteckers, int ngramSize);
-void        iocFindRingStellung             (IocResults*  results, int startWalze, int endWalze);
-void        iocWorkerFunction               (int worker, int workItem, void* params);
-void        iocFinishFunction               (void* params);
+float           iocIndexOfCoincidence           (Enigma* enigma);
+int             iocIndexOfCoincidenceFast       (Enigma* enigma);
+void            iocEvaluateEngimaSettings       (IocWorkItem* work);
+void            iocFindSteckeredChars           (IocResults* results, int maxNumOfSteckers);
+void            iocFindSteckeredCharsNgram      (IocResults* results, int maxNumOfSteckers, int ngramSize);
+void            iocFindRingStellung             (IocResults*  results, int startWalze, int endWalze);
+void            iocWorkerFunction               (int worker, int workItem, void* params);
+void            iocFinishFunction               (void* params);
 
 // Public methods
-IocRecipe*  createDefaultRecipe             (char* cipher, int numberOfThreads);
-void        destroyRecipe                   (IocRecipe* recipe);
-void        iocInitialize                   (IocRecipe recipe, LinkedList* permutations);
-void        iocDecodeText                   (IocRecipe recipe, LinkedList* customPermutations);
-void        iocReportMethod                 ();
+IocRecipe*      createDefaultRecipe             (char* cipher, int numberOfThreads);
+void            destroyRecipe                   (IocRecipe* recipe);
+void            iocInitialize                   (IocRecipe recipe, LinkedList* permutations);
+EnigmaSettings* iocDecodeText                   (IocRecipe recipe, LinkedList* customPermutations);
+ 
+void            iocReportMethod                 ();
 

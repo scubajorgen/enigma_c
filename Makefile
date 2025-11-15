@@ -26,7 +26,7 @@ _SRCOBJ	        = enigma.o \
                   exampleTuring.o \
                   coincidence.o \
                   exampleCoincidence.o \
-                  ngramscore.o \
+                  ngramScore.o \
                   adfgx.o \
                   linkedList.o \
                   toolbox.o \

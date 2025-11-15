@@ -13,7 +13,7 @@
 #include "log.h"
 #include "toolbox.h"
 #include "coincidence.h"
-#include "ngramscore.h"
+#include "ngramScore.h"
 #include "generics/workDispatcher.h"
 
 char text11_test[]  = "QAVIMKGJZTXYFBCMVCONNTBZKLEZNBQMCLEUQXPYTYHEBVNCKOVACPK"

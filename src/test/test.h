@@ -2,6 +2,7 @@
 #define TEST_H
 
 extern char testTextGerman[];
+extern char testTextEnglish[];
 extern char testTextMax[];
 extern char testTextRandom[];
 

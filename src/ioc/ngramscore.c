@@ -1,25 +1,22 @@
+/**************************************************************************************************\
+* 
+* ngramScore.c
+* Functions for calculating NGRAM scores
+* 
+\**************************************************************************************************/
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
 #include <limits.h>
 
-#include "ngramscore.h"
+#include "ngramScore.h"
+#include "log.h"
 #include "enigma.h"
-
-#define MAX_NGRAM           3
-#define MAX_NGRAM_SIZE      17576
+#include "toolbox.h"
 
 typedef enum {NGRAM_CHANCE, NGRAM_FREQUENCY} NgramFileFormat;
-
-typedef struct
-{
-    char    ngram[MAX_NGRAM];   // the ngram
-    int     value;              // the ngram represented as value: each letter takes 5 bits
-    long    frequency;          // the frequency of the ngram
-    float   chance;             // the chance of the ngram
-    float   logChance;          // natural log of the chance
-} NgramFrequency;
 
 int             ngramSize=0;
 NgramFrequency  ngramFrequencies[MAX_NGRAM_SIZE];
@@ -39,91 +36,119 @@ char fileLine[128];
 * [ABC] [123]
 * [ABC] is the ngram, [123] the number of occurences (e.g. in some text)
 *
-* Chance
+* Chance:
 * [ABC] [0.123]
 * [ABC] is the ngram, [0.123] the relative chance of occurences
 *
 * In both cases the list must be alphabetically sorted in ascending order
-* 
+* FILE MUST CONTAIN ALL POSSIBLE BI OR TRIGRAMS, SORTED AND IN UPPER CASE!
+*
+* In the array ngramFrequences each NGRAM is placed on the right position, whether it is in the
+* file or not, resulting in e.g.
+* 0 "AAA" ...
+* 1 "AAB" ... 
+* 2 ""    ...
+* 3 "AAD" ...
+* ...
+* So the NGRAM is in fact the index ABC means A*26^2+B*26^1+C*26^0
 \**************************************************************************************************/
 void readNgramFile(char* fileName, int n, NgramFileFormat format)
 {
-    FILE *fp;
-    int  i;
-    int  line;
-    long sum;
- 
-    fp = fopen(fileName, "r"); // read mode
+    logDebug("Preparing NGRAMS: n=%d, file: %s, start", n, fileName);
+
+    // Clear the NGRAM frequencies by setting ngram to ""
+    int ngramArraySize=ipow(26,n);
+    for (int i=0; i<ngramArraySize; i++)
+    {
+        strncpy(ngramFrequencies[i].ngram, "***", MAX_NGRAM_STRING);
+        ngramFrequencies[i].frequency=0;
+    }
+
+    FILE* fp = fopen(fileName, "r"); // read mode
  
     if (fp == NULL)
     {
-        perror("Error while opening the file.\n");
+        logFatal("Error while opening the file %s", fileName);
         exit(EXIT_FAILURE);
     } 
  
-    line=0;
-    sum=0;
+    int  line   =0;
+    long sum    =0;
     minFrequency=INT_MAX;
-    minChance=1.0f;
+    minChance   =0.0f;
     // Read line
     while ( fgets(fileLine, sizeof fileLine, fp)!=NULL)
     {
-        ngramFrequencies[line].value=0;
-        i=0;
-        while ((i<n) && (fileLine[i]!=' '))
+        int     index=0;
+        int     i=0;
+        bool    ngramFound=true;
+        char    ngram[MAX_NGRAM+1];
+        while (i<n && ngramFound)
         {
-            ngramFrequencies[line].ngram[i]     =fileLine[i];
-            ngramFrequencies[line].value        <<=5;
-            ngramFrequencies[line].value        +=ngramFrequencies[line].ngram[i]-'A';
-            i++;
-        }
-        if (format==NGRAM_CHANCE)
-        {
-            ngramFrequencies[line].chance       =atof(fileLine+i+1);
-            ngramFrequencies[line].logChance    =log(ngramFrequencies[line].chance);
-            if (ngramFrequencies[line].chance<minChance)
+            char c=fileLine[i];
+            if ((c=='\0') || (c=='\n'))
             {
-                minChance                       =ngramFrequencies[line].chance;
+                // line does not contain NGRAM
+                ngramFound=false;
             }
+            else if (c!=' ')
+            {
+                ngram[i]=c;
+                index*=26;
+                index+=c-'A';
+                i++;
+            }
+        }
+        ngram[i]='\0'; 
+
+        if (ngramFound)
+        {
+            strncpy(ngramFrequencies[index].ngram, ngram, MAX_NGRAM_STRING);
+            if (format==NGRAM_CHANCE)
+            {
+                ngramFrequencies[index].chance      =atof(fileLine+i+1);
+                ngramFrequencies[index].logChance   =log(ngramFrequencies[index].chance);
+                if (ngramFrequencies[index].chance<minChance)
+                {
+                    minChance                       =ngramFrequencies[index].chance;
+                }
+            }
+            else
+            {
+                ngramFrequencies[index].frequency   =strtol(fileLine+i+1, NULL, 10);
+                sum+=ngramFrequencies[index].frequency;
+                if (ngramFrequencies[index].frequency<minFrequency)
+                {
+                    minFrequency                    =ngramFrequencies[index].frequency;
+                }
+            }
+            line++;
         }
         else
         {
-            ngramFrequencies[line].frequency    =strtol(fileLine+i+1, NULL, 10);
-            sum+=ngramFrequencies[line].frequency;
-            if (ngramFrequencies[line].frequency<minFrequency)
-            {
-               minFrequency                     =ngramFrequencies[line].frequency;
-            }
-        }        
-        
-        line++;
+            logWarning("Empty line at line %d in NGRAM file %s", line, fileName);
+        }
     }
-    
     ngrams=line;
-    
+
+    logDebug("Preparing NGRAMs: n=%d, file: %s: %d NGRAMS read", n, fileName, line);
+    logDebug("NGRAM occurence sum: %ld", sum);
     // If frequencies were read, calculate the change of occurrence
     if (format==NGRAM_FREQUENCY)
     {
-        i=0;
-        while (i<ngrams)
+        for (int i=0; i<ngramArraySize; i++)
         {
-            ngramFrequencies[i].chance      =(float)ngramFrequencies[i].frequency/(float)sum;
-            ngramFrequencies[i].logChance   =log(ngramFrequencies[i].chance);
-/*
-            printf("%s (%d) - %ld - %f - %f\n", 
-                                ngramFrequencies[i].ngram, 
-                                ngramFrequencies[i].value,
-                                ngramFrequencies[i].frequency,
-                                ngramFrequencies[i].chance,
-                                ngramFrequencies[i].logChance);
-*/ 
-            i++;
+            if (ngramFrequencies[i].ngram[0]!='*')
+            {
+                ngramFrequencies[i].chance      =(float)ngramFrequencies[i].frequency/(float)sum;
+                ngramFrequencies[i].logChance   =log(ngramFrequencies[i].chance);
+            }
         }
         minChance=(float)minFrequency/(float)sum;
     }
     minLogChance=log(minChance);
-
-    fclose(fp);    
+    logDebug("NGRAM minimum freq %ld, min chance %f min Logchange %f\n", minFrequency, minChance, minLogChance);
+    fclose(fp);
 }
 
 
@@ -151,18 +176,24 @@ void prepareNgramScore(int n, char* language)
         }
         else
         {
+            logFatal("Invalid NGRAM configuration/file: n=%d, language: %s", n, language);
             ngramSize=0;
         }
     }
     else if (strncmp(language, "GB", 4)==0)
     {
+        if (n==2)
+        {
+            readNgramFile("ngrams/GB_bigrams.txt", 2, NGRAM_FREQUENCY);
+        }
         if (n==3)
         {
-            readNgramFile("ngrams/english_trigrams.txt", 3, NGRAM_FREQUENCY);
+            readNgramFile("ngrams/GB_trigrams.txt", 3, NGRAM_FREQUENCY);
         }
         else
         {
             ngramSize=0;
+            logFatal("Invalid NGRAM configuration/file: n=%d, language: %s", n, language);
         }
     }
     else if (strncmp(language, "NL", 4)==0)
@@ -174,6 +205,7 @@ void prepareNgramScore(int n, char* language)
         else
         {
             ngramSize=0;
+            logFatal("Invalid NGRAM configuration/file: n=%d, language: %s", n, language);
         }
     }
     else if (strncmp(language, "GC", 4)==0)
@@ -185,6 +217,7 @@ void prepareNgramScore(int n, char* language)
         else
         {
             ngramSize=0;
+            logFatal("Invalid NGRAM configuration/file: n=%d, language: %s", n, language);
         }
     }
     else if (strncmp(language, "GC2", 4)==0)
@@ -196,99 +229,56 @@ void prepareNgramScore(int n, char* language)
         else
         {
             ngramSize=0;
+            logFatal("Invalid NGRAM configuration/file: n=%d, language: %s", n, language);
         }
     }
     else
     {
         ngramSize=0;
+        logFatal("Invalid NGRAM configuration/file: n=%d, language: %s", n, language);
     }
 }
-
-
-
 
 /**************************************************************************************************\
 * 
 * Calculate the ngram score. It assumes the array of ngrams is sorted alphabetically
+* About 51% faster than previous ngramScore()
 * 
 \**************************************************************************************************/
-float ngramScore(Enigma* engima)
+float ngramScore(Enigma* enigma)
 {
-    int     c;
-    int     ngram;
-    int     ngramInc;
-    int     found;
-    int     exit;
-    int     ngramValue;
-    float   score;
-    int     last;
-    
-    score   =0;
-    c       =0;
-    while (c<engima->textSize-ngramSize+1)
+    float score=0;
+    for (int i=0; i<enigma->textSize-ngramSize+1; i++)
     {
-        // Construct the ngram value
-        ngram           =0;
-        ngramValue      =0;
-        while (ngram<ngramSize)
+        int index=0;
+        for (int j=0; j<ngramSize; j++)
         {
-            ngramValue<<=5;
-            ngramValue+=engima->conversion[c+ngram];
-            ngram++;
-        }
-       
-        ngram       =ngrams>>1;
-        ngramInc    =ngram>>1;
-        found       =0;
-        exit        =0;
-        last        =4;         // TODO there must be a better solution for this...
-        while (!found && !exit)
-        {
-            if (ngramValue==ngramFrequencies[ngram].value)
+            index+=enigma->conversion[i+j];
+            if (j<ngramSize-1)
             {
-                score+=ngramFrequencies[ngram].logChance;
-                found=1;
-            }
-            else if (ngramValue>ngramFrequencies[ngram].value)
-            {
-                ngram+=ngramInc;
-                if (ngramInc>1)
-                {
-                    ngramInc>>=1;
-                }
-                else if (ngramInc==1)
-                {
-                    if (last==0)
-                    {
-                        exit=1;
-                    }
-                    last--;
-                }
-            }
-            else
-            {
-                ngram-=ngramInc;
-                if (ngramInc>1)
-                {
-                    ngramInc>>=1;
-                }
-                else if (ngramInc==1)
-                {
-                    if (last==0)
-                    {
-                        exit=1;
-                    }
-                    last--;
-                }
+                index*=26;
             }
         }
-        // For non found ngrams, add the score of the last 
-        // ngram
-        if (!found)
+        if (ngramFrequencies[index].ngram[0]=='*')
         {
+            // If an NGRAM is not in the list, assume lowest probability
             score+=minLogChance;
         }
-        c++;
+        else
+        {
+            // consistency check
+            /*
+            bool error=false;
+            for (int j=0; j<ngramSize;j++)
+            {
+                if (ngramFrequencies[index].ngram[j]-'A'!=enigma->conversion[i+j])
+                {
+                    logFatal("Inconsistent NGRAM list");
+                }
+            }
+            */
+            score+=ngramFrequencies[index].logChance;
+        }
     }
     return score;
 }
