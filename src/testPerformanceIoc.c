@@ -1,7 +1,7 @@
 /**************************************************************************************************\
 *
-* test.c
-* Module tests
+* testPerformanceIoc.c
+* IoC performance tests - Main function
 *
 \**************************************************************************************************/
 #include <stdio.h>
@@ -22,28 +22,11 @@
 * 
 * 
 \**************************************************************************************************/
-
 int main()
 {
     setLogLevel(LOGLEVEL_INFO);
-    testSessionStart("ENGIMA MODULES");
-
-    // Generics
-    testLinkedList();
-    testToolbox();
-    testWorkDispatcher();
-
-    // Enigma
-    testWalze();
-    testUkw();
-    testSteckerbrett();
-    testEnigma();
-
-    // Solving/decrypting
-    testNgram();
-    testCoincidence();
-    testTuring();
-
+    testSessionStart("IOC PERFORMANCE TEST");
+    testIocPerformance();
     testSessionWrapUp();
     return 0;
 }

@@ -5,6 +5,7 @@ extern char testTextGerman[];
 extern char testTextEnglish[];
 extern char testTextMax[];
 extern char testTextRandom[];
+extern char testTextEnigma[];
 
 
 void testToolbox            ();
@@ -19,5 +20,6 @@ void testTuring             ();
 void testNgram              ();
 
 void testEnigmaPerformance  ();
+void testIocPerformance     ();
 
 #endif

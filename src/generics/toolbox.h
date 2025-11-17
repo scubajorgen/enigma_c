@@ -25,5 +25,5 @@ LinkedList* createWalzePermutations (int numberOfWalzen, int numberToChooseFrom)
 void        printCipher             (char* cipher);
 
 void        selectRandomIndices     (int* available, int arrayLength, int number, int* resultingIndices);
-
+int         randint                 (int n);
 #endif

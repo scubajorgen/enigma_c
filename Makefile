@@ -42,30 +42,35 @@ _TESTSRCOBJ     = testframe.o \
                   testSteckerbrett.o \
                   testEnigma.o \
                   testEnigmaPerformance.o \
+                  testIocPerformance.o \
                   testTuring.o \
                   testCoincidence.o \
                   testNgram.o
 
 # Main programm
-_MAINOBJ        = main.o
+_MAINOBJ            = main.o
 
 # Module tests
-_TESTOBJ        = test.o 
+_TESTOBJ            = test.o 
 
-# Performance tests
-_TESTPERFOBJ    =testPerformance.o
+# Performance tests enigma
+_TESTENIGMAPERFOBJ  =testPerformanceEnigma.o
 
-SRCOBJ          = $(patsubst %,$(OBJDIR)/%,$(_SRCOBJ))
-TESTSRCOBJ      = $(patsubst %,$(OBJDIR)/%,$(_TESTSRCOBJ))
-MAINOBJ         = $(patsubst %,$(OBJDIR)/%,$(_MAINOBJ))
-TESTOBJ         = $(patsubst %,$(OBJDIR)/%,$(_TESTOBJ))
-TESTPERFOBJ     = $(patsubst %,$(OBJDIR)/%,$(_TESTPERFOBJ))
+# Performance tests IoC Method
+_TESTIOCPERFOBJ    =testPerformanceIoc.o
+
+SRCOBJ              = $(patsubst %,$(OBJDIR)/%,$(_SRCOBJ))
+TESTSRCOBJ          = $(patsubst %,$(OBJDIR)/%,$(_TESTSRCOBJ))
+MAINOBJ             = $(patsubst %,$(OBJDIR)/%,$(_MAINOBJ))
+TESTOBJ             = $(patsubst %,$(OBJDIR)/%,$(_TESTOBJ))
+TESTENIGMAPERFOBJ   = $(patsubst %,$(OBJDIR)/%,$(_TESTENIGMAPERFOBJ))
+TESTIOCPERFOBJ      = $(patsubst %,$(OBJDIR)/%,$(_TESTIOCPERFOBJ))
 
 OBJ             = $(MAINOBJ) $(SRCOBJ) $(TESTOBJ)
 
 VPATH = ./src ./src/generics ./src/enigma ./src/turing ./src/ioc ./src/various ./src/examples ./src/testframe ./src/test
 
-all: enigma test testPerformance
+all: enigma test testPerformanceEnigma testPerformanceIoc
 
 enigma: $(MAINOBJ) $(SRCOBJ) 
 	$(CC) $(LDFLAGS) -o $@ $(MAINOBJ) $(SRCOBJ) $(LIBS)
@@ -73,12 +78,16 @@ enigma: $(MAINOBJ) $(SRCOBJ)
 test: $(TESTOBJ) $(SRCOBJ) $(TESTSRCOBJ)
 	$(CC) $(LDFLAGS) -o $@ $(TESTOBJ) $(SRCOBJ) $(TESTSRCOBJ) $(LIBS)
 
-testPerformance: $(TESTPERFOBJ) $(SRCOBJ) $(TESTSRCOBJ)
-	$(CC) $(LDFLAGS) -o $@ $(TESTPERFOBJ) $(SRCOBJ) $(TESTSRCOBJ) $(LIBS)
+testPerformanceEnigma: $(TESTENIGMAPERFOBJ) $(SRCOBJ) $(TESTSRCOBJ)
+	$(CC) $(LDFLAGS) -o $@ $(TESTENIGMAPERFOBJ) $(SRCOBJ) $(TESTSRCOBJ) $(LIBS)
+
+testPerformanceIoc: $(TESTIOCPERFOBJ) $(SRCOBJ) $(TESTSRCOBJ)
+	$(CC) $(LDFLAGS) -o $@ $(TESTIOCPERFOBJ) $(SRCOBJ) $(TESTSRCOBJ) $(LIBS)
 
 $(OBJDIR)/%.o:%.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 
 clean:
-	 rm -f $(OBJDIR)/*.o enigma test testPerformance enigma.exe test.exe testPerformance.exe
+	 rm -f $(OBJDIR)/*.o enigma test testPerformanceEnigma testPerformanceIoc\
+                         enigma.exe test.exe testPerformanceEnigma.exe testPerformanceIoc.exe

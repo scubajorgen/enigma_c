@@ -16,7 +16,7 @@
 #include "testframe.h"
 #include "toolbox.h"
 
-#define TEST_SIZE       1000000
+#define TEST_SIZE       10000000
 #define TEST_TEXT_MAX   1000
 int testTextLengths[]={2, 5, 10, 12, 25, 50, 75, 100, 125, 150, 200, 400, 600, 800, 1000};
 

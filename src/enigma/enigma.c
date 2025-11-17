@@ -486,6 +486,8 @@ EnigmaSettings* createRandomSettings(Enigma* enigma, WalzeSet_t walzeSet, int nu
     }
 
     // Steckers
+    random->steckers[0]='\0'; // Initialize: no steckers
+
     int available[26]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
     selectRandomIndices(available, 26, numberOfSteckers*2, indices);
 
