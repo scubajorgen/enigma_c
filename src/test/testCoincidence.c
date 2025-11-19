@@ -6,12 +6,14 @@
 \**************************************************************************************************/
 #include <stdio.h>
 #include <string.h>
+#include <malloc.h>
 #include "test.h"
 #include "testframe.h"
 #include "enigma.h"
 #include "coincidence.h"
 #include "log.h"
 
+// Original Gillogly cipher, from the article, 7 steckers
 char* iocTestCipher01=
     "QKRQW UQTZK FXZOM JFOYR HYZWV BXYSI WMMVW BLEBD MWUWB TVHMR"
     "FLKSD CCEXI YPAHR MPZIO VBBRV LNHZU POSYE IPWJT UGYOS LAOXR"
@@ -26,6 +28,22 @@ char* iocTestCipher01=
     "ELBLL ZEVDC HRMIO YEPFV UGNDL ENISX YCHKS JUWVX USBIT DEQTC"
     "NKRLS NXMXY ZGCUP AWFUL TZZSF AHMPX GLLNZ RXYJN SKYNQ AMZBU"
     "GFZJC URWGT QZCTL LOIEK AOISK HAAQF OPFUZ IRTLW EVYWM DN";
+
+// Same settings, 10 steckers: AC BL EZ FG IU JO MV PX RW QY
+char* iocTestCipher02=
+"KKBYWAYTZKGXZOMJGOQRHQUWVBXQTIWMMVWBLEBPTWUWBTVHMR"
+"GLKPDAAXXIQPCHVMPZIAVIBRVLNHZOPOFQXIPZSTUFQOSLCOXL"
+"HKVARYOHVDTRBPDJFUKSBBOHTTFWHFGIACAVFHVOYGCYWBKXZJ"
+"SYJGZJEVJROATOESLBRHYTRCCHXVQCUHTNBFIBVALBLXAQBDMY"
+"WTVHQKGGTXNDDIAAJBHYGFKXEEQWZBQXWDXDRDYNIFDSEUJJPV"
+"MHULPZGHKLGZRCZHZPILDFBKOYXWTLDVRAWUCEDHAPQJGWZMMT"
+"UCMYBNNGAHUSCWAUHNAGQPWUCNBBNIGPHFRDKMDYLMRNMTZOHM"
+"CUHRVFAUMYKKYRKDVSWVMTQVNGRDDSKIISXONXYHHLIQYSDGHE"
+"NAMCGMBEZYDRPBMRVPYTVRSWZPFLPITRHFBPXXHPRGISZTPDEP"
+"LKOTTXNCZMHTEPAHCCOGZLEGAEZUTPQBCOSXPZAJAQBOVEHZZV"
+"ELBLLZEVDAHRMIOMKPGDHFNDLTNISXKAHNEJZWVXUSBITDESVA"
+"NKYLSNXMOQZFIUPCWGULTZZSGCHMZXPLJNZRXQJNSKQNYWMZBU"
+"FGZJAUTWFTYZATLLOIEKCOISFHCYQGOPGUZIRTLWEVQWMDN";
 
 char* expected01=
 "AUFBEFEHLDESOBERSTENBEFEHLSHABERSSINDIMFALLEXZXZTXUNWAHRSCHEINLICHEN"
@@ -82,6 +100,7 @@ void testCoincidenceIndexOfCoincidence(void)
 
     testWrapUp();
 }
+
 /**************************************************************************************************\
 * 
 * Test iocDecodeText
@@ -89,7 +108,7 @@ void testCoincidenceIndexOfCoincidence(void)
 \**************************************************************************************************/
 void testCoincidenceDecodeText1(void)
 {
-    testStart("Decode text 1");
+    testStart("Decode text");
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
     recipe.walzeSet         =M3_ARMY_1938;
@@ -113,6 +132,71 @@ void testCoincidenceDecodeText1(void)
 
 /**************************************************************************************************\
 * 
+* Test iocDecodeText - inline steckers, all permutations, takes hours
+* 
+\**************************************************************************************************/
+void testCoincidenceDecodeTextInline1(void)
+{
+    testStart("Decode - inline1");
+    IocRecipe recipe;
+    recipe.enigmaType       =ENIGMATYPE_M3;
+    recipe.walzeSet         =M3_ARMY_1938;
+    recipe.method           =DEPTH_NONE;
+    recipe.evalWalzen       =EVAL_IOC;
+    recipe.evalSteckers     =EVAL_IOC;
+    recipe.maxSteckers      =7;
+    recipe.maxSteckersInline=7;
+    recipe.knownSteckers[0] ='\0';
+    recipe.ngramSize        =0;
+    strncpy(recipe.ngramSet, "none", MAX_NGRAMSETSIZE);
+    recipe.scoreListSize    =5;
+    recipe.numberOfSolutions=1;
+    recipe.numberOfThreads  =6;
+    recipe.cipher           =iocTestCipher01;
+    recipe.cipherSize       =MAX_TEXT;
+    recipe.displayFormat    =MESSAGEFORMAT_TEXT;
+    iocDecodeText(recipe, NULL);
+    testWrapUp();
+}
+
+/**************************************************************************************************\
+* 
+* Test iocDecodeText - inline steckers, just one permutation to reduce solving time
+* 
+\**************************************************************************************************/
+void testCoincidenceDecodeTextInline2(void)
+{
+    testStart("Decode - inline2");
+    // Define recipe using NGRAM for letterfinding -> succeed
+    LinkedList*     permutations=createLinkedList();
+    int* permutation   =malloc(4*sizeof(int)); 
+    permutation[0]=1; // Index of UKW B
+    permutation[1]=1; // II
+    permutation[2]=0; // I
+    permutation[3]=2; // III
+    addObject(permutations, permutation); 
+
+    IocRecipe* recipe=createDefaultRecipe(iocTestCipher02, 1);
+    recipe->method           =DEPTH_R3;
+    recipe->evalWalzen       =EVAL_IOC;
+    recipe->evalSteckers     =EVAL_IOC;
+    recipe->maxSteckers      =10;
+    recipe->maxSteckersInline=10;
+    recipe->scoreListSize    =10;
+    recipe->numberOfSolutions=1;
+    EnigmaSettings* bestSettings=iocDecodeText(*recipe, permutations);
+
+    Enigma* enigma=createEnigmaM3();
+    setEnigma(enigma, bestSettings);
+    encodeDecode(enigma);
+    assertStringEquals(expected01, toString(enigma));
+    destroyEnigma(enigma);
+
+    testWrapUp();
+}
+
+/**************************************************************************************************\
+* 
 * Test main function
 * 
 \**************************************************************************************************/
@@ -121,5 +205,7 @@ void testCoincidence()
     moduleTestStart("IoC");
     testCoincidenceIndexOfCoincidence();
     testCoincidenceDecodeText1();
+    //testCoincidenceDecodeTextInline1();   // takes hours to execute
+    //testCoincidenceDecodeTextInline2();     // takes minutes to execute
     moduleTestWrapUp();
 }

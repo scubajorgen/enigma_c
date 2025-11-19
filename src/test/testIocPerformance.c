@@ -21,13 +21,8 @@
 #define NUMBER_OF_TESTS         50
 #define MIN_NUMBER_OF_STECKERS  0
 #define MAX_NUMBER_OF_STECKERS  12
-
-/*
-#define NUMBER_OF_CIPHERLENGTHS 2
-#define NUMBER_OF_TESTS         2
-#define MIN_NUMBER_OF_STECKERS  0
-#define MAX_NUMBER_OF_STECKERS  0
-*/
+#define SAMPLETEXT              testTextEnigma
+//#define SAMPLETEXT              testTextEnglish
 
 char iocTestPlainText[MAX_TEXT];
 char iocTestCipher[MAX_TEXT];
@@ -102,8 +97,7 @@ void testIocScoring()
                 int             cipherLength=cipherLengths[index];
                 EnigmaSettings* settings=createRandomSettings(enigma, M3_ARMY_1938, numOfSteckers);
                 printEnigmaSettings(settings, "Test");
-                char*           plain   =createSampleText(testTextEnigma, cipherLength);
-
+                char*           plain   =createSampleText(SAMPLETEXT, cipherLength);
 
                 setEnigma(enigma, settings);
                 setText(enigma, plain);
@@ -111,6 +105,7 @@ void testIocScoring()
                 strncpy(iocTestCipher, toString(enigma), MAX_TEXT-1);
 
                 IocRecipe*  recipe      =createDefaultRecipe(iocTestCipher, 6);
+                recipe->maxSteckers     =MAX_NUMBER_OF_STECKERS;
                 //recipe->maxSteckers     =numOfSteckers;
                 EnigmaSettings* found   =iocDecodeText(*recipe, NULL);
                 setEnigma(enigma, found);

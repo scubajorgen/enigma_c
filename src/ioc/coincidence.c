@@ -19,7 +19,6 @@
 #include "coincidence.h"
 #include "log.h"
 #include "toolbox.h"
-#include "ngrams.h"
 #include "ngramScore.h"
 #include "workDispatcher.h"
 
@@ -30,7 +29,7 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 #define MAX_TRIGRAMS        54
-#define MIN_IOC             -100000.0;
+#define MIN_SCORE           -1000000.0;
 
 /** Defines the method for decrypting the engima cipher */
 typedef struct
@@ -139,7 +138,7 @@ void initializeHighScoreList()
     iocHighScores=malloc(operation.recipe.scoreListSize*sizeof(IocResults));
     for(int i=0; i<operation.recipe.scoreListSize; i++)
     {
-        iocHighScores[i].indexOfCoincidence=MIN_IOC;
+        iocHighScores[i].score=MIN_SCORE;
     }
     iocNumberOfResults=0;
 }
@@ -168,7 +167,7 @@ float iocStoreResults(IocResults* results)
     int i;
     for (i=0; i<iocNumberOfResults && index<0; i++)
     {
-        if (results->indexOfCoincidence > iocHighScores[i].indexOfCoincidence)
+        if (results->score > iocHighScores[i].score)
         {
             index=i;
         }
@@ -197,7 +196,7 @@ float iocStoreResults(IocResults* results)
             iocNumberOfResults++;
         }   
     }
-    return iocHighScores[iocNumberOfResults-1].indexOfCoincidence;
+    return iocHighScores[iocNumberOfResults-1].score;
 }
 
 /**************************************************************************************************\
@@ -211,7 +210,7 @@ void iocSortHighScores()
     {
         for (int j=i+1; j<operation.recipe.scoreListSize; j++)
         {
-            if (iocHighScores[j].indexOfCoincidence>iocHighScores[i].indexOfCoincidence)
+            if (iocHighScores[j].score>iocHighScores[i].score)
             {
                 swap            =iocHighScores[i];
                 iocHighScores[i]=iocHighScores[j];
@@ -268,7 +267,7 @@ void iocDumpHighScores(int number, bool withDecode)
                settings->ringStellungen[0], settings->ringStellungen[1], settings->ringStellungen[2],
                settings->grundStellungen[0], settings->grundStellungen[1], settings->grundStellungen[2],
                settings->steckers,
-               results->indexOfCoincidence);
+               results->score);
         if (withDecode)
         {
             setEnigma(enigma, settings);
@@ -342,13 +341,31 @@ void iocFindSteckeredChars(IocResults* results, int maxNumOfSteckers)
     setEnigma(enigma, &results->settings);
     
     // The IoC found by just moving the Walzen, no steckers
-    //float maxIoc          =results->indexOfCoincidence;
-    // Just reset the max; needed when switching from IoC to NGRAMs 
-    float maxIoc          =MIN_IOC;
+    // We have to initialize the maxScore taking into account
+    // that we might change evaluation method
+    float maxScore;
+    if (operation.recipe.evalSteckers==operation.recipe.evalWalzen)
+    {
+        maxScore=results->score;
+    }
+    else
+    {
+        memcpy(enigma->steckerBrett, steckerTable, MAX_POSITIONS*sizeof(int));
+        encodeDecode(enigma);
+        if (operation.recipe.evalSteckers==EVAL_NGRAM)
+        {
+            maxScore=ngramScore(enigma);
+        }
+        else
+        {
+            maxScore=iocIndexOfCoincidence(enigma);
+        }
+    }
+
     bool found=true;
     while (sCount<maxNumOfSteckers && found)
     {
-        float   ioc;
+        float   score;
         int     s1a;
         int     s2a;
         int     s1Max=-1;
@@ -411,16 +428,16 @@ void iocFindSteckeredChars(IocResults* results, int maxNumOfSteckers)
                 encodeDecode(enigma);
                 if (operation.recipe.evalSteckers==EVAL_NGRAM)
                 {
-                    ioc=ngramScore(enigma);
+                    score=ngramScore(enigma);
                 }
                 else
                 {
-                    ioc=iocIndexOfCoincidence(enigma);
+                    score=iocIndexOfCoincidence(enigma);
                 }
 
-                if (ioc>maxIoc)
+                if (score>maxScore)
                 {
-                    maxIoc=ioc;
+                    maxScore=score;
                     s1Max=s1;
                     s2Max=s2;
                     s1aMax=s1a;
@@ -451,7 +468,7 @@ void iocFindSteckeredChars(IocResults* results, int maxNumOfSteckers)
         // If improvement of ioc found, make the switch definitive
         if (found)
         {
-            printFoundLetters(s1Max, s2Max, s1aMax, s2aMax, maxIoc);
+            printFoundLetters(s1Max, s2Max, s1aMax, s2aMax, maxScore);
             if (s1aMax>=0)
             {
               steckerTable[s1aMax]=s1aMax;
@@ -478,7 +495,7 @@ void iocFindSteckeredChars(IocResults* results, int maxNumOfSteckers)
     // Convert the stecker positions to a stecker brett string
     steckerbrettTableToSteckers(steckerTable, results->settings.steckers);
 
-    results->indexOfCoincidence=maxIoc;
+    results->score=maxScore;
     
     destroyEnigma(enigma);
     fflush(stdout);
@@ -486,21 +503,22 @@ void iocFindSteckeredChars(IocResults* results, int maxNumOfSteckers)
 
 /**************************************************************************************************\
 * 
-* This method is meant to try to find best stecker settings for each Walze setting. 
+* This method is meant to try to find best stecker settings when evaluating the best Walzen 
+* permutation. So evaluation according to recipe.evalWalzen
 * To be used inline
 * 
 \**************************************************************************************************/
-void iocFindSteckeredCharsInline(Enigma* enigma, IocResults* results, int g1, int g2, int g3, int maxSteckers)
+float iocFindSteckeredCharsInline(Enigma* enigma, IocResults* results, int g1, int g2, int g3, int maxSteckers)
 {
     int     steckerTable[MAX_POSITIONS];
 
     // Initialise stecker brett table: initialize and place any known steckers
     int     sCount  =steckersToSteckerbrettTable(operation.recipe.knownSteckers, steckerTable);
-    float   maxIoc  =MIN_IOC;
+    float   maxScore=MIN_SCORE;
     bool    found   =true;
 
     // In the case we already have our steckers, we need a maxIoC
-    if (sCount==maxSteckers)
+    if (sCount>=maxSteckers)
     {
         // Quick and dirty way to set up the steckers
         memcpy(enigma->steckerBrett, steckerTable, MAX_POSITIONS*sizeof(int));
@@ -510,19 +528,19 @@ void iocFindSteckeredCharsInline(Enigma* enigma, IocResults* results, int g1, in
         setGrundStellung(enigma, 3, g3);
         
         encodeDecode(enigma);
-        if (operation.recipe.evalSteckers==EVAL_IOC)
+        if (operation.recipe.evalWalzen==EVAL_IOC)
         {
-            maxIoc=ngramScore(enigma);
+            maxScore=ngramScore(enigma);
         }
         else
         {
-            maxIoc=iocIndexOfCoincidence(enigma);
+            maxScore=iocIndexOfCoincidence(enigma);
         }
     }
     // else
     while (sCount<maxSteckers && found)
     {
-        float   ioc;
+        float   score;
         int     s1;
         int     s2;
         int     s1a;
@@ -586,18 +604,18 @@ void iocFindSteckeredCharsInline(Enigma* enigma, IocResults* results, int g1, in
                 setGrundStellung(enigma, 3, g3);
                 
                 encodeDecode(enigma);
-                if (operation.recipe.evalSteckers==EVAL_IOC)
+                if (operation.recipe.evalWalzen==EVAL_NGRAM)
                 {
-                    ioc=ngramScore(enigma);
+                    score=ngramScore(enigma);
                 }
                 else
                 {
-                    ioc=iocIndexOfCoincidence(enigma);
+                    score=iocIndexOfCoincidence(enigma);
                 }
 
-                if (ioc>maxIoc)
+                if (score>maxScore)
                 {
-                    maxIoc  =ioc;
+                    maxScore=score;
                     s1Max   =s1;
                     s2Max   =s2;
                     s1aMax  =s1a;
@@ -649,9 +667,9 @@ void iocFindSteckeredCharsInline(Enigma* enigma, IocResults* results, int g1, in
     }     
     // Update the results: Store the raw stecker table and highes IoC
     memcpy(results->steckerTable, steckerTable, MAX_POSITIONS*sizeof(int));
-    results->indexOfCoincidence=maxIoc;
+    // The max score found
+    return maxScore;
 }
-
 
 /**************************************************************************************************\
 * 
@@ -677,8 +695,8 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     int         g1, g2, g3;
     int*        permutation;
     int         w;
-    float       ioc;
-    float       iocMax;
+    float       score;
+    float       scoreMax;
     int         start;
     int         end;
     int         R1;
@@ -721,7 +739,6 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     setText(enigma, cipher);
 
     // limit number of cipher characters to speed up work
-    // 250 will do
     if (enigma->textSize > maxCipherChars)
     {
         enigma->textSize=maxCipherChars;
@@ -730,7 +747,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     count       =0;
     startTime   =time(NULL);
 
-    iocMax      =MIN_IOC;
+    scoreMax    =MIN_SCORE;
     // Parse the Walzen permutations assigned
     w           =start;
     while (w<=end)
@@ -785,8 +802,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
                             if (operation.recipe.maxSteckersInline>0)
                             {
                                 // This updates the indexOfCoincidence and steckerTable in the results object
-                                iocFindSteckeredCharsInline(enigma, results, g1, g2, g3, operation.recipe.maxSteckersInline);
-                                ioc=results->indexOfCoincidence;
+                                score=iocFindSteckeredCharsInline(enigma, results, g1, g2, g3, operation.recipe.maxSteckersInline);
                             }
                             else
                             {
@@ -797,17 +813,17 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
 
                                 if (operation.recipe.evalWalzen==EVAL_NGRAM)
                                 {
-                                    ioc=ngramScore(enigma);
+                                    score=ngramScore(enigma);
                                 }
                                 else
                                 {
-                                    ioc=iocIndexOfCoincidence(enigma);
+                                    score=iocIndexOfCoincidence(enigma);
                                 }
                             }
 
-                            if (ioc>iocMax)
+                            if (score>scoreMax)
                             {
-                                results->indexOfCoincidence         =ioc;
+                                results->score                      =score;
                                 results->settings.numberOfWalzen    =3;
                                 strncpy(results->settings.cipher, cipher, MAX_TEXT-1);
                                 strncpy(results->settings.walzen[0], walzeNames[permutation[1]], MAX_WALZE_NAME-1);
@@ -822,7 +838,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
                                 results->settings.grundStellungen[2]=g3;
                                 steckerbrettTableToSteckers(results->steckerTable, results->settings.steckers);
                                 mutexLock();
-                                iocMax=iocStoreResults(results);
+                                scoreMax=iocStoreResults(results);
                                 mutexUnlock();
                             }
                             count++;
@@ -881,7 +897,7 @@ void iocFindRingStellung(IocResults*  results, int startWalze, int endWalze)
         int   maxG1     =settings->grundStellungen[0];
         int   maxG2     =settings->grundStellungen[1];
         int   maxG3     =settings->grundStellungen[2];
-        float maxIoc    =results->indexOfCoincidence;
+        float maxIoc    =results->score;
         int inc         =-MAX_POSITIONS+1;
         while (inc<MAX_POSITIONS)
         {
@@ -925,7 +941,7 @@ void iocFindRingStellung(IocResults*  results, int startWalze, int endWalze)
         settings->grundStellungen[1]        =maxG2;
         settings->grundStellungen[2]        =maxG3;
         settings->ringStellungen[walze-1]   =maxR;
-        results->indexOfCoincidence         =maxIoc;
+        results->score                      =maxIoc;
         logInfo("Walze %d: best Ringstellung %2d, best Grundstellung %2d %2d %2d - IoC %f", walze, maxR, maxG1, maxG2, maxG3, maxIoc);
     }
     destroyEnigma(enigma);

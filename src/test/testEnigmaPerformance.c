@@ -192,7 +192,7 @@ void testEnigmaWorkFunction3(int worker, int workItem, void* params)
 \**************************************************************************************************/
 void testEnigmaFinishFunction(void* params)
 {
-    printf("Done!");
+    printf("Multithreading test done!\n");
 }
 
 

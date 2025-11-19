@@ -88,7 +88,7 @@ typedef struct
 
 typedef struct
 {
-    float           indexOfCoincidence;
+    float           score;
     EnigmaSettings  settings;
     int             steckerTable[MAX_POSITIONS];
 } IocResults;
