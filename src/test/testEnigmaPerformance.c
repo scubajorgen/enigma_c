@@ -15,11 +15,13 @@
 #include "ngramScore.h"
 #include "testframe.h"
 #include "toolbox.h"
+#include "workDispatcher.h"
 
-#define TEST_SIZE       10000000
-#define TEST_TEXT_MAX   1000
+#define TEST_SIZE           1000000
+#define TEST_TEXT_MAX       1000
+#define TEXT_LENGTHS_MAX    15
+
 int testTextLengths[]={2, 5, 10, 12, 25, 50, 75, 100, 125, 150, 200, 400, 600, 800, 1000};
-
 
 /**************************************************************************************************\
 *
@@ -32,33 +34,30 @@ float timeDifference(struct timeval t0, struct timeval t1)
 }
 
 
-
 /**************************************************************************************************\
 *
-* Enigma with random settings, encode, decode
+* Workfunction 1: 
+*               encode/decode
 * 
 \**************************************************************************************************/
-void testEnigmaEncodeDecodePerformance()
+void testEnigmaWorkFunction1(int worker, int workItem, void* params)
 {
-    testStart("decode");
-
-    struct timeval stop, start;
-    float diff;
-
-    Enigma*         enigma  =createEnigmaM3();
+    int             lengthIndexMin  =((int*)params)[0];
+    int             lengthIndexMax  =((int*)params)[1];
+    float           diff;
+    struct timeval  stop, start;
+    Enigma*         enigma          =createEnigmaM3();
     EnigmaSettings* settings=createRandomSettings(enigma, M3_ARMY_1938, 5);
     strncpy(settings->cipher, testTextRandom, MAX_TEXT-1);
     setEnigma(enigma, settings);
 
-    printf("ENCODE/DECODE\n");
-    printf("text size, encodes, elapsed time (ms), rate (/s), time/decode (us)\n");
-    for (int i=0; i<15; i++)
+    for (int i=lengthIndexMin; i<lengthIndexMax; i++)
     {
         enigma->textSize=testTextLengths[i];
 
         // Just the encode/decode
         gettimeofday(&start, NULL);
-        for (int i=0;i<TEST_SIZE; i++)
+        for (int iterate=0;iterate<TEST_SIZE; iterate++)
         {
             encodeDecode(enigma);
         }
@@ -67,16 +66,37 @@ void testEnigmaEncodeDecodePerformance()
         printf("%3d, %d, %.0f, %.0f, %.3f\n", testTextLengths[i], TEST_SIZE, diff, 1e9/diff, 1000.0*diff/TEST_SIZE);
     }
 
-    printf("\nCONFIGURE, ENCODE/DECODE\n");
-    printf("text size, encodes, elapsed time (ms), rate (/s), time/decode (us)\n");
-    for (int i=0; i<15; i++)
+    destroyEnigmaSettings(settings);
+    destroyEnigma(enigma);
+}
+
+
+/**************************************************************************************************\
+*
+* Workfunction 2: 
+*               configure
+*               encode/decode
+* 
+\**************************************************************************************************/
+void testEnigmaWorkFunction2(int worker, int workItem, void* params)
+{
+    int             lengthIndexMin  =((int*)params)[0];
+    int             lengthIndexMax  =((int*)params)[1];
+    float           diff;
+    struct timeval  stop, start;
+    Enigma*         enigma  =createEnigmaM3();
+    EnigmaSettings* settings=createRandomSettings(enigma, M3_ARMY_1938, 5);
+    strncpy(settings->cipher, testTextRandom, MAX_TEXT-1);
+    setEnigma(enigma, settings);
+
+    for (int i=lengthIndexMin; i<lengthIndexMax; i++)
     {
         enigma->textSize=testTextLengths[i];
 
         // Configuration + encode/decode
         clearSteckerBrett(enigma);
         gettimeofday(&start, NULL);
-        for (int i=0;i<TEST_SIZE; i++)
+        for (int iterate=0;iterate<TEST_SIZE; iterate++)
         {
             placeWalze(enigma, 1, "I");
             placeWalze(enigma, 2, "II");
@@ -103,15 +123,35 @@ void testEnigmaEncodeDecodePerformance()
         printf("%3d, %d, %.0f, %.0f, %.3f\n", testTextLengths[i], TEST_SIZE, diff, 1e9/diff, 1000.0*diff/TEST_SIZE);
     }
 
-    printf("\nCONFIGURE, ENCODE/DECODE, IOC\n");
-    printf("text size, encodes, elapsed time (ms), rate (/s), time/decode (us)\n");
-    for (int i=0; i<15; i++)
+    destroyEnigmaSettings(settings);
+    destroyEnigma(enigma);
+}
+
+/**************************************************************************************************\
+*
+* Workfunction 3: 
+*               configure
+*               encode/decode
+*               calculate IoC
+* 
+\**************************************************************************************************/
+void testEnigmaWorkFunction3(int worker, int workItem, void* params)
+{
+    int             lengthIndexMin  =((int*)params)[0];
+    int             lengthIndexMax  =((int*)params)[1];
+    float           diff;
+    struct timeval  stop, start;
+    Enigma*         enigma  =createEnigmaM3();
+    EnigmaSettings* settings=createRandomSettings(enigma, M3_ARMY_1938, 5);
+    strncpy(settings->cipher, testTextRandom, MAX_TEXT-1);
+    setEnigma(enigma, settings);
+    for (int i=lengthIndexMin; i<lengthIndexMax; i++)
     {
         enigma->textSize=testTextLengths[i];
         // Configuration + encode/decode
         clearSteckerBrett(enigma);
         gettimeofday(&start, NULL);
-        for (int i=0;i<TEST_SIZE; i++)
+        for (int iterate=0;iterate<TEST_SIZE; iterate++)
         {
             placeWalze(enigma, 1, "I");
             placeWalze(enigma, 2, "II");
@@ -140,9 +180,73 @@ void testEnigmaEncodeDecodePerformance()
         printf("%3d, %d, %.0f, %.0f, %.3f\n", testTextLengths[i], TEST_SIZE, diff, 1e9/diff, 1000.0*diff/TEST_SIZE);
     }
 
+    destroyEnigmaSettings(settings);
     destroyEnigma(enigma);
+}
+
+
+/**************************************************************************************************\
+*
+* Finish function
+* 
+\**************************************************************************************************/
+void testEnigmaFinishFunction(void* params)
+{
+    printf("Done!");
+}
+
+
+/**************************************************************************************************\
+*
+* Enigma with random settings and three scenarios
+* 
+\**************************************************************************************************/
+void testEnigmaEncodeDecodePerformance()
+{
+    testStart("decode");
+    int lengthIndices[]={0, TEXT_LENGTHS_MAX};
+
+    printf("ENCODE/DECODE\n");
+    printf("text size, encodes, elapsed time (ms), rate (/s), time/decode (us)\n");
+    testEnigmaWorkFunction1(0, 0, lengthIndices);
+
+    printf("\nCONFIGURE, ENCODE/DECODE\n");
+    printf("text size, encodes, elapsed time (ms), rate (/s), time/decode (us)\n");
+    testEnigmaWorkFunction2(0, 0, lengthIndices);
+
+    printf("\nCONFIGURE, ENCODE/DECODE, IOC\n");
+    printf("text size, encodes, elapsed time (ms), rate (/s), time/decode (us)\n");
+    testEnigmaWorkFunction3(0, 0, lengthIndices);
+
     testWrapUp();
 }
+
+/**************************************************************************************************\
+*
+* Enigma with random settings, encode/decode, multithreaded
+* 
+\**************************************************************************************************/
+void testEnigmaEncodeDecodePerformanceMultiThreaded()
+{
+    testStart("decode - multithreaded");
+
+    int numberOfThreads=4;
+    int lengthIndices[]={TEXT_LENGTHS_MAX-1, TEXT_LENGTHS_MAX};
+
+    // Give all threads one item to do
+    dispatcherClearWorkItems();
+    for (int i=0; i<numberOfThreads; i++)
+    {
+        dispatcherPushWorkItem(testEnigmaWorkFunction1, lengthIndices);
+    }
+    // Start the threads, wait till all finished
+    printf("ENCODE/DECODE\n");
+    printf("text size, encodes, elapsed time (ms), rate (/s), time/decode (us)\n");
+    dispatcherStartWork(numberOfThreads, testEnigmaFinishFunction, NULL, true);
+
+    testWrapUp();
+}
+
 
 /**************************************************************************************************\
 *
@@ -255,6 +359,7 @@ void testEnigmaPerformance()
 {
     moduleTestStart("PERFORMANCE");
     testEnigmaEncodeDecodePerformance();
+    testEnigmaEncodeDecodePerformanceMultiThreaded();
     testEnigmaIocPerformance();
     testEnigmaNgramPerformance();
     moduleTestWrapUp();
