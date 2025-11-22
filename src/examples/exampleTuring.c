@@ -28,7 +28,8 @@ EnigmaSettings turingTestSettings=
         22, 17, 12
     },
     "bq cr di ej kw mt os px uz gh",
-    "RPVPZILDGRNOPPLOFZNRUALXKHEXLDMQYCDFAQ"
+      "RPVPZILDGRNOPPLOFZNRUALUGCBJFXYNJCFDCOIUMGABPODMHQGVRFW"
+    // WETTERVORHERSAGEBISKAYA  
 };
 
 // EXAMPLE SET 2
@@ -172,7 +173,9 @@ void turingExample()
     printf("# Crib position             : %d\n",        turingCribPosition);
     printf("#####################################################################################\n");
 
-    turingBombe(turingTestSettings.cipher, turingCrib, turingCribPosition, 4);
+    TuringRecipe* recipe=createDefaultTuringRecipe(turingTestSettings.cipher, turingCrib, turingCribPosition, 4);
+    turingBombe(*recipe);
+    destroyTuringRecipe(recipe);
 }
 
 /**************************************************************************************************\
@@ -187,7 +190,9 @@ void turingExample2()
     printf("# Crib                      : %s\n",        turingCrib2);
     printf("# Crib position             : %d\n",        turingCribPosition2);
     printf("#####################################################################################\n");
-    turingBombe(turingTestSettings2.cipher, turingCrib2, turingCribPosition2, 3);
+    TuringRecipe* recipe=createDefaultTuringRecipe(turingTestSettings2.cipher, turingCrib2, turingCribPosition2, 3);
+    turingBombe(*recipe);
+    destroyTuringRecipe(recipe);
 }
 
 /**************************************************************************************************\
@@ -202,7 +207,9 @@ void turingExample3()
     printf("# Crib                      : %s\n",        turingCrib3);
     printf("# Crib position             : %d\n",        turingCribPosition3);
     printf("#####################################################################################\n");
-    turingBombe(turingTestSettings3.cipher, turingCrib3, turingCribPosition3, 3);
+    TuringRecipe* recipe=createDefaultTuringRecipe(turingTestSettings3.cipher, turingCrib3, turingCribPosition3, 3);
+    turingBombe(*recipe);
+    destroyTuringRecipe(recipe);
 }
 
 

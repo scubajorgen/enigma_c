@@ -121,6 +121,8 @@ void                displayEnigmaMessage        (char* message, MessageFormat_t 
 EnigmaSettings*     createRandomSettings        (Enigma* enigma, WalzeSet_t walzeSet, int numberOfSteckers);
 void                destroyEnigmaSettings       (EnigmaSettings* settings);
 
+LinkedList*         generateWalzePermutations   (Enigma_t enigmaType, WalzeSet_t walzenSet);
+
 int                 countLetter                 (Enigma* enigma, char letter);
 void                countConvertedChars         (Enigma* enigma, int counts[MAX_POSITIONS]);
 int                 countTrigram                (Enigma* enigma, char* trigram);

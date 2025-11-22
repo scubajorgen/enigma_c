@@ -16,6 +16,18 @@
 
 typedef struct
 {
+    char*       cipher;             // Cipher as string
+    char*       crib;               // Crib as string
+    int         cribPosition;       // Position of the start of the Crib in the Cipher
+    int         numberOfThreads;    // Number of threads to use
+    Enigma_t    enigmaType;         // Type of Enigma
+    WalzeSet_t  walzeSet;           // Walze set to choose Walzen from
+    LinkedList* customPermutations; // Custom Walze/UKW permutations; NULL for automatic generation of permutations
+} TuringRecipe;
+
+
+typedef struct
+{
     char        letter;                     // Linked letter
     int         position;                   // Rotor positions of the link (advances from start of the cipher)
 } LetterLink;
@@ -68,4 +80,6 @@ int             turingValidateTheSteckeredValues(SteckeredChars* chars);
 // Public functions
 void            turingGenerateLetterLinks       (char* cipher, char* crib, int cribStartPosition);
 void            turingFindLoops                 (char* cipher, char* crib, int cribStartPosition);
-void            turingBombe                     (char* cipher, char* crib, int cribStartPosition, int numOfThreads);
+EnigmaSettings* turingBombe                     (TuringRecipe recipe);
+TuringRecipe*   createDefaultTuringRecipe       (char* cipher, char* crib, int cribPosition, int numberOfThreads);
+void            destroyTuringRecipe             (TuringRecipe* recipe);

@@ -8,13 +8,13 @@
 * Explained in detail on http://www.ellsbury.com/bombe1.htm
 * 
 \**************************************************************************************************/
-
 #include <stdio.h>
 #include <stdbool.h>
 #include <pthread.h>
 #include <malloc.h>
 #include <string.h>     
 
+#include "log.h"
 #include "toolbox.h"
 #include "enigma.h"
 #include "turing.h"
@@ -28,7 +28,6 @@ typedef struct
 {
     int     permutationStart;       // Start permutation in the permutations array
     int     permutationEnd;         // End permutation (not included)
-    char    ukw[MAX_WALZE_NAME];    // UKW to use
 } ThreadWork;
 
 char                walzenString[80];
@@ -52,6 +51,8 @@ int                 stepMax=0;
 
 char*               turingBombeCipher;
 
+// The solution
+EnigmaSettings      turingSolution; 
 
 /**************************************************************************************************\
 * 
@@ -60,9 +61,7 @@ char*               turingBombeCipher;
 \**************************************************************************************************/
 CribCircle* createCircle()
 {
-    CribCircle*  circle;
-    
-    circle              =malloc(sizeof(CribCircle));
+    CribCircle*  circle =malloc(sizeof(CribCircle));
     circle->circleSize  =0;
     mallocs++;
     return circle;
@@ -86,20 +85,14 @@ void destroyCircle(CribCircle* circle)
 \**************************************************************************************************/
 void dumpMenu()
 {
-    int c;
-    int l;
-    c=0;
-    while (c<MAX_POSITIONS)
+    for (int c=0; c<MAX_POSITIONS; c++)
     {
         printf("Link %c: %d - ", menu[c].letter, menu[c].numOfLinks);
-        l=0;
-        while (l<menu[c].numOfLinks)
+        for (int l=0; l<menu[c].numOfLinks; l++)
         {
             printf("%c (%d) ", menu[c].links[l].letter, menu[c].links[l].position);
-            l++;
         }
         printf("\n");
-        c++;
     }
 }
 
@@ -110,13 +103,9 @@ void dumpMenu()
 \**************************************************************************************************/
 void dumpCircle(CribCircle* circle)
 {
-    int c;
-    
-    c=0;
-    while (c<circle->circleSize)
+    for (int c=0; c<circle->circleSize; c++)
     {
-        printf("%c (%d) ", circle->orgChars[c], circle->advances[c]);
-        c++;
+        printf("%c (%3d) ", circle->orgChars[c], circle->advances[c]);
     }
     printf("%c\n", circle->orgChars[0]);
 }
@@ -128,24 +117,15 @@ void dumpCircle(CribCircle* circle)
 \**************************************************************************************************/
 void dumpSets()
 {
-    int                 s;
-    int                 c;
-    CribCircleSet*      theSet;
-    CribCircle*         theCircle;    
-
-    s=0;
-    while (s<MAX_POSITIONS)
+    for (int s=0; s<MAX_POSITIONS; s++)
     {
-        theSet=&cribCircleSet[s];
-        printf("SET %c - %d\n", theSet->startChar, theSet->numOfCircles);
-        c=0;
-        while (c<theSet->numOfCircles)
+        CribCircleSet* theSet=&cribCircleSet[s];
+        printf("SET %c - %3d\n", theSet->startChar, theSet->numOfCircles);
+        for (int c=0; c<theSet->numOfCircles; c++)
         {
-            theCircle=&theSet->cribCircles[c];
+            CribCircle* theCircle=&theSet->cribCircles[c];
             dumpCircle(theCircle);
-            c++;
         }
-        s++;
     }
 }
 
@@ -159,27 +139,20 @@ void dumpSets()
 \**************************************************************************************************/
 void turingGenerateLetterLinks(char* text, char* crib, int cribStartPosition)
 {
-    int pos;
-    int index1;
-    int index2;
-    
     if (strlen(text)>=cribStartPosition+strlen(crib))
     {
         // Reset links
-        pos=0;
-        while (pos<MAX_POSITIONS)
+        for (int pos=0; pos<MAX_POSITIONS; pos++)
         {
             menu[pos].letter       ='A'+pos;
             menu[pos].numOfLinks   =0;
-            pos++;
         }
         
         // Build the menu
-        pos=0;
-        while (pos<strlen(crib))
+        for (int pos=0; pos<strlen(crib); pos++)
         {
-            index1=text[pos+cribStartPosition]-'A';
-            index2=crib[pos]-'A';
+            int index1=text[pos+cribStartPosition]-'A';
+            int index2=crib[pos]-'A';
             
             menu[index1].links[menu[index1].numOfLinks].letter      =crib[pos];
             menu[index1].links[menu[index1].numOfLinks].position    =pos+cribStartPosition+1;
@@ -187,12 +160,11 @@ void turingGenerateLetterLinks(char* text, char* crib, int cribStartPosition)
             menu[index2].links[menu[index2].numOfLinks].letter      =text[pos+cribStartPosition];
             menu[index2].links[menu[index2].numOfLinks].position    =pos+cribStartPosition+1;
             menu[index2].numOfLinks++;
-            pos++;
         }
     }
     else
     {
-        printf("Crib exceeds text; not allowed\n");
+        logFatal("Crib exceeds text; not allowed\n");
     }
 }
 
@@ -206,16 +178,6 @@ void turingGenerateLetterLinks(char* text, char* crib, int cribStartPosition)
 \**************************************************************************************************/
 void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int step)
 {
-    int             l;
-    int             c;
-    int             found;
-    int             circleSize;
-    int             nextLetter;
-    LinkedLetters*  nextLinks;
-    CribCircle*     nextCircle;
-    CribCircleSet*  theSet;
-    CribCircle*     theCircle;
-    
     // Recursion depth
     if (step>stepMax)
     {
@@ -226,11 +188,11 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
     {
         // Fall back to prevent endless loops
         // Should never happen, unfortunatelly it does
-        printf("Endless loop\n");
+        logFatal("Endless loop\n");
     }
     else if (cribCircleSet[(int)startChar-'A'].numOfCircles>=MAX_CIRCLES)
     {
-        printf("Maximum number of crib circles %d reached for %c\n", MAX_CIRCLES, startChar);
+        logFatal("Maximum number of crib circles %d reached for %c\n", MAX_CIRCLES, startChar);
     }
     else
     {
@@ -239,14 +201,13 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
         {
             // Special case: currentLink==NULL: use the start character 
             // as starting point and add all its links
-            nextLetter  =startChar;
-            nextLinks   =&menu[nextLetter-'A'];
-            l=0;
-            while (l<nextLinks->numOfLinks)
+            int nextLetter          =startChar;
+            LinkedLetters* nextLinks=&menu[nextLetter-'A'];
+            for (int l=0; l<nextLinks->numOfLinks; l++)
             {
                 // Create the first circle
-                nextCircle                      =createCircle();
-                circleSize                      =nextCircle->circleSize; // =0
+                CribCircle* nextCircle          =createCircle();
+                int circleSize                  =nextCircle->circleSize; // =0
                 // Add next link to circle
                 nextCircle->advances[circleSize]=nextLinks->links[l].position;
                 nextCircle->orgChars[circleSize]=nextLetter;
@@ -254,33 +215,30 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
                 // Iterate
                 followLoop(startChar, &nextLinks->links[l], nextCircle, step+1);
                 destroyCircle(nextCircle);
-                l++;
             }
         }
         else
         {
-            nextLetter  =currentLink->letter;
+            int nextLetter  =currentLink->letter;
             if (nextLetter==startChar)
             {
                 // Yes! we found a loop
                 circle->orgChars[circle->circleSize]=startChar;         // finish character string
                 circle->orgChars[circle->circleSize+1]='\0';
-                theSet      =&cribCircleSet[(int)startChar-'A'];        // Add circle to set
-                theCircle   =&theSet->cribCircles[theSet->numOfCircles];
-                *theCircle  =*circle; // Copy
+                CribCircleSet* theSet   =&cribCircleSet[(int)startChar-'A'];        // Add circle to set
+                CribCircle*    theCircle=&theSet->cribCircles[theSet->numOfCircles];
+                *theCircle              =*circle; // Copy
                 theSet->numOfCircles++;
             }
             else
             {
-                nextLinks   =&menu[nextLetter-'A'];
-                l           =0;
-                while (l<nextLinks->numOfLinks)
+                LinkedLetters* nextLinks=&menu[nextLetter-'A'];
+                for (int l=0; l<nextLinks->numOfLinks; l++)
                 {
                     // Make sure the next position not already
                     // occurs in the circle: only allowed once
-                    c       =0;
-                    found   =0;
-                    while (c<circle->circleSize && !found)
+                    bool found   =false;
+                    for (int c=0; c<circle->circleSize && !found; c++)
                     {
                         // This one allows only simple loops, like a - b - c - a 
                         // Limits the number of loops; advantageous for large crib sizes
@@ -291,18 +249,17 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
                         // not to large crib sizes (up to ~25 chars)
                         if (circle->orgChars[c]==nextLetter)
                         {
-                            found=1;
+                            found=true;
                         }
-                        c++;
                     }
                     // Do not loop back :-)
                     if (nextLinks->links[l].position!=currentLink->position && !found)
                     {
                         // Copy circle
-                        nextCircle                      =createCircle();
+                        CribCircle* nextCircle          =createCircle();
                         *nextCircle                     =*circle;
                         // Add next link to circle
-                        circleSize                      =nextCircle->circleSize;
+                        int circleSize                  =nextCircle->circleSize;
                         nextCircle->advances[circleSize]=nextLinks->links[l].position;
                         nextCircle->orgChars[circleSize]=nextLetter;
                         nextCircle->circleSize++;
@@ -310,8 +267,6 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
                         destroyCircle(nextCircle);
 
                     }
-
-                    l++;
                 }
             }
         }
@@ -329,16 +284,13 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
 \**************************************************************************************************/
 void turingFindLoops(char* text, char* crib, int cribStartPosition)
 {
-    int c;
-    
     if (strlen(text)>=strlen(crib))
     {
         // create the menu (the letter links)
         turingGenerateLetterLinks(text, crib, cribStartPosition);
        
         stepMax=0;
-        c=0;
-        while (c<MAX_POSITIONS)
+        for (int c=0; c<MAX_POSITIONS; c++)
         {
             // reset the circle set for this letter
             cribCircleSet[c].numOfCircles   =0;
@@ -346,12 +298,11 @@ void turingFindLoops(char* text, char* crib, int cribStartPosition)
             
             // recursivel generate the crib loops
             followLoop('A'+c, NULL, NULL, 0);
-            c++;
         }
     }
     else
     {
-        printf("Invalid crib length\n");
+        logFatal("Invalid crib length\n");
     }
 }
 
@@ -371,32 +322,20 @@ void turingFindLoops(char* text, char* crib, int cribStartPosition)
 \**************************************************************************************************/
 void processIntermediateChars(Enigma* enigma, int g1, int g2, int g3, CribCircleSet* theSet, int theChar, SteckeredChars* chars)
 {
-    int         circle;
-    int         e;
-    int         c;
-    int         encodedC;
-    CribCircle* cribCircle;
-
-    circle  =0;
-    while (circle<theSet->numOfCircles)
+    for (int circle=0; circle<theSet->numOfCircles; circle++)
     {
-        cribCircle=&theSet->cribCircles[circle];
-        c       =theChar;
-        e       =0;
-        while (e<cribCircle->circleSize)
+        CribCircle* cribCircle  =&theSet->cribCircles[circle];
+        for (int e=0; e<cribCircle->circleSize; e++)
         {
-
-            encodedC=cribCircle->orgChars[e]-'A';
-            chars[encodedC].foundChar=c+'A';
+            int encodedC=cribCircle->orgChars[e]-'A';
+            chars[encodedC].foundChar=theChar+'A';
             setGrundStellung(enigma, 1, g1);
             setGrundStellung(enigma, 2, g2);
             setGrundStellung(enigma, 3, g3);
             
             advances(enigma, cribCircle->advances[e]);
-            c=encodeCharacter(enigma, c);
-            e++;
+            theChar=encodeCharacter(enigma, theChar);
         }
-        circle++;
     }
 }
 
@@ -417,49 +356,34 @@ void processIntermediateChars(Enigma* enigma, int g1, int g2, int g3, CribCircle
 \**************************************************************************************************/
 int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredChars* chars)
 {
-    int             theFound;
-    int             found;
-    int             c;
-    int             fc;
-    int             e;
-    int             set;
-    int             circle;
-    CribCircle*     cribCircle;
-    int             theChar;    
-    CribCircleSet*  theSet;
-    
     // We check if for each set of crib circles for each letter
     // there is a character (hypothesis) that fullfills 
     // all circles in the set. 
     // Parse the sets
-    found   =1;
-    theFound=1;
-    set     =0;
-    while (set<MAX_POSITIONS && theFound)
+    bool found   =true;
+    bool theFound=true;
+    for (int set=0; set<MAX_POSITIONS && theFound; set++)
     {
-        theSet=&cribCircleSet[set];
+        CribCircleSet*  theSet=&cribCircleSet[set];
         
         if (theSet->numOfCircles>0)
         {
             // Choose a character c and check whether
-            // the output of each circle in th set results 
+            // the output of each circle in the set results 
             // in the same character c (hypothesis)
-            c       =0;
-            fc      =0;
-            found   =0;
-            theFound=0;
-            while (c<MAX_POSITIONS/* && !found*/)
+            int fc      =0;
+            found       =false;
+            theFound    =false;
+            for (int c=0; c<MAX_POSITIONS && !found; c++)
             {
                 // Try the circles. If one circle fails
                 // hypothesis is rejected, proceed to next char
-                circle  =0;
-                found   =1;
-                while (circle<theSet->numOfCircles && found)
+                found   =true;
+                for (int circle=0; circle<theSet->numOfCircles && found; circle++)
                 {
-                    cribCircle=&theSet->cribCircles[circle];
-                    theChar =c;
-                    e       =0;
-                    while (e<cribCircle->circleSize)
+                    CribCircle* cribCircle  =&theSet->cribCircles[circle];
+                    int theChar             =c;
+                    for (int e=0; e<cribCircle->circleSize; e++)
                     {
                         setGrundStellung(enigma, 1, g1);
                         setGrundStellung(enigma, 2, g2);
@@ -467,14 +391,11 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
                         
                         advances(enigma, cribCircle->advances[e]);
                         theChar=encodeCharacter(enigma, theChar);
-                        e++;
                     }
                     if (theChar!=c)
                     {
-                        found=0;
+                        found=false;
                     }
-                    
-                    circle++;
                 }
                 // Store the character c that works
                 // for all circles in the set
@@ -484,23 +405,15 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
                     fc++;
                     if (fc>1)
                     {
-                        printf("Found multiple %d - %c->%c circles %d\n", fc, theSet->startChar, c+'A', theSet->numOfCircles);
+                        logError("Found multiple %d - %c->%c circles %d\n", fc, theSet->startChar, c+'A', theSet->numOfCircles);
                     }
-                    theFound=1;
+                    theFound=true;
                 }
-                c++;
             }
         }
-        set++;
     }
-    
     return theFound;
 }
-
-
-
-
-
 
 /**************************************************************************************************\
 * 
@@ -509,43 +422,35 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
 \**************************************************************************************************/
 int turingValidateTheSteckeredValues(SteckeredChars* chars)
 {
-    int found;
-    int set;
-    int set2;
-    
-    found=1;
+    bool found=true;
     // Now we found a potential engima settings
     // Check for inconsistencies in the steckered letters.
     // This means: steckered letters may not appear more than once
     // unless mutual
-    set=0;
-    while (set<MAX_POSITIONS && found)
+    for (int set=0; set<MAX_POSITIONS && found; set++)
     {
-        set2=set+1;
-        while (set2<MAX_POSITIONS && found)
+        for (int set2=set+1; set2<MAX_POSITIONS && found; set2++)
         {
             if ((chars[set].foundChar==chars[set2].startChar) &&
                 (chars[set2].foundChar!=chars[set].startChar) &&
                 (chars[set2].foundChar!='?'))                                             
                  
             {
-                found=0;
+                found=false;
             }
             if ((chars[set].foundChar!='?') &&
                 (chars[set].startChar==chars[set2].foundChar) &&
                 (chars[set].foundChar!=chars[set2].startChar))
             {
-                found=0;
+                found=false;
             }
             if ((chars[set].foundChar!='?') &&
                 (chars[set2].foundChar!='?') &&
                 (chars[set].foundChar==chars[set2].foundChar))
             {
-                found=0;
+                found=false;
             }
-            set2++;
         }
-        set++;
     }
     return found;
 }
@@ -563,10 +468,7 @@ void turingPrintSolution(EnigmaSettings* settings)
            settings->ringStellungen[0], settings->ringStellungen[1], settings->ringStellungen[2],
            settings->grundStellungen[0], settings->grundStellungen[1], settings->grundStellungen[2],
            settings->steckers);
-
-
     fflush(stdout);
-    
     dumpDecoded(settings);
 }
 
@@ -577,19 +479,13 @@ void turingPrintSolution(EnigmaSettings* settings)
 \**************************************************************************************************/
 SteckeredChars* createSteckeredChars()
 {
-    int                 c;
-    SteckeredChars*     chars;
-    
-    chars=malloc(sizeof(SteckeredChars)*MAX_POSITIONS);
-    c=0;
-    while (c<MAX_POSITIONS)
+    SteckeredChars*  chars=malloc(sizeof(SteckeredChars)*MAX_POSITIONS);
+    for (int c=0; c<MAX_POSITIONS; c++)
     {
         chars[c].startChar='A'+c;
         chars[c].foundChar='?';
-        c++;
     }
     return chars;
-    
 }
 
 /**************************************************************************************************\
@@ -599,27 +495,19 @@ SteckeredChars* createSteckeredChars()
 \**************************************************************************************************/
 void convertSteckeredCharsToString(SteckeredChars* chars, char* string)
 {
-    int c;
-    int c2;
-    int found;
-    int s;
-    
-    c=0;
-    s=0;
-    while (c<MAX_POSITIONS)
+    int s=0;
+    for (int c=0; c<MAX_POSITIONS; c++)
     {
         if (chars[c].foundChar!=chars[c].startChar && 
             chars[c].foundChar!='?')
         {
-            found=0;
-            c2=0;
-            while (c2<s*3 && !found)
+            bool found=false;
+            for (int c2=0; c2<s*3 && !found; c2++)
             {
                 if (string[c2]==chars[c].foundChar)
                 {
-                    found=1;
+                    found=true;
                 }
-                c2++;
             }
             if (!found)
             {
@@ -629,70 +517,49 @@ void convertSteckeredCharsToString(SteckeredChars* chars, char* string)
                 s++;
             }
         }
-        c++;
     }
     string[s*3-1]='\0';
-    
 }
 
 
 /**************************************************************************************************\
 * 
 * Simulates the Turing solution: finds the Walzen, RingStellungen and GrundStellungen based
-* on a 'crib'
+* on a 'crib'. It tries permutations [permutationStart, permutationEnd)
 * 
 \**************************************************************************************************/
-void turingFind(int permutationStart, int permutationEnd, char* ukw)
+void turingFind(int permutationStart, int permutationEnd)
 {
-
-    long            counting;
-    long            prevCounting;
-    long            currentTime;
-    long            diffTime;
-    long            prevTime;
-    long            convPerSec;
-
-    Enigma*         enigma;
-    char*           w1;
-    char*           w2;
-    char*           w3;
     int             g1, g2, g3, r1, r2, r3;
-    SteckeredChars* steckeredChars; 
-    int*            permutation;
-    int             w;
-    int             found;
-    EnigmaSettings  settings; // TO DO: put on heap iso. stack
-
     
-    
-    printf("Processing %d-%d, %s\n", permutationStart, permutationEnd, ukw);
+    logInfo("Processing permutations %d-%d", permutationStart, permutationEnd);
 
     // Create a set of steckered values (for this thread)
-    steckeredChars=createSteckeredChars();
+    SteckeredChars* steckeredChars=createSteckeredChars();
 
-    enigma=createEnigmaM3(); 
+    Enigma* enigma=createEnigmaM3(); 
     clearSteckerBrett(enigma);
-    placeUmkehrWalze(enigma, ukw);
-
-    counting        =0;
-    prevTime        =startTime;
-    prevCounting    =0;
-    w               =permutationStart;
+  
+    long counting        =0;
+    long prevTime        =startTime;
+    long prevCounting    =0;
 
     // Parse the Walze permutations
-    while (w<permutationEnd)
+    for (int w=permutationStart; w<permutationEnd; w++)
     {
-        permutation=(int*)elementAt(tPermutations, w);
+        int* permutation=(int*)elementAt(tPermutations, w);
         
         if (permutation!=NULL)
         {
-            w1=walzen[permutation[0]];
-            w2=walzen[permutation[1]];
-            w3=walzen[permutation[2]];
+            char* w1=walzeNames[permutation[1]];
+            char* w2=walzeNames[permutation[2]];
+            char* w3=walzeNames[permutation[3]];
+            char* ukw=umkehrWalzeNames[permutation[0]];
             sprintf(walzenString,"%s - %s %s %s", ukw, w1, w2, w3);
             
-            currentTime=(long)time(NULL)-(long)startTime;
-            diffTime=currentTime-prevTime;
+            long currentTime=(long)time(NULL)-(long)startTime;
+            long diffTime=currentTime-prevTime;
+            long convPerSec;
             if (diffTime>0)
             {
                 convPerSec=(counting-prevCounting)/diffTime;
@@ -704,14 +571,15 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
             prevTime        =currentTime;
             prevCounting    =counting;
             
-            printf("Processing walzen permutation (%3d, %3d, %3d) %3d:%15s @ systemtime %ld seconds, %ld settings per sec \n", 
-                   permutation[0], permutation[1], permutation[2], w, walzenString, currentTime, convPerSec);
+            logInfo("Processing walzen permutation %3d:%15s @ systemtime %ld seconds, %ld settings per sec", 
+                    w, walzenString, currentTime, convPerSec);
             fflush(stdout);
            
             // Set the Walzen
             placeWalze(enigma, 1, w1);
             placeWalze(enigma, 2, w2);
             placeWalze(enigma, 3, w3);
+            placeUmkehrWalze(enigma, ukw);
             
             // GrundStellungen
             for (g1=1; g1<=26; g1++)
@@ -737,7 +605,7 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
                                 setRingStellung(enigma, 2, r2);
                                 setRingStellung(enigma, 3, r3);
 
-                                found=turingValidateHypotheses(enigma, g1, g2, g3, steckeredChars);
+                                bool found=turingValidateHypotheses(enigma, g1, g2, g3, steckeredChars);
                                 
                                 if (found)
                                 {
@@ -746,25 +614,25 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
                                 
                                 if (found)
                                 {
-                                    settings.numberOfWalzen     =3;
-                                    strncpy(settings.cipher, turingBombeCipher, MAX_TEXT-1);
-                                    strncpy(settings.walzen[0], w1, MAX_WALZE_NAME-1);
-                                    strncpy(settings.walzen[1], w2, MAX_WALZE_NAME-1);
-                                    strncpy(settings.walzen[2], w3, MAX_WALZE_NAME-1);
-                                    settings.ringStellungen[0]  =r1;
-                                    settings.ringStellungen[1]  =r2;
-                                    settings.ringStellungen[2]  =r3;
-                                    settings.grundStellungen[0] =g1;
-                                    settings.grundStellungen[1] =g2;
-                                    settings.grundStellungen[2] =g3;
-                                    strncpy(settings.ukw, ukw, MAX_WALZE_NAME-1);
+                                    mutexLock();
+                                    turingSolution.numberOfWalzen     =3;
+                                    strncpy(turingSolution.cipher, turingBombeCipher, MAX_TEXT-1);
+                                    strncpy(turingSolution.walzen[0], w1, MAX_WALZE_NAME-1);
+                                    strncpy(turingSolution.walzen[1], w2, MAX_WALZE_NAME-1);
+                                    strncpy(turingSolution.walzen[2], w3, MAX_WALZE_NAME-1);
+                                    turingSolution.ringStellungen[0]  =r1;
+                                    turingSolution.ringStellungen[1]  =r2;
+                                    turingSolution.ringStellungen[2]  =r3;
+                                    turingSolution.grundStellungen[0] =g1;
+                                    turingSolution.grundStellungen[1] =g2;
+                                    turingSolution.grundStellungen[2] =g3;
+                                    strncpy(turingSolution.ukw, ukw, MAX_WALZE_NAME-1);
                                     
-                                    convertSteckeredCharsToString(steckeredChars, settings.steckers);
-                                    turingPrintSolution(&settings);
-                                            
+                                    convertSteckeredCharsToString(steckeredChars, turingSolution.steckers);
+                                    turingPrintSolution(&turingSolution);
+                                    mutexUnlock();
                                 }
                                 counting++;
-                                
                             }
 /*
                         }
@@ -777,14 +645,11 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
         }
         else
         {
-            printf("Error!! Permutation is NULL");
+            logFatal("Error!! Permutation is NULL");
             fflush(stdout);
         }
-        w++;
     }
-    
     destroyEnigma(enigma);
-    
     free(steckeredChars);
 }   
 
@@ -795,12 +660,9 @@ void turingFind(int permutationStart, int permutationEnd, char* ukw)
 \**************************************************************************************************/
 void turingWorkerFunction(int worker, int workItem, void* params)
 {
-    ThreadWork* item;
-
-    item=(ThreadWork*)params;
-
-    printf("Worker %d starting work item %d-%d\n", worker, item->permutationStart, item->permutationEnd);
-    turingFind(item->permutationStart, item->permutationEnd, item->ukw);    
+    ThreadWork* item=(ThreadWork*)params;
+    logInfo("Worker %d starting work item %3d-%3d", worker, item->permutationStart, item->permutationEnd);
+    turingFind(item->permutationStart, item->permutationEnd);    
 }
 
 
@@ -812,64 +674,94 @@ void turingWorkerFunction(int worker, int workItem, void* params)
 
 void turingFinishFunction(void* params)
 {
-    int p;
-    p=0;
-    while (p<linkedListLength(tPermutations))
-    {
-        free(elementAt(tPermutations, p));
-        p++;
-    }            
-    destroyLinkedList(tPermutations);
+
 }
    
 /**************************************************************************************************\
 * 
-* Implements the Turing Bombe
+* Implements the Turing Bombe. Parse recipe to configure the process:
+
 * cipher            : cipher string, upper case!!
 * crib              : crib, upper case. Length must be shorter than cipher and not to long 
 *                     to prevent stack overflow
 * cribStartPosition : start position in the cipher that corresponds with the start of the crib
-* numOfThreads      : Use multiple threads to use multi processor cores. Walze combinations are 
+* numberOfThreads   : Use multiple threads to use multi processor cores. Walze combinations are 
 *                     split up amongst the threads. Number of permutations (60) should be divisable 
 *                     by this number. Hence 1, 2, 3, 4, 5, 6, 10 will do.
+* customPermutations: If NULL, a list of permutations will be generated based on next parameters
+* enigmaType        : Type of Enigma (only M3 supported)
+* walzeSet          : The set of Walzen/UKWs to use
 * 
 \**************************************************************************************************/
-void turingBombe(char* cipher, char* crib, int cribStartPosition, int numOfThreads)
+EnigmaSettings* turingBombe(TuringRecipe recipe)
 {
-    int         w;
-    int         numberOfPermutations;
-    int         workItems;
+    turingBombeCipher=recipe.cipher;
 
-    turingBombeCipher=cipher;
+    turingFindLoops(recipe.cipher, recipe.crib, recipe.cribPosition);
 
-    turingFindLoops(cipher, crib, cribStartPosition);
-
-    // Choose from the 5 wehrmacht walzen on an M3 Enigma   
-    tPermutations=createWalzePermutations(3, 5);
-    
-    numberOfPermutations=linkedListLength(tPermutations);
-    printf("Walzen permutations %d\n", numberOfPermutations);
-
-    workItems=numOfThreads*2;
-    
-    dispatcherClearWorkItems();
-    w=0;
-    while (w<workItems)
+    // Choose from the 5 wehrmacht walzen and 2 UKWs on an M3 Enigma
+    if (recipe.customPermutations==NULL)
     {
-        work[w  ].permutationStart  =(w/2)*numberOfPermutations/numOfThreads;
-        work[w  ].permutationEnd    =(w/2+1)*numberOfPermutations/numOfThreads;
-        strncpy(work[w  ].ukw, "UKW B", MAX_WALZE_NAME);
+        tPermutations=generateWalzePermutations(ENIGMATYPE_M3, M3_ARMY_1938);
+    }
+    else
+    {
+        tPermutations=recipe.customPermutations;
+    }
+    
+    int numberOfPermutations=linkedListLength(tPermutations);
+    logInfo("Walzen/UKW permutations %d", numberOfPermutations);
+
+    // Each thread gets one work item
+    int numOfThreads=recipe.numberOfThreads;
+    dispatcherClearWorkItems();
+    for (int w=0; w<numOfThreads; w++)
+    {
+        work[w].permutationStart  =(w)*numberOfPermutations/numOfThreads;
+        work[w].permutationEnd    =(w+1)*numberOfPermutations/numOfThreads;
         dispatcherPushWorkItem(turingWorkerFunction, &work[w]);
-        
-        work[w+1].permutationStart  =(w/2)*numberOfPermutations/numOfThreads;
-        work[w+1].permutationEnd    =(w/2+1)*numberOfPermutations/numOfThreads;
-        strncpy(work[w+1].ukw, "UKW C", MAX_WALZE_NAME);
-        dispatcherPushWorkItem(turingWorkerFunction, &work[w+1]);
-        w+=2;
     }
 
+    // Start the time, start the threads and wait till finished
     startTime=time(NULL); 
-    dispatcherStartWork(numOfThreads, turingFinishFunction, NULL, false);    
-    pthread_exit(NULL); 
+    dispatcherStartWork(numOfThreads, turingFinishFunction, NULL, true);    
+    destroyPermutations(tPermutations);
+    return &turingSolution;
+}
+
+
+/**************************************************************************************************\
+* 
+* Create a default recipe with most common settings
+* 
+\**************************************************************************************************/
+TuringRecipe* createDefaultTuringRecipe(char* cipher, char* crib, int cribPosition, int numberOfThreads)
+{
+    TuringRecipe* recipe;
+    if (strlen(crib)+cribPosition>strlen(cipher))
+    {
+        logFatal("Create default recipe: crib exceeds ciphersize");
+    }
+
+    recipe                      =malloc(sizeof(TuringRecipe));
+    recipe->cipher              =cipher;
+    recipe->crib                =crib;
+    recipe->cribPosition        =cribPosition;
+    recipe->numberOfThreads     =numberOfThreads;
+    recipe->customPermutations  =NULL;
+    recipe->enigmaType          =ENIGMATYPE_M3;
+    recipe->walzeSet            =M3_ARMY_1938;
+    return recipe;
+}
+
+
+/**************************************************************************************************\
+* 
+* Destroy settings
+* 
+\**************************************************************************************************/
+void destroyTuringRecipe(TuringRecipe* recipe)
+{
+    free(recipe);
 }
 

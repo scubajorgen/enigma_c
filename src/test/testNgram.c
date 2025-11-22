@@ -207,7 +207,7 @@ void testNgramHillClimb()
     destroyEnigma(enigma);
     
     printf("Cipher %s\n", testCipher);
-    IocRecipe* recipe=createDefaultRecipe(testCipher, 1);
+    IocRecipe* recipe=createDefaultIocRecipe(testCipher, 1);
 
     // Define recipe using NGRAM for letterfinding -> succeed
     LinkedList*     permutations=createLinkedList();
@@ -248,7 +248,7 @@ void testNgramHillClimb()
     assertStringEquals(failResult, toString(enigma));
     destroyEnigma(enigma);
 
-    destroyRecipe(recipe);
+    destroyIocRecipe(recipe);
     testWrapUp();
 }
 

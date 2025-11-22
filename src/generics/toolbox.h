@@ -21,7 +21,6 @@ LinkedList* createPermutations      (int* arrayToChooseFrom, int numberOfElement
 LinkedList* combinePermutations     (LinkedList* list1, int permutation1Size, LinkedList* list2, int permutation2Size);
 void        destroyPermutations     (LinkedList* permutations);
 
-LinkedList* createWalzePermutations (int numberOfWalzen, int numberToChooseFrom);
 void        printCipher             (char* cipher);
 
 void        selectRandomIndices     (int* available, int arrayLength, int number, int* resultingIndices);

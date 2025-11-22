@@ -104,7 +104,7 @@ void testIocScoring()
                 encodeDecode(enigma);
                 strncpy(iocTestCipher, toString(enigma), MAX_TEXT-1);
 
-                IocRecipe*  recipe      =createDefaultRecipe(iocTestCipher, 6);
+                IocRecipe*  recipe      =createDefaultIocRecipe(iocTestCipher, 6);
                 recipe->maxSteckers     =MAX_NUMBER_OF_STECKERS;
                 //recipe->maxSteckers     =numOfSteckers;
                 EnigmaSettings* found   =iocDecodeText(*recipe, NULL);
@@ -116,7 +116,7 @@ void testIocScoring()
                 printf("plain: \n%s\n", plain);
                 printf("cipgher: \n%s\n", toString(enigma));
                 printf("OVERLAP %f\n\n", score);
-                destroyRecipe(recipe);
+                destroyIocRecipe(recipe);
                 destroyEnigmaSettings(settings);
 
                 results[resultCount].cipherLength       =cipherLength;

@@ -119,8 +119,8 @@ void            iocWorkerFunction               (int worker, int workItem, void*
 void            iocFinishFunction               (void* params);
 
 // Public methods
-IocRecipe*      createDefaultRecipe             (char* cipher, int numberOfThreads);
-void            destroyRecipe                   (IocRecipe* recipe);
+IocRecipe*      createDefaultIocRecipe          (char* cipher, int numberOfThreads);
+void            destroyIocRecipe                (IocRecipe* recipe);
 void            iocInitialize                   (IocRecipe recipe, LinkedList* permutations);
 EnigmaSettings* iocDecodeText                   (IocRecipe recipe, LinkedList* customPermutations);
  

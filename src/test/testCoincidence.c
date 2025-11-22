@@ -176,7 +176,7 @@ void testCoincidenceDecodeTextInline2(void)
     permutation[3]=2; // III
     addObject(permutations, permutation); 
 
-    IocRecipe* recipe=createDefaultRecipe(iocTestCipher02, 1);
+    IocRecipe* recipe=createDefaultIocRecipe(iocTestCipher02, 1);
     recipe->method           =DEPTH_R3;
     recipe->evalWalzen       =EVAL_IOC;
     recipe->evalSteckers     =EVAL_IOC;
@@ -190,6 +190,7 @@ void testCoincidenceDecodeTextInline2(void)
     setEnigma(enigma, bestSettings);
     encodeDecode(enigma);
     assertStringEquals(expected01, toString(enigma));
+    destroyIocRecipe(recipe);
     destroyEnigma(enigma);
 
     testWrapUp();

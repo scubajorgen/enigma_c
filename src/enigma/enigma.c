@@ -603,3 +603,44 @@ void displayEnigmaMessage(char* message, MessageFormat_t type)
     printf("\n");
 }
 
+/**************************************************************************************************\
+* 
+* Creates a list of permutations of UKW/Walzen based on the enigma type and Walzen set. 
+* The object contains 4 or 5 ints:
+* M3:
+* int 0: the UKW index
+* int 1: Walze 1
+* int 2: Walze 2
+* int 3: Walze 3
+*
+* M4:
+* int 0: the UKW index
+* int 1: Walze 1
+* int 2: Walze 2
+* int 3: Walze 3
+* int 4: Walze 4
+* The index is the index in walzeNames resp. umkerhWalzenNames!
+* 
+\**************************************************************************************************/
+LinkedList* generateWalzePermutations(Enigma_t enigmaType, WalzeSet_t walzeSet)
+{
+    LinkedList* ukwPermutations         =NULL;
+    LinkedList* walzenPermutations      =NULL;
+    LinkedList* permutations            =NULL;
+
+    walzenPermutations  =getWalzenPermutations(enigmaType, walzeSet);
+    ukwPermutations     =getUkwPermutations   (enigmaType, walzeSet);
+    int numberOfWalzen;
+    if (enigmaType==ENIGMATYPE_M4)
+    {
+        numberOfWalzen=4;
+    }
+    else
+    {
+        numberOfWalzen=3;
+    }
+    permutations=combinePermutations(ukwPermutations, 1, walzenPermutations, numberOfWalzen);
+    destroyPermutations(walzenPermutations);
+    destroyPermutations(ukwPermutations);
+    return permutations;
+}

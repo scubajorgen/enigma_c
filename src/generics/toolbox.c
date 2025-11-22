@@ -11,10 +11,6 @@
 
 #include "toolbox.h"
 
-// Permutations of rotors/walzen
-int                 walzenIndices[8]    ={0, 1, 2, 3, 4, 5, 6, 7};
-char                walzen[8][5]        ={"I", "II", "III", "IV", "V", "VI", "VII", "VIII"};
-
 /**************************************************************************************************\
 * 
 * Calculates the power with integer numbers result=base ^ exp
@@ -243,22 +239,6 @@ LinkedList* combinePermutations(LinkedList* list1, int permutation1Size, LinkedL
     }
     return permutations;
 }
-
-
-/**************************************************************************************************\
-* 
-* Create the permutations of the walzen. numberOfWalzen: 3 or 4, numberToChoosFrom: 3,5,8 
-* TO DO: incorporate beta and gamma walzen at the right spot
-* 
-\**************************************************************************************************/
-LinkedList* createWalzePermutations(int numberOfWalzen, int numberToChooseFrom)
-{
-    LinkedList* permutations;
-    permutations=createLinkedList();
-    permute(permutations, walzenIndices, numberToChooseFrom, numberOfWalzen, 0);
-    return permutations;
-}
-
 
 /**************************************************************************************************\
 * 

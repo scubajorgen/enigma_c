@@ -286,7 +286,7 @@ void gcEnigmaNano()
 //    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "GB");
 //    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 0, 3, "DE");
 // TO DO
-    IocRecipe* recipe=createDefaultRecipe(textGC6ZZBB, numOfThreads);
+    IocRecipe* recipe=createDefaultIocRecipe(textGC6ZZBB, numOfThreads);
     recipe->method           =DEPTH_R3;
     recipe->evalWalzen       =EVAL_IOC;
     recipe->evalSteckers     =EVAL_IOC;
@@ -298,6 +298,7 @@ void gcEnigmaNano()
     recipe->scoreListSize    =400;
     recipe->numberOfSolutions=100;
     iocDecodeText(*recipe, permutations);
+    destroyIocRecipe(recipe);
 }
 
 /**************************************************************************************************\
@@ -313,7 +314,7 @@ void gcEnigmaNano()
 \**************************************************************************************************/
 void gcEnigmaNanoReply()
 {
-    int numOfThreads=4;
+    int numOfThreads=6;
 
     // Create a list of permutations with only UKW B
     LinkedList* walzenPermutations  =getWalzenPermutations(ENIGMATYPE_M3, M3_ARMY_1938);
@@ -335,11 +336,11 @@ void gcEnigmaNanoReply()
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
     recipe.walzeSet         =M3_ARMY_1938;
-    recipe.method           =DEPTH_NONE;
+    recipe.method           =DEPTH_R3;
     recipe.evalWalzen       =EVAL_IOC;
     recipe.evalSteckers     =EVAL_IOC;
     recipe.maxSteckers      =13;
-    recipe.maxSteckersInline=0;
+    recipe.maxSteckersInline=10;
     recipe.knownSteckers[0] ='\0';
     recipe.ngramSize        =0;
     strncpy(recipe.ngramSet, "DE", MAX_NGRAMSETSIZE);

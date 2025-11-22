@@ -753,8 +753,6 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     while (w<=end)
     {
         permutation=(int*)elementAt(permutations, w);
-        placeUmkehrWalze(enigma, umkehrWalzeNames[permutation[0]]);
-
         placeWalze(enigma, 1, walzeNames[permutation[1]]);
         placeWalze(enigma, 2, walzeNames[permutation[2]]);
         placeWalze(enigma, 3, walzeNames[permutation[3]]);
@@ -769,9 +767,9 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
           w,
           w-start+1, end-start+1,
           umkehrWalzeNames[permutation[0]],
-          walzen[permutation[1]], 
-          walzen[permutation[2]], 
-          walzen[permutation[3]], 
+          walzeNames[permutation[1]], 
+          walzeNames[permutation[2]], 
+          walzeNames[permutation[3]], 
           R1,
           startR2, endR2, 
           startR3, endR3);
@@ -1032,48 +1030,6 @@ void iocFinishFunction(void* params)
 
 /**************************************************************************************************\
 * 
-* Creates a list of permutations of UKW/Walzen based on the recipe. 
-* The object contains 4 or 5 ints:
-* M3:
-* int 0: the UKW index
-* int 1: Walze 1
-* int 2: Walze 2
-* int 3: Walze 3
-*
-* M4:
-* int 0: the UKW index
-* int 1: Walze 1
-* int 2: Walze 2
-* int 3: Walze 3
-* int 4: Walze 4
-* The index is the index in walzeNames resp. umkerhWalzenNames!
-* 
-\**************************************************************************************************/
-LinkedList* generateWalzePermutations(IocRecipe recipe)
-{
-    LinkedList* ukwPermutations         =NULL;
-    LinkedList* walzenPermutations      =NULL;
-    LinkedList* permutations            =NULL;
-
-    walzenPermutations  =getWalzenPermutations(recipe.enigmaType, recipe.walzeSet);
-    ukwPermutations     =getUkwPermutations   (recipe.enigmaType, recipe.walzeSet);
-    int numberOfWalzen;
-    if (recipe.enigmaType==ENIGMATYPE_M4)
-    {
-        numberOfWalzen=4;
-    }
-    else
-    {
-        numberOfWalzen=3;
-    }
-    permutations=combinePermutations(ukwPermutations, 1, walzenPermutations, numberOfWalzen);
-    destroyPermutations(walzenPermutations);
-    destroyPermutations(ukwPermutations);
-    return permutations;
-}
-
-/**************************************************************************************************\
-* 
 * Verbose onm operation method
 * 
 \**************************************************************************************************/
@@ -1255,7 +1211,7 @@ EnigmaSettings* iocDecodeText(IocRecipe recipe, LinkedList* customPermutations)
     LinkedList* permutations;
     if (customPermutations==NULL)
     {
-        permutations=generateWalzePermutations(recipe);
+        permutations=generateWalzePermutations(recipe.enigmaType, recipe.walzeSet);
     }
     else
     {
@@ -1301,7 +1257,7 @@ EnigmaSettings* iocDecodeText(IocRecipe recipe, LinkedList* customPermutations)
 * Destroy after use!
 * 
 \**************************************************************************************************/
-IocRecipe* createDefaultRecipe(char* cipher, int numberOfThreads)
+IocRecipe* createDefaultIocRecipe(char* cipher, int numberOfThreads)
 {
     IocRecipe* recipe=malloc(sizeof(IocRecipe));
     recipe->enigmaType          =ENIGMATYPE_M3;
@@ -1328,7 +1284,7 @@ IocRecipe* createDefaultRecipe(char* cipher, int numberOfThreads)
 * Destroy the recipe
 * 
 \**************************************************************************************************/
-void destroyRecipe(IocRecipe* recipe)
+void destroyIocRecipe(IocRecipe* recipe)
 {
     free(recipe);
 }

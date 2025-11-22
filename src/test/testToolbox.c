@@ -272,38 +272,6 @@ void testToolboxCombinePermutations()
 
 /**************************************************************************************************\
 * 
-* Test the walzePermutation function
-* 
-\**************************************************************************************************/
-void testToolboxWalzePermutations()
-{
-    testStart("walzePermutation");
-    LinkedList* list;
-    int*        permutation;
-
-    list=createWalzePermutations(3, 5);
-    
-    assertIntEquals(60, linkedListLength(list));
-    
-    permutation=elementAt(list, 0);
-    
-    assertStringEquals("I", walzen[permutation[0]]);
-    assertStringEquals("II", walzen[permutation[1]]);
-    assertStringEquals("III", walzen[permutation[2]]);
-
-    permutation=elementAt(list, 59);
-    
-    assertStringEquals("V", walzen[permutation[0]]);
-    assertStringEquals("I", walzen[permutation[1]]);
-    assertStringEquals("II", walzen[permutation[2]]);
-    
-    destroyLinkedList(list);
-
-    testWrapUp();
-}
-
-/**************************************************************************************************\
-* 
 * Test the toolbox: selectRandomIndices()
 * 
 \**************************************************************************************************/
@@ -338,7 +306,6 @@ void testToolbox()
     testToolboxPermute();
     testToolboxCreatePermutations();
     testToolboxCombinePermutations();
-    testToolboxWalzePermutations();
     testToolboxRandomIndices();
     moduleTestWrapUp();
 }

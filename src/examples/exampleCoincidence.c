@@ -58,12 +58,12 @@ EnigmaSettings iocExampleSettings00=
 void iocExample00()
 {
     printEnigmaSettings(&iocExampleSettings00, "INDEX OF COINCIDENCE METHOD EXAMPLE 0 - James Gilloglys' example, 7 steckers");
-    IocRecipe* recipe           =createDefaultRecipe(iocExampleSettings00.cipher, 6);
+    IocRecipe* recipe           =createDefaultIocRecipe(iocExampleSettings00.cipher, 6);
     recipe->scoreListSize       =5;
     recipe->numberOfSolutions   =1;
     recipe->displayFormat       =MESSAGEFORMAT_WEHRMACHT;
     iocDecodeText(*recipe, NULL);
-    destroyRecipe(recipe);
+    destroyIocRecipe(recipe);
 }
 
 /**************************************************************************************************\
@@ -110,12 +110,12 @@ EnigmaSettings iocExampleSettings01A=
 void iocExample01Ioc()
 {
     printEnigmaSettings(&iocExampleSettings01A, "INDEX OF COINCIDENCE METHOD EXAMPLE 1 - 8 steckers");
-    IocRecipe* recipe           =createDefaultRecipe(iocExampleSettings00.cipher, 6);
+    IocRecipe* recipe           =createDefaultIocRecipe(iocExampleSettings00.cipher, 6);
     recipe->scoreListSize       =53;
     recipe->numberOfSolutions   =3;
     recipe->displayFormat       =MESSAGEFORMAT_WEHRMACHT;
     iocDecodeText(*recipe, NULL);
-    destroyRecipe(recipe);
+    destroyIocRecipe(recipe);
 }
 
 /**************************************************************************************************\
@@ -129,13 +129,13 @@ void iocExample01Ioc()
 void iocExample01IocR3()
 {
     printEnigmaSettings(&iocExampleSettings01A, "INDEX OF COINCIDENCE METHOD EXAMPLE 1 - 8 steckers");
-    IocRecipe* recipe           =createDefaultRecipe(iocExampleSettings00.cipher, 6);
+    IocRecipe* recipe           =createDefaultIocRecipe(iocExampleSettings00.cipher, 6);
     recipe->method              =DEPTH_R3;
     recipe->scoreListSize       =5;
     recipe->numberOfSolutions   =3;
     recipe->displayFormat       =MESSAGEFORMAT_WEHRMACHT;
     iocDecodeText(*recipe, NULL);
-    destroyRecipe(recipe);
+    destroyIocRecipe(recipe);
 }
 
 /**************************************************************************************************\
@@ -336,10 +336,10 @@ EnigmaSettings iocExampleSettings04=
 void iocExample04Ioc()
 {
     printEnigmaSettings(&iocExampleSettings04, "INDEX OF COINCIDENCE METHOD EXAMPLE 3C - Short english text");
-    IocRecipe* recipe           =createDefaultRecipe(iocExampleSettings04.cipher, 6);
+    IocRecipe* recipe           =createDefaultIocRecipe(iocExampleSettings04.cipher, 6);
     recipe->numberOfSolutions   =10;
     iocDecodeText(*recipe, NULL);
-    destroyRecipe(recipe);
+    destroyIocRecipe(recipe);
 }
 
 
