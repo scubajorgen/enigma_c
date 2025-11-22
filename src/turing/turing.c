@@ -12,7 +12,8 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <malloc.h>
-#include <string.h>     
+#include <string.h>
+#include <sys/time.h>
 
 #include "log.h"
 #include "toolbox.h"
@@ -271,8 +272,6 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
             }
         }
     }
-
-//    printf("Mallocs %d\n", mallocs);
 }
 
 
@@ -353,6 +352,10 @@ void processIntermediateChars(Enigma* enigma, int g1, int g2, int g3, CribCircle
 * Work-around: sufficiently long crib to generate enough loops in the set reducing the chance
 * on multiple chars fulfilling the set...
 * 
+* Performance improvement: Instead of setting up the enigma for each hypohesis character, we 
+* set it up once and pass all 26 characters at once. Abort when no char is found for a circle
+* 3.0 times as fast as previous version :-)
+*
 \**************************************************************************************************/
 int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredChars* chars)
 {
@@ -360,59 +363,79 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
     // there is a character (hypothesis) that fullfills 
     // all circles in the set. 
     // Parse the sets
-    bool found   =true;
-    bool theFound=true;
-    for (int set=0; set<MAX_POSITIONS && theFound; set++)
+    bool found      =true;
+    for (int set=0; set<MAX_POSITIONS && found; set++)
     {
         CribCircleSet*  theSet=&cribCircleSet[set];
         
         if (theSet->numOfCircles>0)
         {
-            // Choose a character c and check whether
-            // the output of each circle in the set results 
-            // in the same character c (hypothesis)
-            int fc      =0;
-            found       =false;
-            theFound    =false;
-            for (int c=0; c<MAX_POSITIONS && !found; c++)
+            // Try the circles. If one circle fails
+            // hypothesis is rejected, proceed to next char
+
+            // We start with an array of all characters and are going to pass them all through the circles
+            // We are going to look for characters that fulfill all circles
+            // As long as there is at least one character (found=true), we continue
+            int theChars[MAX_POSITIONS];
+            for (int i=0; i<MAX_POSITIONS; i++)
             {
-                // Try the circles. If one circle fails
-                // hypothesis is rejected, proceed to next char
-                found   =true;
-                for (int circle=0; circle<theSet->numOfCircles && found; circle++)
+                theChars[i]=i;
+            }
+            found=true;
+            for (int circle=0; circle<theSet->numOfCircles && found; circle++)
+            {
+                CribCircle* cribCircle  =&theSet->cribCircles[circle];
+                for (int e=0; e<cribCircle->circleSize; e++)
                 {
-                    CribCircle* cribCircle  =&theSet->cribCircles[circle];
-                    int theChar             =c;
-                    for (int e=0; e<cribCircle->circleSize; e++)
+                    setGrundStellung(enigma, 1, g1);
+                    setGrundStellung(enigma, 2, g2);
+                    setGrundStellung(enigma, 3, g3);
+                    
+                    advances(enigma, cribCircle->advances[e]);
+                    for (int i=0; i<MAX_POSITIONS; i++)
                     {
-                        setGrundStellung(enigma, 1, g1);
-                        setGrundStellung(enigma, 2, g2);
-                        setGrundStellung(enigma, 3, g3);
-                        
-                        advances(enigma, cribCircle->advances[e]);
-                        theChar=encodeCharacter(enigma, theChar);
+                        if (theChars[i]>=0)
+                        {
+                            theChars[i]=encodeCharacter(enigma, theChars[i]);
+                        }
+                    }                    
+                }
+                found=false;
+                for (int i=0; i<MAX_POSITIONS; i++)
+                {
+                    if (theChars[i]==i)
+                    {
+                        found=true;     // Yup, still a character fullfilling the circles so far
                     }
-                    if (theChar!=c)
+                    else
                     {
-                        found=false;
+                        theChars[i]=-1; // remove character from processing
+                    }
+                }     
+            }
+            // Store the character c that works
+            // for all circles in the set
+            if (found)
+            {
+                int fc=0;
+                int foundChar=-1;
+                for (int i=0; i<MAX_POSITIONS; i++)
+                {
+                    if (theChars[i]==i)
+                    {
+                        foundChar=i;
+                        fc++;
                     }
                 }
-                // Store the character c that works
-                // for all circles in the set
-                if (found)
+                processIntermediateChars(enigma, g1, g2, g3, theSet, foundChar, chars);
+                if (fc>1)
                 {
-                    processIntermediateChars(enigma, g1, g2, g3, theSet, c, chars);
-                    fc++;
-                    if (fc>1)
-                    {
-                        logError("Found multiple %d - %c->%c circles %d\n", fc, theSet->startChar, c+'A', theSet->numOfCircles);
-                    }
-                    theFound=true;
+                    logError("Found multiple %d - %c->%c circles %d\n", fc, theSet->startChar, foundChar+'A', theSet->numOfCircles);
                 }
             }
         }
     }
-    return theFound;
+    return found;
 }
 
 /**************************************************************************************************\
@@ -462,12 +485,12 @@ int turingValidateTheSteckeredValues(SteckeredChars* chars)
 \**************************************************************************************************/
 void turingPrintSolution(EnigmaSettings* settings)
 {
-    printf("Solution found: %s - %s %s %s R %d %d %d, G %d %d %d, %s\n",
-           settings->ukw,
-           settings->walzen[0], settings->walzen[1], settings->walzen[2],
-           settings->ringStellungen[0], settings->ringStellungen[1], settings->ringStellungen[2],
-           settings->grundStellungen[0], settings->grundStellungen[1], settings->grundStellungen[2],
-           settings->steckers);
+    logInfo("Solution found: %s - %s %s %s R %d %d %d, G %d %d %d, %s",
+            settings->ukw,
+            settings->walzen[0], settings->walzen[1], settings->walzen[2],
+            settings->ringStellungen[0], settings->ringStellungen[1], settings->ringStellungen[2],
+            settings->grundStellungen[0], settings->grundStellungen[1], settings->grundStellungen[2],
+            settings->steckers);
     fflush(stdout);
     dumpDecoded(settings);
 }
@@ -531,6 +554,7 @@ void convertSteckeredCharsToString(SteckeredChars* chars, char* string)
 void turingFind(int permutationStart, int permutationEnd)
 {
     int             g1, g2, g3, r1, r2, r3;
+    struct timeval  stop, start;
     
     logInfo("Processing permutations %d-%d", permutationStart, permutationEnd);
 
@@ -540,10 +564,6 @@ void turingFind(int permutationStart, int permutationEnd)
     Enigma* enigma=createEnigmaM3(); 
     clearSteckerBrett(enigma);
   
-    long counting        =0;
-    long prevTime        =startTime;
-    long prevCounting    =0;
-
     // Parse the Walze permutations
     for (int w=permutationStart; w<permutationEnd; w++)
     {
@@ -555,26 +575,13 @@ void turingFind(int permutationStart, int permutationEnd)
             char* w2=walzeNames[permutation[2]];
             char* w3=walzeNames[permutation[3]];
             char* ukw=umkehrWalzeNames[permutation[0]];
-            sprintf(walzenString,"%s - %s %s %s", ukw, w1, w2, w3);
-            
-            long currentTime=(long)time(NULL)-(long)startTime;
-            long diffTime=currentTime-prevTime;
-            long convPerSec;
-            if (diffTime>0)
-            {
-                convPerSec=(counting-prevCounting)/diffTime;
-            }
-            else
-            {
-                convPerSec=0;
-            }
-            prevTime        =currentTime;
-            prevCounting    =counting;
-            
-            logInfo("Processing walzen permutation %3d:%15s @ systemtime %ld seconds, %ld settings per sec", 
-                    w, walzenString, currentTime, convPerSec);
-            fflush(stdout);
+            sprintf(walzenString,"%6s - %5s %5s %5s", ukw, w1, w2, w3);
            
+            logInfo("Processing walzen permutation %3d:%15s", w, walzenString);
+            fflush(stdout);
+            gettimeofday(&start, NULL);
+            long counting        =0;
+
             // Set the Walzen
             placeWalze(enigma, 1, w1);
             placeWalze(enigma, 2, w2);
@@ -641,7 +648,10 @@ void turingFind(int permutationStart, int permutationEnd)
 
                 }
             }
-             
+            gettimeofday(&stop, NULL);
+            float timeDiff=timeDifference(start, stop);
+            logInfo("Walzen permutation %3d:%15s processed, %.0f ms, count %ld, speed %.0f counts/sec", w, walzenString, timeDiff, counting, 1000*counting/timeDiff);
+
         }
         else
         {

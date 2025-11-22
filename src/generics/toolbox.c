@@ -389,3 +389,13 @@ int randint(int n)
 */
     return rand()%n;
 }
+
+/**************************************************************************************************\
+*
+* Time dif in ms between t1 and t0; Use gettimeofday() from <sys/time.h> to get t0 and t1
+* 
+\**************************************************************************************************/
+float timeDifference(struct timeval t0, struct timeval t1)
+{
+    return (t1.tv_sec - t0.tv_sec) * 1000.0f + (t1.tv_usec - t0.tv_usec) / 1000.0f;
+}

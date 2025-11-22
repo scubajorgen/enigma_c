@@ -1,6 +1,6 @@
 #ifndef TOOLBOX_H
 #define TOOLBOX_H
-
+#include <sys/time.h>
 #include "linkedList.h"
 
 // Permutations of rotors/walzen
@@ -25,4 +25,5 @@ void        printCipher             (char* cipher);
 
 void        selectRandomIndices     (int* available, int arrayLength, int number, int* resultingIndices);
 int         randint                 (int n);
+float       timeDifference          (struct timeval t0, struct timeval t1);
 #endif
