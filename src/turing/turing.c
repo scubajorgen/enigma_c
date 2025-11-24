@@ -16,6 +16,8 @@
 #include <sys/time.h>
 
 #include "log.h"
+#include "enigma.h"
+#include "coincidence.h"
 #include "toolbox.h"
 #include "enigma.h"
 #include "turing.h"
@@ -50,10 +52,11 @@ LinkedList*         tPermutations;
 int                 mallocs=0;
 int                 stepMax=0;
 
-char*               turingBombeCipher;
-
 // The solution
-EnigmaSettings      turingSolution; 
+TuringRecipe        theRecipe;
+LinkedList*         theResults;
+
+
 
 /**************************************************************************************************\
 * 
@@ -483,16 +486,16 @@ int turingValidateTheSteckeredValues(SteckeredChars* chars)
 * Helper: Print a found solution
 * 
 \**************************************************************************************************/
-void turingPrintSolution(EnigmaSettings* settings)
+void turingPrintSolution(TuringResult* result)
 {
-    logInfo("Solution found: %s - %s %s %s R %d %d %d, G %d %d %d, %s",
+    EnigmaSettings* settings=&result->settings;
+    logInfo("Solution found: %s - %s %s %s R %d %d %d, G %d %d %d, %s Score %f",
             settings->ukw,
             settings->walzen[0], settings->walzen[1], settings->walzen[2],
             settings->ringStellungen[0], settings->ringStellungen[1], settings->ringStellungen[2],
             settings->grundStellungen[0], settings->grundStellungen[1], settings->grundStellungen[2],
-            settings->steckers);
-    fflush(stdout);
-    dumpDecoded(settings);
+            settings->steckers, result->score);
+    logInfo("Solution: %s", result->decoded);
 }
 
 /**************************************************************************************************\
@@ -542,6 +545,34 @@ void convertSteckeredCharsToString(SteckeredChars* chars, char* string)
         }
     }
     string[s*3-1]='\0';
+}
+
+
+/**************************************************************************************************\
+* 
+* We found a result. Process it:
+* * create score
+* * add to results list
+* * print it
+* 
+\**************************************************************************************************/
+void processResult(TuringResult* result)
+{
+    Enigma* enigma=createEnigmaM3();
+    setEnigma(enigma, &result->settings);
+    encodeDecode(enigma);
+    strncpy(result->decoded, toString(enigma), MAX_TEXT-1);
+    result->score=iocIndexOfCoincidence(enigma);
+    destroyEnigma(enigma);
+    turingPrintSolution(result);
+    if (theResults!=NULL)
+    {
+        addObject(theResults, result);
+    }
+    else
+    {
+        free(result);
+    }
 }
 
 
@@ -598,14 +629,12 @@ void turingFind(int permutationStart, int permutationEnd)
                         // The RingStellung of the 1st ring has no function
                         // In theory the 2nd ring should be taken into account. However
                         // For short cribs most of the times taking one value is sufficient
-                        // It must be taken into account when the if the notch position of
-                        // the second Walze is reached after a few rotations...
-                        r1=1; r2=3;
-/*            
-                        for (r2=1; r2<=26; r2++)
+                        // It must be taken into account when the notch position of
+                        // the second Walze is reached after a few rotations of R3...
+                        r1=theRecipe.R1; 
+                        for (r2=theRecipe.startR2; r2<=theRecipe.endR2; r2++)
                         {
-*/
-                            for (r3=1; r3<=26; r3++)
+                            for (r3=theRecipe.startR3; r3<=theRecipe.endR3; r3++)
                             {
 
                                 setRingStellung(enigma, 1, r1);
@@ -622,28 +651,26 @@ void turingFind(int permutationStart, int permutationEnd)
                                 if (found)
                                 {
                                     mutexLock();
-                                    turingSolution.numberOfWalzen     =3;
-                                    strncpy(turingSolution.cipher, turingBombeCipher, MAX_TEXT-1);
-                                    strncpy(turingSolution.walzen[0], w1, MAX_WALZE_NAME-1);
-                                    strncpy(turingSolution.walzen[1], w2, MAX_WALZE_NAME-1);
-                                    strncpy(turingSolution.walzen[2], w3, MAX_WALZE_NAME-1);
-                                    turingSolution.ringStellungen[0]  =r1;
-                                    turingSolution.ringStellungen[1]  =r2;
-                                    turingSolution.ringStellungen[2]  =r3;
-                                    turingSolution.grundStellungen[0] =g1;
-                                    turingSolution.grundStellungen[1] =g2;
-                                    turingSolution.grundStellungen[2] =g3;
-                                    strncpy(turingSolution.ukw, ukw, MAX_WALZE_NAME-1);
-                                    
-                                    convertSteckeredCharsToString(steckeredChars, turingSolution.steckers);
-                                    turingPrintSolution(&turingSolution);
+                                    TuringResult* result=malloc(sizeof(TuringResult));
+                                    result->settings.numberOfWalzen     =3;
+                                    strncpy(result->settings.cipher  , theRecipe.cipher, MAX_TEXT-1);
+                                    strncpy(result->settings.walzen[0],  w1, MAX_WALZE_NAME-1);
+                                    strncpy(result->settings.walzen[1],  w2, MAX_WALZE_NAME-1);
+                                    strncpy(result->settings.walzen[2],  w3, MAX_WALZE_NAME-1);
+                                    strncpy(result->settings.ukw      , ukw, MAX_WALZE_NAME-1);
+                                    result->settings.ringStellungen[0]  =r1;
+                                    result->settings.ringStellungen[1]  =r2;
+                                    result->settings.ringStellungen[2]  =r3;
+                                    result->settings.grundStellungen[0] =g1;
+                                    result->settings.grundStellungen[1] =g2;
+                                    result->settings.grundStellungen[2] =g3;
+                                    convertSteckeredCharsToString(steckeredChars, result->settings.steckers);
+                                    processResult(result);
                                     mutexUnlock();
                                 }
                                 counting++;
                             }
-/*
                         }
-*/
                     }
 
                 }
@@ -651,7 +678,6 @@ void turingFind(int permutationStart, int permutationEnd)
             gettimeofday(&stop, NULL);
             float timeDiff=timeDifference(start, stop);
             logInfo("Walzen permutation %3d:%15s processed, %.0f ms, count %ld, speed %.0f counts/sec", w, walzenString, timeDiff, counting, 1000*counting/timeDiff);
-
         }
         else
         {
@@ -681,49 +707,38 @@ void turingWorkerFunction(int worker, int workItem, void* params)
 * Finish function. Executed after the work is done. Deletes the permutations.
 * 
 \**************************************************************************************************/
-
 void turingFinishFunction(void* params)
 {
 
 }
-   
+
+
 /**************************************************************************************************\
 * 
-* Implements the Turing Bombe. Parse recipe to configure the process:
-
-* cipher            : cipher string, upper case!!
-* crib              : crib, upper case. Length must be shorter than cipher and not to long 
-*                     to prevent stack overflow
-* cribStartPosition : start position in the cipher that corresponds with the start of the crib
-* numberOfThreads   : Use multiple threads to use multi processor cores. Walze combinations are 
-*                     split up amongst the threads. Number of permutations (60) should be divisable 
-*                     by this number. Hence 1, 2, 3, 4, 5, 6, 10 will do.
-* customPermutations: If NULL, a list of permutations will be generated based on next parameters
-* enigmaType        : Type of Enigma (only M3 supported)
-* walzeSet          : The set of Walzen/UKWs to use
+* The implementation of the Bombe
 * 
 \**************************************************************************************************/
-EnigmaSettings* turingBombe(TuringRecipe recipe)
+void bombeProcess(int cribPosition)
 {
-    turingBombeCipher=recipe.cipher;
+    logInfo("Starting the Bombe process for '%s' at position %d", theRecipe.crib, cribPosition);
 
-    turingFindLoops(recipe.cipher, recipe.crib, recipe.cribPosition);
+    turingFindLoops(theRecipe.cipher, theRecipe.crib, cribPosition);
 
     // Choose from the 5 wehrmacht walzen and 2 UKWs on an M3 Enigma
-    if (recipe.customPermutations==NULL)
+    if (theRecipe.customPermutations==NULL)
     {
         tPermutations=generateWalzePermutations(ENIGMATYPE_M3, M3_ARMY_1938);
     }
     else
     {
-        tPermutations=recipe.customPermutations;
+        tPermutations=theRecipe.customPermutations;
     }
     
     int numberOfPermutations=linkedListLength(tPermutations);
     logInfo("Walzen/UKW permutations %d", numberOfPermutations);
 
     // Each thread gets one work item
-    int numOfThreads=recipe.numberOfThreads;
+    int numOfThreads=theRecipe.numberOfThreads;
     dispatcherClearWorkItems();
     for (int w=0; w<numOfThreads; w++)
     {
@@ -734,11 +749,85 @@ EnigmaSettings* turingBombe(TuringRecipe recipe)
 
     // Start the time, start the threads and wait till finished
     startTime=time(NULL); 
-    dispatcherStartWork(numOfThreads, turingFinishFunction, NULL, true);    
-    destroyPermutations(tPermutations);
-    return &turingSolution;
+    dispatcherStartWork(numOfThreads, turingFinishFunction, NULL, true);
+
 }
 
+/**************************************************************************************************\
+* 
+* Aligns crib to cipher so that no characters match. Returns a linked list with positions that
+* the crib fits to; destroy after use!!
+* 
+\**************************************************************************************************/
+LinkedList* turingCribFit(char crib[], char cipher[])
+{
+    LinkedList* positions=createLinkedList();
+    int cribLength  =strlen(crib);
+    int cipherLength=strlen(cipher);
+    for (int i=0; i<=cipherLength-cribLength; i++)
+    {
+        bool found=true;
+        for (int j=0; j<cribLength && found; j++)
+        {
+            if (crib[j]==cipher[i+j])
+            {
+                found=false;
+            }
+        }
+        if (found)
+        {
+            int* foundPos=malloc(sizeof(int));
+            *foundPos=i;
+            addObject(positions, foundPos);
+        }
+    }
+    return positions;
+}
+
+/**************************************************************************************************\
+* 
+* Implements the Turing Bombe. Parse recipe to configure the process:
+
+* cipher            : cipher string, upper case!!
+* crib              : crib, upper case. Length must be shorter than cipher and not to long 
+*                     to prevent stack overflow
+* cribStartPosition : start position in the cipher that corresponds with the start of the crib;
+                      if unknown, pass -1; the software will try all legal crib positions
+* numberOfThreads   : Use multiple threads to use multi processor cores. Walze combinations are 
+*                     split up amongst the threads. Number of permutations (60) should be divisable 
+*                     by this number. Hence 1, 2, 3, 4, 5, 6, 10 will do.
+* R1                : Value of Ringstellung 1, has no influence
+* startR2           : Start value of Ringstellung 2, use 'A'
+* endR2             : End value fo Ringstellung 2, use 'A' unless no results are returned
+* startR3           : Start value of Ringstellung 3, of the fastes Walze, use 'A'
+* endR3             : End value of Ringstellung 3, use 'Z'
+* customPermutations: If NULL, a list of permutations will be generated based on next parameters
+* enigmaType        : Type of Enigma (only M3 supported)
+* walzeSet          : The set of Walzen/UKWs to use
+* 
+\**************************************************************************************************/
+void turingBombe(TuringRecipe recipe, LinkedList* results)
+{
+    theRecipe           =recipe;
+    theResults          =results;
+
+    if (theRecipe.cribPosition>=0)
+    {
+        bombeProcess(theRecipe.cribPosition);
+    }
+    else
+    {
+        LinkedList* positions=turingCribFit(theRecipe.crib, theRecipe.cipher);
+        resetLinkedList(positions);
+        while (hasNext(positions))
+        {
+            int* position=(int *)nextLinkedListObject(positions);
+            bombeProcess(*position);
+        }
+        destroyLinkedList(positions, true);
+    }
+    destroyPermutations(tPermutations);
+}
 
 /**************************************************************************************************\
 * 
@@ -758,6 +847,11 @@ TuringRecipe* createDefaultTuringRecipe(char* cipher, char* crib, int cribPositi
     recipe->crib                =crib;
     recipe->cribPosition        =cribPosition;
     recipe->numberOfThreads     =numberOfThreads;
+    recipe->R1                  ='A';
+    recipe->startR2             ='C';
+    recipe->endR2               ='C';
+    recipe->startR3             ='A';
+    recipe->endR3               ='Z';
     recipe->customPermutations  =NULL;
     recipe->enigmaType          =ENIGMATYPE_M3;
     recipe->walzeSet            =M3_ARMY_1938;
@@ -774,4 +868,6 @@ void destroyTuringRecipe(TuringRecipe* recipe)
 {
     free(recipe);
 }
+
+
 

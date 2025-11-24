@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "enigma.h"
+#include "log.h"
 #include "toolbox.h"
 
 #define ROTATING_WALZEN 3
@@ -530,7 +531,7 @@ void dumpDecoded(EnigmaSettings* settings)
     Enigma* enigma=createEnigmaM3();
     setEnigma(enigma, settings);
     encodeDecode(enigma);
-    printf("Solution: %s\n", toString(enigma));
+    logInfo("Solution: %s", toString(enigma));
     destroyEnigma(enigma);
 }
 

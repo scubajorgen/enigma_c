@@ -1,6 +1,8 @@
 #ifndef LINKEDLIST_H
 #define LINKEDLIST_H
 
+#include <stdbool.h>
+
 typedef struct LinkedListElement
 {
     struct LinkedListElement* next;
@@ -19,7 +21,7 @@ typedef struct LinkedList
 LinkedList;
 
 LinkedList* createLinkedList        ();
-void        destroyLinkedList       (LinkedList* list);
+void        destroyLinkedList       (LinkedList* list, bool destroyObjects);
 void        addObject               (LinkedList* list, void* newObject);
 void        resetLinkedList         (LinkedList* list);
 void*       nextLinkedListObject    (LinkedList* list);

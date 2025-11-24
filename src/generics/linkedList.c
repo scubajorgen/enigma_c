@@ -113,7 +113,7 @@ void addObject(LinkedList* list, void* newObject)
 * themselves
 * 
 \**************************************************************************************************/
-void destroyLinkedList(LinkedList* list)
+void destroyLinkedList(LinkedList* list, bool destroyObjects)
 {
     LinkedListElement* element;
     LinkedListElement* nextElement;
@@ -122,6 +122,10 @@ void destroyLinkedList(LinkedList* list)
     while (element!=NULL)
     {
         nextElement=element->previous;
+        if (destroyObjects)
+        {
+            free(element->object);
+        }
         free(element);
         element=nextElement;
     }

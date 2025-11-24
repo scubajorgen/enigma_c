@@ -132,7 +132,7 @@ void testToolboxStellungPos()
 \**************************************************************************************************/
 void testToolboxPermute()
 {
-    int         permutationElements[4]={1, 2, 3, 4};
+    int permutationElements[4]={1, 2, 3, 4};
 
     testStart("permute");
     // Permutations
@@ -162,7 +162,7 @@ void testToolboxPermute()
         free(permutation);
         i++;
     }
-    destroyLinkedList(list);
+    destroyLinkedList(list, false);
     testWrapUp();
 }
 

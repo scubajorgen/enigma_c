@@ -1244,7 +1244,8 @@ EnigmaSettings* iocDecodeText(IocRecipe recipe, LinkedList* customPermutations)
 
     if (operation.permutations!=NULL)
     {
-        destroyLinkedList(operation.permutations);
+        // TO DO: false?
+        destroyLinkedList(operation.permutations, false);
         operation.permutations=NULL;
     }
     destroyHighScoreList();

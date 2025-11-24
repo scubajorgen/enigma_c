@@ -63,7 +63,7 @@ void testLinkedListCreate()
     objectFromList=(int *)elementAt(list, 6);
     assertIsNull((void*)objectFromList);
     
-    destroyLinkedList(list);
+    destroyLinkedList(list, false);
 
     testWrapUp();
 }

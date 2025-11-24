@@ -257,7 +257,7 @@ void destroyPermutations(LinkedList* permutations)
         free(permutation);
     }
     // Then destroy the list itself
-    destroyLinkedList(permutations);
+    destroyLinkedList(permutations, false);
 }
 
 
