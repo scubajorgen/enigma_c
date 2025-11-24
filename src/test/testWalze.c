@@ -123,12 +123,12 @@ void testWalzePermutations()
 
     LinkedList* p=getWalzenPermutations(ENIGMATYPE_M3, M3_ARMY_1938);
     assertIntEquals(60, linkedListLength(p));
-    resetLinkedList(p);
-    int* permutation=(int *)nextLinkedListObject(p);
+    linkedListReset(p);
+    int* permutation=(int *)linkedListNextObject(p);
     assertIntEquals(0, permutation[0]);
     assertIntEquals(1, permutation[1]);
     assertIntEquals(2, permutation[2]);
-    permutation=(int *)nextLinkedListObject(p);
+    permutation=(int *)linkedListNextObject(p);
     assertIntEquals(0, permutation[0]);
     assertIntEquals(1, permutation[1]);
     assertIntEquals(3, permutation[2]);
@@ -136,13 +136,13 @@ void testWalzePermutations()
 
     p=getWalzenPermutations(ENIGMATYPE_M4, M4_NAVAL_1941);
     assertIntEquals(672, linkedListLength(p));
-    resetLinkedList(p);
-    permutation=(int *)nextLinkedListObject(p);
+    linkedListReset(p);
+    permutation=(int *)linkedListNextObject(p);
     assertIntEquals(8, permutation[0]);
     assertIntEquals(0, permutation[1]);
     assertIntEquals(1, permutation[2]);
     assertIntEquals(2, permutation[3]);
-    permutation=(int *)nextLinkedListObject(p);
+    permutation=(int *)linkedListNextObject(p);
     assertIntEquals(8, permutation[0]);
     assertIntEquals(0, permutation[1]);
     assertIntEquals(1, permutation[2]);

@@ -168,13 +168,13 @@ void testCoincidenceDecodeTextInline2(void)
 {
     testStart("Decode - inline2");
     // Define recipe using NGRAM for letterfinding -> succeed
-    LinkedList*     permutations=createLinkedList();
+    LinkedList*     permutations=linkedListCreate();
     int* permutation   =malloc(4*sizeof(int)); 
     permutation[0]=1; // Index of UKW B
     permutation[1]=1; // II
     permutation[2]=0; // I
     permutation[3]=2; // III
-    addObject(permutations, permutation); 
+    linkedListAppendObject(permutations, permutation); 
 
     IocRecipe* recipe=createDefaultIocRecipe(iocTestCipher02, 1);
     recipe->method           =DEPTH_R3;

@@ -210,13 +210,13 @@ void testNgramHillClimb()
     IocRecipe* recipe=createDefaultIocRecipe(testCipher, 1);
 
     // Define recipe using NGRAM for letterfinding -> succeed
-    LinkedList*     permutations=createLinkedList();
+    LinkedList*     permutations=linkedListCreate();
     int* permutation   =malloc(4*sizeof(int)); 
     permutation[0]=1; // Index of UKW B
     permutation[1]=0; // I
     permutation[2]=1; // II
     permutation[3]=2; // III
-    addObject(permutations, permutation); 
+    linkedListAppendObject(permutations, permutation); 
     recipe->evalWalzen       =EVAL_IOC;
     recipe->evalSteckers     =EVAL_NGRAM;
     recipe->maxSteckers      =8;
@@ -233,13 +233,13 @@ void testNgramHillClimb()
     destroyEnigma(enigma);
 
     // Define recipe using IOC for letterfinding -> fail
-    permutations=createLinkedList();
+    permutations=linkedListCreate();
     permutation   =malloc(4*sizeof(int)); 
     permutation[0]=1; // Index of UKW B
     permutation[1]=0; // I
     permutation[2]=1; // II
     permutation[3]=2; // III
-    addObject(permutations, permutation); 
+    linkedListAppendObject(permutations, permutation); 
     recipe->evalSteckers     =EVAL_IOC;
     bestSettings=iocDecodeText(*recipe, permutations);
     enigma=createEnigmaM3();

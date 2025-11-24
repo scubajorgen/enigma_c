@@ -16,7 +16,7 @@
 * Creates an emtpy linked list
 * 
 \**************************************************************************************************/
-LinkedList* createLinkedList()
+LinkedList* linkedListCreate()
 {
     LinkedList* list;
     
@@ -43,10 +43,10 @@ int linkedListLength(LinkedList* list)
 * 
 * Returns the element from the linked list at position indicated by index
 * This is an expensive method, especially for long linked lists. If parsing a linked list, use
-* nextLinkedListObject().
+* linkedListNextObject().
 * 
 \**************************************************************************************************/
-void* elementAt(LinkedList* list, int index)
+void* linkedListObjectAt(LinkedList* list, int index)
 {
     LinkedListElement*  element;
     void*               object;
@@ -72,38 +72,97 @@ void* elementAt(LinkedList* list, int index)
     return object;
 }
 
+
+/**************************************************************************************************\
+* 
+* Appends an new linked list element to the linked list
+* 
+\**************************************************************************************************/
+void linkedListAppend(LinkedList* list, LinkedListElement* element)
+{
+    element->next    =NULL;
+
+    // Check if list is empty
+    if (list->firstElement==NULL)
+    {
+        // empty: add first element
+        element->previous           =NULL;
+        list->firstElement          =element;
+        list->lastElement           =element;
+        list->next                  =element;
+    }
+    else
+    {
+        LinkedListElement* listEnd  =list->lastElement;
+        element->previous           =listEnd;
+        listEnd->next               =element;
+        list->lastElement           =element;
+    }
+    list->length++;
+}
+
+/**************************************************************************************************\
+* 
+* Insert an new linked list element to the linked list, after the 'after' element
+* Before: after -> next
+* After : after -> element -> next
+* 
+\**************************************************************************************************/
+void linkedListInsertAfter(LinkedList* list, LinkedListElement* element, LinkedListElement* after)
+{
+    if (after==list->lastElement)
+    {
+        linkedListAppend(list, element);
+    }
+    else
+    {
+        LinkedListElement* next =after->next;
+        after->next             =element;
+        element->previous       =after;
+        next ->previous         =element;
+        element->next           =next;
+        list->length++;
+    }
+}
+
+/**************************************************************************************************\
+* 
+* Insert an new linked list element to the linked list, before the 'before' element
+* Before: prev -> before
+* After : prev -> element -> before
+* 
+\**************************************************************************************************/
+void linkedListInsertBefore(LinkedList* list, LinkedListElement* element, LinkedListElement* before)
+{
+    if (before==list->firstElement)
+    {
+        element->previous   =NULL;
+        element->next       =before;
+        before ->previous   =element;
+        list->firstElement  =element;
+    }
+    else
+    {
+        LinkedListElement* prev =before->previous;
+        prev->next              =element;
+        element->previous       =prev;
+        element->next           =before;
+        before->previous        =element;
+    }
+    list->length++;
+}
+
+
 /**************************************************************************************************\
 * 
 * Appends an object to the linked list. An element is created for the object and it is appended
 * 
 \**************************************************************************************************/
-void addObject(LinkedList* list, void* newObject)
+void linkedListAppendObject(LinkedList* list, void* newObject)
 {
-    LinkedListElement* newElement;
-    LinkedListElement* listEnd;
-    
-    newElement=malloc(sizeof(LinkedListElement));
-    
-    newElement->object=newObject;
-    newElement->next        =NULL;
-    
-    // Check if list is empty
-    if (list->firstElement==NULL)
-    {
-        // empty: add first element
-        newElement->previous    =NULL;
-        list->firstElement      =newElement;
-        list->lastElement       =newElement;
-        list->next              =newElement;
-    }
-    else
-    {
-        listEnd                 =list->lastElement;
-        newElement->previous    =listEnd;
-        listEnd->next           =newElement;
-        list->lastElement       =newElement;
-    }
-    list->length++;
+    LinkedListElement* newElement=malloc(sizeof(LinkedListElement));
+    newElement->object  =newObject;
+    linkedListAppend(list, newElement);
 }
 
 
@@ -113,7 +172,7 @@ void addObject(LinkedList* list, void* newObject)
 * themselves
 * 
 \**************************************************************************************************/
-void destroyLinkedList(LinkedList* list, bool destroyObjects)
+void linkedListDestroy(LinkedList* list, bool destroyObjects)
 {
     LinkedListElement* element;
     LinkedListElement* nextElement;
@@ -137,30 +196,37 @@ void destroyLinkedList(LinkedList* list, bool destroyObjects)
 * Resets the linked list pointer to the 1st linked list element
 * 
 \**************************************************************************************************/
-void resetLinkedList(LinkedList* list)
+void linkedListReset(LinkedList* list)
 {
     list->next=list->firstElement;
 }
 
 /**************************************************************************************************\
 * 
+* Get next element from the list
+* 
+\**************************************************************************************************/
+LinkedListElement* linkedListNext(LinkedList* list)
+{
+    return list->next;
+}
+
+
+/**************************************************************************************************\
+* 
 * Retrieve the object from next linked list element and increases the linked list pointer.
 * 
 \**************************************************************************************************/
-void* nextLinkedListObject(LinkedList* list)
+void* linkedListNextObject(LinkedList* list)
 {
-    LinkedListElement*  nextElement;
-    void*               object;
-    
-    nextElement =list->next;
-    object      =NULL;
+    LinkedListElement* nextElement =list->next;
+    void* object    =NULL;
     
     if (nextElement!=NULL)
     {
         object      =nextElement->object;
         list->next  =nextElement->next;
     }
-    
     return object;
 }
 
@@ -169,17 +235,17 @@ void* nextLinkedListObject(LinkedList* list)
 * Inidicates whether there are more items in the linked list
 * 
 \**************************************************************************************************/
-int hasNext(LinkedList* list)
+int linkedListHasNext(LinkedList* list)
 {
-    int hasNext;
+    int linkedListHasNext;
     
     if (list->next==NULL)
     {
-        hasNext=0;
+        linkedListHasNext=0;
     }
     else
     {
-        hasNext=1;
+        linkedListHasNext=1;
     }
-    return hasNext;
+    return linkedListHasNext;
 }

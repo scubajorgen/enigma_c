@@ -47,28 +47,28 @@ void testUkwPermutations()
 
     LinkedList* p=getUkwPermutations(ENIGMATYPE_M3, M3_ARMY_1938);
     assertIntEquals(2, linkedListLength(p));
-    resetLinkedList(p);
-    int* permutation=(int *)nextLinkedListObject(p);
+    linkedListReset(p);
+    int* permutation=(int *)linkedListNextObject(p);
     assertIntEquals(1, permutation[0]);
-    permutation=(int *)nextLinkedListObject(p);
+    permutation=(int *)linkedListNextObject(p);
     assertIntEquals(2, permutation[0]);
     destroyPermutations(p);
 
     p=getUkwPermutations(ENIGMATYPE_M3, M3_ARMY_1939);
     assertIntEquals(2, linkedListLength(p));
-    resetLinkedList(p);
-    permutation=(int *)nextLinkedListObject(p);
+    linkedListReset(p);
+    permutation=(int *)linkedListNextObject(p);
     assertIntEquals(1, permutation[0]);
-    permutation=(int *)nextLinkedListObject(p);
+    permutation=(int *)linkedListNextObject(p);
     assertIntEquals(2, permutation[0]);
     destroyPermutations(p);
 
     p=getUkwPermutations(ENIGMATYPE_M4, M4_NAVAL_1941);
     assertIntEquals(2, linkedListLength(p));
-    resetLinkedList(p);
-    permutation=(int *)nextLinkedListObject(p);
+    linkedListReset(p);
+    permutation=(int *)linkedListNextObject(p);
     assertIntEquals(3, permutation[0]);
-    permutation=(int *)nextLinkedListObject(p);
+    permutation=(int *)linkedListNextObject(p);
     assertIntEquals(4, permutation[0]);
     destroyPermutations(p);
 

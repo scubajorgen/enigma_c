@@ -136,16 +136,16 @@ void testToolboxPermute()
 
     testStart("permute");
     // Permutations
-    LinkedList* list=createLinkedList();
+    LinkedList* list=linkedListCreate();
     permute(list, permutationElements, 4, 2, 0);
     
     assertIntEquals(12, linkedListLength(list));   
     
-    resetLinkedList(list);
+    linkedListReset(list);
     int i=0;
-    while (hasNext(list))
+    while (linkedListHasNext(list))
     {
-        int* permutation=(int*)nextLinkedListObject(list);
+        int* permutation=(int*)linkedListNextObject(list);
         int j=0;
         while (j<2)
         {
@@ -155,14 +155,14 @@ void testToolboxPermute()
         i++;
     }
 
-    resetLinkedList(list);
-    while (hasNext(list))
+    linkedListReset(list);
+    while (linkedListHasNext(list))
     {
-        int* permutation=(int*)nextLinkedListObject(list);
+        int* permutation=(int*)linkedListNextObject(list);
         free(permutation);
         i++;
     }
-    destroyLinkedList(list, false);
+    linkedListDestroy(list, false);
     testWrapUp();
 }
 
@@ -178,11 +178,11 @@ void testToolboxCreatePermutations()
 
     LinkedList* permutations1=createPermutations(testSet1, 3, 2);
     assertIntEquals( 6, linkedListLength(permutations1));
-    resetLinkedList(permutations1);
+    linkedListReset(permutations1);
     int i=0;
-    while (hasNext(permutations1))
+    while (linkedListHasNext(permutations1))
     {
-        int* permutation=(int*)nextLinkedListObject(permutations1);
+        int* permutation=(int*)linkedListNextObject(permutations1);
         for (int j=0; j<2; j++)
         {
             assertIntEquals(permutationsExpected2[i][j], permutation[j]);
@@ -193,9 +193,9 @@ void testToolboxCreatePermutations()
     LinkedList* permutations2=createPermutations(testSet2, 4, 3);
     assertIntEquals(24, linkedListLength(permutations2));
     i=0;
-    while (hasNext(permutations2))
+    while (linkedListHasNext(permutations2))
     {
-        int* permutation=(int*)nextLinkedListObject(permutations2);
+        int* permutation=(int*)linkedListNextObject(permutations2);
         for (int j=0; j<3; j++)
         {
             assertIntEquals(permutationsExpected3[i][j], permutation[j]);
@@ -223,11 +223,11 @@ void testToolboxCombinePermutations()
     assertIntEquals( 6, linkedListLength(permutations2));
     assertIntEquals(12, linkedListLength(combined));
 
-    resetLinkedList(permutations1);
+    linkedListReset(permutations1);
     int i=0;
-    while (hasNext(permutations1))
+    while (linkedListHasNext(permutations1))
     {
-        int* permutation=(int*)nextLinkedListObject(permutations1);
+        int* permutation=(int*)linkedListNextObject(permutations1);
         int j=0;
         for (j=0; j<1; j++)
         {
@@ -236,11 +236,11 @@ void testToolboxCombinePermutations()
         i++;
     }
 
-    resetLinkedList(permutations2);
+    linkedListReset(permutations2);
     i=0;
-    while (hasNext(permutations2))
+    while (linkedListHasNext(permutations2))
     {
-        int* permutation=(int*)nextLinkedListObject(permutations2);
+        int* permutation=(int*)linkedListNextObject(permutations2);
         int j=0;
         for (j=0; j<2; j++)
         {
@@ -249,11 +249,11 @@ void testToolboxCombinePermutations()
         i++;
     }
 
-    resetLinkedList(combined);
+    linkedListReset(combined);
     i=0;
-    while (hasNext(combined))
+    while (linkedListHasNext(combined))
     {
-        int* permutation=(int*)nextLinkedListObject(combined);
+        int* permutation=(int*)linkedListNextObject(combined);
         int j=0;
         for (j=0; j<3; j++)
         {

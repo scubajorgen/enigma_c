@@ -567,7 +567,7 @@ void processResult(TuringResult* result)
     turingPrintSolution(result);
     if (theResults!=NULL)
     {
-        addObject(theResults, result);
+        linkedListAppendObject(theResults, result);
     }
     else
     {
@@ -598,7 +598,7 @@ void turingFind(int permutationStart, int permutationEnd)
     // Parse the Walze permutations
     for (int w=permutationStart; w<permutationEnd; w++)
     {
-        int* permutation=(int*)elementAt(tPermutations, w);
+        int* permutation=(int*)linkedListObjectAt(tPermutations, w);
         
         if (permutation!=NULL)
         {
@@ -761,7 +761,7 @@ void bombeProcess(int cribPosition)
 \**************************************************************************************************/
 LinkedList* turingCribFit(char crib[], char cipher[])
 {
-    LinkedList* positions=createLinkedList();
+    LinkedList* positions=linkedListCreate();
     int cribLength  =strlen(crib);
     int cipherLength=strlen(cipher);
     for (int i=0; i<=cipherLength-cribLength; i++)
@@ -778,7 +778,7 @@ LinkedList* turingCribFit(char crib[], char cipher[])
         {
             int* foundPos=malloc(sizeof(int));
             *foundPos=i;
-            addObject(positions, foundPos);
+            linkedListAppendObject(positions, foundPos);
         }
     }
     return positions;
@@ -818,13 +818,13 @@ void turingBombe(TuringRecipe recipe, LinkedList* results)
     else
     {
         LinkedList* positions=turingCribFit(theRecipe.crib, theRecipe.cipher);
-        resetLinkedList(positions);
-        while (hasNext(positions))
+        linkedListReset(positions);
+        while (linkedListHasNext(positions))
         {
-            int* position=(int *)nextLinkedListObject(positions);
+            int* position=(int *)linkedListNextObject(positions);
             bombeProcess(*position);
         }
-        destroyLinkedList(positions, true);
+        linkedListDestroy(positions, true);
     }
     destroyPermutations(tPermutations);
 }

@@ -82,13 +82,13 @@ void gcAthentsEnigma()
     // FROM THE GEOCACHE WE KNOW FOLLOWING:
     // IV III V, UKW B, no steckers R1=1, R2=1, R3=1
     // We create a custom permutations list with just one permutation
-    LinkedList*     permutations=createLinkedList();
+    LinkedList*     permutations=linkedListCreate();
     int*            permutation =malloc(4*sizeof(int));
     permutation[0]=1; // Index of UKW B
     permutation[1]=3; // IV
     permutation[2]=2; // III
     permutation[3]=4; // V
-    addObject(permutations, permutation);
+    linkedListAppendObject(permutations, permutation);
 
     // program the IoC solver
     IocRecipe recipe;
@@ -272,10 +272,10 @@ void gcEnigmaNano()
 
     // Create a list of permutations with only UKW B
     LinkedList* walzenPermutations  =getWalzenPermutations(ENIGMATYPE_M3, M3_ARMY_1938);
-    LinkedList* walzePermutations   =createLinkedList();
+    LinkedList* walzePermutations   =linkedListCreate();
     int*        permutation         =malloc(sizeof(int));
     permutation[0]                  =1; // Index of UKW B
-    addObject(walzePermutations, permutation);
+    linkedListAppendObject(walzePermutations, permutation);
     LinkedList* permutations=combinePermutations(walzePermutations, 1, walzenPermutations, 3);
     destroyPermutations(walzePermutations);
     destroyPermutations(walzenPermutations);
@@ -318,10 +318,10 @@ void gcEnigmaNanoReply()
 
     // Create a list of permutations with only UKW B
     LinkedList* walzenPermutations  =getWalzenPermutations(ENIGMATYPE_M3, M3_ARMY_1938);
-    LinkedList* walzePermutations   =createLinkedList();
+    LinkedList* walzePermutations   =linkedListCreate();
     int*        permutation         =malloc(sizeof(int));
     permutation[0]=1; // Index of UKW B
-    addObject(walzePermutations, permutation);
+    linkedListAppendObject(walzePermutations, permutation);
     LinkedList* permutations=combinePermutations(walzePermutations, 1, walzenPermutations, 3);
     destroyPermutations(walzePermutations);
     destroyPermutations(walzenPermutations);
@@ -374,13 +374,13 @@ void gcCodeBreakers()
     // FROM THE GEOCACHE WE KNOW FOLLOWING:
     // III I II, UKW B, 
     // We create a custom permutations list with just one permutation
-    LinkedList* permutations=createLinkedList();
+    LinkedList* permutations=linkedListCreate();
     int*        permutation =malloc(4*sizeof(int));
     permutation[0]=1; // Index of UKW B
     permutation[1]=2; // III
     permutation[2]=0; // I
     permutation[3]=1; // II
-    addObject(permutations, permutation);
+    linkedListAppendObject(permutations, permutation);
 
     // program the IoC solver
     IocRecipe recipe;
@@ -423,19 +423,19 @@ void gcEnigma()
     printf("# GEOCACHE GC7ENW4, 'Enigma'\n");
     printf("#####################################################################################\n");
 
-    LinkedList* permutations=createLinkedList();
+    LinkedList* permutations=linkedListCreate();
     int*        permutation =malloc(4*sizeof(int));
     permutation[0]=1; // Index of UKW B
     permutation[1]=1; // II
     permutation[2]=3; // IV
     permutation[3]=4; // V
-    addObject(permutations, permutation);
+    linkedListAppendObject(permutations, permutation);
     permutation     =malloc(4*sizeof(int));
     permutation[0]=2; // Index of UKW C
     permutation[1]=1; // II
     permutation[2]=3; // IV
     permutation[3]=4; // V
-    addObject(permutations, permutation);
+    linkedListAppendObject(permutations, permutation);
 
     // program the IoC solver
     IocRecipe recipe;

@@ -754,17 +754,17 @@ void testEnigmaGenerateWalzenPermutations()
     int*        p;
     perms=generateWalzePermutations(ENIGMATYPE_M3, M3_ARMY_1938);
     assertIntEquals(120, linkedListLength(perms));
-    p=(int*)elementAt(perms, 0);
+    p=(int*)linkedListObjectAt(perms, 0);
     assertStringEquals("UKW B", umkehrWalzeNames[p[0]]);
     assertStringEquals("I"    , walzeNames[p[1]]);
     assertStringEquals("II"   , walzeNames[p[2]]);
     assertStringEquals("III"  , walzeNames[p[3]]);
-    p=(int*)elementAt(perms, 60);
+    p=(int*)linkedListObjectAt(perms, 60);
     assertStringEquals("UKW C", umkehrWalzeNames[p[0]]);
     assertStringEquals("I"    , walzeNames[p[1]]);
     assertStringEquals("II"   , walzeNames[p[2]]);
     assertStringEquals("III"  , walzeNames[p[3]]);
-    p=(int*)elementAt(perms, 119);
+    p=(int*)linkedListObjectAt(perms, 119);
     assertStringEquals("UKW C", umkehrWalzeNames[p[0]]);
     assertStringEquals("V"    , walzeNames[p[1]]);
     assertStringEquals("I"    , walzeNames[p[2]]);
@@ -773,13 +773,13 @@ void testEnigmaGenerateWalzenPermutations()
 
     perms=generateWalzePermutations(ENIGMATYPE_M4, M4_NAVAL_1941);
     assertIntEquals(1344, linkedListLength(perms));
-    p=(int*)elementAt(perms, 0);
+    p=(int*)linkedListObjectAt(perms, 0);
     assertStringEquals("UKW B2", umkehrWalzeNames[p[0]]);
     assertStringEquals("Beta"  , walzeNames[p[1]]);
     assertStringEquals("I"     , walzeNames[p[2]]);
     assertStringEquals("II"    , walzeNames[p[3]]);
     assertStringEquals("III"   , walzeNames[p[4]]);
-    p=(int*)elementAt(perms, 1343);
+    p=(int*)linkedListObjectAt(perms, 1343);
     assertStringEquals("UKW C2", umkehrWalzeNames[p[0]]);
     assertStringEquals("Gamma" , walzeNames[p[1]]);
     assertStringEquals("VIII"  , walzeNames[p[2]]);

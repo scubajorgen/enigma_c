@@ -752,7 +752,7 @@ void iocEvaluateEngimaSettings(IocWorkItem* work)
     w           =start;
     while (w<=end)
     {
-        permutation=(int*)elementAt(permutations, w);
+        permutation=(int*)linkedListObjectAt(permutations, w);
         placeWalze(enigma, 1, walzeNames[permutation[1]]);
         placeWalze(enigma, 2, walzeNames[permutation[2]]);
         placeWalze(enigma, 3, walzeNames[permutation[3]]);
@@ -1245,7 +1245,7 @@ EnigmaSettings* iocDecodeText(IocRecipe recipe, LinkedList* customPermutations)
     if (operation.permutations!=NULL)
     {
         // TO DO: false?
-        destroyLinkedList(operation.permutations, false);
+        linkedListDestroy(operation.permutations, false);
         operation.permutations=NULL;
     }
     destroyHighScoreList();

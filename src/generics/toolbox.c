@@ -167,7 +167,7 @@ void permute(LinkedList* permutations, int elements[], int elementArraySize, int
         {
             permutation[i]=elements[i];
         }
-        addObject(permutations, permutation);
+        linkedListAppendObject(permutations, permutation);
     } 
     else 
     {
@@ -200,7 +200,7 @@ void permute(LinkedList* permutations, int elements[], int elementArraySize, int
 LinkedList* createPermutations(int* arrayToChooseFrom, int numberOfElements, int numberToChoose)
 {
     LinkedList* permutations;
-    permutations=createLinkedList();
+    permutations=linkedListCreate();
     permute(permutations, arrayToChooseFrom, numberOfElements, numberToChoose, 0);
     return permutations;
 }
@@ -216,15 +216,15 @@ LinkedList* createPermutations(int* arrayToChooseFrom, int numberOfElements, int
 \**************************************************************************************************/
 LinkedList* combinePermutations(LinkedList* list1, int permutation1Size, LinkedList* list2, int permutation2Size)
 {
-    LinkedList* permutations=createLinkedList();
-    resetLinkedList(list1);
-    while (hasNext(list1))
+    LinkedList* permutations=linkedListCreate();
+    linkedListReset(list1);
+    while (linkedListHasNext(list1))
     {
-        int* object1=(int*)nextLinkedListObject(list1);
-        resetLinkedList(list2);
-        while (hasNext(list2))
+        int* object1=(int*)linkedListNextObject(list1);
+        linkedListReset(list2);
+        while (linkedListHasNext(list2))
         {
-            int* object2=(int*)nextLinkedListObject(list2);
+            int* object2=(int*)linkedListNextObject(list2);
             int* permutation=malloc((permutation1Size+permutation2Size)*sizeof(int));
             for (int i=0;i<permutation1Size; i++)
             {
@@ -234,7 +234,7 @@ LinkedList* combinePermutations(LinkedList* list1, int permutation1Size, LinkedL
             {
                 permutation[permutation1Size+i]=object2[i];
             }
-            addObject(permutations, permutation);
+            linkedListAppendObject(permutations, permutation);
         }
     }
     return permutations;
@@ -244,20 +244,20 @@ LinkedList* combinePermutations(LinkedList* list1, int permutation1Size, LinkedL
 * 
 *  This function properly destroys the permutations linked list
 *  It destroys the objects. Then it destroys the linked list.
-*  If objects should not be destroyed, use destroyLinkedList()
+*  If objects should not be destroyed, use linkedListDestroy()
 * 
 \**************************************************************************************************/
 void destroyPermutations(LinkedList* permutations)
 {
     // First destroy the objects in the linked list
-    resetLinkedList(permutations);
-    while (hasNext(permutations))
+    linkedListReset(permutations);
+    while (linkedListHasNext(permutations))
     {
-        int* permutation=(int*)nextLinkedListObject(permutations);
+        int* permutation=(int*)linkedListNextObject(permutations);
         free(permutation);
     }
     // Then destroy the list itself
-    destroyLinkedList(permutations, false);
+    linkedListDestroy(permutations, false);
 }
 
 

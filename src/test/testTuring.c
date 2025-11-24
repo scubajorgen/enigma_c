@@ -229,20 +229,20 @@ void testTuringBombe1()
     testStart("Turing Bombe1");
     // Just one permutation for speed...
     // Note: permutations will be destroyed as part of the process, recipe will not
-    LinkedList* permutations=createLinkedList();
+    LinkedList* permutations=linkedListCreate();
     int* p;
     p=malloc(4*sizeof(int));
     p[0]=1; // UKW B
     p[1]=0; // I
     p[2]=1; // II
     p[3]=2; // III
-    addObject(permutations, (void*)p);
+    linkedListAppendObject(permutations, (void*)p);
 
     TuringRecipe* recipe    =createDefaultTuringRecipe(testTuringCipher1, testTuringCrib1, 0, 1);
     recipe->customPermutations=permutations;
-    LinkedList* results     =createLinkedList();
+    LinkedList* results     =linkedListCreate();
     turingBombe(*recipe, results);
-    EnigmaSettings* settings=elementAt(results, 1);
+    EnigmaSettings* settings=linkedListObjectAt(results, 1);
 
     Enigma* enigma=createEnigmaM3();
     setEnigma(enigma, settings);
@@ -251,7 +251,7 @@ void testTuringBombe1()
     assertStringEquals(testTuringExpected1, toString(enigma));
     destroyEnigma(enigma);
 
-    destroyLinkedList(results, true);
+    linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);
     
     testWrapUp();
@@ -272,20 +272,20 @@ void testTuringBombe2()
     testStart("Turing Bombe2");
     // Just one permutation for speed...
     // Note: permutations will be destroyed as part of the process, recipe will not
-    LinkedList* permutations=createLinkedList();
+    LinkedList* permutations=linkedListCreate();
     int* p;
     p=malloc(4*sizeof(int));
     p[0]=1; // UKW B
     p[1]=0; // I
     p[2]=1; // II
     p[3]=2; // III
-    addObject(permutations, (void*)p);
+    linkedListAppendObject(permutations, (void*)p);
 
     TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher2, testTuringCrib2, 0, 1);
     recipe->customPermutations=permutations;
-    LinkedList* results=createLinkedList();
+    LinkedList* results=linkedListCreate();
     turingBombe(*recipe, results);
-    EnigmaSettings* settings=elementAt(results, 0);
+    EnigmaSettings* settings=linkedListObjectAt(results, 0);
 
     Enigma* enigma=createEnigmaM3();
     setEnigma(enigma, settings);
@@ -294,7 +294,7 @@ void testTuringBombe2()
     assertStringEquals(testTuringExpected2, toString(enigma));
     destroyEnigma(enigma);
 
-    destroyLinkedList(results, true);
+    linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);
     testWrapUp();
 }
@@ -326,20 +326,20 @@ void testTuringBombe4A()
     testStart("Turing Bombe 4A");
     // Just one permutation for speed...
     // Note: permutations will be destroyed as part of the process, recipe will not
-    LinkedList* permutations=createLinkedList();
+    LinkedList* permutations=linkedListCreate();
     int* p;
     p=malloc(4*sizeof(int));
     p[0]=1; // UKW B
     p[1]=2; // III
     p[2]=1; // II
     p[3]=4; // V
-    addObject(permutations, (void*)p);
+    linkedListAppendObject(permutations, (void*)p);
 
     TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4, testTuringCrib4A, 86, 1);
     recipe->customPermutations=permutations;
-    LinkedList* results=createLinkedList();
+    LinkedList* results=linkedListCreate();
     turingBombe(*recipe, results);
-    EnigmaSettings* settings=elementAt(results, 1);
+    EnigmaSettings* settings=linkedListObjectAt(results, 1);
 
     Enigma* enigma=createEnigmaM3();
     setEnigma(enigma, settings);
@@ -348,7 +348,7 @@ void testTuringBombe4A()
     assertStringEquals(testTuringExpected4A, toString(enigma));
     destroyEnigma(enigma);
 
-    destroyLinkedList(results, true);
+    linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);
     testWrapUp();
 }
@@ -366,21 +366,21 @@ void testTuringBombe4B()
     testStart("Turing Bombe 4B");
     // Just one permutation for speed...
     // Note: permutations will be destroyed as part of the process, recipe will not
-    LinkedList* permutations=createLinkedList();
+    LinkedList* permutations=linkedListCreate();
     int* p;
     p=malloc(4*sizeof(int));
     p[0]=1; // UKW B
     p[1]=2; // III
     p[2]=1; // II
     p[3]=4; // V
-    addObject(permutations, (void*)p);
+    linkedListAppendObject(permutations, (void*)p);
 
     TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4, testTuringCrib4B, 0, 1);
     recipe->customPermutations=permutations;
-    LinkedList* results=createLinkedList();
+    LinkedList* results=linkedListCreate();
     turingBombe(*recipe, results);
     assertIntEquals(6, linkedListLength(results));
-    EnigmaSettings* settings=elementAt(results, 5);
+    EnigmaSettings* settings=linkedListObjectAt(results, 5);
 
     Enigma* enigma=createEnigmaM3();
     setEnigma(enigma, settings);
@@ -389,7 +389,7 @@ void testTuringBombe4B()
     assertStringEquals(testTuringExpected4B, toString(enigma));
     destroyEnigma(enigma);
 
-    destroyLinkedList(results, true);
+    linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);
     testWrapUp();
 }
@@ -412,24 +412,24 @@ void testTuringBombe4D()
     testStart("Turing Bombe 4D");
     // Just one permutation for speed...
     // Note: permutations will be destroyed as part of the process, recipe will not
-    LinkedList* permutations=createLinkedList();
+    LinkedList* permutations=linkedListCreate();
     int* p;
     p=malloc(4*sizeof(int));
     p[0]=1; // UKW B
     p[1]=0; // I
     p[2]=2; // III
     p[3]=1; // II
-    addObject(permutations, (void*)p);
+    linkedListAppendObject(permutations, (void*)p);
 
     TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4D, testTuringCrib4B, 0, 1);
     recipe->customPermutations=permutations;
-    LinkedList* results=createLinkedList();
+    LinkedList* results=linkedListCreate();
     turingBombe(*recipe, results);
 
     // Because R3 turns, no solutions are found
     assertIntEquals(0, linkedListLength(results));
 
-    destroyLinkedList(results, true);
+    linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);
     testWrapUp();
 }
@@ -446,7 +446,7 @@ void testTuringCribFit()
 
     LinkedList* positions=turingCribFit(testTuringCrib4B, testTuringCipher4D);
     assertIntEquals(52, linkedListLength(positions));
-    assertIntEquals(0, *((int*)elementAt(positions, 0)));
+    assertIntEquals(0, *((int*)linkedListObjectAt(positions, 0)));
     
     testWrapUp();
 }  

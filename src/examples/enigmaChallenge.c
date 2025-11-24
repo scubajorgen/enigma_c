@@ -313,10 +313,10 @@ void message02()
 
     LinkedList* permutations=createPermutations(message02Indices, 3, 3);
     Enigma* enigma=createEnigmaM3(); 
-    resetLinkedList(permutations);
-    while (hasNext(permutations))
+    linkedListReset(permutations);
+    while (linkedListHasNext(permutations))
     {
-        int* permutation=(int*)nextLinkedListObject(permutations);
+        int* permutation=(int*)linkedListNextObject(permutations);
         printf("Permutation: UKW B - %3s - %3s - %3s\n",  
                 message02Walzen[permutation[0]],
                 message02Walzen[permutation[1]],
@@ -660,7 +660,7 @@ void message07()
     int*  maxPerm   =NULL;
     for (int i=0; i<linkedListLength(permutations); i++)
     {
-        permutation=(int*)elementAt(permutations, i);
+        permutation=(int*)linkedListObjectAt(permutations, i);
         
         logDebug("%d %d %d: %s-%s-%s", permutation[0], permutation[1], permutation[2], walzen[permutation[0]], walzen[permutation[1]], walzen[permutation[2]]);
 
@@ -729,10 +729,10 @@ void message08()
     printf("Permutations to try: %d\n", linkedListLength(permutations));
     float maxIoc    =0.0f;
     int*  maxPerm   =NULL;
-    resetLinkedList(permutations);
-    while (hasNext(permutations))
+    linkedListReset(permutations);
+    while (linkedListHasNext(permutations))
     {
-        permutation=(int*)nextLinkedListObject(permutations);
+        permutation=(int*)linkedListNextObject(permutations);
         steckers[21]=letters[permutation[0]];
         steckers[22]=letters[permutation[1]];
         steckers[24]=letters[permutation[2]];
@@ -892,44 +892,44 @@ void message10_step01Limited()
     // FROM THE GEOCACHE WE KNOW FOLLOWING:
     // III I II, UKW B, 
 
-    LinkedList*     permutations=createLinkedList();
+    LinkedList*     permutations=linkedListCreate();
     int*            permutation;
     permutation   =malloc(4*sizeof(int)); // The winning permutation
     permutation[0]=1; // Index of UKW B
     permutation[1]=1; // II
     permutation[2]=4; // V
     permutation[3]=0; // I
-    addObject(permutations, permutation); // Rest is to keep other threads busy
+    linkedListAppendObject(permutations, permutation); // Rest is to keep other threads busy
     permutation   =malloc(4*sizeof(int));
     permutation[0]=1; // Index of UKW B
     permutation[1]=1; // II
     permutation[2]=4; // V
     permutation[3]=2; // III
-    addObject(permutations, permutation);
+    linkedListAppendObject(permutations, permutation);
     permutation   =malloc(4*sizeof(int));
     permutation[0]=1; // Index of UKW B
     permutation[1]=1; // II
     permutation[2]=4; // V
     permutation[3]=3; // IV
-    addObject(permutations, permutation);
+    linkedListAppendObject(permutations, permutation);
     permutation   =malloc(4*sizeof(int));
     permutation[0]=1; // Index of UKW B
     permutation[1]=2; // III
     permutation[2]=4; // V
     permutation[3]=0; // I
-    addObject(permutations, permutation);
+    linkedListAppendObject(permutations, permutation);
     permutation   =malloc(4*sizeof(int));
     permutation[0]=1; // Index of UKW B
     permutation[1]=3; // IV
     permutation[2]=4; // V
     permutation[3]=0; // I
-    addObject(permutations, permutation);
+    linkedListAppendObject(permutations, permutation);
     permutation   =malloc(4*sizeof(int));
     permutation[0]=1; // Index of UKW B
     permutation[1]=1; // II
     permutation[2]=3; // IV
     permutation[3]=0; // I
-    addObject(permutations, permutation);
+    linkedListAppendObject(permutations, permutation);
 
     // Define recipe
     IocRecipe recipe;
@@ -986,13 +986,13 @@ void message10_step02()
     recipe.displayFormat    =MESSAGEFORMAT_TEXT;
 
     // Create the list of permuations: add the solution
-    LinkedList* permutations=createLinkedList();
+    LinkedList* permutations=linkedListCreate();
     int* permutation        =malloc(4*sizeof(int));
     permutation[0]=1; // Index of UKW B
     permutation[1]=1; // II
     permutation[2]=4; // V
     permutation[3]=0; // I
-    addObject(permutations, permutation);
+    linkedListAppendObject(permutations, permutation);
 
     iocInitialize(recipe, permutations);
 
