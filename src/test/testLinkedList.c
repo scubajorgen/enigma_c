@@ -27,28 +27,18 @@ void testLinkedListCreate()
     LinkedList* list=linkedListCreate();
     assertNotNull((void*)list);
     
-    int i=0;
-    while (i<5)
+    for (int i=0; i<5; i++)
     {
         linkedListAppendObject(list, (void*)(objects+i));
-        i++;
     }
     
     linkedListReset(list);
-    i=0;
+    int count=0;
     while (linkedListHasNext(list))
     {
         objectFromList  =(int*)linkedListNextObject(list);
-        assertIntEquals(objects[i], *objectFromList);
-        i++;
-    }
-    linkedListReset(list);
-    i=0;
-    while (linkedListHasNext(list))
-    {
-        objectFromList  =(int*)linkedListNextObject(list);
-        assertIntEquals(objects[i], *objectFromList);
-        i++;
+        assertIntEquals(objects[count], *objectFromList);
+        count++;
     }
 
     objectFromList=(int *)linkedListObjectAt(list, 4);
@@ -186,6 +176,52 @@ void testLinkedListInsert()
 
 /**************************************************************************************************\
 * 
+* Test appending of elements
+* 
+\**************************************************************************************************/
+void testLinkedListNext()
+{
+    testStart("linkedList next");
+
+    int         objects[5]={0, 1, 2, 3, 4};
+   
+    // Linked list
+    LinkedList* list=linkedListCreate();
+    for (int i=0; i<5; i++)
+    {
+        linkedListAppendObject(list, (void*)(objects+i));
+    }
+
+    int count;
+    // Test two times, to test reset
+    for (int i=0; i<2; i++)
+    {
+        // Test Next Element
+        linkedListReset(list);
+        count=0;
+        while (linkedListHasNext(list))
+        {
+            LinkedListElement* e=linkedListNext(list);
+            assertIntEquals(objects[count], *((int*)e->object));
+            count++;
+        }
+
+        // Test Next Object
+        linkedListReset(list);
+        count=0;
+        while (linkedListHasNext(list))
+        {
+            int* obj=(int*)linkedListNextObject(list);
+            assertIntEquals(objects[count], *obj);
+            count++;
+        }
+    }
+
+    testWrapUp();
+}
+
+/**************************************************************************************************\
+* 
 * Test main function
 * 
 \**************************************************************************************************/
@@ -195,5 +231,6 @@ void testLinkedList()
     testLinkedListCreate();
     testLinkedListAppend();
     testLinkedListInsert();
+    testLinkedListNext();
     moduleTestWrapUp();
 }

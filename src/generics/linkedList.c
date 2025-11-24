@@ -208,7 +208,12 @@ void linkedListReset(LinkedList* list)
 \**************************************************************************************************/
 LinkedListElement* linkedListNext(LinkedList* list)
 {
-    return list->next;
+    LinkedListElement* nextElement =list->next;
+    if (nextElement!=NULL)
+    {
+        list->next  =nextElement->next;
+    }
+    return nextElement;
 }
 
 
