@@ -9,9 +9,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include "log.h"
 #include "testframe.h"
+#include "toolbox.h"
 
 char    sessionName[TEST_NAME_LENGTH+1];
 char    moduleName[TEST_NAME_LENGTH+1];
@@ -26,6 +28,8 @@ int     testsPassedTotal;
 int     testsFailedTotal;
 int     testsExecutedTotal;
 int     assertionsExecutedTotal;
+
+struct  timeval  testStopTime, testStartTime;
 
 /**************************************************************************************************\
 * 
@@ -42,6 +46,7 @@ void testSessionStart       (char* name)
     testsPassedTotal        =0;
     testsFailedTotal        =0;
     assertionsExecutedTotal =0;
+    gettimeofday(&testStartTime, NULL);
 }
 
 /**************************************************************************************************\
@@ -49,15 +54,17 @@ void testSessionStart       (char* name)
 * 
 * 
 \**************************************************************************************************/
-void testSessionWrapUp      ()
+void testSessionWrapUp()
 {
     logInfo("###############################################################################");
     logInfo("# Tests Executed     : %d", testsExecutedTotal);
     logInfo("# Tests Passed       : %d", testsPassedTotal);
     logInfo("# Tests Failed       : %d", testsFailedTotal);
     logInfo("# Assertions executed: %d", assertionsExecutedTotal);
+    gettimeofday(&testStopTime, NULL);
+    float diff=timeDifference(testStartTime, testStopTime);
+    logInfo("# Execution time     : %.3f seconds", diff/1000);
     logInfo("###############################################################################");
-
 }
 
 /**************************************************************************************************\
@@ -65,7 +72,7 @@ void testSessionWrapUp      ()
 * 
 * 
 \**************************************************************************************************/
-void moduleTestStart        (char* name)
+void moduleTestStart(char* name)
 {
     strncpy(moduleName, name, TEST_NAME_LENGTH);
     testsPassed         =0;
@@ -106,6 +113,7 @@ void testStart              (char* name)
     strncpy(testName, name, TEST_NAME_LENGTH);
     testsExecuted++;
     passed=true;
+    logInfo("-------------------------------------------------------------------------------");
     logInfo("Testing %s - %-20s", moduleName, testName);
 }
 
