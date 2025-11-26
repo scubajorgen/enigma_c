@@ -7,9 +7,37 @@
 #include <malloc.h>
 
 #include "testframe.h"
+#include "toolbox.h"
 #include "log.h"
 #include "enigma.h"
 #include "turing.h"
+
+/**************************************************************************************************\
+* 
+* Helper: dump results
+* 
+\**************************************************************************************************/
+void testPrintTuringResults(LinkedList* results)
+{
+    Enigma* enigma=createEnigmaM3();
+    linkedListReset(results);
+    while (linkedListHasNext(results))
+    {
+        TuringResult*   r=linkedListNextObject(results);
+        EnigmaSettings* s=&r->settings;
+        setEnigma(enigma, &r->settings);
+        encodeDecode(enigma);
+        logInfo("----------------------------------------------");
+        logInfo("%6s %3s %3s %3s - R %2d %2d %2d G %2d %2d %2d, Steckers %s",
+                s->ukw, s->walzen[0]      , s->walzen[1]              , s->walzen[2]              ,
+                s->ringStellungen[0]-'A'+1, s->ringStellungen[1]-'A'+1, s->ringStellungen[2]-'A'+1,
+                s->grundStellungen[0]     , s->grundStellungen[1]     , s->grundStellungen[2]     ,
+                s->steckers);
+        logInfo("%f - %s", r->score, toString(enigma));
+    }
+    destroyEnigma(enigma);
+}
+
 
 /**************************************************************************************************\
 * 
@@ -31,16 +59,6 @@ void testTuringLetterLinks(void)
     assertIntEquals( 'I', link->links[1].letter);
     assertIntEquals(  7, link->links[2].position);
     assertIntEquals( 'P', link->links[2].letter);
-     
-    // ENIGMAPN
-    // NPPMAGEI
-    turingFindLoops("ENIGMAPN","NPPMAGEI", 0); 
-    assertIntEquals( 2, cribCircleSet['A'-'A'].numOfCircles);
-    assertIntEquals( 0, cribCircleSet['B'-'A'].numOfCircles);
-    assertIntEquals( 4, cribCircleSet['E'-'A'].numOfCircles);
-
-    assertStringEquals("AMGA", cribCircleSet['A'-'A'].cribCircles[0].orgChars);
-    assertStringEquals("AGMA", cribCircleSet['A'-'A'].cribCircles[1].orgChars);
     testWrapUp();
 }
 
@@ -123,26 +141,6 @@ void testTuringLetterLinks3(void)
     assertIntEquals( 'D', link->links[2].letter);
     assertIntEquals( 11, link->links[3].position);
     assertIntEquals( 'N', link->links[3].letter);
-     
-    // Create list of loops
-    // DASXISTXEINX
-    // VJAREVEADJEV
-    turingFindLoops("VJAREVEADJEV","DASXISTXEINX", 0); 
-    dumpSets();
-    assertIntEquals( 6, cribCircleSet['V'-'A'].numOfCircles);
-    assertIntEquals( 4, cribCircleSet['D'-'A'].numOfCircles);
-    assertIntEquals( 0, cribCircleSet['T'-'A'].numOfCircles);
-
-    assertStringEquals("SAXVS"   , cribCircleSet['S'-'A'].cribCircles[1].orgChars);
-    assertIntEquals   ( 3        , cribCircleSet['S'-'A'].cribCircles[1].advances[0]);
-    assertIntEquals   ( 8        , cribCircleSet['S'-'A'].cribCircles[1].advances[1]);
-    assertIntEquals   (12        , cribCircleSet['S'-'A'].cribCircles[1].advances[2]);
-    assertIntEquals   ( 6        , cribCircleSet['S'-'A'].cribCircles[1].advances[3]);
-
-    assertStringEquals("AJIEDVSA", cribCircleSet['A'-'A'].cribCircles[0].orgChars);
-    assertStringEquals("AJIEDVXA", cribCircleSet['A'-'A'].cribCircles[1].orgChars);
-    assertStringEquals("ASVXA"   , cribCircleSet['A'-'A'].cribCircles[3].orgChars);
-
     testWrapUp();
 }
 
@@ -150,36 +148,117 @@ void testTuringLetterLinks3(void)
 /**************************************************************************************************\
 * 
 * Test the loop finding
+* Three loops are present:
+* A (  5) C (  7) B (  6) A
+* A (  8) C (  7) B (  6) A
+* A (  5) C (  8) A
 * 
 \**************************************************************************************************/
-void testTuringFindLoops()
+void testTuringFindCribCircles()
 {
     testStart("findLoops");
     // Array 012345678901
     // Text  PQRSABCCHIJK
     // Crib      CABAP
     // Pos   123456789012
-    turingFindLoops("PQRSABCCHIJK","CABAP", 4);
+    turingFindCribCircles("PQRSABCCHIJK","CABAP", 4);
 
-    assertIntEquals     (6, cribCircleSet['A'-'A'].numOfCircles);
-    assertIntEquals     (4, cribCircleSet['B'-'A'].numOfCircles);
-    assertIntEquals     (6, cribCircleSet['C'-'A'].numOfCircles);
+    assertIntEquals     (3, cribCircleSet['A'-'A'].numOfCircles);
+    assertIntEquals     (0, cribCircleSet['B'-'A'].numOfCircles);
+    assertIntEquals     (0, cribCircleSet['C'-'A'].numOfCircles);
     assertIntEquals     (0, cribCircleSet['D'-'A'].numOfCircles);
 
     assertStringEquals  ("ACBA", cribCircleSet['A'-'A'].cribCircles[0].orgChars);
     assertStringEquals  ("ACA" , cribCircleSet['A'-'A'].cribCircles[1].orgChars);
+    assertStringEquals  ("ABCA", cribCircleSet['A'-'A'].cribCircles[2].orgChars);
 
     assertIntEquals     (3, cribCircleSet['A'-'A'].cribCircles[0].circleSize);
     assertIntEquals     (5, cribCircleSet['A'-'A'].cribCircles[0].advances[0]);
     assertIntEquals     (7, cribCircleSet['A'-'A'].cribCircles[0].advances[1]);
     assertIntEquals     (6, cribCircleSet['A'-'A'].cribCircles[0].advances[2]);
 
+    assertIntEquals     (2, cribCircleSet['A'-'A'].cribCircles[1].circleSize);
+    assertIntEquals     (5, cribCircleSet['A'-'A'].cribCircles[1].advances[0]);
+    assertIntEquals     (8, cribCircleSet['A'-'A'].cribCircles[1].advances[1]);
 
+    testWrapUp();
+}
+
+/**************************************************************************************************\
+* 
+* Test the loop finding
+* Three Crib Circles
+* A (  2) J ( 10) I (  5) E (  9) D (  1) V (  6) S (  3) A
+* A (  2) J ( 10) I (  5) E (  9) D (  1) V ( 12) X (  8) A
+* A (  3) S (  6) V ( 12) X (  8) A
+* 
+\**************************************************************************************************/
+void testTuringFindCribCircles2()
+{
+    testStart("findLoops");
+    // Create list of loops
+    // DASXISTXEINX
+    // VJAREVEADJEV
+    turingFindCribCircles("VJAREVEADJEV","DASXISTXEINX", 0);
+    assertIntEquals( 3, cribCircleSet['A'-'A'].numOfCircles);
+    assertIntEquals( 0, cribCircleSet['V'-'A'].numOfCircles);
+    assertIntEquals( 0, cribCircleSet['D'-'A'].numOfCircles);
+    assertIntEquals( 0, cribCircleSet['T'-'A'].numOfCircles);
+
+    assertStringEquals("AJIEDVSA", cribCircleSet['A'-'A'].cribCircles[0].orgChars);
+    assertStringEquals("AJIEDVXA", cribCircleSet['A'-'A'].cribCircles[1].orgChars);
+    assertStringEquals("ASVXA"   , cribCircleSet['A'-'A'].cribCircles[2].orgChars);
+    testWrapUp();
+}
+
+/**************************************************************************************************\
+* 
+* Test the loop finding
+* Four Crib Circles
+* SET A -   1
+* A (  5) M (  4) G (  6) A
+* SET E -   2
+* E (  1) N (  2) P (  7) E
+* E (  1) N (  8) I (  3) P (  7) E
+* SET I -   1
+* I (  3) P (  2) N (  8) I
+* 
+\**************************************************************************************************/
+void testTuringFindCribCircles3()
+{
+    testStart("findLoops");
+    // ENIGMAPN
+    // NPPMAGEI
+    turingFindCribCircles("ENIGMAPN","NPPMAGEI", 0); 
+
+    assertIntEquals( 1, cribCircleSet['A'-'A'].numOfCircles);
+    assertIntEquals( 0, cribCircleSet['B'-'A'].numOfCircles);
+    assertIntEquals( 2, cribCircleSet['E'-'A'].numOfCircles);
+    assertIntEquals( 1, cribCircleSet['I'-'A'].numOfCircles);
+
+    assertStringEquals("AMGA" , cribCircleSet['A'-'A'].cribCircles[0].orgChars);
+    assertStringEquals("ENPE" , cribCircleSet['E'-'A'].cribCircles[0].orgChars);
+    assertStringEquals("ENIPE", cribCircleSet['E'-'A'].cribCircles[1].orgChars);
+    assertStringEquals("IPNI" , cribCircleSet['I'-'A'].cribCircles[0].orgChars);
+
+    testWrapUp();
+}
+
+/**************************************************************************************************\
+* 
+* Test the hypothesis validation
+* One loop present
+* D (  7) W ( 11) J ( 10) U (  9) Q (  8) D
+* 
+\**************************************************************************************************/
+void testTuringValidateHypothesis()
+{
+    testStart("hypothesis");
     // Array 012345678901
     // Text  PQRSTAWDQUJWPQR
     // Crib       WDQUJW
     // Pos   123456789012
-    turingFindLoops("PQRSTAWDQUJWPQR", "WDQUJW", 5);
+    turingFindCribCircles("PQRSTAWDQUJWPQR", "WDQUJW", 5);
 
     Enigma* enigma=createEnigmaM3();
     placeWalze(enigma, 1, "I");
@@ -213,6 +292,114 @@ void testTuringFindLoops()
     testWrapUp();
 }
 
+
+/**************************************************************************************************\
+* 
+* Test isEqual method for loops
+* 
+\**************************************************************************************************/
+CribCircle testTuringCircle1=
+{
+    3,
+    {1,2,3},
+    {'A', 'B', 'C'}
+};
+
+CribCircle testTuringCircle1Equal1=
+{
+    3,
+    {1,2,3},
+    {'A', 'B', 'C'}
+};
+
+CribCircle testTuringCircle1Equal2=
+{
+    3,
+    {3,2,1},
+    {'A', 'C', 'B'}
+};
+
+CribCircle testTuringCircle1Equal3=
+{
+    3,
+    {3,1,2},
+    {'C', 'A', 'B'}
+};
+
+CribCircle testTuringCircle1Equal4=
+{
+    3,
+    {2,1,3  },
+    {'C', 'B', 'A'}
+};
+
+CribCircle testTuringCircle1NotEqual1=
+{
+    4,
+    {1,2,3,4},
+    {'A', 'B', 'D', 'C'}
+};
+
+CribCircle testTuringCircle1NotEqual2=
+{
+    3,
+    {1,2,5},
+    {'A', 'B', 'E'}
+};
+
+CribCircle testTuringCircle1NotEqual3=
+{
+    3,
+    {6,2,3},
+    {'D', 'A', 'C'}
+};
+
+CribCircle testTuringCircle1NotEqual4=
+{
+    3,
+    {1,2,8},
+    {'A', 'B', 'C'}
+};
+
+CribCircle testTuringCircle2=
+{
+    9,
+    {1,2,3,4,5,6,7,8,9},
+    {'A', 'B', 'C', 'K', 'P', 'Z', 'D', 'G', 'T'}
+};
+
+CribCircle testTuringCircle2Equal1=
+{
+    9,
+    {6,7,8,9,1,2,3,4,5},
+    {'Z', 'D', 'G', 'T','A', 'B', 'C', 'K', 'P'}
+};
+
+CribCircle testTuringCircle2Equal2=
+{
+    9,
+    {5,4,3,2,1,9,8,7,6},
+    {'Z', 'P', 'K', 'C','B', 'A', 'T', 'G', 'D'}
+};
+
+void testTuringIsEqual()
+{
+    testStart("isEqual");
+
+    assertIntEquals(true , turingIsEqual(&testTuringCircle1, &testTuringCircle1Equal1));
+    assertIntEquals(true , turingIsEqual(&testTuringCircle1, &testTuringCircle1Equal2));
+    assertIntEquals(true , turingIsEqual(&testTuringCircle1, &testTuringCircle1Equal3));
+    assertIntEquals(true , turingIsEqual(&testTuringCircle1, &testTuringCircle1Equal4));
+    assertIntEquals(true , turingIsEqual(&testTuringCircle2, &testTuringCircle2Equal1));
+    assertIntEquals(true , turingIsEqual(&testTuringCircle2, &testTuringCircle2Equal2));
+
+    assertIntEquals(false, turingIsEqual(&testTuringCircle1, &testTuringCircle1NotEqual1));
+    assertIntEquals(false, turingIsEqual(&testTuringCircle1, &testTuringCircle1NotEqual2));
+    assertIntEquals(false, turingIsEqual(&testTuringCircle1, &testTuringCircle1NotEqual3));
+    assertIntEquals(false, turingIsEqual(&testTuringCircle1, &testTuringCircle1NotEqual4));
+    testWrapUp();
+}
+
 /**************************************************************************************************\
 * 
 * Test Turing Bombe 1 - two solutions, not all steckers found
@@ -222,7 +409,7 @@ void testTuringFindLoops()
 char* testTuringPlain1   ="wettervorhersage biskaya x heute gibt es blitz und donnerwetter";
 char* testTuringCipher1  ="RPVPZILDGRNOPPLOFZNRUALUGCBJFXYNJCFDCOIUMGABPODMHQGVRFW";
 char* testTuringCrib1    ="WETTERVORHERSAGEBISKAYA";
-char* testTuringExpected1="KETTERVORAERSAGEQISWAYAXHENTEGIQTESPLITZUNDRONNERTETTEU";
+char* testTuringExpected1="KETTERVORHERSAGEQISWAYAXHENTEGIQTESQLITZUNDRONNERTETTEU";
 
 void testTuringBombe1()
 {
@@ -242,12 +429,13 @@ void testTuringBombe1()
     recipe->customPermutations=permutations;
     LinkedList* results     =linkedListCreate();
     turingBombe(*recipe, results);
-    EnigmaSettings* settings=linkedListObjectAt(results, 1);
+    assertIntEquals(2, linkedListLength(results));
+    TuringResult* best=linkedListObjectAt(results, 0);
 
     Enigma* enigma=createEnigmaM3();
-    setEnigma(enigma, settings);
+    setEnigma(enigma, &best->settings);
     encodeDecode(enigma);
-    logInfo("Solution returned: %s", toString(enigma));
+    logInfo("Best solution: %s", toString(enigma));
     assertStringEquals(testTuringExpected1, toString(enigma));
     destroyEnigma(enigma);
 
@@ -285,12 +473,13 @@ void testTuringBombe2()
     recipe->customPermutations=permutations;
     LinkedList* results=linkedListCreate();
     turingBombe(*recipe, results);
-    EnigmaSettings* settings=linkedListObjectAt(results, 0);
+    assertIntEquals(2, linkedListLength(results));
+    TuringResult* best=linkedListObjectAt(results, 1);
 
     Enigma* enigma=createEnigmaM3();
-    setEnigma(enigma, settings);
+    setEnigma(enigma, &best->settings);
     encodeDecode(enigma);
-    logInfo("Solution returned: %s", toString(enigma));
+    logInfo("Second best returned: %s", toString(enigma));
     assertStringEquals(testTuringExpected2, toString(enigma));
     destroyEnigma(enigma);
 
@@ -335,16 +524,20 @@ void testTuringBombe4A()
     p[3]=4; // V
     linkedListAppendObject(permutations, (void*)p);
 
-    TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4, testTuringCrib4A, 86, 1);
+     TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4, testTuringCrib4A, 86, 1);
+    //TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4, testTuringCrib4A, -1, 1);
     recipe->customPermutations=permutations;
     LinkedList* results=linkedListCreate();
     turingBombe(*recipe, results);
-    EnigmaSettings* settings=linkedListObjectAt(results, 1);
+    assertIntEquals(2, linkedListLength(results));
+ 
+    TuringResult* best=linkedListObjectAt(results, 0);
 
+    testPrintTuringResults(results);
+    
     Enigma* enigma=createEnigmaM3();
-    setEnigma(enigma, settings);
+    setEnigma(enigma, &best->settings);
     encodeDecode(enigma);
-    logInfo("Solution returned: %s", toString(enigma));
     assertStringEquals(testTuringExpected4A, toString(enigma));
     destroyEnigma(enigma);
 
@@ -380,12 +573,13 @@ void testTuringBombe4B()
     LinkedList* results=linkedListCreate();
     turingBombe(*recipe, results);
     assertIntEquals(6, linkedListLength(results));
-    EnigmaSettings* settings=linkedListObjectAt(results, 5);
 
+    testPrintTuringResults(results);
+
+    TuringResult* best=linkedListObjectAt(results, 0);
     Enigma* enigma=createEnigmaM3();
-    setEnigma(enigma, settings);
+    setEnigma(enigma, &best->settings);
     encodeDecode(enigma);
-    logInfo("Solution returned: %s", toString(enigma));
     assertStringEquals(testTuringExpected4B, toString(enigma));
     destroyEnigma(enigma);
 
@@ -396,7 +590,7 @@ void testTuringBombe4B()
 
 /**************************************************************************************************\
 * 
-* Test Turing Bombe 4D - bit cheating: using just the Steckers that are actually found
+* Test Turing Bombe 4D - No steckers used
 * Crib at pos 0, ring R2 changes at char 5, R3 at char 6 (double step)
 * Use simulator: https://www.101computing.net/enigma-machine-emulator/
 * 
@@ -451,6 +645,49 @@ void testTuringCribFit()
     testWrapUp();
 }  
 
+/**************************************************************************************************\
+* 
+* Test turing bombe without knowledge on where to look for the CRIB
+* 
+\**************************************************************************************************/
+
+void testTuringBombe5()
+{
+    testStart("Turing Bombe++");
+    // Just one permutation for speed...
+    // Note: permutations will be destroyed as part of the process, recipe will not
+    LinkedList* permutations=linkedListCreate();
+    int* p;
+    p=malloc(4*sizeof(int));
+    p[0]=1; // UKW B
+    p[1]=2; // III
+    p[2]=1; // II
+    p[3]=4; // V
+    linkedListAppendObject(permutations, (void*)p);
+
+    // Request scanning
+    TuringRecipe* recipe        =createDefaultTuringRecipe(testTuringCipher4, testTuringCrib4A, -1, 1);
+    recipe->startCribPosition   =80;
+    recipe->endCribPosition     =90;
+    recipe->customPermutations  =permutations;
+    LinkedList* results=linkedListCreate();
+    turingBombe(*recipe, results);
+    assertIntEquals(2, linkedListLength(results));
+ 
+    TuringResult* best=linkedListObjectAt(results, 0);
+
+    testPrintTuringResults(results);
+
+    Enigma* enigma=createEnigmaM3();
+    setEnigma(enigma, &best->settings);
+    encodeDecode(enigma);
+    assertStringEquals(testTuringExpected4A, toString(enigma));
+    destroyEnigma(enigma);
+
+    linkedListDestroy(results, true);
+    destroyTuringRecipe(recipe);
+    testWrapUp();
+}
 
 /**************************************************************************************************\
 * 
@@ -460,15 +697,22 @@ void testTuringCribFit()
 void testTuring()
 {
     moduleTestStart("Turing bombe");
+
     testTuringLetterLinks();
     testTuringLetterLinks2();
     testTuringLetterLinks3();
-    testTuringFindLoops();
+    testTuringIsEqual();
+    testTuringFindCribCircles();
+    testTuringFindCribCircles2();
+    testTuringFindCribCircles3();
+    testTuringValidateHypothesis();
     testTuringBombe1();
     testTuringBombe2();
     testTuringBombe4A();
     testTuringBombe4B();
     testTuringBombe4D();
     testTuringCribFit();
+    testTuringBombe5();
+
     moduleTestWrapUp();
 }

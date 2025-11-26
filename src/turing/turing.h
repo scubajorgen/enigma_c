@@ -17,18 +17,20 @@
 
 typedef struct
 {
-    char*       cipher;             // Cipher as string
-    char*       crib;               // Crib as string
-    int         cribPosition;       // Position of the start of the Crib in the Cipher; -1 if not known
-    int         numberOfThreads;    // Number of threads to use
-    int         R1;                 // Value or Ringstellung 1, has no use  
-    int         startR2;            // Min R3 to use, usually A
-    int         endR2;              // Max R3 to use, usually A gives good result
-    int         startR3;            // Min R2 to use, usually A
-    int         endR3;              // Max R2 to use, usually Z
-    Enigma_t    enigmaType;         // Type of Enigma
-    WalzeSet_t  walzeSet;           // Walze set to choose Walzen from
-    LinkedList* customPermutations; // Custom Walze/UKW permutations; NULL for automatic generation of permutations
+    char*           cipher;             // Cipher as string
+    char*           crib;               // Crib as string
+    int             cribPosition;       // Position of the start of the Crib in the Cipher; -1 if not known (=scan)
+    int             startCribPosition;  // If a scan is required, this defines the start
+    int             endCribPosition;    // if a scan is required, this defines the end; use MAX_TEXT for the end
+    int             numberOfThreads;    // Number of threads to use
+    int             R1;                 // Value or Ringstellung 1, has no use  
+    int             startR2;            // Min R3 to use, usually A
+    int             endR2;              // Max R3 to use, usually A gives good result
+    int             startR3;            // Min R2 to use, usually A
+    int             endR3;              // Max R2 to use, usually Z
+    Enigma_t        enigmaType;         // Type of Enigma
+    WalzeSet_t      walzeSet;           // Walze set to choose Walzen from
+    LinkedList*     customPermutations; // Custom Walze/UKW permutations; NULL for automatic generation of permutations
 } TuringRecipe;
 
 typedef struct
@@ -40,8 +42,8 @@ typedef struct
 
 typedef struct
 {
-    char        letter;                     // Linked letter
-    int         position;                   // Rotor positions of the link (advances from start of the cipher)
+    char            letter;             // Linked letter
+    int             position;           // Rotor positions of the link (advances from start of the cipher)
 } LetterLink;
 
 
@@ -49,19 +51,18 @@ typedef struct
 // The maximum number of letters is MAX_CRIB_SIZE
 typedef struct
 {
-    char        letter;                     // The letter
-    int         numOfLinks;                 // Number of linked letters
-    LetterLink  links[MAX_CRIB_SIZE];       // Linked letters
+    char            letter;                 // The letter
+    int             numOfLinks;             // Number of linked letters
+    LetterLink      links[MAX_CRIB_SIZE];   // Linked letters
 } LinkedLetters;
 
 
 // Crib circle definition.
 typedef struct CribCircle
 {
-    int                 circleSize;                         // Number of steps in the circle
-    int                 advances    [MAX_CIRCLE_SIZE];      // Advances of the Walzen per step
-    char                orgChars    [MAX_CIRCLE_SIZE+4];    // Original chars as in the text/crib
-//    char                foundChars  [MAX_CIRCLE_SIZE+4];    // Steckered chars 
+    int             circleSize;                         // Number of steps in the circle
+    int             advances[MAX_CIRCLE_SIZE];          // Advances of the Walzen per step
+    char            orgChars[MAX_CIRCLE_SIZE+4];        // Original chars as in the text/crib
 } CribCircle;
 
 
@@ -88,10 +89,11 @@ void            dumpMenu                        ();
 SteckeredChars* createSteckeredChars            ();
 int             turingValidateHypotheses        (Enigma* enigma, int g1, int g2, int g3, SteckeredChars* chars);
 int             turingValidateTheSteckeredValues(SteckeredChars* chars);
+bool            turingIsEqual                   (CribCircle* loop1, CribCircle* loop2);
 
 // Public functions
 void            turingGenerateLetterLinks       (char* cipher, char* crib, int cribStartPosition);
-void            turingFindLoops                 (char* cipher, char* crib, int cribStartPosition);
+void            turingFindCribCircles                 (char* cipher, char* crib, int cribStartPosition);
 void            turingBombe                     (TuringRecipe recipe, LinkedList* results);
 TuringRecipe*   createDefaultTuringRecipe       (char* cipher, char* crib, int cribPosition, int numberOfThreads);
 void            destroyTuringRecipe             (TuringRecipe* recipe);

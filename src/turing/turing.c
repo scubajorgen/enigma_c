@@ -135,6 +135,42 @@ void dumpSets()
 
 /**************************************************************************************************\
 * 
+* Total number of crib circles
+* 
+\**************************************************************************************************/
+int totalNumberOfCribCircles()
+{
+    int sum=0;
+    for (int i=0;i<MAX_POSITIONS;i++)
+    {
+        sum+=cribCircleSet[i].numOfCircles;
+    }
+    return sum;
+}
+
+/**************************************************************************************************\
+* 
+* Total number of crib circles
+* 
+\**************************************************************************************************/
+int maxCribCircleSize()
+{
+    int max=0;
+    for (int i=0;i<MAX_POSITIONS;i++)
+    {
+        for (int j=0; j<cribCircleSet[i].numOfCircles; j++)
+        {
+            if (cribCircleSet[i].cribCircles[j].circleSize>max)
+            {
+                max=cribCircleSet[i].cribCircles[j].circleSize;
+            }
+        }
+    }
+    return max;
+}
+
+/**************************************************************************************************\
+* 
 * Makes an inventory of the links between any two letters in the text and crib
 * text: cipher text
 * crib: piece of plain text that corresponds with the cipher
@@ -172,15 +208,99 @@ void turingGenerateLetterLinks(char* text, char* crib, int cribStartPosition)
     }
 }
 
+/**************************************************************************************************\
+* 
+* This function indicates whether circles are equal or oposite but equal
+* Like: a-b-c-a is equal to b-c-a-b and oposite equal to a-c-b-a
+* 
+\**************************************************************************************************/
+bool turingIsEqual(CribCircle* circle1, CribCircle* circle2)
+{
+    bool isEqual=true;
+    int circleSize1=circle1->circleSize;
+    int circleSize2=circle2->circleSize;
+    if (circleSize1==circleSize2)
+    {
+        char startChar=circle1->orgChars[0];  // start char of circle1
+        
+        // Find it in circle2, generating an offset
+        int offset=-1;
+        for (int i=0;i<circleSize2 && offset<0; i++)
+        {
+            if (circle2->orgChars[i]==startChar)
+            {
+                offset=i;
+            }
+        }
+        if (offset>=0)
+        {
+            bool isEqual1=true;
+            bool isEqual2=true;
+            for (int i=0; i<circleSize1 && (isEqual1 || isEqual2); i++)
+            {
+                // a-b-c-a vs a-b-c-a
+                // a-b-c-a vs b-c-a-b
+                if ((circle1->orgChars[i]!=circle2->orgChars[(i+offset)%circleSize1]) ||
+                    (circle1->advances[i]!=circle2->advances[(i+offset)%circleSize1]))
+                {
+                    isEqual1=false;
+                }
+                // a-b-c-a vs a-c-b-a
+                // a-b-c-a vs b-a-c-b
+                if ((circle1->orgChars[i]!=circle2->orgChars[(circleSize1-i  +offset)%circleSize1]) ||
+                    (circle1->advances[i]!=circle2->advances[(circleSize1-i-1+offset)%circleSize1]))
+                {
+                    isEqual2=false;
+                }
+            }
+            isEqual=isEqual1 || isEqual2;
+        }
+        else
+        {
+            isEqual=false;
+        }
+    }
+    else
+    {
+        isEqual=false;
+    }
+    return isEqual;
+}
+
+
+/**************************************************************************************************\
+* 
+* This function checks of given circle with indicate startChar already exists in some form
+* in the list of circle sets
+* 
+\**************************************************************************************************/
+bool turingCribCircleExists(CribCircle* circle)
+{
+    bool exists=false;
+
+    // Check of the circle exists in the set of each of the letters
+    for (int i=0; i<circle->circleSize; i++)
+    {
+        char startChar=circle->orgChars[i];
+        CribCircleSet* set   =&cribCircleSet[(int)startChar-'A'];
+        for (int j=0; j<set->numOfCircles && !exists;j++)
+        {
+            if (turingIsEqual(circle, &set->cribCircles[j]))
+            {
+                exists=true;
+            }
+        }
+    }
+    return exists;
+}
 
 /**************************************************************************************************\
 * 
 * Recursive function that find all loops starting from one character.
 * For longer cribs this method will result in stack overflow.
-* TO DO: remove double loops, prevent endless loops
 * 
 \**************************************************************************************************/
-void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int step)
+void followCribCircle(char startChar, LetterLink* currentLink, CribCircle* circle, int step)
 {
     // Recursion depth
     if (step>stepMax)
@@ -217,7 +337,7 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
                 nextCircle->orgChars[circleSize]=nextLetter;
                 nextCircle->circleSize++;
                 // Iterate
-                followLoop(startChar, &nextLinks->links[l], nextCircle, step+1);
+                followCribCircle(startChar, &nextLinks->links[l], nextCircle, step+1);
                 destroyCircle(nextCircle);
             }
         }
@@ -227,12 +347,15 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
             if (nextLetter==startChar)
             {
                 // Yes! we found a loop
-                circle->orgChars[circle->circleSize]=startChar;         // finish character string
+                circle->orgChars[circle->circleSize]=startChar;                     // finish character string
                 circle->orgChars[circle->circleSize+1]='\0';
                 CribCircleSet* theSet   =&cribCircleSet[(int)startChar-'A'];        // Add circle to set
                 CribCircle*    theCircle=&theSet->cribCircles[theSet->numOfCircles];
-                *theCircle              =*circle; // Copy
-                theSet->numOfCircles++;
+                if (!turingCribCircleExists(circle))
+                {
+                    *theCircle              =*circle;                                   // Copy
+                    theSet->numOfCircles++;
+                }
             }
             else
             {
@@ -267,7 +390,7 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
                         nextCircle->advances[circleSize]=nextLinks->links[l].position;
                         nextCircle->orgChars[circleSize]=nextLetter;
                         nextCircle->circleSize++;
-                        followLoop(startChar, &nextLinks->links[l], nextCircle, step+1);
+                        followCribCircle(startChar, &nextLinks->links[l], nextCircle, step+1);
                         destroyCircle(nextCircle);
 
                     }
@@ -281,10 +404,13 @@ void followLoop(char startChar, LetterLink* currentLink, CribCircle* circle, int
 /**************************************************************************************************\
 * 
 * This method transfers a text and a crib into a list of crib circles; assumes the crib length
-* is smaller than or equal to text length
+* is smaller than or equal to text length.
+* First the list of letter links is established
+* Then in an iterative way circles are determined, per starting letter (A, B, C, ...)
+* Finally double cirlces are removed
 * 
 \**************************************************************************************************/
-void turingFindLoops(char* text, char* crib, int cribStartPosition)
+void turingFindCribCircles(char* text, char* crib, int cribStartPosition)
 {
     if (strlen(text)>=strlen(crib))
     {
@@ -299,7 +425,7 @@ void turingFindLoops(char* text, char* crib, int cribStartPosition)
             cribCircleSet[c].startChar      ='A'+c;
             
             // recursivel generate the crib loops
-            followLoop('A'+c, NULL, NULL, 0);
+            followCribCircle('A'+c, NULL, NULL, 0);
         }
     }
     else
@@ -370,7 +496,6 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
     for (int set=0; set<MAX_POSITIONS && found; set++)
     {
         CribCircleSet*  theSet=&cribCircleSet[set];
-        
         if (theSet->numOfCircles>0)
         {
             // Try the circles. If one circle fails
@@ -433,7 +558,7 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
                 processIntermediateChars(enigma, g1, g2, g3, theSet, foundChar, chars);
                 if (fc>1)
                 {
-                    logError("Found multiple %d - %c->%c circles %d\n", fc, theSet->startChar, foundChar+'A', theSet->numOfCircles);
+                    //logWarning("Found multiple %d - %c->%c circles %d", fc, theSet->startChar, foundChar+'A', theSet->numOfCircles);
                 }
             }
         }
@@ -567,14 +692,37 @@ void processResult(TuringResult* result)
     turingPrintSolution(result);
     if (theResults!=NULL)
     {
-        linkedListAppendObject(theResults, result);
+        // We add the found result to the list, highest scoring result at the top
+        linkedListReset(theResults);
+        bool                found   =false;
+        LinkedListElement*  next    =NULL;
+        while (linkedListHasNext(theResults) && !found)
+        {
+            next                    =linkedListNext(theResults);
+            TuringResult* obj       =(TuringResult*)next->object;
+            if (result->score>obj->score)
+            {
+                found=true;
+            }
+        }
+        LinkedListElement* newEl=malloc(sizeof(LinkedListElement));
+        newEl->object=(void*)result;
+        if (found)
+        {
+            logInfo("Inserting result");
+            linkedListInsertBefore(theResults, newEl, next);
+        }
+        else
+        {
+            logInfo("Appending result");
+            linkedListAppend(theResults, newEl);
+        }
     }
     else
     {
         free(result);
     }
 }
-
 
 /**************************************************************************************************\
 * 
@@ -701,7 +849,6 @@ void turingWorkerFunction(int worker, int workItem, void* params)
     turingFind(item->permutationStart, item->permutationEnd);    
 }
 
-
 /**************************************************************************************************\
 * 
 * Finish function. Executed after the work is done. Deletes the permutations.
@@ -709,9 +856,7 @@ void turingWorkerFunction(int worker, int workItem, void* params)
 \**************************************************************************************************/
 void turingFinishFunction(void* params)
 {
-
 }
-
 
 /**************************************************************************************************\
 * 
@@ -720,9 +865,8 @@ void turingFinishFunction(void* params)
 \**************************************************************************************************/
 void bombeProcess(int cribPosition)
 {
-    logInfo("Starting the Bombe process for '%s' at position %d", theRecipe.crib, cribPosition);
-
-    turingFindLoops(theRecipe.cipher, theRecipe.crib, cribPosition);
+    turingFindCribCircles(theRecipe.cipher, theRecipe.crib, cribPosition);
+    logInfo("Found %d Crib circles, max circle size: %d", totalNumberOfCribCircles(), maxCribCircleSize());
 
     // Choose from the 5 wehrmacht walzen and 2 UKWs on an M3 Enigma
     if (theRecipe.customPermutations==NULL)
@@ -808,8 +952,14 @@ LinkedList* turingCribFit(char crib[], char cipher[])
 \**************************************************************************************************/
 void turingBombe(TuringRecipe recipe, LinkedList* results)
 {
+    time_t now;
+
     theRecipe           =recipe;
     theResults          =results;
+
+
+    time(&now);
+    logInfo("Starting Bombe @ %s", ctime(&now));
 
     if (theRecipe.cribPosition>=0)
     {
@@ -818,15 +968,39 @@ void turingBombe(TuringRecipe recipe, LinkedList* results)
     else
     {
         LinkedList* positions=turingCribFit(theRecipe.crib, theRecipe.cipher);
+        // Count the number of positions to process
+        int number=0;
         linkedListReset(positions);
         while (linkedListHasNext(positions))
         {
             int* position=(int *)linkedListNextObject(positions);
-            bombeProcess(*position);
+            if (*position>=recipe.startCribPosition && *position<=recipe.endCribPosition)
+            {
+                number++;
+            }
+        }
+        logInfo("Possible crib positions found: %d, within scope: %d", linkedListLength(positions), number);
+        // Process each position
+        int count=1;
+        linkedListReset(positions);
+        while (linkedListHasNext(positions))
+        {
+            int* position=(int *)linkedListNextObject(positions);
+            if (*position>=recipe.startCribPosition && *position<=recipe.endCribPosition)
+            {
+                time(&now);
+
+                logInfo("Starting the Bombe process for '%s' at position %d (#%d/%d) @ %s", 
+                        theRecipe.crib, *position, count, number, ctime(&now));
+                bombeProcess(*position);
+                count++;
+            }
         }
         linkedListDestroy(positions, true);
     }
     destroyPermutations(tPermutations);
+    time(&now);
+    logInfo("Finished Bombe @ %s", ctime(&now));
 }
 
 /**************************************************************************************************\
@@ -846,6 +1020,8 @@ TuringRecipe* createDefaultTuringRecipe(char* cipher, char* crib, int cribPositi
     recipe->cipher              =cipher;
     recipe->crib                =crib;
     recipe->cribPosition        =cribPosition;
+    recipe->startCribPosition   =0;
+    recipe->endCribPosition     =MAX_TEXT;
     recipe->numberOfThreads     =numberOfThreads;
     recipe->R1                  ='A';
     recipe->startR2             ='C';
