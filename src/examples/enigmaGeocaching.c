@@ -1,7 +1,7 @@
 /**************************************************************************************************\
-* crack02.c
+* enigmaGeocaching.c
 * 
-* Three problems from Geocaching. theThirdProblem, theFourthProblem, theFifthProblem
+* Problems from Geocaching. theThirdProblem, theFourthProblem, theFifthProblem
 * 
 \**************************************************************************************************/
 #include <stdio.h>
