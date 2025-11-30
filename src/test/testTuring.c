@@ -137,8 +137,8 @@ void testTuringFindCribCircles()
     turingFindCribCircles("PQRSABCCHIJK","CABAP", 4);
 
     assertIntEquals     (3, cribCircleSet['A'-'A'].numOfCircles);
-    assertIntEquals     (0, cribCircleSet['B'-'A'].numOfCircles);
-    assertIntEquals     (0, cribCircleSet['C'-'A'].numOfCircles);
+    assertIntEquals     (2, cribCircleSet['B'-'A'].numOfCircles);
+    assertIntEquals     (3, cribCircleSet['C'-'A'].numOfCircles);
     assertIntEquals     (0, cribCircleSet['D'-'A'].numOfCircles);
 
     assertStringEquals  ("ACBA", cribCircleSet['A'-'A'].cribCircles[0].orgChars);
@@ -168,14 +168,14 @@ void testTuringFindCribCircles()
 \**************************************************************************************************/
 void testTuringFindCribCircles2()
 {
-    testStart("findLoops");
+    testStart("findLoops 2");
     // Create list of loops
     // DASXISTXEINX
     // VJAREVEADJEV
     turingFindCribCircles("VJAREVEADJEV","DASXISTXEINX", 0);
     assertIntEquals( 3, cribCircleSet['A'-'A'].numOfCircles);
-    assertIntEquals( 0, cribCircleSet['V'-'A'].numOfCircles);
-    assertIntEquals( 0, cribCircleSet['D'-'A'].numOfCircles);
+    assertIntEquals( 3, cribCircleSet['V'-'A'].numOfCircles);
+    assertIntEquals( 2, cribCircleSet['D'-'A'].numOfCircles);
     assertIntEquals( 0, cribCircleSet['T'-'A'].numOfCircles);
 
     assertStringEquals("AJIEDVSA", cribCircleSet['A'-'A'].cribCircles[0].orgChars);
@@ -199,7 +199,7 @@ void testTuringFindCribCircles2()
 \**************************************************************************************************/
 void testTuringFindCribCircles3()
 {
-    testStart("findLoops");
+    testStart("findLoops 3");
     // ENIGMAPN
     // NPPMAGEI
     turingFindCribCircles("ENIGMAPN","NPPMAGEI", 0); 
@@ -207,7 +207,7 @@ void testTuringFindCribCircles3()
     assertIntEquals( 1, cribCircleSet['A'-'A'].numOfCircles);
     assertIntEquals( 0, cribCircleSet['B'-'A'].numOfCircles);
     assertIntEquals( 2, cribCircleSet['E'-'A'].numOfCircles);
-    assertIntEquals( 1, cribCircleSet['I'-'A'].numOfCircles);
+    assertIntEquals( 2, cribCircleSet['I'-'A'].numOfCircles);
 
     assertStringEquals("AMGA" , cribCircleSet['A'-'A'].cribCircles[0].orgChars);
     assertStringEquals("ENPE" , cribCircleSet['E'-'A'].cribCircles[0].orgChars);
@@ -222,15 +222,18 @@ void testTuringFindCribCircles3()
 * Test the hypothesis validation
 * One loop present
 * D (  7) W ( 11) J ( 10) U (  9) Q (  8) D
+* Occurs for D, J, Q, U, W
 * 
 \**************************************************************************************************/
 void testTuringValidateHypothesis()
 {
     testStart("hypothesis");
-    // Array 012345678901
-    // Text  PQRSTAWDQUJWPQR
-    // Crib       WDQUJW
-    // Pos   123456789012
+    // Array  012345678901
+    // Cipher PQRSTAWDQUJWPQR
+    // Crib        WDQUJW
+    // Plain  twfjgwdqujwjshp   // G 5 20 12
+    // Plain  yavirzjztqvefbc   // G 5 20 1
+    // Pos    123456789012
     turingFindCribCircles("PQRSTAWDQUJWPQR", "WDQUJW", 5);
 
     Enigma* enigma=createEnigmaM3();
@@ -265,6 +268,46 @@ void testTuringValidateHypothesis()
     testWrapUp();
 }
 
+/**************************************************************************************************\
+* 
+* Test the turingValidateTheSteckeredValues()
+* 
+\**************************************************************************************************/
+void testTuringValidateTheSteckeredValues()
+{
+    testStart("validate steckers");
+
+    bool found;
+
+    SteckeredChars* chars   =createSteckeredChars();
+    found=turingValidateTheSteckeredValues(chars);
+    assertIntEquals     (1, found);
+
+    chars['D'-'A'].foundChar='P'; // Stecker 1
+    chars['P'-'A'].foundChar='D';
+    chars['A'-'A'].foundChar='Z'; // Stecker 2
+    chars['Z'-'A'].foundChar='A';
+    found=turingValidateTheSteckeredValues(chars);
+    assertIntEquals     (1, found);
+
+    chars['X'-'A'].foundChar='Q'; // Stecker 3 - invalid, same letter
+    chars['Y'-'A'].foundChar='Q';    
+    found=turingValidateTheSteckeredValues(chars);
+    assertIntEquals     (0, found);
+
+    chars['X'-'A'].foundChar='Y'; // Stecker 3 - invalid, not mutual
+    chars['Y'-'A'].foundChar='R';    
+    found=turingValidateTheSteckeredValues(chars);
+    assertIntEquals     (0, found);
+
+    chars['X'-'A'].foundChar='R'; // Stecker 3 - invalid, not mutual
+    chars['Y'-'A'].foundChar='X';    
+    found=turingValidateTheSteckeredValues(chars);
+    assertIntEquals     (0, found);
+
+    free(chars);
+    testWrapUp();
+}
 
 /**************************************************************************************************\
 * 
@@ -681,6 +724,7 @@ void testTuring()
     testTuringFindCribCircles2();
     testTuringFindCribCircles3();
     testTuringValidateHypothesis();
+    testTuringValidateTheSteckeredValues();
     testTuringBombe1();
     testTuringBombe4_1();
     testTuringBombe4_2();

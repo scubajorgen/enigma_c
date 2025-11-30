@@ -113,7 +113,7 @@ void dumpCircle(CribCircle* circle)
     {
         printf("%c (%3d) ", circle->orgChars[c], circle->advances[c]);
     }
-    printf("%c\n", circle->orgChars[0]);
+    printf("%c - size %d\n", circle->orgChars[0], circle->circleSize);
 }
 
 /**************************************************************************************************\
@@ -288,14 +288,43 @@ bool turingIsEqual(CribCircle* circle1, CribCircle* circle2)
 /**************************************************************************************************\
 * 
 * This function checks of given circle with indicate startChar already exists in some form
-* in the list of circle sets
+* in the set of given circle
 * 
 \**************************************************************************************************/
 bool turingCribCircleExists(CribCircle* circle)
 {
     bool exists=false;
 
+    // Check of the circle exists only in the set of its own start char
+    // This only removes the doubles and inverse doubles from each set, like
+    // a-b-c-a -> remove a-b-c-a and a-c-b-a. Reduces number of circles to 50%
+    char startChar=circle->orgChars[0];
+    CribCircleSet* set   =&cribCircleSet[(int)startChar-'A'];
+    for (int j=0; j<set->numOfCircles && !exists;j++)
+    {
+        if (turingIsEqual(circle, &set->cribCircles[j]))
+        {
+            exists=true;
+        }
+    }
+    return exists;
+}
+
+/**************************************************************************************************\
+* 
+* This function checks of given circle with indicate startChar already exists in some form
+* in the list of circle sets
+* 
+\**************************************************************************************************/
+bool turingCribCircleExists2(CribCircle* circle)
+{
+    bool exists=false;
+
     // Check of the circle exists in the set of each of the letters
+    // a-b-c-a -> remove a-b-c-a, a-c-b-a, b-c-a-b, b-a-c-b, etc
+    // Reduces number of circles to ~6%, because long crib circles occur in set of each letter in the crib
+    // Note: this results of concentration of circles in the set of first characters, depleting sets
+    // of next characters. The lower the number of circles, the more false positives
     for (int i=0; i<circle->circleSize; i++)
     {
         char startChar=circle->orgChars[i];
@@ -592,7 +621,7 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
                     {
                         theChars[i]=-1; // remove character from processing
                     }
-                }     
+                }
             }
             // Store the character c that works
             // for all circles in the set
@@ -611,7 +640,8 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
                 processIntermediateChars(enigma, g1, g2, g3, theSet, foundChar, chars);
                 if (fc>1)
                 {
-                    //logWarning("Found multiple %d - %c->%c circles %d", fc, theSet->startChar, foundChar+'A', theSet->numOfCircles);
+                    // TO DO WHAT TO DO? found=false; ?
+                    logDebug("Found multiple %d - %c->%c circles %d", fc, theSet->startChar, foundChar+'A', theSet->numOfCircles);
                 }
             }
         }
@@ -621,8 +651,14 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
 
 /**************************************************************************************************\
 * 
-* Helper: For a found set of steckered values, check if the set is consistent
-* 
+* For a found set of steckered values, check if the set is consistent
+* This is a way to detect false positives
+* Startchar: ABCDEFGHIJKLMNOPQRSTUVWXYZ
+* Found1        P          !D
+* Found2       !P           D
+* Found3        X           X
+*
+*
 \**************************************************************************************************/
 int turingValidateTheSteckeredValues(SteckeredChars* chars)
 {
@@ -640,12 +676,14 @@ int turingValidateTheSteckeredValues(SteckeredChars* chars)
                 (chars[set2].foundChar!='?'))                                             
                  
             {
+                logDebug("Inconsitent Steckers found: not mutual; sign of false positive");
                 found=false;
             }
             if ((chars[set].foundChar!='?') &&
                 (chars[set].startChar==chars[set2].foundChar) &&
                 (chars[set].foundChar!=chars[set2].startChar))
             {
+                logDebug("Inconsitent Steckers found: not mutual; sign of false positive");
                 found=false;
             }
             if ((chars[set].foundChar!='?') &&
@@ -653,6 +691,7 @@ int turingValidateTheSteckeredValues(SteckeredChars* chars)
                 (chars[set].foundChar==chars[set2].foundChar))
             {
                 found=false;
+                logDebug("Inconsitent Steckers found: multiple occurrences; sign of false positive");
             }
         }
     }
@@ -879,6 +918,7 @@ bool turingFindRemainingCribSteckers(TuringResult *result)
     Enigma* enigma=createEnigmaM3();
     setEnigma(enigma, &result->settings);
     encodeDecode(enigma);
+    strncpy(result->decoded, toString(enigma), MAX_TEXT-1);
 
     // Characters in the plaintext that are part of a loop are correct
     // (not steckered or appropriate Stecker applied)
@@ -913,22 +953,11 @@ bool turingFindRemainingCribSteckers(TuringResult *result)
 void processResult(TuringResult* result)
 {
     logInfo("Candidate found, validating...");
-
-    // DEBUG
-
-    Enigma* enigma=createEnigmaM3();
-    setEnigma(enigma, &result->settings);
-    encodeDecode(enigma);
-    char* plain =toString(enigma);
-    strncpy(result->decoded, plain, MAX_TEXT-1);
-    destroyEnigma(enigma);
-    turingPrintSolution(result);
-    // DEBUG END
-
-
+    // Second check for false positives: find remaining steckers
+    // This should succeed
     bool found=turingFindRemainingCribSteckers(result);
- 
-    //turingPrintSolution(result);
+    turingPrintSolution(result);
+
     if (theResults!=NULL && found)
     {
         // We add the found result to the list, highest IoC scoring result at the top
@@ -950,12 +979,12 @@ void processResult(TuringResult* result)
         newEl->object=(void*)result;
         if (found)
         {
-            logInfo("Valid: Inserting result");
+            logInfo("VALID: Inserting result");
             linkedListInsertBefore(theResults, newEl, next);
         }
         else
         {
-            logInfo("Valid: Appending result");
+            logInfo("VALID: Appending result");
             linkedListAppend(theResults, newEl);
         }
         mutexUnlock();
@@ -1024,21 +1053,20 @@ void turingFind(int permutationStart, int permutationEnd, int cribPosition)
                         // It must be taken into account when the notch position of
                         // the second Walze is reached after a few rotations of R3...
                         r1=theRecipe.R1; 
+                        setRingStellung(enigma, 1, r1);
                         for (r2=theRecipe.startR2; r2<=theRecipe.endR2; r2++)
                         {
+                            setRingStellung(enigma, 2, r2);
                             for (r3=theRecipe.startR3; r3<=theRecipe.endR3; r3++)
                             {
-
-                                setRingStellung(enigma, 1, r1);
-                                setRingStellung(enigma, 2, r2);
                                 setRingStellung(enigma, 3, r3);
-
                                 bool found=turingValidateHypotheses(enigma, g1, g2, g3, steckeredChars);
                                 
+                                // First check for false positives: validate consistency of steckered counterparts
                                 if (found)
                                 {
                                     found=turingValidateTheSteckeredValues(steckeredChars);
-                                }                                    
+                                }
                                 
                                 if (found)
                                 {
@@ -1114,7 +1142,7 @@ void bombeProcess(int cribPosition)
 {
     turingFindCribCircles(theRecipe.cipher, theRecipe.crib, cribPosition);
     logInfo("Found %d Crib circles, max circle size: %d", totalNumberOfCribCircles(), maxCribCircleSize());
-    
+
     int numberOfPermutations=linkedListLength(tPermutations);
     logInfo("Walzen/UKW permutations %d", numberOfPermutations);
 
@@ -1317,6 +1345,7 @@ TuringRecipe* createDefaultTuringRecipe(char* cipher, char* crib, int cribPositi
     recipe->cribPosition        =cribPosition;
     recipe->startCribPosition   =0;
     recipe->endCribPosition     =MAX_TEXT;
+    recipe->minCribCircleSize   =0;
     recipe->numberOfThreads     =numberOfThreads;
     recipe->R1                  ='A';
     recipe->startR2             ='C';
