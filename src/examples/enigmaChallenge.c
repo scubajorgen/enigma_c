@@ -949,6 +949,7 @@ void message10_step01Limited()
     recipe.cipher           =text10;
     recipe.cipherSize       =250; // part of the text to save time
     iocDecodeText(recipe, permutations);
+    destroyPermutations(permutations);
 }
 
 /**************************************************************************************************\

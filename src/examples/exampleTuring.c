@@ -174,7 +174,10 @@ void turingExample()
     printf("#####################################################################################\n");
 
     TuringRecipe* recipe=createDefaultTuringRecipe(turingTestSettings.cipher, turingCrib, turingCribPosition, 4);
-    turingBombe(*recipe, NULL);
+    LinkedList* results=linkedListCreate();
+    turingBombe(*recipe, results);
+    turingReport(MESSAGEFORMAT_TEXT);
+    linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);
 }
 
@@ -191,7 +194,12 @@ void turingExample2()
     printf("# Crib position             : %d\n",        turingCribPosition2);
     printf("#####################################################################################\n");
     TuringRecipe* recipe=createDefaultTuringRecipe(turingTestSettings2.cipher, turingCrib2, turingCribPosition2, 3);
-    turingBombe(*recipe, NULL);
+    recipe->startR2='A';
+    recipe->endR2='E';
+    LinkedList* results=linkedListCreate();
+    turingBombe(*recipe, results);
+    turingReport(MESSAGEFORMAT_TEXT);
+    linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);
 }
 
@@ -208,7 +216,10 @@ void turingExample3()
     printf("# Crib position             : %d\n",        turingCribPosition3);
     printf("#####################################################################################\n");
     TuringRecipe* recipe=createDefaultTuringRecipe(turingTestSettings3.cipher, turingCrib3, turingCribPosition3, 3);
-    turingBombe(*recipe, NULL);
+    LinkedList* results=linkedListCreate();
+    turingBombe(*recipe, results);
+    turingReport(MESSAGEFORMAT_TEXT);
+    linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);
 }
 

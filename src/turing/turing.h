@@ -1,4 +1,3 @@
-
 /**************************************************************************************************\
 * 
 * This file implements the method turing used to crack enigma encoded messages. It assumes a crib:
@@ -10,15 +9,17 @@
 * 
 \**************************************************************************************************/
 
+#include "enigma.h"
+
 #define MAX_CIRCLES         1024
 #define MAX_CIRCLE_SIZE     26 
-#define MAX_CRIB_SIZE       30
+#define MAX_CRIB_SIZE       50
 #define TURING_MAX_RESULTS  1024
 
 typedef struct
 {
-    char*           cipher;             // Cipher as string
-    char*           crib;               // Crib as string
+    char            cipher[MAX_TEXT];   // Cipher as string
+    char            crib[MAX_CRIB_SIZE];// Crib as string
     int             cribPosition;       // Position of the start of the Crib in the Cipher; -1 if not known (=scan)
     int             startCribPosition;  // If a scan is required, this defines the start
     int             endCribPosition;    // if a scan is required, this defines the end; use MAX_TEXT for the end
@@ -36,6 +37,7 @@ typedef struct
 typedef struct
 {
     EnigmaSettings  settings;
+    int             cribPosition;
     char            decoded[MAX_TEXT];
     float           score;
 } TuringResult;
@@ -84,17 +86,19 @@ typedef struct
 extern LinkedLetters       menu[MAX_POSITIONS];
 extern CribCircleSet       cribCircleSet[MAX_POSITIONS];
 
+// Helper functions
 void            dumpSets                        ();
 void            dumpMenu                        ();
 SteckeredChars* createSteckeredChars            ();
 int             turingValidateHypotheses        (Enigma* enigma, int g1, int g2, int g3, SteckeredChars* chars);
 int             turingValidateTheSteckeredValues(SteckeredChars* chars);
 bool            turingIsEqual                   (CribCircle* loop1, CribCircle* loop2);
-
-// Public functions
 void            turingGenerateLetterLinks       (char* cipher, char* crib, int cribStartPosition);
 void            turingFindCribCircles                 (char* cipher, char* crib, int cribStartPosition);
-void            turingBombe                     (TuringRecipe recipe, LinkedList* results);
+LinkedList*     turingCribFit                   (char crib[], char cipher[]);
+
+// Public functions that do the job
 TuringRecipe*   createDefaultTuringRecipe       (char* cipher, char* crib, int cribPosition, int numberOfThreads);
 void            destroyTuringRecipe             (TuringRecipe* recipe);
-LinkedList*     turingCribFit                   (char crib[], char cipher[]);
+void            turingBombe                     (TuringRecipe recipe, LinkedList* results);
+void            turingReport                    (MessageFormat_t format);

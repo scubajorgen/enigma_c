@@ -14,33 +14,6 @@
 
 /**************************************************************************************************\
 * 
-* Helper: dump results
-* 
-\**************************************************************************************************/
-void testPrintTuringResults(LinkedList* results)
-{
-    Enigma* enigma=createEnigmaM3();
-    linkedListReset(results);
-    while (linkedListHasNext(results))
-    {
-        TuringResult*   r=linkedListNextObject(results);
-        EnigmaSettings* s=&r->settings;
-        setEnigma(enigma, &r->settings);
-        encodeDecode(enigma);
-        logInfo("----------------------------------------------");
-        logInfo("%6s %3s %3s %3s - R %2d %2d %2d G %2d %2d %2d, Steckers %s",
-                s->ukw, s->walzen[0]      , s->walzen[1]              , s->walzen[2]              ,
-                s->ringStellungen[0]-'A'+1, s->ringStellungen[1]-'A'+1, s->ringStellungen[2]-'A'+1,
-                s->grundStellungen[0]     , s->grundStellungen[1]     , s->grundStellungen[2]     ,
-                s->steckers);
-        logInfo("%f - %s", r->score, toString(enigma));
-    }
-    destroyEnigma(enigma);
-}
-
-
-/**************************************************************************************************\
-* 
 * Test the letter links
 * 
 \**************************************************************************************************/
@@ -402,18 +375,22 @@ void testTuringIsEqual()
 
 /**************************************************************************************************\
 * 
-* Test Turing Bombe 1 - two solutions, not all steckers found
+* Test Turing Bombe 1 - two solutions, not all steckers found based on Cribs
 * 
 \**************************************************************************************************/
-// I II III, UKW B, R 1 24 3 G 22 17 12, bq cr di ej kw mt os px uz gh 
+
 char* testTuringPlain1   ="wettervorhersage biskaya x heute gibt es blitz und donnerwetter";
+
+// I II III, UKW B, R 1 24 3 G 22 17 12, bq cr di ej kw mt os px uz gh 
 char* testTuringCipher1  ="RPVPZILDGRNOPPLOFZNRUALUGCBJFXYNJCFDCOIUMGABPODMHQGVRFW";
-char* testTuringCrib1    ="WETTERVORHERSAGEBISKAYA";
-char* testTuringExpected1="KETTERVORHERSAGEQISWAYAXHENTEGIQTESQLITZUNDRONNERTETTEU";
+
+char  testTuringCrib1[]  ="WeTTeRVoRHeRSaGeBiSKaYa";
+
+char* testTuringExpected="WETTERVORHERSAGEBISKAYAXHEUTEGIBTESBLITZUNDDONNERWETTER";
 
 void testTuringBombe1()
 {
-    testStart("Turing Bombe1");
+    testStart("Turing Bombe 1");
     // Just one permutation for speed...
     // Note: permutations will be destroyed as part of the process, recipe will not
     LinkedList* permutations=linkedListCreate();
@@ -429,17 +406,14 @@ void testTuringBombe1()
     recipe->customPermutations=permutations;
     LinkedList* results     =linkedListCreate();
     turingBombe(*recipe, results);
-    assertIntEquals(2, linkedListLength(results));
-    TuringResult* best=linkedListObjectAt(results, 0);
+    turingReport(MESSAGEFORMAT_WEHRMACHT);
 
-    Enigma* enigma=createEnigmaM3();
-    setEnigma(enigma, &best->settings);
-    encodeDecode(enigma);
-    logInfo("Best solution: %s", toString(enigma));
-    assertStringEquals(testTuringExpected1, toString(enigma));
-    destroyEnigma(enigma);
+    assertIntEquals(1, linkedListLength(results));
+    TuringResult* best=linkedListObjectAt(results, 0);
+    assertStringEquals(testTuringExpected, best->decoded);
 
     linkedListDestroy(results, true);
+    destroyPermutations(recipe->customPermutations);
     destroyTuringRecipe(recipe);
     
     testWrapUp();
@@ -447,60 +421,28 @@ void testTuringBombe1()
 
 /**************************************************************************************************\
 * 
-* Test Turing Bombe 2 - two solutions, bit cheating: using just the Steckers that are actually found
-* 
-\**************************************************************************************************/
-// I II III, UKW B, R 1 24 3 G 22 17 12, EJ GH ID OS PX RC TM ZU 
-char* testTuringCipher2  ="DPVPZILDGRNOPPLORZNYUALUGCQJFXYRJCFNCOIUMGAQPODMHNGVRFK";
-char* testTuringCrib2    ="WETTERVORHERSAGEBISKAYA";
-char* testTuringExpected2="WETTERVORHERSAGEBISKAYAXHEUTEGIBTESBLITZUNDDONNERWETTER";
-
-void testTuringBombe2()
-{
-    testStart("Turing Bombe2");
-    // Just one permutation for speed...
-    // Note: permutations will be destroyed as part of the process, recipe will not
-    LinkedList* permutations=linkedListCreate();
-    int* p;
-    p=malloc(4*sizeof(int));
-    p[0]=1; // UKW B
-    p[1]=0; // I
-    p[2]=1; // II
-    p[3]=2; // III
-    linkedListAppendObject(permutations, (void*)p);
-
-    TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher2, testTuringCrib2, 0, 1);
-    recipe->customPermutations=permutations;
-    LinkedList* results=linkedListCreate();
-    turingBombe(*recipe, results);
-    assertIntEquals(2, linkedListLength(results));
-    TuringResult* best=linkedListObjectAt(results, 1);
-
-    Enigma* enigma=createEnigmaM3();
-    setEnigma(enigma, &best->settings);
-    encodeDecode(enigma);
-    logInfo("Second best returned: %s", toString(enigma));
-    assertStringEquals(testTuringExpected2, toString(enigma));
-    destroyEnigma(enigma);
-
-    linkedListDestroy(results, true);
-    destroyTuringRecipe(recipe);
-    testWrapUp();
-}
-
-/**************************************************************************************************\
-* 
-* Test Turing Bombe 4A - 2 solutions, bit cheating: using just the Steckers that are actually found
+* Test Turing Bombe 4_1 - 2 valid solutions!
+* Bit cheating: using just the Steckers that are actually found
 * Crib at pos 86
 * 
 \**************************************************************************************************/
-
 char* testTuringPlain4      ="KOMXADMXUUUBOOTEYFDUUUAUSBXYFDUUUOSTYSSSMMMHHHSSSOSTAZWWFUNF"
                              "XUUUFLOTTXYFUNFXUUUFLOTTXYHAKAXKIELVONVONTORPXFANGBOOTEINSNE"
                              "UNXXEINSZWOUHRJKIELWEINGELAUFENYFFFTTTBLEIBTBESETZTR";
-char* testTuringCipher4     ="BCVASCWKNQOSAGCRQEBHJMCFWWLIAMPDAZOMENPQALETJCFPRTQJEFSHIXMY"
+// III II V, UKW B, ?
+char* testTuringCipher4A    ="BCVASCWKNQOSAGCRQEBHJMCFWWLIAMPDAZOMENPQALETJCFPRTQJEFSHIXMY"
                              "CYINKGCEENUZTOAUTNDTCXESNSOKTYZGERELRFMTZLCPSVUHKACZKXXPHQZG"
                              "VQRFJALPDVUJDJWPSQQGIWKTUYNCRISVRRRHDMNYCJZHIXHRUIGZ";
+// I III II, UKW B, R AAA, G QUA, NO steckers                             
+char* testTuringCipher4B    ="PHDESHDKGEHWBZRYEYIFWADIEHLULMZPQFNHVDZIWENQNBUTEYJSJYJVPTQV"
+                             "ZLZITVCODDIGMWOZMMIAJTIDKEIJRTSTFTGFTGSYUEKAGKTPXCODFIYJOMTD"
+                             "OJLOFFZBTBNWDLWTCNXOOLBZDVKAAACXZZRSFRUUNWKCCVYAVOFK";        
+// III II IV, UKW B, R 24 6 21, G 1 1 26, CY DZ EQ HU PK RW SB AV TJ ON
+char* testTuringCipher4C     ="TUEASPGSTOCCPQOPJNFLQZMDCHOPNXVZZAIVFYOWQCJKKWXDWBMUYOKBKGRPPMDNUTQFPPT"
+                              "ASQAQDZKPJHUHTSTDFZTXLSCEBPYMMPFBMSTIFCIEIUKCGAAZCQVFDCMVELXOBNUDVUEEBG"
+                              "MQFBWXGWMHXOXREWIUOBPFHFTUEKFL";
+
+
 char* testTuringCrib4A      ="HAKAXKIELVONVONTORPXFANGBOOT"; // pos 86
 char* testTuringCrib4B      ="KOMXADMXUUUBOOTEYFDUUUAUSBXY";   // pos 0
 char* testTuringExpected4A  ="KOMXADMXUUUBOOTEYFDUUUAUSBXYFDUUUOSTYSSSMMMHHHSSSOSTAZWWFUNF"
@@ -510,9 +452,10 @@ char* testTuringExpected4B  ="KOMXADMXUUUBOTTJYWDVXUAUSBXYFDUUUOSTGSSUMMRGAGSSSO
                              "XUUUFYOUOXYFUNFXUUUFLOPTXYGAKAXKWJMVONVONTORPXFQNHBOOTJIQLNK"
                              "UNXXEINSZWOQGIEKIJLOJINPJLAUFJNYFFFXTTBLJABLBJNJTBQR";
 
-void testTuringBombe4A()
+
+void testTuringBombe4_1()
 {
-    testStart("Turing Bombe 4A");
+    testStart("Turing Bombe 4_1");
     // Just one permutation for speed...
     // Note: permutations will be destroyed as part of the process, recipe will not
     LinkedList* permutations=linkedListCreate();
@@ -524,39 +467,31 @@ void testTuringBombe4A()
     p[3]=4; // V
     linkedListAppendObject(permutations, (void*)p);
 
-     TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4, testTuringCrib4A, 86, 1);
-    //TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4, testTuringCrib4A, -1, 1);
+    TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4A, testTuringCrib4A, 86, 1);
     recipe->customPermutations=permutations;
     LinkedList* results=linkedListCreate();
     turingBombe(*recipe, results);
-    assertIntEquals(2, linkedListLength(results));
- 
-    TuringResult* best=linkedListObjectAt(results, 0);
+    turingReport(MESSAGEFORMAT_KRIEGSMARINE);
 
-    testPrintTuringResults(results);
-    
-    Enigma* enigma=createEnigmaM3();
-    setEnigma(enigma, &best->settings);
-    encodeDecode(enigma);
-    assertStringEquals(testTuringExpected4A, toString(enigma));
-    destroyEnigma(enigma);
+    assertIntEquals(2, linkedListLength(results));
+    TuringResult* best=linkedListObjectAt(results, 0);
+    assertStringEquals(testTuringExpected4A, best->decoded);
 
     linkedListDestroy(results, true);
+    destroyPermutations(recipe->customPermutations);
     destroyTuringRecipe(recipe);
     testWrapUp();
 }
 
 /**************************************************************************************************\
 * 
-* Test Turing Bombe 4B
-* Crib at pos 0 -> 6 results
-* Two steckers not found: EJ and GH
+* Test Turing Bombe 4_2
+* Crib at pos 0 -> 6 candidates, 1 valid result
 * 
 \**************************************************************************************************/
-
-void testTuringBombe4B()
+void testTuringBombe4_2()
 {
-    testStart("Turing Bombe 4B");
+    testStart("Turing Bombe 4-2");
     // Just one permutation for speed...
     // Note: permutations will be destroyed as part of the process, recipe will not
     LinkedList* permutations=linkedListCreate();
@@ -568,42 +503,33 @@ void testTuringBombe4B()
     p[3]=4; // V
     linkedListAppendObject(permutations, (void*)p);
 
-    TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4, testTuringCrib4B, 0, 1);
+    TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4A, testTuringCrib4B, 0, 1);
     recipe->customPermutations=permutations;
     LinkedList* results=linkedListCreate();
     turingBombe(*recipe, results);
-    assertIntEquals(6, linkedListLength(results));
+    turingReport(MESSAGEFORMAT_KRIEGSMARINE);
 
-    testPrintTuringResults(results);
-
+    assertIntEquals(1, linkedListLength(results));
     TuringResult* best=linkedListObjectAt(results, 0);
-    Enigma* enigma=createEnigmaM3();
-    setEnigma(enigma, &best->settings);
-    encodeDecode(enigma);
-    assertStringEquals(testTuringExpected4B, toString(enigma));
-    destroyEnigma(enigma);
+    assertStringEquals(testTuringExpected4A, best->decoded);
 
     linkedListDestroy(results, true);
+    destroyPermutations(recipe->customPermutations);
     destroyTuringRecipe(recipe);
     testWrapUp();
 }
 
 /**************************************************************************************************\
 * 
-* Test Turing Bombe 4D - No steckers used
+* Test Turing Bombe 4_3 - No steckers used
 * Crib at pos 0, ring R2 changes at char 5, R3 at char 6 (double step)
 * Use simulator: https://www.101computing.net/enigma-machine-emulator/
+* No solutions found because of the 3rd ring moveing
 * 
 \**************************************************************************************************/
-
-// I III II, R AAA, G QUA, NO steckers                             
-char* testTuringCipher4D    ="PHDESHDKGEHWBZRYEYIFWADIEHLULMZPQFNHVDZIWENQNBUTEYJSJYJVPTQV"
-                             "ZLZITVCODDIGMWOZMMIAJTIDKEIJRTSTFTGFTGSYUEKAGKTPXCODFIYJOMTD"
-                             "OJLOFFZBTBNWDLWTCNXOOLBZDVKAAACXZZRSFRUUNWKCCVYAVOFK";                         
-
-void testTuringBombe4D()
+void testTuringBombe4_3()
 {
-    testStart("Turing Bombe 4D");
+    testStart("Turing Bombe 4_3");
     // Just one permutation for speed...
     // Note: permutations will be destroyed as part of the process, recipe will not
     LinkedList* permutations=linkedListCreate();
@@ -615,15 +541,107 @@ void testTuringBombe4D()
     p[3]=1; // II
     linkedListAppendObject(permutations, (void*)p);
 
-    TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4D, testTuringCrib4B, 0, 1);
-    recipe->customPermutations=permutations;
-    LinkedList* results=linkedListCreate();
+    TuringRecipe* recipe        =createDefaultTuringRecipe(testTuringCipher4B, testTuringCrib4B, 0, 1);
+    recipe->customPermutations  =permutations;
+    LinkedList* results         =linkedListCreate();
     turingBombe(*recipe, results);
+    turingReport(MESSAGEFORMAT_KRIEGSMARINE);
 
     // Because R3 turns, no solutions are found
     assertIntEquals(0, linkedListLength(results));
 
+    // Take into account Ringstellung of R2
+    recipe->startR2='A';
+    recipe->endR2  ='C';
+    turingBombe(*recipe, results);
+    turingReport(MESSAGEFORMAT_KRIEGSMARINE);
+
+    // Now one solution is found
+    assertIntEquals(1, linkedListLength(results));
+    TuringResult* best=linkedListObjectAt(results, 0);
+    assertStringEquals(testTuringExpected4A, best->decoded);
+
     linkedListDestroy(results, true);
+    destroyPermutations(recipe->customPermutations);
+    destroyTuringRecipe(recipe);
+    testWrapUp();
+}
+
+
+/**************************************************************************************************\
+* 
+* Test turing bombe without knowledge on where to look for the CRIB, 2 valid results
+* 
+\**************************************************************************************************/
+void testTuringBombe4_4()
+{
+    testStart("Turing Bombe++ 4_4");
+    // Just one permutation for speed...
+    // Note: permutations will be destroyed as part of the process, recipe will not
+    LinkedList* permutations=linkedListCreate();
+    int* p;
+    p=malloc(4*sizeof(int));
+    p[0]=1; // UKW B
+    p[1]=2; // III
+    p[2]=1; // II
+    p[3]=4; // V
+    linkedListAppendObject(permutations, (void*)p);
+
+    // Request scanning
+    TuringRecipe* recipe        =createDefaultTuringRecipe(testTuringCipher4A, testTuringCrib4A, -1, 1);
+    recipe->startCribPosition   =80;
+    recipe->endCribPosition     =90;
+    recipe->customPermutations  =permutations;
+    LinkedList* results=linkedListCreate();
+    turingBombe(*recipe, results);
+    turingReport(MESSAGEFORMAT_KRIEGSMARINE);
+
+    assertIntEquals(2, linkedListLength(results));
+    TuringResult* best=linkedListObjectAt(results, 0);
+    assertStringEquals(testTuringExpected4A, best->decoded);
+
+    linkedListDestroy(results, true);
+    destroyPermutations(recipe->customPermutations);
+    destroyTuringRecipe(recipe);
+    testWrapUp();
+}
+
+/**************************************************************************************************\
+* 
+* Test turing bombe without knowledge on where to look for the CRIB
+* 
+\**************************************************************************************************/
+void testTuringBombe4_5()
+{
+    testStart("Turing Bombe++ 4_2");
+    // Just one permutation for speed...
+    // Note: permutations will be destroyed as part of the process, recipe will not
+    LinkedList* permutations=linkedListCreate();
+    int* p;
+    p=malloc(4*sizeof(int));
+    p[0]=1; // UKW B
+    p[1]=2; // III
+    p[2]=1; // II
+    p[3]=3; // IV
+    linkedListAppendObject(permutations, (void*)p);
+
+    // Request scanning
+    TuringRecipe* recipe        =createDefaultTuringRecipe(testTuringCipher4C, testTuringCrib4A, -1, 1);
+    recipe->startCribPosition   =80;
+    recipe->endCribPosition     =90;
+    recipe->startR2             ='F';   // Cheat
+    recipe->endR2               ='F';
+    recipe->customPermutations  =permutations;
+    LinkedList* results=linkedListCreate();
+    turingBombe(*recipe, results);
+    assertIntEquals(1, linkedListLength(results));
+    turingReport(MESSAGEFORMAT_KRIEGSMARINE);
+ 
+    TuringResult* best=linkedListObjectAt(results, 0);
+    assertStringEquals(testTuringPlain4, best->decoded);
+
+    linkedListDestroy(results, true);
+    destroyPermutations(recipe->customPermutations);
     destroyTuringRecipe(recipe);
     testWrapUp();
 }
@@ -638,56 +656,13 @@ void testTuringCribFit()
 {
     testStart("Turing CribFit");
 
-    LinkedList* positions=turingCribFit(testTuringCrib4B, testTuringCipher4D);
+    LinkedList* positions=turingCribFit(testTuringCrib4B, testTuringCipher4B);
     assertIntEquals(52, linkedListLength(positions));
     assertIntEquals(0, *((int*)linkedListObjectAt(positions, 0)));
     
     testWrapUp();
 }  
 
-/**************************************************************************************************\
-* 
-* Test turing bombe without knowledge on where to look for the CRIB
-* 
-\**************************************************************************************************/
-
-void testTuringBombe5()
-{
-    testStart("Turing Bombe++");
-    // Just one permutation for speed...
-    // Note: permutations will be destroyed as part of the process, recipe will not
-    LinkedList* permutations=linkedListCreate();
-    int* p;
-    p=malloc(4*sizeof(int));
-    p[0]=1; // UKW B
-    p[1]=2; // III
-    p[2]=1; // II
-    p[3]=4; // V
-    linkedListAppendObject(permutations, (void*)p);
-
-    // Request scanning
-    TuringRecipe* recipe        =createDefaultTuringRecipe(testTuringCipher4, testTuringCrib4A, -1, 1);
-    recipe->startCribPosition   =80;
-    recipe->endCribPosition     =90;
-    recipe->customPermutations  =permutations;
-    LinkedList* results=linkedListCreate();
-    turingBombe(*recipe, results);
-    assertIntEquals(2, linkedListLength(results));
- 
-    TuringResult* best=linkedListObjectAt(results, 0);
-
-    testPrintTuringResults(results);
-
-    Enigma* enigma=createEnigmaM3();
-    setEnigma(enigma, &best->settings);
-    encodeDecode(enigma);
-    assertStringEquals(testTuringExpected4A, toString(enigma));
-    destroyEnigma(enigma);
-
-    linkedListDestroy(results, true);
-    destroyTuringRecipe(recipe);
-    testWrapUp();
-}
 
 /**************************************************************************************************\
 * 
@@ -707,12 +682,12 @@ void testTuring()
     testTuringFindCribCircles3();
     testTuringValidateHypothesis();
     testTuringBombe1();
-    testTuringBombe2();
-    testTuringBombe4A();
-    testTuringBombe4B();
-    testTuringBombe4D();
+    testTuringBombe4_1();
+    testTuringBombe4_2();
+    testTuringBombe4_3();
+    testTuringBombe4_4();
+    testTuringBombe4_5();
     testTuringCribFit();
-    testTuringBombe5();
 
     moduleTestWrapUp();
 }

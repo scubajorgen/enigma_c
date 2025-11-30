@@ -34,10 +34,11 @@
 /** Defines the method for decrypting the engima cipher */
 typedef struct
 {
-    IocRecipe       recipe;
-    LinkedList*     permutations;               // List of Walze permutations
-    int             knownSteckerBrett[MAX_POSITIONS];
-    int             numberOfKnownSteckers;
+    IocRecipe       recipe;                             // The recipe
+    LinkedList*     permutations;                       // List of Walze permutations
+    bool            permutationsCreated;                // Permutations created locally
+    int             knownSteckerBrett[MAX_POSITIONS];   // Any known steckers
+    int             numberOfKnownSteckers;              // Number of know steckers
 } Operation;
 
 /**************************************************************************************************\
@@ -1212,10 +1213,12 @@ EnigmaSettings* iocDecodeText(IocRecipe recipe, LinkedList* customPermutations)
     if (customPermutations==NULL)
     {
         permutations=generateWalzePermutations(recipe.enigmaType, recipe.walzeSet);
+        operation.permutationsCreated=true;
     }
     else
     {
         permutations=customPermutations;
+        operation.permutationsCreated=false;
     }
     iocInitialize(recipe, permutations);
 
@@ -1242,10 +1245,9 @@ EnigmaSettings* iocDecodeText(IocRecipe recipe, LinkedList* customPermutations)
     iocDumpHighScores(operation.recipe.numberOfSolutions, true);
     iocBestSettings=iocHighScores[0].settings;
 
-    if (operation.permutations!=NULL)
+    if (operation.permutations!=NULL && operation.permutationsCreated)
     {
-        // TO DO: false?
-        linkedListDestroy(operation.permutations, false);
+        destroyPermutations(operation.permutations);
         operation.permutations=NULL;
     }
     destroyHighScoreList();

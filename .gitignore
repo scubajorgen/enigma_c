@@ -4,11 +4,15 @@
 /test
 /testPerformanceEnigma
 /testPerformanceIoc
+/testPerformanceTuring
+/crack
 
 /enigma.exe
 /test.exe
 /testPerformanceEnigma.exe
 /testPerformanceIoc.exe
+/testPerformanceTuring.exe
+/crack.exe
 
 /obj/
 /backup/

@@ -162,26 +162,48 @@ We can speed up things, by using multithreading, using the WorkDispatcher to off
 Up till 4 threads performance increases linearly with the number of threads (4 threads deliver the same amount as 4 times 1 thread). Up till 10 threads we see another lineair increase, but at a less steeper rate. The maximum is reached with 21 threads: a stunning 608.000 decodes per second (=740% of one thread). Given 12 cores each running one thread, we would expect 1200% at 12 threads, but alas.
 
 ## Cracking ciphers: Turing method
-
-The software implements the method used by Alan Turing to crack the German encoded messages using 'the Bombe'. It assumes a piece of plain text (the crib) that corresponds to part of the cipher text. The software creates the letter links (the menu) and finds all loops in it. It then finds the rotor settings and start position that fullfills the loops.
+### Principle
+The software implements the method used by Alan Turing to crack the German encoded messages using 'the Bombe'. It assumes a piece of plain text (the crib) that corresponds to part of the cipher text. The software creates the letter links (the menu) and finds all loops in it (crib circles). It then finds the rotor settings and start position that fullfills the loops.
 Refer to http://www.rutherfordjournal.org/article030108.html for a good description.
 
-The Turing Bombe crack:
+### Cracking ciphers
+The Turing Bombe can be use to crack Enigma ciphers, if you have a guess of some plain text that matches part of the cipher.
+```
+    char* cipher                ="JKFDGNHJFHWGGBEFOEFB";
+    char* crib                  ="SOMECRIBTEXT"
+    TuringRecipe* recipe        =createDefaultTuringRecipe(cipher, crib, 0, 4);
+    LinkedList* results         =linkedListCreate();
+    turingBombe(recipe, results);
+    // process results
+    linkedListDestroy(results);
+```
+The software looks for the Rotor combination, the Grundstellungen and Ringstellung R3 (fastest Rotor) that results in the solution that fulfill Crib Cricles. Ringstellung R1 has no effect on decryption, so it is fixed. 
+In most situations (short cribs) Ringstellung R2 has no effect, since the chance of movement of Rotor 1 is small. However in some situations it might. In these situations also take Ringstellung R2 into account:
 
-    turingBombe("CIPHERTEXT", "CRIB", 1);
+```
+    TuringRecipe* recipe        =createDefaultTuringRecipe(cipher, crib, 0, 4);
+    recipe->startR2='A';
+    recipe=>endR2='Z';
+```
 
 Note:
 * Pass the cipher text and the crib as uppercase! 
 * Crib length shall not exceed cipher text length. 
 * Crib size should not exceed 26 characters or the loop number will explode. Space is not allocated dynamically, so arrays will get out of bounds
-* The crib start must correspond to position 0 of the cipher. 
-* To use multi core processors increase the number of threads (3rd parameter) to 2, 3 or 4. The routine parses all 60 permutations of 5 rotors and subdivides the work amongst the threads.
+* The crib start must correspond to position of the cipher. If you know the position, enter it (in the example it is 0), if you do not know it, pass -1 and all positions that are valid are processed 
+* Pass the number of threads to use (in the example 4) to distribute work over processor cores
 
-Or simply, for a working example:
+The file testTuring.c contains quite a lot of examples.
 
-    turingExample();
+### Findings
+* Short Cribs often lead to false positives in large number (thousands). Small Cribs may result in a few small Crib Circles and/or short Crib Circles (e.g. A-V-A, E-I-E, K-M-K), which have quite a lot solutions.
+* Large Cribs lead to exploding number of Crib Circles, terminating the software.
+* The sweet spot lies around 20-30 characters. This results in some large crib circles of minimum length ~10.
 
-The software results in all rotor settings that result in the loops defined by the cipher en crib.
+
+### Performance
+TBD
+
 
 ## Cracking ciphertext-only ciphers: Index of Coincidence - James Gillogly
 ### The method

@@ -107,6 +107,7 @@ void gcAthentsEnigma()
     recipe.cipher           =GCXQHWTest.cipher;
     recipe.cipherSize       =MAX_TEXT;
     iocDecodeText(recipe, permutations);
+    destroyPermutations(permutations);
 }
 
 /**************************************************************************************************\
@@ -299,6 +300,7 @@ void gcEnigmaNano()
     recipe->numberOfSolutions=100;
     iocDecodeText(*recipe, permutations);
     destroyIocRecipe(recipe);
+    destroyPermutations(permutations);
 }
 
 /**************************************************************************************************\
@@ -350,6 +352,7 @@ void gcEnigmaNanoReply()
     recipe.cipher           =replyGC6ZZBB;
     recipe.cipherSize       =MAX_TEXT;
     iocDecodeText(recipe, permutations);
+    destroyPermutations(permutations);
 }
 
 
@@ -402,6 +405,7 @@ void gcCodeBreakers()
     recipe.displayFormat    =MESSAGEFORMAT_TEXT;
 //    recipe.cipher           =text11_test;
     iocDecodeText(recipe, permutations);
+    destroyPermutations(permutations);
 }
 
 /**************************************************************************************************\
@@ -456,6 +460,7 @@ void gcEnigma()
     recipe.cipherSize       =MAX_TEXT;
     recipe.displayFormat    =MESSAGEFORMAT_TEXT;
     iocDecodeText(recipe, permutations);
+    destroyPermutations(permutations);
 }
 
 

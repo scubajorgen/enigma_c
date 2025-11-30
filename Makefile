@@ -59,18 +59,22 @@ _TESTENIGMAPERFOBJ  =testPerformanceEnigma.o
 # Performance tests IoC Method
 _TESTIOCPERFOBJ    =testPerformanceIoc.o
 
+# Cipher cracking playground
+_TESTCRACKOBJ     =crack.o
+
 SRCOBJ              = $(patsubst %,$(OBJDIR)/%,$(_SRCOBJ))
 TESTSRCOBJ          = $(patsubst %,$(OBJDIR)/%,$(_TESTSRCOBJ))
 MAINOBJ             = $(patsubst %,$(OBJDIR)/%,$(_MAINOBJ))
 TESTOBJ             = $(patsubst %,$(OBJDIR)/%,$(_TESTOBJ))
 TESTENIGMAPERFOBJ   = $(patsubst %,$(OBJDIR)/%,$(_TESTENIGMAPERFOBJ))
 TESTIOCPERFOBJ      = $(patsubst %,$(OBJDIR)/%,$(_TESTIOCPERFOBJ))
+TESTCRACKOBJ        = $(patsubst %,$(OBJDIR)/%,$(_TESTCRACKOBJ))
 
 OBJ             = $(MAINOBJ) $(SRCOBJ) $(TESTOBJ)
 
 VPATH = ./src ./src/generics ./src/enigma ./src/turing ./src/ioc ./src/various ./src/examples ./src/testframe ./src/test
 
-all: enigma test testPerformanceEnigma testPerformanceIoc
+all: enigma test testPerformanceEnigma testPerformanceIoc crack
 
 enigma: $(MAINOBJ) $(SRCOBJ) 
 	$(CC) $(LDFLAGS) -o $@ $(MAINOBJ) $(SRCOBJ) $(LIBS)
@@ -83,6 +87,9 @@ testPerformanceEnigma: $(TESTENIGMAPERFOBJ) $(SRCOBJ) $(TESTSRCOBJ)
 
 testPerformanceIoc: $(TESTIOCPERFOBJ) $(SRCOBJ) $(TESTSRCOBJ)
 	$(CC) $(LDFLAGS) -o $@ $(TESTIOCPERFOBJ) $(SRCOBJ) $(TESTSRCOBJ) $(LIBS)
+
+crack: $(TESTCRACKOBJ) $(SRCOBJ) $(TESTSRCOBJ)
+	$(CC) $(LDFLAGS) -o $@ $(TESTCRACKOBJ) $(SRCOBJ) $(TESTSRCOBJ) $(LIBS)
 
 $(OBJDIR)/%.o:%.c
 	$(CC) $(CFLAGS) -o $@ $<

@@ -191,6 +191,7 @@ void testCoincidenceDecodeTextInline2(void)
     encodeDecode(enigma);
     assertStringEquals(expected01, toString(enigma));
     destroyIocRecipe(recipe);
+    destroyPermutations(permutations);
     destroyEnigma(enigma);
 
     testWrapUp();

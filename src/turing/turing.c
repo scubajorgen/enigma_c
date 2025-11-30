@@ -1,10 +1,10 @@
 /**************************************************************************************************\
 * 
-* This file implements the method turing used to crack enigma encoded messages. It assumes a crib:
-* a cipher text with corresponding plain text. Both are transformed into a 'menu' containing
-* 'crib circles' or 'loops'. Crib circles are used validate hypotheses regarding the steckered
-* letters: a the hypothesis proves right if the steckered value used as input generates 
-* the same value as output when traversing the loop.
+* This file implements the method turing used to crack enigma encoded messages, assuming a 'crib':
+* this is a piece of plain text that corresponds to part of the cipher. 
+* Both are transformed into a 'menu' containing 'crib circles' or 'loops'. Crib circles are used 
+* validate hypotheses regarding the steckered letters: a the hypothesis proves right if the 
+* steckered value used as input generates the same value as output when traversing the loop.
 * Explained in detail on http://www.ellsbury.com/bombe1.htm
 * 
 \**************************************************************************************************/
@@ -31,6 +31,7 @@ typedef struct
 {
     int     permutationStart;       // Start permutation in the permutations array
     int     permutationEnd;         // End permutation (not included)
+    int     cribPosition;
 } ThreadWork;
 
 char                walzenString[80];
@@ -47,6 +48,7 @@ LinkedLetters       menu[MAX_POSITIONS];
 CribCircleSet       cribCircleSet[MAX_POSITIONS];
 
 LinkedList*         tPermutations;
+bool                tPermutationsCreated;
 
 // Consistency parameters
 int                 mallocs=0;
@@ -135,39 +137,54 @@ void dumpSets()
 
 /**************************************************************************************************\
 * 
-* Total number of crib circles
+* Report on the outcome
 * 
 \**************************************************************************************************/
-int totalNumberOfCribCircles()
+void turingReport(MessageFormat_t format)
 {
-    int sum=0;
-    for (int i=0;i<MAX_POSITIONS;i++)
+    if (linkedListLength(theResults)>0)
     {
-        sum+=cribCircleSet[i].numOfCircles;
+        int count=1;
+        linkedListReset(theResults);
+        while (linkedListHasNext(theResults))
+        {
+            TuringResult*   r=linkedListNextObject(theResults);
+            EnigmaSettings* s=&r->settings;
+            printf("---------------------- Solution %d ------------------------\n", count);
+            printf("%6s %3s %3s %3s - R %2d %2d %2d G %2d %2d %2d, Steckers %s\n",
+                    s->ukw, s->walzen[0]      , s->walzen[1]              , s->walzen[2]              ,
+                    s->ringStellungen[0]      , s->ringStellungen[1]      , s->ringStellungen[2],
+                    s->grundStellungen[0]     , s->grundStellungen[1]     , s->grundStellungen[2]     ,
+                    s->steckers);
+            printf("IoC %f\n", r->score);
+            displayEnigmaMessage(r->decoded, format);
+            count++;
+        }
     }
-    return sum;
+    else
+    {
+        printf("-----------------------------------------------------------\n");
+        printf("Turing Bombe: no solutions found\n");
+    }
 }
 
 /**************************************************************************************************\
 * 
-* Total number of crib circles
+* Helper: Print a found solution
 * 
 \**************************************************************************************************/
-int maxCribCircleSize()
+void turingPrintSolution(TuringResult* result)
 {
-    int max=0;
-    for (int i=0;i<MAX_POSITIONS;i++)
-    {
-        for (int j=0; j<cribCircleSet[i].numOfCircles; j++)
-        {
-            if (cribCircleSet[i].cribCircles[j].circleSize>max)
-            {
-                max=cribCircleSet[i].cribCircles[j].circleSize;
-            }
-        }
-    }
-    return max;
+    EnigmaSettings* settings=&result->settings;
+    logInfo("Solution found: %s - %s %s %s R %d %d %d, G %d %d %d, %s Score %f",
+            settings->ukw,
+            settings->walzen[0], settings->walzen[1], settings->walzen[2],
+            settings->ringStellungen[0], settings->ringStellungen[1], settings->ringStellungen[2],
+            settings->grundStellungen[0], settings->grundStellungen[1], settings->grundStellungen[2],
+            settings->steckers, result->score);
+    logInfo("Solution: %s", result->decoded);
 }
+
 
 /**************************************************************************************************\
 * 
@@ -403,11 +420,11 @@ void followCribCircle(char startChar, LetterLink* currentLink, CribCircle* circl
 
 /**************************************************************************************************\
 * 
+* This is where the magic happens...
 * This method transfers a text and a crib into a list of crib circles; assumes the crib length
 * is smaller than or equal to text length.
 * First the list of letter links is established
 * Then in an iterative way circles are determined, per starting letter (A, B, C, ...)
-* Finally double cirlces are removed
 * 
 \**************************************************************************************************/
 void turingFindCribCircles(char* text, char* crib, int cribStartPosition)
@@ -432,6 +449,42 @@ void turingFindCribCircles(char* text, char* crib, int cribStartPosition)
     {
         logFatal("Invalid crib length\n");
     }
+}
+
+/**************************************************************************************************\
+* 
+* Total number of crib circles
+* 
+\**************************************************************************************************/
+int totalNumberOfCribCircles()
+{
+    int sum=0;
+    for (int i=0;i<MAX_POSITIONS;i++)
+    {
+        sum+=cribCircleSet[i].numOfCircles;
+    }
+    return sum;
+}
+
+/**************************************************************************************************\
+* 
+* Total number of crib circles
+* 
+\**************************************************************************************************/
+int maxCribCircleSize()
+{
+    int max=0;
+    for (int i=0;i<MAX_POSITIONS;i++)
+    {
+        for (int j=0; j<cribCircleSet[i].numOfCircles; j++)
+        {
+            if (cribCircleSet[i].cribCircles[j].circleSize>max)
+            {
+                max=cribCircleSet[i].cribCircles[j].circleSize;
+            }
+        }
+    }
+    return max;
 }
 
 /**************************************************************************************************\
@@ -608,23 +661,6 @@ int turingValidateTheSteckeredValues(SteckeredChars* chars)
 
 /**************************************************************************************************\
 * 
-* Helper: Print a found solution
-* 
-\**************************************************************************************************/
-void turingPrintSolution(TuringResult* result)
-{
-    EnigmaSettings* settings=&result->settings;
-    logInfo("Solution found: %s - %s %s %s R %d %d %d, G %d %d %d, %s Score %f",
-            settings->ukw,
-            settings->walzen[0], settings->walzen[1], settings->walzen[2],
-            settings->ringStellungen[0], settings->ringStellungen[1], settings->ringStellungen[2],
-            settings->grundStellungen[0], settings->grundStellungen[1], settings->grundStellungen[2],
-            settings->steckers, result->score);
-    logInfo("Solution: %s", result->decoded);
-}
-
-/**************************************************************************************************\
-* 
 * Helper: Create array of steckered chars (per thread)
 * 
 \**************************************************************************************************/
@@ -669,9 +705,202 @@ void convertSteckeredCharsToString(SteckeredChars* chars, char* string)
             }
         }
     }
-    string[s*3-1]='\0';
+    // Trailing '\0'
+    if (s>0)
+    {
+        string[s*3-1]='\0';
+    }
+    else
+    {
+        string[0]='\0';
+    }
 }
 
+/**************************************************************************************************\
+* 
+* Recursive procedure trying to find steckers so that all characters in the decoded text
+* correspond one-to-one to the characters in the crib.
+* For characters to correspond there are three posibilities:
+* - No Steckers -> we do not process these, they already correspond
+* - One Stecker -> crib-stecker-walzen-plain or crib-walzen-stecker-plain
+* - Two Steckers -> crib-stecker-walzen-stecker-plain
+* We first look for solutions with one stecker, if not exist two steckers
+*
+* enigma: preset enigma
+* result: the result containing the cipher, crib, etc
+* nextCharIndex: next char in the crib to process
+\**************************************************************************************************/
+bool turingFindRemainingNext(TuringResult* result, Enigma* enigma, int nextCharIndex)
+{
+    char* crib  =theRecipe.crib;
+    int   pos   =result->cribPosition;
+    int   len   =strlen(crib);
+    char* plain =toString(enigma);
+
+    // Find the next char in the crib that does not match the decoded text
+    int nextChar=-1;
+    for (int c=nextCharIndex; c<len && nextChar<0;c++)
+    {
+        if (plain[pos+c]!=crib[c])
+        {
+            nextChar=c;
+        }
+    }
+    
+    bool found=false;
+    if (nextChar>=0)
+    {
+        int* s=enigma->steckerBrett;
+        // Now we are going to look for solutions with one stecker
+        for (int i=0;i<MAX_POSITIONS && !found;i++)   
+        {
+            if (s[i]==i)
+            {
+                for (int j=i+1;j<MAX_POSITIONS && !found;j++)
+                {
+                    if (s[j]==j)
+                    {
+                        // Next free stecker position found: Place Stecker
+                        s[i]=j;                     // Apply Stecker
+                        s[j]=i;
+                        setGrundStellung(enigma, 1, result->settings.grundStellungen[0]);
+                        setGrundStellung(enigma, 2, result->settings.grundStellungen[1]);
+                        setGrundStellung(enigma, 3, result->settings.grundStellungen[2]);
+                        encodeDecode(enigma);       // Try
+                        plain=toString(enigma);
+                        if (plain[pos+nextChar]==crib[nextChar])
+                        {
+                            // One Stecker gives result
+                            // Process rest of the crib
+                            found=turingFindRemainingNext(result, enigma, nextChar+1);
+                            if (!found)
+                            {
+                                // Nope, swap back
+                                s[i]=i;
+                                s[j]=j;
+                            }
+                        }
+                        else
+                        {
+                            s[i]=i;
+                            s[j]=j;
+                        }
+                    }
+                }
+            }
+        }
+        if (!found)
+        {   
+            // No one Stecker solution found; let's try two Steckers
+            for (int i=0;i<MAX_POSITIONS && !found;i++)   
+            {
+                if (s[i]==i)
+                {
+                    for (int j=i+1;j<MAX_POSITIONS && !found;j++)
+                    {
+                        if (s[j]==j)
+                        {
+                            // Place first stecker
+                            s[i]=j;
+                            s[j]=i;
+                            // Try a second stecker
+                            for (int m=i+1; m<MAX_POSITIONS && !found; m++)   
+                            {
+                                if (s[m]==m)
+                                {
+                                    for (int n=m+1; n<MAX_POSITIONS && !found; n++)
+                                    {
+                                        if (s[n]==n)
+                                        {
+                                            s[m]=n;
+                                            s[n]=m;
+                                            setGrundStellung(enigma, 1, result->settings.grundStellungen[0]);
+                                            setGrundStellung(enigma, 2, result->settings.grundStellungen[1]);
+                                            setGrundStellung(enigma, 3, result->settings.grundStellungen[2]);
+                                            encodeDecode(enigma);       // Try
+                                            plain=toString(enigma);
+                                            if (plain[pos+nextChar]==crib[nextChar])  // Check result
+                                            {
+                                                // Two steckers givesolution, process the rest
+                                                found=turingFindRemainingNext(result, enigma, nextChar+1);
+                                                if (!found)
+                                                {
+                                                    /// Nope, swap back
+                                                    s[m]=m;
+                                                    s[n]=n;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                s[m]=m;
+                                                s[n]=n;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (!found)
+                            {
+                                s[i]=i;
+                                s[j]=j;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        // End of Crib: okay
+        found=true;
+    }
+    return found;
+}
+
+
+/**************************************************************************************************\
+* 
+* Usually only the Crib method only finds the Steckers for letters that are part of crib circles.
+* For letters in the crib that are not part of crib circles Steckers are not found. 
+* Therefore the decoded text usually not contains the entire crib.
+* This method tries to find remaining steckers that the entire crib is found in the decoded text.
+* If this is not possible, the solution found is not a real solution.
+* So this function can be used to detect false positives.
+* Note:
+* - Not all steckers may be found: only steckers for crib letters
+* - It is not proven that one single solution exists; for longer cribs it is unlikely though
+* - This method may take some time 
+* 
+\**************************************************************************************************/
+bool turingFindRemainingCribSteckers(TuringResult *result)
+{
+    // Create an enigma to use, program it, and decode current state
+    Enigma* enigma=createEnigmaM3();
+    setEnigma(enigma, &result->settings);
+    encodeDecode(enigma);
+
+    // Characters in the plaintext that are part of a loop are correct
+    // (not steckered or appropriate Stecker applied)
+    // We are going to process characters in the plain text
+    // that are *not* equal to the crib characters and we are going to find
+    // a Stecker or two Steckers that makes the all equal.
+    // If all plaintext characters are correct we have a solutions
+    // Note: for one plain text letter to become equal to the crib there may be more than one stecker
+    // We have to choose the right one that contributes to the solutions
+    // That solves all non-matching crib letters: we do it recursively
+    bool found=turingFindRemainingNext(result, enigma, 0);
+
+    if (found)
+    {
+        // Store the result and the IoC value
+        steckerbrettTableToSteckers(enigma->steckerBrett, result->settings.steckers);
+        strncpy(result->decoded, toString(enigma), MAX_TEXT-1);
+        result->score=iocIndexOfCoincidence(enigma);
+    }
+    destroyEnigma(enigma);
+    return found;
+}
 
 /**************************************************************************************************\
 * 
@@ -683,16 +912,28 @@ void convertSteckeredCharsToString(SteckeredChars* chars, char* string)
 \**************************************************************************************************/
 void processResult(TuringResult* result)
 {
+    logInfo("Candidate found, validating...");
+
+    // DEBUG
+
     Enigma* enigma=createEnigmaM3();
     setEnigma(enigma, &result->settings);
     encodeDecode(enigma);
-    strncpy(result->decoded, toString(enigma), MAX_TEXT-1);
-    result->score=iocIndexOfCoincidence(enigma);
+    char* plain =toString(enigma);
+    strncpy(result->decoded, plain, MAX_TEXT-1);
     destroyEnigma(enigma);
     turingPrintSolution(result);
-    if (theResults!=NULL)
+    // DEBUG END
+
+
+    bool found=turingFindRemainingCribSteckers(result);
+ 
+    //turingPrintSolution(result);
+    if (theResults!=NULL && found)
     {
-        // We add the found result to the list, highest scoring result at the top
+        // We add the found result to the list, highest IoC scoring result at the top
+        // Since results are used by more threads, lock the mutex
+        mutexLock();
         linkedListReset(theResults);
         bool                found   =false;
         LinkedListElement*  next    =NULL;
@@ -709,17 +950,19 @@ void processResult(TuringResult* result)
         newEl->object=(void*)result;
         if (found)
         {
-            logInfo("Inserting result");
+            logInfo("Valid: Inserting result");
             linkedListInsertBefore(theResults, newEl, next);
         }
         else
         {
-            logInfo("Appending result");
+            logInfo("Valid: Appending result");
             linkedListAppend(theResults, newEl);
         }
+        mutexUnlock();
     }
     else
     {
+        logInfo("Not valid");
         free(result);
     }
 }
@@ -727,15 +970,16 @@ void processResult(TuringResult* result)
 /**************************************************************************************************\
 * 
 * Simulates the Turing solution: finds the Walzen, RingStellungen and GrundStellungen based
-* on a 'crib'. It tries permutations [permutationStart, permutationEnd)
+* on a 'crib'. It tries permutations [permutationStart, permutationEnd).
+* The cribPosition parameter is only used for logging in the results
 * 
 \**************************************************************************************************/
-void turingFind(int permutationStart, int permutationEnd)
+void turingFind(int permutationStart, int permutationEnd, int cribPosition)
 {
     int             g1, g2, g3, r1, r2, r3;
     struct timeval  stop, start;
     
-    logInfo("Processing permutations %d-%d", permutationStart, permutationEnd);
+    logInfo("Processing permutations [%d-%d)", permutationStart, permutationEnd);
 
     // Create a set of steckered values (for this thread)
     SteckeredChars* steckeredChars=createSteckeredChars();
@@ -756,7 +1000,7 @@ void turingFind(int permutationStart, int permutationEnd)
             char* ukw=umkehrWalzeNames[permutation[0]];
             sprintf(walzenString,"%6s - %5s %5s %5s", ukw, w1, w2, w3);
            
-            logInfo("Processing walzen permutation %3d:%15s", w, walzenString);
+            logInfo("Processing walzen permutation %3d (#%d/%d) :%15s", w, w-permutationStart+1, permutationEnd-permutationStart, walzenString);
             fflush(stdout);
             gettimeofday(&start, NULL);
             long counting        =0;
@@ -798,10 +1042,10 @@ void turingFind(int permutationStart, int permutationEnd)
                                 
                                 if (found)
                                 {
-                                    mutexLock();
-                                    TuringResult* result=malloc(sizeof(TuringResult));
+                                    TuringResult* result                =malloc(sizeof(TuringResult));
+                                    result->cribPosition                =cribPosition;
                                     result->settings.numberOfWalzen     =3;
-                                    strncpy(result->settings.cipher  , theRecipe.cipher, MAX_TEXT-1);
+                                    strncpy(result->settings.cipher  , theRecipe.cipher, MAX_TEXT);
                                     strncpy(result->settings.walzen[0],  w1, MAX_WALZE_NAME-1);
                                     strncpy(result->settings.walzen[1],  w2, MAX_WALZE_NAME-1);
                                     strncpy(result->settings.walzen[2],  w3, MAX_WALZE_NAME-1);
@@ -814,7 +1058,6 @@ void turingFind(int permutationStart, int permutationEnd)
                                     result->settings.grundStellungen[2] =g3;
                                     convertSteckeredCharsToString(steckeredChars, result->settings.steckers);
                                     processResult(result);
-                                    mutexUnlock();
                                 }
                                 counting++;
                             }
@@ -825,7 +1068,11 @@ void turingFind(int permutationStart, int permutationEnd)
             }
             gettimeofday(&stop, NULL);
             float timeDiff=timeDifference(start, stop);
-            logInfo("Walzen permutation %3d:%15s processed, %.0f ms, count %ld, speed %.0f counts/sec", w, walzenString, timeDiff, counting, 1000*counting/timeDiff);
+            mutexLock();
+            int numberOfResults=linkedListLength(theResults);
+            mutexUnlock();
+            logInfo("Walzen permutation %3d:%15s processed, %.0f ms, decrypts %ld, speed %.0f decrypts/sec; results %d", 
+                    w, walzenString, timeDiff, counting, 1000*counting/timeDiff, numberOfResults);
         }
         else
         {
@@ -845,8 +1092,8 @@ void turingFind(int permutationStart, int permutationEnd)
 void turingWorkerFunction(int worker, int workItem, void* params)
 {
     ThreadWork* item=(ThreadWork*)params;
-    logInfo("Worker %d starting work item %3d-%3d", worker, item->permutationStart, item->permutationEnd);
-    turingFind(item->permutationStart, item->permutationEnd);    
+    logInfo("Worker %d starting work on permutations %3d-%3d", worker, item->permutationStart, item->permutationEnd);
+    turingFind(item->permutationStart, item->permutationEnd, item->cribPosition);    
 }
 
 /**************************************************************************************************\
@@ -867,16 +1114,6 @@ void bombeProcess(int cribPosition)
 {
     turingFindCribCircles(theRecipe.cipher, theRecipe.crib, cribPosition);
     logInfo("Found %d Crib circles, max circle size: %d", totalNumberOfCribCircles(), maxCribCircleSize());
-
-    // Choose from the 5 wehrmacht walzen and 2 UKWs on an M3 Enigma
-    if (theRecipe.customPermutations==NULL)
-    {
-        tPermutations=generateWalzePermutations(ENIGMATYPE_M3, M3_ARMY_1938);
-    }
-    else
-    {
-        tPermutations=theRecipe.customPermutations;
-    }
     
     int numberOfPermutations=linkedListLength(tPermutations);
     logInfo("Walzen/UKW permutations %d", numberOfPermutations);
@@ -888,6 +1125,7 @@ void bombeProcess(int cribPosition)
     {
         work[w].permutationStart  =(w)*numberOfPermutations/numOfThreads;
         work[w].permutationEnd    =(w+1)*numberOfPermutations/numOfThreads;
+        work[w].cribPosition      =cribPosition;
         dispatcherPushWorkItem(turingWorkerFunction, &work[w]);
     }
 
@@ -930,6 +1168,37 @@ LinkedList* turingCribFit(char crib[], char cipher[])
 
 /**************************************************************************************************\
 * 
+* Validates the recipe and transforms it if needed
+* 
+\**************************************************************************************************/
+void validateRecipe(TuringRecipe* recipe)
+{
+    if (recipe->R1>26)
+    {
+        recipe->R1=charToStellung(recipe->R1);
+    }
+    if (recipe->startR2>26)
+    {
+        recipe->startR2=charToStellung(recipe->startR2);
+    }
+    if (recipe->endR2>26)
+    {
+        recipe->endR2=charToStellung(recipe->endR2);
+    }
+    if (recipe->startR3>26)
+    {
+        recipe->startR3=charToStellung(recipe->startR3);
+    }
+    if (recipe->endR3>26)
+    {
+        recipe->endR3=charToStellung(recipe->endR3);
+    }
+    toUpper(recipe->crib);
+    toUpper(recipe->cipher);
+}
+
+/**************************************************************************************************\
+* 
 * Implements the Turing Bombe. Parse recipe to configure the process:
 
 * cipher            : cipher string, upper case!!
@@ -952,23 +1221,44 @@ LinkedList* turingCribFit(char crib[], char cipher[])
 \**************************************************************************************************/
 void turingBombe(TuringRecipe recipe, LinkedList* results)
 {
+    char buffer[30];
     time_t now;
-
+    validateRecipe(&recipe);
     theRecipe           =recipe;
     theResults          =results;
-
-
+    
+    
     time(&now);
-    logInfo("Starting Bombe @ %s", ctime(&now));
+    strftime(buffer, 30, "%H:%M:%S", localtime(&now));
+    logInfo("Starting Bombe @ %s", buffer);
+
+    // Choose from the 5 wehrmacht walzen and 2 UKWs on an M3 Enigma
+    if (theRecipe.customPermutations==NULL)
+    {
+        tPermutations       =generateWalzePermutations(recipe.enigmaType, recipe.walzeSet);
+        tPermutationsCreated=true;
+    }
+    else
+    {
+        tPermutations=theRecipe.customPermutations;
+        tPermutationsCreated=false;
+    }
 
     if (theRecipe.cribPosition>=0)
     {
+        // process just one Crib position
+        time(&now);
+        strftime(buffer, 30, "%H:%M:%S", localtime(&now));
+        logInfo("Starting the Bombe process for '%s' at position %d (#1/1) @ %s", 
+                theRecipe.crib, theRecipe.cribPosition, buffer);
         bombeProcess(theRecipe.cribPosition);
     }
     else
     {
+        // Find the allowed positions where the Crib could fit
         LinkedList* positions=turingCribFit(theRecipe.crib, theRecipe.cipher);
-        // Count the number of positions to process
+        
+        // Count the number of positions to process (i.e. which are between start and end positions)
         int number=0;
         linkedListReset(positions);
         while (linkedListHasNext(positions))
@@ -980,6 +1270,7 @@ void turingBombe(TuringRecipe recipe, LinkedList* results)
             }
         }
         logInfo("Possible crib positions found: %d, within scope: %d", linkedListLength(positions), number);
+        
         // Process each position
         int count=1;
         linkedListReset(positions);
@@ -989,18 +1280,22 @@ void turingBombe(TuringRecipe recipe, LinkedList* results)
             if (*position>=recipe.startCribPosition && *position<=recipe.endCribPosition)
             {
                 time(&now);
-
+                strftime(buffer, 30, "%H:%M:%S", localtime(&now));
                 logInfo("Starting the Bombe process for '%s' at position %d (#%d/%d) @ %s", 
-                        theRecipe.crib, *position, count, number, ctime(&now));
+                        theRecipe.crib, *position, count, number, buffer);
                 bombeProcess(*position);
                 count++;
             }
         }
         linkedListDestroy(positions, true);
     }
-    destroyPermutations(tPermutations);
+    if (tPermutationsCreated)
+    {
+        destroyPermutations(tPermutations);
+    }
     time(&now);
-    logInfo("Finished Bombe @ %s", ctime(&now));
+    strftime(buffer, 30, "%H:%M:%S", localtime(&now));
+    logInfo("Finished Bombe @ %s", buffer);
 }
 
 /**************************************************************************************************\
@@ -1017,8 +1312,8 @@ TuringRecipe* createDefaultTuringRecipe(char* cipher, char* crib, int cribPositi
     }
 
     recipe                      =malloc(sizeof(TuringRecipe));
-    recipe->cipher              =cipher;
-    recipe->crib                =crib;
+    strncpy(recipe->cipher, cipher, MAX_TEXT-1);
+    strncpy(recipe->crib  , crib  , MAX_CRIB_SIZE-1);
     recipe->cribPosition        =cribPosition;
     recipe->startCribPosition   =0;
     recipe->endCribPosition     =MAX_TEXT;

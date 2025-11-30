@@ -231,6 +231,7 @@ void testNgramHillClimb()
     encodeDecode(enigma);
     assertStringEquals(testTextGerman, toString(enigma));
     destroyEnigma(enigma);
+    destroyPermutations(permutations);
 
     // Define recipe using IOC for letterfinding -> fail
     permutations=linkedListCreate();
@@ -248,6 +249,7 @@ void testNgramHillClimb()
     assertStringEquals(failResult, toString(enigma));
     destroyEnigma(enigma);
 
+    destroyPermutations(permutations);
     destroyIocRecipe(recipe);
     testWrapUp();
 }
