@@ -113,6 +113,7 @@ void testStart              (char* name)
     strncpy(testName, name, TEST_NAME_LENGTH);
     testsExecuted++;
     passed=true;
+    logInfo("");
     logInfo("-------------------------------------------------------------------------------");
     logInfo("Testing %s - %-20s", moduleName, testName);
 }
