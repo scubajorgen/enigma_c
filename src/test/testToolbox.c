@@ -293,6 +293,38 @@ void testToolboxRandomIndices()
     testWrapUp();
 }
 
+/**************************************************************************************************\
+* 
+* Test the toolbox: toUpper
+* 
+\**************************************************************************************************/
+char testToUpperLower[]="ThisIsaString :'=";
+char testToUpperExpected[]="THISISASTRING :'=";
+
+void testToolboxToUpper()
+{
+    testStart("toUpper");
+    toUpper(testToUpperLower);
+    assertStringEquals(testToUpperExpected, testToUpperLower);
+
+    testWrapUp();
+}
+
+/**************************************************************************************************\
+* 
+* Test the toolbox: toLower
+* 
+\**************************************************************************************************/
+char testToLowerExpected[]="thisisastring :'=";
+
+void testToolboxToLower()
+{
+    testStart("toLower");
+    toLower(testToUpperLower);
+    assertStringEquals(testToLowerExpected, testToUpperLower);
+
+    testWrapUp();
+}
 
 /**************************************************************************************************\
 * 
@@ -307,5 +339,7 @@ void testToolbox()
     testToolboxCreatePermutations();
     testToolboxCombinePermutations();
     testToolboxRandomIndices();
+    testToolboxToLower();
+    testToolboxToUpper();
     moduleTestWrapUp();
 }

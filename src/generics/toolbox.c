@@ -399,3 +399,35 @@ float timeDifference(struct timeval t0, struct timeval t1)
 {
     return (t1.tv_sec - t0.tv_sec) * 1000.0f + (t1.tv_usec - t0.tv_usec) / 1000.0f;
 }
+
+/**************************************************************************************************\
+*
+* Converts string to upper case. Note: only use to variables
+* 
+\**************************************************************************************************/
+void toUpper(char string[])
+{
+    for (int i=0; i<strlen(string); i++)
+    {
+        if (string[i]>='a' && string[i]<='z')
+        {
+            string[i]=string[i]-'a'+'A';
+        }
+    }
+}
+
+/**************************************************************************************************\
+*
+* Converts string to lower case: only use to variables
+* 
+\**************************************************************************************************/
+void toLower(char string[])
+{
+    for (int i=0; i<strlen(string); i++)
+    {
+        if (string[i]>='A' && string[i]<='Z')
+        {
+            string[i]=string[i]-'A'+'a';
+        }
+    }
+}

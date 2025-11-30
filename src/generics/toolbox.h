@@ -26,4 +26,6 @@ void        printCipher             (char* cipher);
 void        selectRandomIndices     (int* available, int arrayLength, int number, int* resultingIndices);
 int         randint                 (int n);
 float       timeDifference          (struct timeval t0, struct timeval t1);
+void        toUpper                 (char string[]);
+void        toLower                 (char string[]);
 #endif
