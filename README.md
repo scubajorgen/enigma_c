@@ -205,7 +205,7 @@ Cipher      RPVPZILDGRNOPPLOFZNRUALUGCBJFXYNJC...
 Crib        WETTERVORHERSAGEBISKAYA
 ```
 
-First the software creates all letter links with ```turingGenerateLetterLinks()```. For each letter it lists the letters it links to and the position. For example there is a link at position 14 between A and P.
+First the software creates all letter links with ```turingGenerateLetterLinks()```. For each letter it generates a list with the letters it links to including the position in the crib. For example there is a link at position 14 between A and P.
 
 ```
 Link A: 4 - P (14) U (21) Y (22) L (23)
@@ -241,7 +241,11 @@ E ( 11) N ( 19) S ( 13) P (  4) T (  3) V (  7) L ( 15) G (  9) R ( 12) O ( 16) 
 E ( 11) N ( 19) S ( 13) P ( 14) A ( 23) L ( 15) G (  9) R ( 12) O ( 16) E - size 9 
 ...
 ```
-Note that the same circles occur for multipe letters, like:
+
+Next diagram shows the set of crib circles for A, and also the two letterlinks that are not part of a crib circle involving A (U and Y).
+![](images/cribLoops.png)
+
+Note that the same circles occur for multipe letters, like next two which are the same but opposite:
 
 ```
 A ( 14) P (  2) E (  5) Z ( 18) I (  6) R (  9) G ( 15) L ( 23) A
@@ -250,8 +254,32 @@ E (  2) P ( 14) A ( 23) L ( 15) G (  9) R (  6) I ( 18) Z (  5) E
 
 This is deliberate, because in this way the same circle contributes to all sets when finding a solution *per set*.
 
-Now it is simply finding a solution for Rotors, Ringstellungen and Grundstellungen for each set that fulfills the crib cirlces. The function ```turingFInd()``` cycles through all possibilities and for each possibility delegates to ```turingValidateHypotheses()``` to find a solution.
+Now it is simply finding a solution for Rotors, Ringstellungen and Grundstellungen for each set of crib circles has a solution. A solution for a set ideally is one and only one letter that maps to itself when cycling through all its cribcircles (the letter fullfills the hypothesis). The function ```turingFind()``` cycles through all possibilities and for each possibility delegates to ```turingValidateHypotheses()``` to find a solution.
 
+If for the letter A a letter A is found that fulfills are circles, we know that the A is not steckered. If another letter is found, we now that this letter is steckered to A. When following the loops, using the found letter, we find in the same way the steckered counterparts of these letters. Doing this for all sets, this results in this example in next list of found counterparts:
+
+```
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+A???J?H?D??L?NSX?COM?V???U
+```
+We see that A isn't steckered, E is steckered to J, G to H, etc. The Steckers we find are: EJ GH ID OS PX RC TM ZU.
+
+Applying this solution (Rotor combination, Ringstellungen, Grundstellungen, Steckers) to the cipher results in:
+
+```
+Crib        WETTERVORHERSAGEBISKAYA
+Plaintext   KETTERVORHERSAGEQISWAYAXHENTEGIQTE...
+```
+We see that following letters are not correct in the plaintext: K, W and Q. This must be due to Steckers we did not find. We therefore can find the Steckers that correct this mismatch. This is done by the function ```turingFindRemainingCribSteckers()```. If we do not succeed in finding these Steckers it means we have a false positive. This function finds BQ KW as extra Steckers. This seems a obvious solution. However, sometimes it takes two Steckers to correct one mismatching letter.
+
+With these remaining steckers we find the plaintext
+
+```
+Crib        WETTERVORHERSAGEBISKAYA
+Plaintext   WETTERVORHERSAGEBISKAYAXHEUTEGIBTESBLITZUNDDONNERWETTER
+```
+
+The total solution is: UKW B - I II III, R 1 3 3, G 22 22 12, BQ CR DI EJ GH KW MT OS PX UZ
 
 
 ### Findings: Crib size and false positives

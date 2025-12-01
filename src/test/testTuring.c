@@ -270,6 +270,77 @@ void testTuringValidateHypothesis()
 
 /**************************************************************************************************\
 * 
+* Test the hypothesis validation
+* One loop present
+* D (  7) W ( 11) J ( 10) U (  9) Q (  8) D
+* Occurs for D, J, Q, U, W
+* 
+\**************************************************************************************************/
+void testTuringValidateHypothesis2()
+{
+    testStart("hypothesis2");
+    // I II III, UKW B, R 1 24 3 G 22 17 12, bq cr di ej kw mt os px uz gh 
+    // Array  0123456789012345678901234
+    // Cipher RPVPZILDGRNOPPLOFZNRUALUGCBJFXYNJCFDCOIU
+    // Crib   WETTERVORHERSAGEBISKAYA
+    // Plain  WETTERVORHERSAGEBISKAYAXHEUTEGIBTESBLITZ
+    // Pos    1234567890123456789012345
+    turingFindCribCircles("RPVPZILDGRNOPPLOFZNRUALUG", "WETTERVORHERSAGEBISKAYA", 0);
+
+    Enigma* enigma=createEnigmaM3();
+    placeWalze(enigma, 1, "I");
+    placeWalze(enigma, 2, "II");
+    placeWalze(enigma, 3, "III");
+    
+    placeUmkehrWalze(enigma, "UKW B");
+    clearSteckerBrett(enigma);
+    
+    setRingStellung(enigma, 1, 1);
+    setRingStellung(enigma, 2, 24);
+    setRingStellung(enigma, 3, 3);  
+
+    SteckeredChars* chars;
+    int             found;
+    chars   =createSteckeredChars();
+    found   =turingValidateHypotheses(enigma, 22, 17, 12, chars);
+    assertIntEquals     (1, found);
+
+    found=turingValidateTheSteckeredValues(chars);
+    assertIntEquals     (1, found);
+
+    //  Chars contains:
+    //  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    //  A???J?H?D??L?NSX?COM?V???U
+    //  Found steckers      : EJ GH DI OS PX RC UZ TM'
+    //  Not found steckers  : BQ KW
+    //  Unsteckered         : A L N V
+
+    assertIntEquals     ('A', chars['A'-'A'].foundChar);
+    assertIntEquals     ('?', chars['B'-'A'].foundChar);
+    assertIntEquals     ('?', chars['C'-'A'].foundChar);
+    assertIntEquals     ('?', chars['D'-'A'].foundChar);
+    assertIntEquals     ('J', chars['E'-'A'].foundChar);
+    assertIntEquals     ('?', chars['F'-'A'].foundChar);
+    assertIntEquals     ('U', chars['Z'-'A'].foundChar);
+
+    for (int i=0; i<MAX_POSITIONS; i++)
+    {
+        printf("%c", chars[i].startChar);
+    }
+    printf("\n");
+    for (int i=0; i<MAX_POSITIONS; i++)
+    {
+        printf("%c", chars[i].foundChar);
+    }
+    printf("\n");
+
+    free(chars);
+
+    testWrapUp();
+}
+
+/**************************************************************************************************\
+* 
 * Test the turingValidateTheSteckeredValues()
 * 
 \**************************************************************************************************/
@@ -724,6 +795,7 @@ void testTuring()
     testTuringFindCribCircles2();
     testTuringFindCribCircles3();
     testTuringValidateHypothesis();
+    testTuringValidateHypothesis2();
     testTuringValidateTheSteckeredValues();
     testTuringBombe1();
     testTuringBombe4_1();

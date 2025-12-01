@@ -526,19 +526,38 @@ int maxCribCircleSize()
 * enigma        : enigma to use
 * g1, g2, g3    : grundstellung to start with
 * theSet        : the set of crib circles to process
-* theChar       : the character found
+* theChar       : the character found, which is the char after the stecker!
 * chars         : the array of steckered chars to update 
 * 
 \**************************************************************************************************/
-void processIntermediateChars(Enigma* enigma, int g1, int g2, int g3, CribCircleSet* theSet, int theChar, SteckeredChars* chars)
+bool processIntermediateChars(Enigma* enigma, int g1, int g2, int g3, CribCircleSet* theSet, int theChar, SteckeredChars* chars)
 {
+    bool valid=true;
     for (int circle=0; circle<theSet->numOfCircles; circle++)
     {
         CribCircle* cribCircle  =&theSet->cribCircles[circle];
         for (int e=0; e<cribCircle->circleSize; e++)
         {
             int encodedC=cribCircle->orgChars[e]-'A';
-            chars[encodedC].foundChar=theChar+'A';
+            
+            if (chars[encodedC].foundChar=='?')
+            {
+                chars[encodedC].foundChar=theChar+'A';
+            }
+            else if (chars[encodedC].foundChar==theChar+'A')
+            {
+                // already exists
+            }
+            else
+            {
+                // Uhm... This should not occur
+                // But if we disapprove on this, valid solutions get lost
+                // To do: investigate
+                // Probably short circles may lead to this inconsistency
+                valid=false;
+                chars[encodedC].foundChar=theChar+'A';
+            }
+
             setGrundStellung(enigma, 1, g1);
             setGrundStellung(enigma, 2, g2);
             setGrundStellung(enigma, 3, g3);
@@ -547,6 +566,7 @@ void processIntermediateChars(Enigma* enigma, int g1, int g2, int g3, CribCircle
             theChar=encodeCharacter(enigma, theChar);
         }
     }
+    return valid;
 }
 
 /**************************************************************************************************\
@@ -637,10 +657,13 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
                         fc++;
                     }
                 }
-                processIntermediateChars(enigma, g1, g2, g3, theSet, foundChar, chars);
-                if (fc>1)
+                if (fc==1)
                 {
-                    // TO DO WHAT TO DO? found=false; ?
+                    processIntermediateChars(enigma, g1, g2, g3, theSet, foundChar, chars);
+                }
+                else if (fc>1)
+                {
+                    // No unique solution... TO DO WHAT TO DO? found=false; ?
                     logDebug("Found multiple %d - %c->%c circles %d", fc, theSet->startChar, foundChar+'A', theSet->numOfCircles);
                 }
             }
@@ -652,11 +675,17 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
 /**************************************************************************************************\
 * 
 * For a found set of steckered values, check if the set is consistent
-* This is a way to detect false positives
+* This is a way to detect false positives:
 * Startchar: ABCDEFGHIJKLMNOPQRSTUVWXYZ
 * Found1        P          !D
 * Found2       !P           D
 * Found3        X           X
+*
+* Allowed:
+* Startchar: ABCDEFGHIJKLMNOPQRSTUVWXYZ
+* Found1        P           ?
+* Found2        P           D
+* Found3        ?           D
 *
 *
 \**************************************************************************************************/
