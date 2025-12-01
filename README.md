@@ -166,7 +166,7 @@ Up till 4 threads performance increases linearly with the number of threads (4 t
 The software implements the method used by Alan Turing to crack the German encoded messages using 'the Bombe'. It assumes a piece of plain text (the crib) that corresponds to part of the cipher text. The software creates the letter links (the menu) and finds all loops in it (crib circles). It then finds the rotor settings and start position that fullfills the loops.
 Refer to http://www.rutherfordjournal.org/article030108.html for a good description.
 
-### Cracking ciphers
+### Using the software for cracking ciphers
 The Turing Bombe can be use to crack Enigma ciphers, if you have a guess of some plain text that matches part of the cipher.
 ```
     char* cipher                ="JKFDGNHJFHWGGBEFOEFB";
@@ -195,10 +195,82 @@ Note:
 
 The file testTuring.c contains quite a lot of examples.
 
-### Findings
-* Short Cribs often lead to false positives in large number (thousands). Small Cribs may result in a few small Crib Circles and/or short Crib Circles (e.g. A-V-A, E-I-E, K-M-K), which have quite a lot solutions.
+### Inner workings of the software
+Let us for example take ```testTuringBombe1()``` in ```test/testTuring.c```. It contains the crib 'WETTERVORHERSAGEBISKAYA' which corresponds to the cipher starting from position 0.
+
+```
+            0        1         2         3
+Position    1234567890123456789012345678901234...
+Cipher      RPVPZILDGRNOPPLOFZNRUALUGCBJFXYNJC...
+Crib        WETTERVORHERSAGEBISKAYA
+```
+
+First the software creates all letter links with ```turingGenerateLetterLinks()```. For each letter it lists the letters it links to and the position. For example there is a link at position 14 between A and P.
+
+```
+Link A: 4 - P (14) U (21) Y (22) L (23)
+Link B: 1 - F (17)
+Link C: 0 -
+Link D: 1 - O (8)
+Link E: 4 - P (2) Z (5) N (11) O (16)
+Link F: 1 - B (17)
+...
+```
+Based on the links the function ```turingFindCribCircles()``` finds the crib loops. This is quite an extensive recursive function that calculates a set of crib circles for each letter. Basically, here the magic happens. In this example the first sets are:
+
+```
+SET A -   5
+A ( 14) P (  2) E (  5) Z ( 18) I (  6) R (  9) G ( 15) L ( 23) A - size 8
+A ( 14) P (  2) E ( 16) O ( 12) R (  9) G ( 15) L ( 23) A - size 7
+A ( 14) P (  4) T (  3) V (  7) L ( 23) A - size 5
+A ( 14) P ( 13) S ( 19) N ( 11) E (  5) Z ( 18) I (  6) R (  9) G ( 15) L ( 23) A - size 10
+A ( 14) P ( 13) S ( 19) N ( 11) E ( 16) O ( 12) R (  9) G ( 15) L ( 23) A - size 9
+SET B -   0
+SET C -   0
+SET D -   0
+SET E -  10
+E (  2) P (  4) T (  3) V (  7) L ( 15) G (  9) R (  6) I ( 18) Z (  5) E - size 9
+E (  2) P (  4) T (  3) V (  7) L ( 15) G (  9) R ( 12) O ( 16) E - size 8
+E (  2) P ( 13) S ( 19) N ( 11) E - size 4
+E (  2) P ( 14) A ( 23) L ( 15) G (  9) R (  6) I ( 18) Z (  5) E - size 8
+E (  2) P ( 14) A ( 23) L ( 15) G (  9) R ( 12) O ( 16) E - size 7
+E (  5) Z ( 18) I (  6) R (  9) G ( 15) L (  7) V (  3) T (  4) P ( 13) S ( 19) N ( 11) E - size 11
+E (  5) Z ( 18) I (  6) R (  9) G ( 15) L ( 23) A ( 14) P ( 13) S ( 19) N ( 11) E - size 10
+E (  5) Z ( 18) I (  6) R ( 12) O ( 16) E - size 5
+E ( 11) N ( 19) S ( 13) P (  4) T (  3) V (  7) L ( 15) G (  9) R ( 12) O ( 16) E - size 10
+E ( 11) N ( 19) S ( 13) P ( 14) A ( 23) L ( 15) G (  9) R ( 12) O ( 16) E - size 9 
+...
+```
+Note that the same circles occur for multipe letters, like:
+
+```
+A ( 14) P (  2) E (  5) Z ( 18) I (  6) R (  9) G ( 15) L ( 23) A
+E (  2) P ( 14) A ( 23) L ( 15) G (  9) R (  6) I ( 18) Z (  5) E
+```
+
+This is deliberate, because in this way the same circle contributes to all sets when finding a solution *per set*.
+
+Now it is simply finding a solution for Rotors, Ringstellungen and Grundstellungen for each set that fulfills the crib cirlces. The function ```turingFInd()``` cycles through all possibilities and for each possibility delegates to ```turingValidateHypotheses()``` to find a solution.
+
+
+
+### Findings: Crib size and false positives
+The software generated the Crib Circles for each letter: a set of crib circles for the letter 'A', a set for 'B', etc.
+
+A solutions is created by finding the Rotors, Grundstellungen and Ringstellungen for which all Crib Circle Sets give an output that is consistent with the crib circles. To test this, for each set the software looks for a letter that result in it self when passing through all circles in the set.
+
+It is not unusual to have false positives. 
+
+* Short Cribs often lead to false positives in large number (thousands). Small Cribs may result in sets with only a few Crib Circles and/or short Crib Circles (e.g. A-V-A, E-I-E, K-M-K). Short circles have a lot of solutions.
 * Large Cribs lead to exploding number of Crib Circles, terminating the software.
 * The sweet spot lies around 20-30 characters. This results in some large crib circles of minimum length ~10.
+
+Two functions have been made to detect and eliminate false positives.
+
+* ```turingValidateTheSteckeredValues()```
+  This function validates the found solution (the list of steckers). If there are inconsistencies, it means the found solution is a false positive. This is a quick check and is performed first.
+* ```turingFindRemainingCribSteckers()```
+  Only steckers are found for letters that are part of crib loops. This function tries to find steckers for the remaining letters in the crib. Basically this should succeed. If not, we have a false positive. Unfortunately this function can take a long time to execute.
 
 
 ### Performance
@@ -336,8 +408,6 @@ For English text the method works even better as is shown in next graph.
 
 The chance of finding the right solution decreases with the number of letters in the cipher, since randomness in the IoC become a factor, resulting in other solutions than the right one. Especially when the Ringstellung deviates much from 1-1-1. It may be worthwile to use DEPTH_R3 in such cases.
 Assume Ringstellung R3=2 and Grundstellung G3=5 and you assume R3=1 you most probably will find G3=4. This gives almost the same result decryption result, however 1 out of 26 characters is wrong. Similarly if R3=3 and you assume R3=1 you find G3=3 and you end up with the decryption in which 2 out of 26 characters are wrong. In this way, the worst you can get is 13 out of 26 characters wrong, which is half of the text. The IoC than depends on the other half of the text which is right. By using DEPTH_R3, you cycle through all possibilities, also the one in which all characters are right.
-
-
 
 ### IoC vs NGRAMs
 With IoC we measure non-randomness, assuming written language is less random than random text. We try to find permutations which maximizes IoC, hence which maximizes non-randomness. As we've seen this may result in false positives, for example when finding steckers.
