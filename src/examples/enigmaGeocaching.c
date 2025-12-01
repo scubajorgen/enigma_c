@@ -266,7 +266,6 @@ char replyGC6ZZBB_2[]=
 "KLCNSGWSDRJRZOAKPEZIBBGPOHZHNCZGSVGJNDETUHNJVUIP"
 "WEMRZBDDARDHQYZPZHDJWRADMNSSE";
 
-
 void gcEnigmaNano()
 {
     int numOfThreads=6;
@@ -292,7 +291,7 @@ void gcEnigmaNano()
     recipe->evalWalzen       =EVAL_IOC;
     recipe->evalSteckers     =EVAL_IOC;
     recipe->maxSteckers      =13;
-    recipe->maxSteckersInline=9;
+    recipe->maxSteckersInline=10;
     recipe->knownSteckers[0] ='\0';
     recipe->ngramSize        =3;
     strncpy(recipe->ngramSet, "DE", MAX_NGRAMSETSIZE);
@@ -312,7 +311,22 @@ void gcEnigmaNano()
 * - UKW B
 * - up to 13 steckers
 * - Language is probably german
-* NOT SOLVED
+*
+* DO NOT RUN THIS EXAMPLE, IT TAKES INCREDIBLY LONG TIME (ALMOST 9 DAYS) SINCE IT ALMOST
+* BRUTE FORCING. 
+*
+* It almost finds the correct solution:
+* 1: UKW B   I  II III R  1  1 14 G 23 23 10 - AB CD EF GH IJ KL MN OP QR ST UV WX YZ - 0.045331
+* WHEN THIS CACHL NACQHNOULQHP IMMEDIATELY CAGWJMPWZRCRPPLONA FEW MONTHS ABWBTAQDTCEPGBN A 
+* FAMOUS ENIGMM LMGONJYVSYAWDNT MANAGE TO SOUMLSMRGOAORJSOT HAPPY WITH THPQVDWZNNNLBETRNEDOU..
+*
+* The precise solution is easily found using Cryptii:
+* UKW B, I II III, R 1 1 1, G 23 23 23, AB CD EF GH IJ KL MN OP QR ST UV WX YZ
+* 
+* when this cache came online it immediately caught my attention a few months ago i had worked
+* on a famous enigma problem but didnt manage to solve it and i was not happy with that this cache 
+* turned ...
+*
 \**************************************************************************************************/
 void gcEnigmaNanoReply()
 {
@@ -328,13 +342,6 @@ void gcEnigmaNanoReply()
     destroyPermutations(walzePermutations);
     destroyPermutations(walzenPermutations);
 
-
-//    setEvaluationMethod(METHOD_IOC, 13, 13, 0, NULL);
-//    setEvaluationMethod(METHOD_IOC_DEEP, 13, 13, 3, NULL);
-//    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "DE");
-//    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 6, 3, "GB");
-//    setEvaluationMethod(METHOD_IOC_NGRAM, 13, 0, 3, "DE");
-// TO DO
     IocRecipe recipe;
     recipe.enigmaType       =ENIGMATYPE_M3;
     recipe.walzeSet         =M3_ARMY_1938;

@@ -194,7 +194,7 @@ void turingExample2()
     printf("# Crib                      : %s\n",        turingCrib2);
     printf("# Crib position             : %d\n",        turingCribPosition2);
     printf("#####################################################################################\n");
-    TuringRecipe* recipe=createDefaultTuringRecipe(turingTestSettings2.cipher, turingCrib2, turingCribPosition2, 1);
+    TuringRecipe* recipe=createDefaultTuringRecipe(turingTestSettings2.cipher, turingCrib2, turingCribPosition2, 4);
     recipe->startR2='A';
     recipe->endR2='E';
     LinkedList* results=linkedListCreate();
