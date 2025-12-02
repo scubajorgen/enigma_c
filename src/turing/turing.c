@@ -58,8 +58,6 @@ int                 stepMax=0;
 TuringRecipe        theRecipe;
 LinkedList*         theResults;
 
-
-
 /**************************************************************************************************\
 * 
 * Creates a CribCircle instance
@@ -118,6 +116,21 @@ void dumpCircle(CribCircle* circle)
 
 /**************************************************************************************************\
 * 
+* Debugging: show a CribCircle Set
+* 
+\**************************************************************************************************/
+void dumpSet(CribCircleSet* theSet)
+{
+    printf("SET %c - %3d\n", theSet->startChar, theSet->numOfCircles);
+    for (int c=0; c<theSet->numOfCircles; c++)
+    {
+        CribCircle* theCircle=&theSet->cribCircles[c];
+        dumpCircle(theCircle);
+    }
+}
+
+/**************************************************************************************************\
+* 
 * Debugging: show all CribCricles in the set
 * 
 \**************************************************************************************************/
@@ -126,12 +139,7 @@ void dumpSets()
     for (int s=0; s<MAX_POSITIONS; s++)
     {
         CribCircleSet* theSet=&cribCircleSet[s];
-        printf("SET %c - %3d\n", theSet->startChar, theSet->numOfCircles);
-        for (int c=0; c<theSet->numOfCircles; c++)
-        {
-            CribCircle* theCircle=&theSet->cribCircles[c];
-            dumpCircle(theCircle);
-        }
+        dumpSet(theSet);
     }
 }
 
@@ -184,7 +192,6 @@ void turingPrintSolution(TuringResult* result)
             settings->steckers, result->score);
     logInfo("Solution: %s", result->decoded);
 }
-
 
 /**************************************************************************************************\
 * 
@@ -497,7 +504,7 @@ int totalNumberOfCribCircles()
 
 /**************************************************************************************************\
 * 
-* Total number of crib circles
+* longest circle in all sets
 * 
 \**************************************************************************************************/
 int maxCribCircleSize()
@@ -511,6 +518,25 @@ int maxCribCircleSize()
             {
                 max=cribCircleSet[i].cribCircles[j].circleSize;
             }
+        }
+    }
+    return max;
+}
+
+/**************************************************************************************************\
+* 
+* longest circle in the set
+* 
+\**************************************************************************************************/
+int maxSetCribCircleSize(CribCircleSet* set)
+{
+    int max=0;
+
+    for (int j=0; j<set->numOfCircles; j++)
+    {
+        if (set->cribCircles[j].circleSize>max)
+        {
+            max=set->cribCircles[j].circleSize;
         }
     }
     return max;
@@ -598,7 +624,7 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
     for (int set=0; set<MAX_POSITIONS && found; set++)
     {
         CribCircleSet*  theSet=&cribCircleSet[set];
-        if (theSet->numOfCircles>0)
+        if (theSet->numOfCircles>0 && maxSetCribCircleSize(theSet)>=theRecipe.minCribCircleSize)
         {
             // Try the circles. If one circle fails
             // hypothesis is rejected, proceed to next char
@@ -647,24 +673,32 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
             // for all circles in the set
             if (found)
             {
-                int fc=0;
-                int foundChar=-1;
+                int foundCount  =0;
+                int foundChar   =-1;
                 for (int i=0; i<MAX_POSITIONS; i++)
                 {
                     if (theChars[i]==i)
                     {
                         foundChar=i;
-                        fc++;
+                        foundCount++;
                     }
                 }
-                if (fc==1)
+                if (foundCount==0)
                 {
+                    logFatal("This cannot occur");
+                }
+                if (foundCount==1)
+                {
+                    // For a good solutions there is one and only one solution
                     processIntermediateChars(enigma, g1, g2, g3, theSet, foundChar, chars);
                 }
-                else if (fc>1)
+                else if (foundCount>1)
                 {
-                    // No unique solution... TO DO WHAT TO DO? found=false; ?
-                    logDebug("Found multiple %d - %c->%c circles %d", fc, theSet->startChar, foundChar+'A', theSet->numOfCircles);
+                    // This happens when the Walzen, Ringstellungen and Grunstellungen are not okay
+                    // It occasionally happens for sets with few (=1) short crib circles (=2 links)
+                    // So we cannot simply state found=false, because it would ruin a good solution.
+                    // Doing nothing means we do not use this crib circle set
+                    logDebug("Found multiple solutions for set: count=%d num of circles %d longest circle %d", foundCount, theSet->numOfCircles, maxSetCribCircleSize(theSet));
                 }
             }
         }
@@ -1374,7 +1408,7 @@ TuringRecipe* createDefaultTuringRecipe(char* cipher, char* crib, int cribPositi
     recipe->cribPosition        =cribPosition;
     recipe->startCribPosition   =0;
     recipe->endCribPosition     =MAX_TEXT;
-    recipe->minCribCircleSize   =0;
+    recipe->minCribCircleSize   =3;
     recipe->numberOfThreads     =numberOfThreads;
     recipe->R1                  ='A';
     recipe->startR2             ='C';

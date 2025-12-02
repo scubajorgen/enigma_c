@@ -159,6 +159,7 @@ We can speed up things, by using multithreading, using the WorkDispatcher to off
 
 ![](images/encodeDecodePerformanceThreads.png)
 
+
 Up till 4 threads performance increases linearly with the number of threads (4 threads deliver the same amount as 4 times 1 thread). Up till 10 threads we see another lineair increase, but at a less steeper rate. The maximum is reached with 21 threads: a stunning 608.000 decodes per second (=740% of one thread). Given 12 cores each running one thread, we would expect 1200% at 12 threads, but alas.
 
 ## Cracking ciphers: Turing method
@@ -196,7 +197,7 @@ Note:
 The file testTuring.c contains quite a lot of examples.
 
 ### Inner workings of the software
-Let us for example take ```testTuringBombe1()``` in ```test/testTuring.c```. It contains the crib 'WETTERVORHERSAGEBISKAYA' which corresponds to the cipher starting from position 0.
+Let us for example take ```testTuringBombe1()``` in ```test/testTuring.c```. It contains the crib 'WETTERVORHERSAGEBISKAYA' which corresponds to the cipher starting from array position 0 (positions that are generated start at 1).
 
 ```
             0        1         2         3
@@ -243,6 +244,7 @@ E ( 11) N ( 19) S ( 13) P ( 14) A ( 23) L ( 15) G (  9) R ( 12) O ( 16) E - size
 ```
 
 Next diagram shows the set of crib circles for A, and also the two letterlinks that are not part of a crib circle involving A (U and Y).
+
 ![](images/cribLoops.png)
 
 Note that the same circles occur for multipe letters, like next two which are the same but opposite:

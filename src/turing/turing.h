@@ -23,7 +23,7 @@ typedef struct
     int             cribPosition;       // Position of the start of the Crib in the Cipher; -1 if not known (=scan)
     int             startCribPosition;  // If a scan is required, this defines the start
     int             endCribPosition;    // If a scan is required, this defines the end; use MAX_TEXT for the end
-    int             minCribCircleSize;  // Short cribs may result in false positives; minimum crib size; smaller sized cribs are omitted
+    int             minCribCircleSize;  // Few, short cribs may result in false positives; minimum crib size for a set; smaller sized sets are omitted
     int             numberOfThreads;    // Number of threads to use
     int             R1;                 // Value or Ringstellung 1, has no use  
     int             startR2;            // Min R3 to use, usually A
