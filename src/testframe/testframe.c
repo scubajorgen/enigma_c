@@ -137,6 +137,26 @@ void testWrapUp             ()
 
 /**************************************************************************************************\
 * 
+* Assert that given pointers are equal
+* 
+\**************************************************************************************************/
+void assertPointerEquals(void* expected, void* result)
+{
+    if (result==expected)
+    {
+        logDebug("Test %s - %-20s (%03d): Passed!", moduleName, testName, assertionsExecuted);
+    }
+    else
+    {
+        logError("Test %s - %-20s (%03d): FAILED! Pointers not equal", moduleName, testName, assertionsExecuted);
+        passed=false;
+    }
+    assertionsExecuted++;
+}
+
+
+/**************************************************************************************************\
+* 
 * Helper function
 * 
 \**************************************************************************************************/

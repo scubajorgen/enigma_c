@@ -10,6 +10,7 @@ void moduleTestWrapUp       ();
 void testStart              (char* name);
 void testWrapUp             ();
 
+void assertPointerEquals    (void* expected, void* result);
 void assertStringEquals     (char* expected, char* result);
 void assertIsNull           (void* result);
 void assertNotNull          (void* result);
