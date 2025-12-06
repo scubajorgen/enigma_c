@@ -15,6 +15,7 @@ typedef struct LinkedList
 {
     int                 length;
     LinkedListElement*  next;
+    bool                isReverse;
     LinkedListElement*  firstElement;
     LinkedListElement*  lastElement;
 }
@@ -24,11 +25,13 @@ LinkedList*         linkedListCreate        ();
 void                linkedListDestroy       (LinkedList* list, bool destroyObjects);
 void                linkedListAppendObject  (LinkedList* list, void* newObject);
 void                linkedListReset         (LinkedList* list);
+void                linkedListResetReverse  (LinkedList* list);
 void*               linkedListNextObject    (LinkedList* list);
 LinkedListElement*  linkedListNext          (LinkedList* list);
 void                linkedListAppend        (LinkedList* list, LinkedListElement* element);
 void                linkedListInsertAfter   (LinkedList* list, LinkedListElement* element, LinkedListElement* after);
 void                linkedListInsertBefore  (LinkedList* list, LinkedListElement* element, LinkedListElement* before);
+void                linkedListSwap          (LinkedList* list, LinkedListElement* element1, LinkedListElement* element2);
 int                 linkedListHasNext       (LinkedList* list);
 int                 linkedListLength        (LinkedList* list);
 void*               linkedListObjectAt      (LinkedList* list, int index);

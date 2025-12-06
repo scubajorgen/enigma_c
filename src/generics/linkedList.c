@@ -25,6 +25,7 @@ LinkedList* linkedListCreate()
     list->lastElement   =NULL;
     list->length        =0;
     list->next          =NULL;
+    list->isReverse     =false;
     
     return list;
 }
@@ -152,6 +153,150 @@ void linkedListInsertBefore(LinkedList* list, LinkedListElement* element, Linked
     list->length++;
 }
 
+/**************************************************************************************************\
+* 
+* This function swaps two elements in the linked list. It adjusts all points
+* Lot of pointer magic...
+* 
+\**************************************************************************************************/
+void linkedListSwap(LinkedList* list, LinkedListElement* element1, LinkedListElement* element2)
+{
+    LinkedListElement* prv1=element1->previous;
+    LinkedListElement* nxt1=element1->next;
+    LinkedListElement* prv2=element2->previous;
+    LinkedListElement* nxt2=element2->next; 
+
+    // ELEMENT 1
+    if (prv1==NULL)
+    {
+        if (prv2==element1)  // = nxt2==element2
+        {
+            element1->previous  =element2;
+            element2->next      =element1;
+        }
+        else
+        {
+            element1->previous  =prv2;
+            prv2->next          =element1;
+        }
+        list->firstElement=element2;
+    }
+    else if (prv2==element1)
+    {
+        element1->previous      =element2;
+        element2->next          =element1;
+    }
+    else
+    {
+        element1->previous      =prv2;
+        if (prv2!=NULL)
+        {
+            prv2->next          =element1;
+        }
+        else
+        {
+            list->firstElement  =element1;
+        }
+    }
+
+    if (nxt1==NULL)
+    {
+        if (nxt2==element1)
+        {
+            element1->next      =element2;
+            element2->previous  =element1;
+        }
+        else
+        {
+            element1->next      =nxt2;
+            nxt2->previous      =element1;
+        }
+        list->lastElement       =element2;
+    }
+    else if (nxt2==element1)
+    {
+        element1->next          =element2;
+        element2->previous      =element1;
+    }
+    else
+    {
+        element1->next          =nxt2;
+        if (nxt2!=NULL)
+        {
+            nxt2->previous      =element1;
+        }
+        else
+        {
+            list->lastElement   =element1;
+        }
+    }
+
+    // ELEMENT 2
+    if (prv2==NULL)
+    {
+        if (prv1==element2)  // = nxt1==element1
+        {
+            element2->previous  =element1;
+            element1->next      =element2;
+        }
+        else
+        {
+            element2->previous  =prv1;
+            prv1->next          =element2;
+        }
+        list->firstElement      =element1;
+    }
+    else if (prv1==element2)
+    {
+        element2->previous      =element1;
+        element1->next          =element2;
+    }
+    else
+    {
+        element2->previous      =prv1;
+        if (prv1!=NULL)
+        {
+            prv1->next          =element2;
+        }
+        else
+        {
+            list->firstElement  =element2;
+        }
+    }
+
+    if (nxt2==NULL)
+    {
+        if (nxt1==element2)
+        {
+            element2->next      =element1;
+            element1->previous  =element2;
+        }
+        else
+        {
+            element2->next      =nxt1;
+            nxt1->previous      =element2;
+        }
+        list->lastElement=element1;
+    }    
+    else if (nxt1==element2)
+    {
+        element2->next          =element1;
+        element1->previous      =element2;
+    }
+    else
+    {
+        element2->next              =nxt1;
+        if (nxt1!=NULL)
+        {
+            nxt1->previous      =element2;
+        }
+        else
+        {
+            list->lastElement=element2;
+        }
+    }
+}
+
 
 /**************************************************************************************************\
 * 
@@ -193,12 +338,24 @@ void linkedListDestroy(LinkedList* list, bool destroyObjects)
 
 /**************************************************************************************************\
 * 
-* Resets the linked list pointer to the 1st linked list element
+* Resets the linked list pointer to the 1st linked list element for normal iterating
 * 
 \**************************************************************************************************/
 void linkedListReset(LinkedList* list)
 {
-    list->next=list->firstElement;
+    list->next      =list->firstElement;
+    list->isReverse =false;
+}
+
+/**************************************************************************************************\
+* 
+* Resets the linked list pointer to the last linked list element for reverse iterating
+* 
+\**************************************************************************************************/
+void linkedListResetReverse(LinkedList* list)
+{
+    list->next      =list->lastElement;
+    list->isReverse =true;
 }
 
 /**************************************************************************************************\
@@ -208,14 +365,23 @@ void linkedListReset(LinkedList* list)
 \**************************************************************************************************/
 LinkedListElement* linkedListNext(LinkedList* list)
 {
-    LinkedListElement* nextElement =list->next;
-    if (nextElement!=NULL)
+    LinkedListElement* nextElement=list->next;
+    if (!list->isReverse)
     {
-        list->next  =nextElement->next;
+        if (nextElement!=NULL)
+        {
+            list->next  =nextElement->next;
+        }
+    }
+    else
+    {
+        if (nextElement!=NULL)
+        {
+            list->next  =nextElement->previous;
+        }
     }
     return nextElement;
 }
-
 
 /**************************************************************************************************\
 * 
@@ -224,13 +390,11 @@ LinkedListElement* linkedListNext(LinkedList* list)
 \**************************************************************************************************/
 void* linkedListNextObject(LinkedList* list)
 {
-    LinkedListElement* nextElement =list->next;
-    void* object    =NULL;
-    
+    void* object=NULL;
+    LinkedListElement* nextElement=linkedListNext(list);
     if (nextElement!=NULL)
     {
-        object      =nextElement->object;
-        list->next  =nextElement->next;
+        object=nextElement->object;
     }
     return object;
 }
