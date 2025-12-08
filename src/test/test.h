@@ -9,19 +9,23 @@ extern char testTextMax[];
 extern char testTextRandom[];
 extern char testTextEnigma[];
 
-void testToolbox            ();
-void testLinkedList         ();
-void testWorkDispatcher     ();
-void testWalze              ();
-void testUkw                ();
-void testSteckerbrett       ();
-void testEnigma             ();
-void testCoincidence        ();
-void testNgram              ();
-void testTuring             ();
-void testTuringTryOut       ();
+// Helpers
+char*   createSampleText       (char* dest, char* source, int size);
 
-void testEnigmaPerformance  ();
-void testIocPerformance     ();
+void    testToolbox            ();
+void    testLinkedList         ();
+void    testWorkDispatcher     ();
+void    testWalze              ();
+void    testUkw                ();
+void    testSteckerbrett       ();
+void    testEnigma             ();
+void    testCoincidence        ();
+void    testNgram              ();
+void    testTuring             ();
+void    testTuringTryOut       ();
+
+void    testEnigmaPerformance  ();
+void    testIocPerformance     ();
+void    testTuringPerformance  ();
 
 #endif

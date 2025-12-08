@@ -8,7 +8,7 @@
 * Explained in detail on http://www.ellsbury.com/bombe1.htm
 * 
 \**************************************************************************************************/
-
+#include <stdbool.h>
 #include "enigma.h"
 
 #define MAX_CIRCLES         1024
@@ -91,12 +91,18 @@ extern CribCircleSet       cribCircleSet[MAX_POSITIONS];
 void            dumpSets                        ();
 void            dumpMenu                        ();
 SteckeredChars* createSteckeredChars            ();
-int             turingValidateHypotheses        (Enigma* enigma, int g1, int g2, int g3, SteckeredChars* chars);
+int             turingValidateHypotheses        (Enigma* enigma, int g1, int g2, int g3, SteckeredChars* chars, int minCribCircleSize);
 int             turingValidateTheSteckeredValues(SteckeredChars* chars);
 bool            turingIsEqual                   (CribCircle* loop1, CribCircle* loop2);
 void            turingGenerateLetterLinks       (char* cipher, char* crib, int cribStartPosition);
-void            turingFindCribCircles                 (char* cipher, char* crib, int cribStartPosition);
+void            turingFindCribCircles           (char* cipher, char* crib, int cribStartPosition, bool onlyUnique);
 LinkedList*     turingCribFit                   (char crib[], char cipher[]);
+void            convertSteckeredCharsToString   (SteckeredChars* chars, char* string);
+bool            turingFindRemainingCribSteckers (TuringResult *result);
+int             totalNumberOfCribCircles        ();
+int             maxCribCircleSize               ();
+int             minCribCircleSize               ();
+void            printChars                      (SteckeredChars* chars);
 
 // Public functions that do the job
 TuringRecipe*   createDefaultTuringRecipe       (char* cipher, char* crib, int cribPosition, int numberOfThreads);

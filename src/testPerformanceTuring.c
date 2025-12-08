@@ -1,7 +1,7 @@
 /**************************************************************************************************\
 *
-* test.c
-* Module tests
+* testPerformanceTuring.c
+* Turing method performance tests - Main function
 *
 \**************************************************************************************************/
 #include <stdio.h>
@@ -16,32 +16,17 @@
 #include "testframe.h"
 #include "test.h"
 
+
 /**************************************************************************************************\
 * 
-*  The Module test main function, executes all module tests
+* 
 * 
 \**************************************************************************************************/
 int main()
 {
     setLogLevel(LOGLEVEL_INFO);
-    testSessionStart("ENGIMA MODULES");
-
-    // Generics
-    testLinkedList();
-    testToolbox();
-    testWorkDispatcher();
-
-    // Enigma
-    testWalze();
-    testUkw();
-    testSteckerbrett();
-    testEnigma();
-
-    // Solving/decrypting
-    testNgram();
-    testCoincidence();
-    testTuring();
-
+    testSessionStart("TURING PERFORMANCE TEST");
+    testTuringPerformance();
     testSessionWrapUp();
     return 0;
 }

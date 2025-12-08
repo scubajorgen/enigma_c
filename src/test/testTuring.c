@@ -134,7 +134,7 @@ void testTuringFindCribCircles()
     // Text  PQRSABCCHIJK
     // Crib      CABAP
     // Pos   123456789012
-    turingFindCribCircles("PQRSABCCHIJK","CABAP", 4);
+    turingFindCribCircles("PQRSABCCHIJK","CABAP", 4, false);
 
     assertIntEquals     (3, cribCircleSet['A'-'A'].numOfCircles);
     assertIntEquals     (2, cribCircleSet['B'-'A'].numOfCircles);
@@ -172,7 +172,7 @@ void testTuringFindCribCircles2()
     // Create list of loops
     // DASXISTXEINX
     // VJAREVEADJEV
-    turingFindCribCircles("VJAREVEADJEV","DASXISTXEINX", 0);
+    turingFindCribCircles("VJAREVEADJEV","DASXISTXEINX", 0, false);
     assertIntEquals( 3, cribCircleSet['A'-'A'].numOfCircles);
     assertIntEquals( 3, cribCircleSet['V'-'A'].numOfCircles);
     assertIntEquals( 2, cribCircleSet['D'-'A'].numOfCircles);
@@ -202,7 +202,7 @@ void testTuringFindCribCircles3()
     testStart("findLoops 3");
     // ENIGMAPN
     // NPPMAGEI
-    turingFindCribCircles("ENIGMAPN","NPPMAGEI", 0); 
+    turingFindCribCircles("ENIGMAPN","NPPMAGEI", 0, false); 
 
     assertIntEquals( 1, cribCircleSet['A'-'A'].numOfCircles);
     assertIntEquals( 0, cribCircleSet['B'-'A'].numOfCircles);
@@ -216,30 +216,6 @@ void testTuringFindCribCircles3()
 
     testWrapUp();
 }
-
-/**************************************************************************************************\
-* 
-* Helper print found Steckered chars
-* 
-\**************************************************************************************************/
-void printChars(SteckeredChars* chars)
- {
-    char buffer[MAX_POSITIONS+1];
-    for (int i=0; i<MAX_POSITIONS; i++)
-    {
-        buffer[i]=chars[i].startChar;
-    }
-    buffer[MAX_POSITIONS]='\0';
-    logInfo("letter: %s", buffer);
-    for (int i=0; i<MAX_POSITIONS; i++)
-    {
-        buffer[i]=chars[i].foundChar;
-    }
-    buffer[MAX_POSITIONS]='\0';
-    logInfo("found : %s", buffer);
- }
-
-
 
 /**************************************************************************************************\
 * 
@@ -258,7 +234,7 @@ void testTuringValidateHypothesis()
     // Plain  twfjgwdqujwjshp   // G 5 20 12
     // Plain  yavirzjztqvefbc   // G 5 20 1
     // Pos    123456789012
-    turingFindCribCircles("PQRSTAWDQUJWPQR", "WDQUJW", 5);
+    turingFindCribCircles("PQRSTAWDQUJWPQR", "WDQUJW", 5, false);
 
     Enigma* enigma=createEnigmaM3();
     placeWalze(enigma, 1, "I");
@@ -275,7 +251,7 @@ void testTuringValidateHypothesis()
     SteckeredChars* chars;
     int             found;
     chars   =createSteckeredChars();
-    found   =turingValidateHypotheses(enigma, 5, 20, 12, chars);
+    found   =turingValidateHypotheses(enigma, 5, 20, 12, chars, 0);
     assertIntEquals     (1, found);
 
     found=turingValidateTheSteckeredValues(chars);
@@ -284,7 +260,7 @@ void testTuringValidateHypothesis()
     free(chars);
 
     chars   =createSteckeredChars();
-    found   =turingValidateHypotheses(enigma, 5, 20, 1, chars);
+    found   =turingValidateHypotheses(enigma, 5, 20, 1, chars,0);
     assertIntEquals     (1, found);
 
     found=turingValidateTheSteckeredValues(chars);
@@ -309,7 +285,7 @@ void testTuringValidateHypothesis2()
     // Crib   WETTERVORHERSAGEBISKAYA
     // Plain  WETTERVORHERSAGEBISKAYAXHEUTEGIBTESBLITZ
     // Pos    1234567890123456789012345
-    turingFindCribCircles("RPVPZILDGRNOPPLOFZNRUALUG", "WETTERVORHERSAGEBISKAYA", 0);
+    turingFindCribCircles("RPVPZILDGRNOPPLOFZNRUALUG", "WETTERVORHERSAGEBISKAYA", 0, false);
 
     Enigma* enigma=createEnigmaM3();
     placeWalze(enigma, 1, "I");
@@ -326,7 +302,7 @@ void testTuringValidateHypothesis2()
     SteckeredChars* chars;
     int             found;
     chars   =createSteckeredChars();
-    found   =turingValidateHypotheses(enigma, 22, 17, 12, chars);
+    found   =turingValidateHypotheses(enigma, 22, 17, 12, chars, 0);
     assertIntEquals     (1, found);
 
     found=turingValidateTheSteckeredValues(chars);
@@ -367,15 +343,21 @@ void testTuringValidateTheSteckeredValues()
     found=turingValidateTheSteckeredValues(chars);
     assertIntEquals     (1, found);
 
-    chars['D'-'A'].foundChar='P'; // Stecker 1
+    chars['D'-'A'].startChar='D'; // Stecker 1: D-P
+    chars['D'-'A'].foundChar='P';
+    chars['P'-'A'].startChar='P';
     chars['P'-'A'].foundChar='D';
-    chars['A'-'A'].foundChar='Z'; // Stecker 2
+    chars['A'-'A'].startChar='A'; // Stecker 2: A-Z
+    chars['A'-'A'].foundChar='Z';
+    chars['Z'-'A'].startChar='Z';
     chars['Z'-'A'].foundChar='A';
     found=turingValidateTheSteckeredValues(chars);
     assertIntEquals     (1, found);
 
-    chars['X'-'A'].foundChar='Q'; // Stecker 3 - invalid, same letter
-    chars['Y'-'A'].foundChar='Q';    
+    chars['X'-'A'].startChar='X'; // Stecker 3 - invalid, same letter
+    chars['X'-'A'].foundChar='Q';
+    chars['Y'-'A'].startChar='Y';
+    chars['Y'-'A'].foundChar='Q';
     found=turingValidateTheSteckeredValues(chars);
     assertIntEquals     (0, found);
 
@@ -709,7 +691,7 @@ void testTuringValidateHypothesis3()
     // Crib   KOMXADMXUUUBOOTEYFDUUUAUSBXY
     // Plain  
     // Pos    1234567890123456789012345
-    turingFindCribCircles(testTuringCipher4B, testTuringCrib4B, 0);
+    turingFindCribCircles(testTuringCipher4B, testTuringCrib4B, 0, false);
 
     Enigma* enigma=createEnigmaM3();
     placeWalze(enigma, 1, "I");
@@ -726,7 +708,7 @@ void testTuringValidateHypothesis3()
     SteckeredChars* chars;
     int             found;
     chars   =createSteckeredChars();
-    found   =turingValidateHypotheses(enigma, 17, 21, 1, chars);
+    found   =turingValidateHypotheses(enigma, 17, 21, 1, chars, 0);
     assertIntEquals     (1, found);
 
     found=turingValidateTheSteckeredValues(chars);

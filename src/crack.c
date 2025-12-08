@@ -82,7 +82,7 @@ void testTuringBombe6()
 
 void testTuringBombe6test()
 {
-    turingFindCribCircles(testTuringCipher6, testTuringCrib6_1, 92);
+    turingFindCribCircles(testTuringCipher6, testTuringCrib6_1, 92, false);
     dumpSets();
 
     // UKW B - I II III R 1 1 1, G 1 7 20, FO NX RS

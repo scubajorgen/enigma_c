@@ -105,7 +105,7 @@ void turingProve()
     printf("Cipher    : %s\n", turingTestSettings.cipher);
     printf("Plain text: %s\n", turingCrib);
     
-    turingFindCribCircles(turingTestSettings.cipher, turingCrib, 0);
+    turingFindCribCircles(turingTestSettings.cipher, turingCrib, 0, false);
     
     printf("\nMENU (LINKS)\n");
     dumpMenu();

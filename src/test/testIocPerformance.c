@@ -45,13 +45,13 @@ int cipherLengths[]={161, 316, 481, 647, 795, 1463};
 * Create a random section out of the source of length size
 * 
 \**************************************************************************************************/
-char* createSampleText(char* source, int size)
+char* createSampleText(char* dest, char* source, int size)
 {
     int startMax=strlen(source)-size;
     int start=randint(startMax);
-    strncpy(iocTestPlainText, source+start, size);
-    iocTestPlainText[size]='\0';
-    return iocTestPlainText;
+    strncpy(dest, source+start, size);
+    dest[size]='\0';
+    return dest;
 }
 
 /**************************************************************************************************\
@@ -97,7 +97,7 @@ void testIocScoring()
                 int             cipherLength=cipherLengths[index];
                 EnigmaSettings* settings=createRandomSettings(enigma, M3_ARMY_1938, numOfSteckers);
                 printEnigmaSettings(settings, "Test");
-                char*           plain   =createSampleText(SAMPLETEXT, cipherLength);
+                char*           plain   =createSampleText(iocTestPlainText, SAMPLETEXT, cipherLength);
 
                 setEnigma(enigma, settings);
                 setText(enigma, plain);
