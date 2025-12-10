@@ -25,7 +25,7 @@
 int main()
 {
     setLogLevel(LOGLEVEL_INFO);
-    testSessionStart("TURING PERFORMANCE TEST");
+    testSessionStart("TURING PERFORMANCE");
     testTuringPerformance();
     testSessionWrapUp();
     return 0;

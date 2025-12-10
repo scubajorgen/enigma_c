@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include "enigma.h"
 
-#define MAX_CIRCLES         1024
+#define MAX_CIRCLES         2048
 #define MAX_CIRCLE_SIZE     26 
 #define MAX_CRIB_SIZE       50
 #define TURING_MAX_RESULTS  1024
@@ -42,6 +42,22 @@ typedef struct
     char            decoded[MAX_TEXT];
     float           score;
 } TuringResult;
+
+typedef struct
+{
+    int             cribLength;
+    long            decrypts;
+    long            candidates;
+    long            validCandidates;
+    long            solutions;
+    float           milliseconds;
+    int             numberOfCribCircles;
+    int             minCribCircleSize;
+    int             maxCribCircleSize;
+    float           aveCribCircleSize;
+} TuringStats;
+
+
 
 typedef struct
 {
@@ -102,10 +118,12 @@ bool            turingFindRemainingCribSteckers (TuringResult *result);
 int             totalNumberOfCribCircles        ();
 int             maxCribCircleSize               ();
 int             minCribCircleSize               ();
+int             maxSetCribCircleSize            (CribCircleSet* set);
+float           averageCribCircleSize           ();
 void            printChars                      (SteckeredChars* chars);
 
 // Public functions that do the job
 TuringRecipe*   createDefaultTuringRecipe       (char* cipher, char* crib, int cribPosition, int numberOfThreads);
 void            destroyTuringRecipe             (TuringRecipe* recipe);
-void            turingBombe                     (TuringRecipe recipe, LinkedList* results);
+void            turingBombe                     (TuringRecipe recipe, LinkedList* results, TuringStats* statistics);
 void            turingReport                    (MessageFormat_t format);

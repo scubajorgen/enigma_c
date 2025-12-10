@@ -68,7 +68,7 @@ void testTuringBombe6()
 //    recipe->endCribPosition     =10;
     recipe->customPermutations  =permutations;
     LinkedList* results         =linkedListCreate();
-    turingBombe(*recipe, results);
+    turingBombe(*recipe, results, NULL);
     assertIntEquals(2, linkedListLength(results));
 
     turingReport(MESSAGEFORMAT_TEXT);

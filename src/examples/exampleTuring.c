@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <malloc.h>
 
+#include "log.h"
 #include "toolbox.h"
 #include "enigma.h"
 #include "turing.h"
@@ -169,6 +170,7 @@ void turingProve()
 \**************************************************************************************************/
 void turingExample()
 {
+    TuringStats statistics;
     printEnigmaSettings(&turingTestSettings, "TURING BOMBE EXAMPLE 1");
     printf("# Crib                      : %s\n",        turingCrib);
     printf("# Crib position             : %d\n",        turingCribPosition);
@@ -176,8 +178,19 @@ void turingExample()
 
     TuringRecipe* recipe=createDefaultTuringRecipe(turingTestSettings.cipher, turingCrib, turingCribPosition, 4);
     LinkedList* results=linkedListCreate();
-    turingBombe(*recipe, results);
+    turingBombe(*recipe, results, &statistics);
     turingReport(MESSAGEFORMAT_TEXT);
+
+    logInfo("Statistics :");
+    logInfo("Time                       : %.0f ms", statistics.milliseconds);
+    logInfo("Candidates                 : %d", statistics.candidates);
+    logInfo("Valid Candidates           : %d", statistics.validCandidates);
+    logInfo("Solutions                  : %d", statistics.solutions);
+    logInfo("Number of crib circles     : %d", statistics.numberOfCribCircles);
+    logInfo("Min Crib circle length     : %d", statistics.minCribCircleSize);
+    logInfo("Max Crib circle length     : %d", statistics.maxCribCircleSize);
+    logInfo("Average Crib circle length : %.1f", statistics.aveCribCircleSize);
+
     linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);
 }
@@ -198,7 +211,7 @@ void turingExample2()
     recipe->startR2='A';
     recipe->endR2='E';
     LinkedList* results=linkedListCreate();
-    turingBombe(*recipe, results);
+    turingBombe(*recipe, results, NULL);
     turingReport(MESSAGEFORMAT_TEXT);
     linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);
@@ -218,7 +231,7 @@ void turingExample3()
     printf("#####################################################################################\n");
     TuringRecipe* recipe=createDefaultTuringRecipe(turingTestSettings3.cipher, turingCrib3, turingCribPosition3, 3);
     LinkedList* results=linkedListCreate();
-    turingBombe(*recipe, results);
+    turingBombe(*recipe, results, NULL);
     turingReport(MESSAGEFORMAT_TEXT);
     linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);

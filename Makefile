@@ -20,7 +20,8 @@ _SRCOBJ	        = enigma.o \
                   umkehrwalze.o\
                   steckerbrett.o\
                   turing.o\
-                  exampleEnigma.o\
+                  turingCribCircles.o \
+                  exampleEnigma.o \
                   enigmaChallenge.o \
                   enigmaGeocaching.o \
                   exampleTuring.o \

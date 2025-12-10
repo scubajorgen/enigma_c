@@ -514,7 +514,7 @@ void testTuringBombe1()
     TuringRecipe* recipe    =createDefaultTuringRecipe(testTuringCipher1, testTuringCrib1, 0, 1);
     recipe->customPermutations=permutations;
     LinkedList* results     =linkedListCreate();
-    turingBombe(*recipe, results);
+    turingBombe(*recipe, results, NULL);
     turingReport(MESSAGEFORMAT_WEHRMACHT);
 
     assertIntEquals(1, linkedListLength(results));
@@ -579,7 +579,7 @@ void testTuringBombe4_1()
     TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4A, testTuringCrib4A, 86, 1);
     recipe->customPermutations=permutations;
     LinkedList* results=linkedListCreate();
-    turingBombe(*recipe, results);
+    turingBombe(*recipe, results, NULL);
     turingReport(MESSAGEFORMAT_KRIEGSMARINE);
 
     assertIntEquals(2, linkedListLength(results));
@@ -615,7 +615,7 @@ void testTuringBombe4_2()
     TuringRecipe* recipe=createDefaultTuringRecipe(testTuringCipher4A, testTuringCrib4B, 0, 1);
     recipe->customPermutations=permutations;
     LinkedList* results=linkedListCreate();
-    turingBombe(*recipe, results);
+    turingBombe(*recipe, results, NULL);
     turingReport(MESSAGEFORMAT_KRIEGSMARINE);
 
     assertIntEquals(1, linkedListLength(results));
@@ -653,7 +653,7 @@ void testTuringBombe4_3()
     TuringRecipe* recipe        =createDefaultTuringRecipe(testTuringCipher4B, testTuringCrib4B, 0, 1);
     recipe->customPermutations  =permutations;
     LinkedList* results         =linkedListCreate();
-    turingBombe(*recipe, results);
+    turingBombe(*recipe, results, NULL);
     turingReport(MESSAGEFORMAT_KRIEGSMARINE);
 
     // Because R3 turns, no solutions are found
@@ -662,7 +662,7 @@ void testTuringBombe4_3()
     // Take into account Ringstellung of R2
     recipe->startR2='A';
     recipe->endR2  ='C';
-    turingBombe(*recipe, results);
+    turingBombe(*recipe, results, NULL);
     turingReport(MESSAGEFORMAT_KRIEGSMARINE);
 
     // Now one solution is found
@@ -753,7 +753,7 @@ void testTuringBombe4_4()
     recipe->endCribPosition     =90;
     recipe->customPermutations  =permutations;
     LinkedList* results=linkedListCreate();
-    turingBombe(*recipe, results);
+    turingBombe(*recipe, results, NULL);
     turingReport(MESSAGEFORMAT_KRIEGSMARINE);
 
     assertIntEquals(2, linkedListLength(results));
@@ -793,7 +793,7 @@ void testTuringBombe4_5()
     recipe->endR2               ='F';
     recipe->customPermutations  =permutations;
     LinkedList* results=linkedListCreate();
-    turingBombe(*recipe, results);
+    turingBombe(*recipe, results, NULL);
     assertIntEquals(1, linkedListLength(results));
     turingReport(MESSAGEFORMAT_KRIEGSMARINE);
  
