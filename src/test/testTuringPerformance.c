@@ -16,7 +16,7 @@
 #include "toolbox.h"
 
 
-#define TURINGTEST_CIPHER_LENGTH        50  // Uses cipher; not very relevant...
+#define TURINGTEST_CIPHER_LENGTH        100  // Uses cipher; not very relevant...
 
 #define TURINGCRIBTEST_MAX_ITERATIONS   30
 #define TURINGCRIBTEST_MIN_CRIB_LENGTH  5
@@ -33,19 +33,19 @@ char turingTestCipher[MAX_TEXT];
 
 typedef struct
 {
-    int     iteration;
-    int     cribLength;
-    bool    solutionFound;
-    float   bombeTime;
-    bool    ringstellung2Used;
-    int     minCribCircleSize;
-    int     maxCribCircleSize;
-    float   aveCribCircleSize;
-    int     numberOfCribCircles;
-    long    decrypts;
-    long    candidates;
-    long    validCandidates;
-    long    solutions;
+    int     iteration;              // iteration
+    int     cribLength;             // crib length
+    float   overlap;                // overlap between plain text and best solution
+    float   bombeTime;              // total time to find at least one solution
+    bool    passes;                 // number of passes
+    int     minCribCircleSize;      // size of crib with smallest size
+    int     maxCribCircleSize;      // size of crib with longest size
+    float   aveCribCircleSize;      // average size of the crib (a-b-a is size 2)
+    int     numberOfCribCircles;    // total number of cribs; contains doubles
+    long    decrypts;               // total number of decrypts
+    long    candidates;             // candidates found, i.e. solution for crib circles
+    long    validCandidates;        // valid candidates, i.e. that have consistent Steckers
+    long    solutions;              // Solutions found
 } TuringBombResult;
 
 typedef struct
@@ -99,11 +99,12 @@ void testTuringCribCircles()
         for(int iteration=0; iteration<TURINGCRIBTEST_MAX_ITERATIONS; iteration++)
         {
             logInfo("------------------------------------------------------------------------------------");
-            logInfo("Iteration %d %d", iteration, cribLength);
+            logInfo("Crib length %d Iteration %d", cribLength, iteration);
 
             
             createSampleText(turingTestPlainText, TURINGBOMBETEST_SAMPLETEXT, TURINGTEST_CIPHER_LENGTH);
-            memcpy(turingTestCrib, turingTestPlainText+cribPosition, cribLength+1);
+            memcpy(turingTestCrib, turingTestPlainText+cribPosition, cribLength);
+            turingTestCrib[cribLength]='\0';
             generateCipher(turingTestPlainText, turingTestCipher, numOfSteckers);
             logInfo("Plain : %s", turingTestPlainText);
             logInfo("Crib  : %s", turingTestCrib);
@@ -147,9 +148,10 @@ void testTuringBombe()
         for(int iteration=0; iteration<TURINGBOMBETEST_MAX_ITERATIONS; iteration++)
         {
             logInfo("------------------------------------------------------------------------------------");
-            logInfo("Iteration %d", iteration);
+            logInfo("Crib length %d, Iteration %d", cribLength, iteration);
             createSampleText(turingTestPlainText, TURINGBOMBETEST_SAMPLETEXT, TURINGTEST_CIPHER_LENGTH);
-            memcpy(turingTestCrib, turingTestPlainText+cribPosition, cribLength+1);
+            memcpy(turingTestCrib, turingTestPlainText+cribPosition, cribLength);
+            turingTestCrib[cribLength]='\0';
             generateCipher(turingTestPlainText, turingTestCipher, numOfSteckers);
             logInfo("Plain : %s", turingTestPlainText);
             logInfo("Crib  : %s", turingTestCrib);
@@ -158,59 +160,82 @@ void testTuringBombe()
             TuringRecipe* recipe    =createDefaultTuringRecipe(turingTestCipher, turingTestCrib, 0, 6);
             LinkedList*   results   =linkedListCreate();
 
+            int pass            =1;
+            float totalTimeMs   =0;
+            long  decrypts      =0;
             turingBombe(*recipe, results, &bStatistics);
             turingReport(MESSAGEFORMAT_TEXT);
+            totalTimeMs         +=bStatistics.milliseconds;
+            decrypts            +=bStatistics.decrypts;
 
-            
-            bool ringstellung2Used=false;
             if (linkedListLength(results)==0)
             {
-                logInfo("No solution found, incorporating Ringstellung 2");
-                recipe->startR2='A';
-                recipe->endR2='Z';
+                logInfo("No solution found, pass 2: testing other Ringstellung");
+                pass                =2;
+                recipe->startR2     ='M';
+                recipe->endR2       ='M';
                 turingBombe(*recipe, results, &bStatistics);
                 turingReport(MESSAGEFORMAT_TEXT);
-                ringstellung2Used=true;
+                totalTimeMs         +=bStatistics.milliseconds;
+                decrypts            +=bStatistics.decrypts;
             }
 
-            bool solutionFound=false;
+            if (linkedListLength(results)==0)
+            {
+                logInfo("No solution found, pass 3: incorporating all Ringstellungen 2");
+                pass                =3;
+                recipe->startR2     ='A';
+                recipe->endR2       ='Z';
+                turingBombe(*recipe, results, &bStatistics);
+                turingReport(MESSAGEFORMAT_TEXT);
+                totalTimeMs         +=bStatistics.milliseconds;
+                decrypts            +=bStatistics.decrypts;
+            }
+logInfo("*** Pass %d", pass);
+
+            bool    solutionFound   =false;
+            float   maxOverlap      =0.0;
             if (linkedListLength(results)>0)
             {
-                TuringResult* result=(TuringResult*)linkedListObjectAt(results, 0);
-                if (strncmp(result->decoded, turingTestPlainText, MAX_TEXT)==0)
+                linkedListReset(results);
+                while (linkedListHasNext(results) && !solutionFound)
                 {
-                    solutionFound=true;
+                    TuringResult* result=(TuringResult*)linkedListNextObject(results);
+                    float overlap=calculateOverlap(result->decoded, turingTestPlainText);
+                    if (overlap>maxOverlap)
+                    {
+                        maxOverlap=overlap;
+                    }
                 }
-
             }
 
             int resultIndex=(cribLength-TURINGBOMBETEST_MIN_CRIB_LENGTH)*TURINGBOMBETEST_MAX_ITERATIONS+iteration;
             bResults[resultIndex].cribLength            =cribLength;
             bResults[resultIndex].iteration             =iteration;
             bResults[resultIndex].solutions             =linkedListLength(results);
-            bResults[resultIndex].ringstellung2Used     =ringstellung2Used;
-            bResults[resultIndex].solutionFound         =solutionFound;
+            bResults[resultIndex].passes                =pass;
+            bResults[resultIndex].overlap               =maxOverlap;
             bResults[resultIndex].minCribCircleSize     =bStatistics.minCribCircleSize;
             bResults[resultIndex].maxCribCircleSize     =bStatistics.maxCribCircleSize;
             bResults[resultIndex].aveCribCircleSize     =bStatistics.aveCribCircleSize;
             bResults[resultIndex].aveCribCircleSize     =bStatistics.aveCribCircleSize;
             bResults[resultIndex].numberOfCribCircles   =bStatistics.numberOfCribCircles;
-            bResults[resultIndex].bombeTime             =bStatistics.milliseconds/1000;
-            bResults[resultIndex].decrypts              =bStatistics.decrypts;
+            bResults[resultIndex].bombeTime             =totalTimeMs/1000;
+            bResults[resultIndex].decrypts              =decrypts;
             bResults[resultIndex].candidates            =bStatistics.candidates;
             bResults[resultIndex].validCandidates       =bStatistics.validCandidates;
 
             linkedListDestroy(results, true);
             destroyTuringRecipe(recipe);
-
+logInfo("*** Pass %d %d", pass, bResults[resultIndex].passes);
             // Print after each iteration in case stuff blocks
-            printf("crib length, iteration, solution found, ringstellung 2, time (s), number of circles, ");
+            printf("crib length, iteration, overlap, passes, time (s), number of circles, ");
             printf("average circle size, min circle size, max circle size, decrypts, candidates, valid candidates, solutions\n");
             for (int i=0;i<TURINGBOMBETEST_MAX_ITERATIONS*(TURINGBOMBETEST_MAX_CRIB_LENGTH-TURINGBOMBETEST_MIN_CRIB_LENGTH); i++)
             {
-                printf("%d, %d, %d, %d, %f, %d, %f, %d, %d, %ld, %ld, %ld, %ld\n",
+                printf("%d, %d, %.1f, %d, %.1f, %d, %.1f, %d, %d, %ld, %ld, %ld, %ld\n",
                         bResults[i].cribLength, bResults[i].iteration,
-                        bResults[i].solutionFound, bResults[i].ringstellung2Used,
+                        bResults[i].overlap, bResults[i].passes,
                         bResults[i].bombeTime, bResults[i].numberOfCribCircles,
                         bResults[i].aveCribCircleSize, bResults[i].minCribCircleSize, bResults[i].maxCribCircleSize,
                         bResults[i].decrypts, bResults[i].candidates, bResults[i].validCandidates, bResults[i].solutions);
@@ -227,7 +252,7 @@ void testTuringBombe()
 \**************************************************************************************************/
 void testTuringPerformance()
 {
-    srand(1);
+    srand(2);
     moduleTestStart("TURING PERFORMANCE");
     testTuringCribCircles();
     testTuringBombe();

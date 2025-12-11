@@ -651,6 +651,8 @@ void testTuringBombe4_3()
     linkedListAppendObject(permutations, (void*)p);
 
     TuringRecipe* recipe        =createDefaultTuringRecipe(testTuringCipher4B, testTuringCrib4B, 0, 1);
+    recipe->startR2='C';
+    recipe->endR2='C';
     recipe->customPermutations  =permutations;
     LinkedList* results         =linkedListCreate();
     turingBombe(*recipe, results, NULL);
@@ -665,7 +667,7 @@ void testTuringBombe4_3()
     turingBombe(*recipe, results, NULL);
     turingReport(MESSAGEFORMAT_KRIEGSMARINE);
 
-    // Now one solution is found
+    // Now two solutions are found
     assertIntEquals(1, linkedListLength(results));
     TuringResult* best=linkedListObjectAt(results, 0);
     assertStringEquals(testTuringExpected4A, best->decoded);

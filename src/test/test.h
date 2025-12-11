@@ -11,6 +11,7 @@ extern char testTextEnigma[];
 
 // Helpers
 char*   createSampleText       (char* dest, char* source, int size);
+float   calculateOverlap       (char* plaintext, char* try);
 
 void    testToolbox            ();
 void    testLinkedList         ();

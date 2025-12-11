@@ -1058,8 +1058,8 @@ TuringRecipe* createDefaultTuringRecipe(char* cipher, char* crib, int cribPositi
     recipe->minCribCircleSize   =3;
     recipe->numberOfThreads     =numberOfThreads;
     recipe->R1                  ='A';
-    recipe->startR2             ='C';
-    recipe->endR2               ='C';
+    recipe->startR2             ='A';
+    recipe->endR2               ='A';
     recipe->startR3             ='A';
     recipe->endR3               ='Z';
     recipe->customPermutations  =NULL;
