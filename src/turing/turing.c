@@ -53,7 +53,6 @@ long                totalCandidates;
 long                totalValidCandidates;
 long                totalSolutions;
 
-
 /**************************************************************************************************\
 * 
 * Report on the outcome
@@ -419,6 +418,63 @@ void convertSteckeredCharsToString(SteckeredChars* chars, char* string)
 
 /**************************************************************************************************\
 * 
+* Helper: checks if adding given stecker to the SteckerBrett would result in a valid situation
+*
+\**************************************************************************************************/
+bool isValidStecker(int* steckerBrett, int s1, int s2)
+{
+    bool valid=true;
+
+    // same steckers
+    if (s1==s2)
+    {
+        valid=false;
+    }
+    // if already steckerd
+    if (steckerBrett[s1]!=s1) 
+    {
+        valid=false;
+    }
+    if (steckerBrett[s2]!=s2)
+    {
+        valid=false;
+    }
+    // if already steckers elsewhere
+    for (int i=0; i<MAX_POSITIONS && valid; i++)
+    {
+        if ((steckerBrett[i]==s1 && i!=s1) || (steckerBrett[i]==s2 && i!=s2))
+        {
+            valid=false;
+        }
+    }
+    return valid;
+}
+
+
+/**************************************************************************************************\
+* 
+* Helper: steckers
+*
+\**************************************************************************************************/
+void placeStecker(int* steckerBrett, int s1, int s2)
+{
+    steckerBrett[s1]=s2;
+    steckerBrett[s2]=s1;
+}
+
+/**************************************************************************************************\
+* 
+* Helper: remove steckers
+*
+\**************************************************************************************************/
+void removeStecker(int* steckerBrett, int s1, int s2)
+{
+    steckerBrett[s1]=s1;
+    steckerBrett[s2]=s2;
+}
+
+/**************************************************************************************************\
+* 
 * Recursive procedure trying to find steckers so that all characters in the decoded text
 * correspond one-to-one to the characters in the crib.
 * For characters to correspond there are three posibilities:
@@ -436,6 +492,10 @@ bool turingFindRemainingNext(TuringResult* result, Enigma* enigma, int nextCharI
     char* crib  =theRecipe.crib;
     int   pos   =result->cribPosition;
     int   len   =strlen(crib);
+    setGrundStellung(enigma, 1, result->settings.grundStellungen[0]);
+    setGrundStellung(enigma, 2, result->settings.grundStellungen[1]);
+    setGrundStellung(enigma, 3, result->settings.grundStellungen[2]);
+    encodeDecode(enigma);
     char* plain =toString(enigma);
 
     // Find the next char in the crib that does not match the decoded text
@@ -447,103 +507,143 @@ bool turingFindRemainingNext(TuringResult* result, Enigma* enigma, int nextCharI
             nextChar=c;
         }
     }
-    
+
+    // chiperChar -> STECKER2 -> x -> WALZEN ->  y -> STECKER1 -> cribChar 
     bool found=false;
     if (nextChar>=0)
     {
-        int* s=enigma->steckerBrett;
-        // Now we are going to look for solutions with one stecker
-        for (int i=0;i<MAX_POSITIONS && !found;i++)   
+        int* sb=enigma->steckerBrett;
+        int  cipherPos  =nextChar+pos;
+        int  cribChar   =crib[nextChar]-'A';
+        int  plainChar  =plain[cipherPos]-'A';
+        int  cipherChar =theRecipe.cipher[cipherPos]-'A';
+        logDebug("Pos %d cribChar %c plainChar %c cipherChar %c", cipherPos, cribChar+'A', plainChar+'A', cipherChar+'A');
+
+        int x;
+        int y;
+       
+        // Assumption: No STECKER1 => y = cribChar, find STECKER2
+        if (sb[cribChar]==cribChar) // check the assumption
         {
-            if (s[i]==i)
+            setGrundStellung(enigma, 1, result->settings.grundStellungen[0]);
+            setGrundStellung(enigma, 2, result->settings.grundStellungen[1]);
+            setGrundStellung(enigma, 3, result->settings.grundStellungen[2]);
+            advances(enigma, cipherPos+1);
+            x=encodeCharacter(enigma, cribChar);
+            if (isValidStecker(sb, x, cipherChar))
             {
-                for (int j=i+1;j<MAX_POSITIONS && !found;j++)
+                logDebug("Path 1, pos %d (%d): Potential Stecker 2 %c-%c", nextChar, cipherPos, x+'A', cipherChar+'A');
+                placeStecker(sb, x, cipherChar);
+                found=turingFindRemainingNext(result, enigma, nextChar+1);
+                if (found)
                 {
-                    if (s[j]==j)
-                    {
-                        // Next free stecker position found: Place Stecker
-                        s[i]=j;                     // Apply Stecker
-                        s[j]=i;
-                        setGrundStellung(enigma, 1, result->settings.grundStellungen[0]);
-                        setGrundStellung(enigma, 2, result->settings.grundStellungen[1]);
-                        setGrundStellung(enigma, 3, result->settings.grundStellungen[2]);
-                        encodeDecode(enigma);       // Try
-                        plain=toString(enigma);
-                        if (plain[pos+nextChar]==crib[nextChar])
-                        {
-                            // One Stecker gives result
-                            // Process rest of the crib
-                            found=turingFindRemainingNext(result, enigma, nextChar+1);
-                            if (!found)
-                            {
-                                // Nope, swap back
-                                s[i]=i;
-                                s[j]=j;
-                            }
-                        }
-                        else
-                        {
-                            s[i]=i;
-                            s[j]=j;
-                        }
-                    }
+                    logDebug("Path 1, pos %d (%d): validated!", nextChar, cipherPos);
+                }
+                else
+                {
+                    removeStecker(sb, x, cipherChar);
                 }
             }
         }
-        if (!found)
-        {   
-            // No one Stecker solution found; let's try two Steckers
-            for (int i=0;i<MAX_POSITIONS && !found;i++)   
+
+        // Assumption: No STECKER2 => x = cipherChar, find STECKER1
+        if (sb[cipherChar]==cipherChar && !found) // Check assumption
+        {         
+            setGrundStellung(enigma, 1, result->settings.grundStellungen[0]);
+            setGrundStellung(enigma, 2, result->settings.grundStellungen[1]);
+            setGrundStellung(enigma, 3, result->settings.grundStellungen[2]);
+            advances(enigma, cipherPos+1);
+            y=encodeCharacter(enigma, cipherChar);
+            if (isValidStecker(sb, y, cribChar))
             {
-                if (s[i]==i)
+                logDebug("Path 2, pos %d (%d): Potential Stecker 1 %c-%c", nextChar, cipherPos, y+'A', cribChar+'A');
+                placeStecker(sb, y, cribChar);
+                found=turingFindRemainingNext(result, enigma, nextChar+1);
+                if (found)
                 {
-                    for (int j=i+1;j<MAX_POSITIONS && !found;j++)
+                    logDebug("Path 2, pos %d (%d): validated!", nextChar, cipherPos);
+                }
+                else
+                {
+                    removeStecker(sb, y, cribChar);
+                }
+            }
+        }
+
+        // Assumption: we need two steckers STECKER2, STECKER1
+        if (!found)
+        {
+            setGrundStellung(enigma, 1, result->settings.grundStellungen[0]);
+            setGrundStellung(enigma, 2, result->settings.grundStellungen[1]);
+            setGrundStellung(enigma, 3, result->settings.grundStellungen[2]);
+            advances(enigma, cipherPos+1);
+            if (sb[cipherChar]!=cipherChar) // There is already a STECKER2
+            {
+                y=encodeCharacter(enigma, cipherChar);
+                if (sb[y]==y && isValidStecker(sb, y, cribChar))
+                {
+                    logDebug("Path 3, pos %d (%d): Potential Stecker 1 %c %c, Given Stecker 2 %c %c", 
+                            nextChar, cipherPos, y+'A', cribChar+'A', cipherChar+'A', sb[cipherChar]+'A');
+                    placeStecker(sb, y, cribChar);
+                    found=turingFindRemainingNext(result, enigma, nextChar+1);
+                    if (found)
                     {
-                        if (s[j]==j)
+                        logDebug("Path 3, pos %d (%d): validated!", nextChar, cipherPos);
+                    }
+                    else
+                    {
+                        removeStecker(sb, y, cribChar);
+                    }
+                }
+            }
+            else if (sb[cribChar]!=cribChar) // There is already a STECKER1
+            {
+                x=encodeCharacter(enigma, cribChar);
+                if (sb[x]==x && isValidStecker(sb, x, cipherChar))
+                {
+                    logDebug("Path 4, pos %d (%d): Potential Stecker 1 %c %c, Given Stecker 1 %c %c",
+                            nextChar, cipherPos, x+'A', cipherChar+'A', cribChar+'A', sb[cribChar]+'A');
+                    placeStecker(sb, x, cipherChar);
+                    found=turingFindRemainingNext(result, enigma, nextChar+1);
+                    if (found)
+                    {
+                        logDebug("Path 4, pos %d (%d): validated!", nextChar, cipherPos);
+                    }
+                    else
+                    {
+                        removeStecker(sb, x, cipherChar);
+                    }
+                }
+            }
+            else // No STECKER1 and no STECKER2
+            {
+                // We try the STECKER2 counterpart for cipherChar and work our way to the crib
+                for (int s2b=0; s2b<MAX_POSITIONS && !found; s2b++)
+                {
+                    if (sb[s2b]==s2b && s2b!=cipherChar)
+                    {
+                        setGrundStellung(enigma, 1, result->settings.grundStellungen[0]);
+                        setGrundStellung(enigma, 2, result->settings.grundStellungen[1]);
+                        setGrundStellung(enigma, 3, result->settings.grundStellungen[2]);
+                        advances(enigma, cipherPos+1);
+
+                        x=s2b;
+                        y=encodeCharacter(enigma, x);
+                        if (sb[y]==y && isValidStecker(sb, y, cribChar) && isValidStecker(sb, cipherChar, s2b))
                         {
-                            // Place first stecker
-                            s[i]=j;
-                            s[j]=i;
-                            // Try a second stecker
-                            for (int m=i+1; m<MAX_POSITIONS && !found; m++)   
+                            logDebug("Path 5, pos %d (%d): Potential Stecker 1 %c %c, Stecker 2 %c-%c", 
+                                    nextChar, cipherPos, y+'A', cribChar+'A', cipherChar+'A', s2b+'A');
+                            placeStecker(sb, y         , cribChar);
+                            placeStecker(sb, cipherChar, s2b);
+                            found=turingFindRemainingNext(result, enigma, nextChar+1);
+                            if (found)
                             {
-                                if (s[m]==m)
-                                {
-                                    for (int n=m+1; n<MAX_POSITIONS && !found; n++)
-                                    {
-                                        if (s[n]==n)
-                                        {
-                                            s[m]=n;
-                                            s[n]=m;
-                                            setGrundStellung(enigma, 1, result->settings.grundStellungen[0]);
-                                            setGrundStellung(enigma, 2, result->settings.grundStellungen[1]);
-                                            setGrundStellung(enigma, 3, result->settings.grundStellungen[2]);
-                                            encodeDecode(enigma);       // Try
-                                            plain=toString(enigma);
-                                            if (plain[pos+nextChar]==crib[nextChar])  // Check result
-                                            {
-                                                // Two steckers givesolution, process the rest
-                                                found=turingFindRemainingNext(result, enigma, nextChar+1);
-                                                if (!found)
-                                                {
-                                                    /// Nope, swap back
-                                                    s[m]=m;
-                                                    s[n]=n;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                s[m]=m;
-                                                s[n]=n;
-                                            }
-                                        }
-                                    }
-                                }
+                                logDebug("Path 5, pos %d (%d): validated!", nextChar, cipherPos);
                             }
-                            if (!found)
+                            else
                             {
-                                s[i]=i;
-                                s[j]=j;
+                                removeStecker(sb, cipherChar, s2b);
+                                removeStecker(sb, y         , cribChar);
                             }
                         }
                     }
@@ -580,6 +680,7 @@ bool turingFindRemainingCribSteckers(TuringResult *result)
     setEnigma(enigma, &result->settings);
     encodeDecode(enigma);
     strncpy(result->decoded, toString(enigma), MAX_TEXT-1);
+    logDebug("%s", result->decoded);
 
     // Characters in the plaintext that are part of a loop are correct
     // (not steckered or appropriate Stecker applied)
@@ -626,6 +727,14 @@ bool processResult(TuringResult* result)
     // Second check for false positives: find remaining steckers
     // This should succeed
     bool found=turingFindRemainingCribSteckers(result);
+/*
+bool found=true;
+Enigma* enigma=createEnigmaM3();
+setEnigma(enigma, &result->settings);
+encodeDecode(enigma);
+strncpy(result->decoded, toString(enigma), MAX_TEXT-1);
+*/
+    result->finalSteckers             =(strlen(result->settings.steckers)+1)/3;
 
     if (theResults!=NULL && found)
     {
@@ -656,12 +765,16 @@ bool processResult(TuringResult* result)
             logDebug("VALID: Appending result");
             linkedListAppend(theResults, newEl);
         }
+        if (linkedListLength(theResults)>TURING_MAX_RESULTS)
+        {
+            linkedListDestroyLastElement(theResults, true);
+        }
         mutexUnlock();
         logInfo("Solution: %s", result->decoded);
     }
     else
     {
-        logDebug("Not valid");
+        logDebug("Not valid or results list full");
         free(result);
     }
     return found;
@@ -762,6 +875,7 @@ void turingFind(int worker, int permutationStart, int permutationEnd, int cribPo
                                     result->settings.grundStellungen[1] =g2;
                                     result->settings.grundStellungen[2] =g3;
                                     convertSteckeredCharsToString(steckeredChars, result->settings.steckers);
+                                    result->initialSteckers             =(strlen(result->settings.steckers)+1)/3;
                                     found=processResult(result);
                                     if (found)
                                     {

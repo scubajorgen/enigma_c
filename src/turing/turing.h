@@ -41,6 +41,8 @@ typedef struct
     int             cribPosition;
     char            decoded[MAX_TEXT];
     float           score;
+    int             initialSteckers;
+    int             finalSteckers;
 } TuringResult;
 
 typedef struct
@@ -102,6 +104,7 @@ typedef struct
 
 extern LinkedLetters       menu[MAX_POSITIONS];
 extern CribCircleSet       cribCircleSet[MAX_POSITIONS];
+extern TuringRecipe        theRecipe;
 
 // Helper functions
 void            dumpSets                        ();

@@ -37,7 +37,7 @@ typedef struct
     int     cribLength;             // crib length
     float   overlap;                // overlap between plain text and best solution
     float   bombeTime;              // total time to find at least one solution
-    bool    passes;                 // number of passes
+    int     passes;                 // number of passes
     int     minCribCircleSize;      // size of crib with smallest size
     int     maxCribCircleSize;      // size of crib with longest size
     float   aveCribCircleSize;      // average size of the crib (a-b-a is size 2)
@@ -46,6 +46,8 @@ typedef struct
     long    candidates;             // candidates found, i.e. solution for crib circles
     long    validCandidates;        // valid candidates, i.e. that have consistent Steckers
     long    solutions;              // Solutions found
+    int     initialNumOfSteckers;   // Number of steckers found when solving the crib circles
+    int     finalNumOfSteckers;     // Number of steckers found after finding remaining
 } TuringBombResult;
 
 typedef struct
@@ -191,20 +193,22 @@ void testTuringBombe()
                 totalTimeMs         +=bStatistics.milliseconds;
                 decrypts            +=bStatistics.decrypts;
             }
-logInfo("*** Pass %d", pass);
 
-            bool    solutionFound   =false;
-            float   maxOverlap      =0.0;
+            float   maxOverlap          =0.0;
+            int     numOfInitialSteckers=0;
+            int     numOfFinalSteckers  =0;
             if (linkedListLength(results)>0)
             {
                 linkedListReset(results);
-                while (linkedListHasNext(results) && !solutionFound)
+                while (linkedListHasNext(results))
                 {
                     TuringResult* result=(TuringResult*)linkedListNextObject(results);
                     float overlap=calculateOverlap(result->decoded, turingTestPlainText);
                     if (overlap>maxOverlap)
                     {
-                        maxOverlap=overlap;
+                        maxOverlap          =overlap;
+                        numOfInitialSteckers=result->initialSteckers;
+                        numOfFinalSteckers  =result->finalSteckers;
                     }
                 }
             }
@@ -224,21 +228,24 @@ logInfo("*** Pass %d", pass);
             bResults[resultIndex].decrypts              =decrypts;
             bResults[resultIndex].candidates            =bStatistics.candidates;
             bResults[resultIndex].validCandidates       =bStatistics.validCandidates;
+            bResults[resultIndex].initialNumOfSteckers  =numOfInitialSteckers;
+            bResults[resultIndex].finalNumOfSteckers    =numOfFinalSteckers;
 
             linkedListDestroy(results, true);
             destroyTuringRecipe(recipe);
-logInfo("*** Pass %d %d", pass, bResults[resultIndex].passes);
+
             // Print after each iteration in case stuff blocks
             printf("crib length, iteration, overlap, passes, time (s), number of circles, ");
-            printf("average circle size, min circle size, max circle size, decrypts, candidates, valid candidates, solutions\n");
+            printf("average circle size, min circle size, max circle size, decrypts, candidates, valid candidates, solutions, initial Steckers, final Steckers\n");
             for (int i=0;i<TURINGBOMBETEST_MAX_ITERATIONS*(TURINGBOMBETEST_MAX_CRIB_LENGTH-TURINGBOMBETEST_MIN_CRIB_LENGTH); i++)
             {
-                printf("%d, %d, %.1f, %d, %.1f, %d, %.1f, %d, %d, %ld, %ld, %ld, %ld\n",
+                printf("%d, %d, %.1f, %d, %.1f, %d, %.1f, %d, %d, %ld, %ld, %ld, %ld, %d, %d\n",
                         bResults[i].cribLength, bResults[i].iteration,
                         bResults[i].overlap, bResults[i].passes,
                         bResults[i].bombeTime, bResults[i].numberOfCribCircles,
                         bResults[i].aveCribCircleSize, bResults[i].minCribCircleSize, bResults[i].maxCribCircleSize,
-                        bResults[i].decrypts, bResults[i].candidates, bResults[i].validCandidates, bResults[i].solutions);
+                        bResults[i].decrypts, bResults[i].candidates, bResults[i].validCandidates, bResults[i].solutions, 
+                        bResults[i].initialNumOfSteckers, bResults[i].finalNumOfSteckers);
             }
         }
     }
@@ -252,7 +259,7 @@ logInfo("*** Pass %d %d", pass, bResults[resultIndex].passes);
 \**************************************************************************************************/
 void testTuringPerformance()
 {
-    srand(2);
+    srand(0);
     moduleTestStart("TURING PERFORMANCE");
     testTuringCribCircles();
     testTuringBombe();

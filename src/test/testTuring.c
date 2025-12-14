@@ -5,6 +5,7 @@
 * 
 \**************************************************************************************************/
 #include <malloc.h>
+#include <string.h>
 
 #include "testframe.h"
 #include "toolbox.h"
@@ -825,6 +826,100 @@ void testTuringCribFit()
     testWrapUp();
 }  
 
+/**************************************************************************************************\
+* 
+* Test turingFindRemainingSteckers
+* 
+\**************************************************************************************************/
+void testTuringFindRemainingSteckers()
+{
+    testStart("RemainingSteckers");
+    TuringResult* result=malloc(sizeof(TuringResult));
+
+    logInfo("%s", testTuringCipher1);
+    logInfo("%s", testTuringPlain1);
+    logInfo("%s", testTuringCrib1);
+
+    // I II III, UKW B, R 1 24 3      G 22 17 12, bq cr di ej kw mt os px uz gh
+    // UKW B   I  II III - R  1  1  3 G 22 20 12, Steckers BQ CR DI EJ GH KW MT OS PX UZ
+    result->settings.numberOfWalzen             =3;
+    strncpy(result->settings.walzen[0]          , "I", MAX_WALZE_NAME);
+    strncpy(result->settings.walzen[1]          , "II", MAX_WALZE_NAME);
+    strncpy(result->settings.walzen[2]          , "III", MAX_WALZE_NAME);
+    strncpy(result->settings.ukw                , "UKW B", MAX_WALZE_NAME);
+    strncpy(result->settings.cipher             , testTuringCipher1, MAX_TEXT-1);
+    strncpy(theRecipe.cipher                    , testTuringCipher1, MAX_TEXT-1);
+    result->settings.grundStellungen[0]         =22;
+    result->settings.grundStellungen[1]         =17;
+    result->settings.grundStellungen[2]         =12;
+    result->settings.ringStellungen[0]          = 1;
+    result->settings.ringStellungen[1]          =24;
+    result->settings.ringStellungen[2]          = 3;
+    result->cribPosition                        =0;
+    result->initialSteckers                     =7;
+    toUpper(testTuringCrib1);
+    strncpy(theRecipe.crib                      ,testTuringCrib1, MAX_CRIB_SIZE);
+    theRecipe.cribPosition                      =0;
+
+    // BQ CR DI EJ GH KW MT OS PX UZ    
+    // One Stecker missing: path 1: no stecker1, find stecker2 (MT)
+    strncpy(result->settings.steckers           ,"BQ CR DI EJ GH KW OS PX UZ", MAX_STECKER_STRING-1);
+    bool found=turingFindRemainingCribSteckers(result);
+    logInfo("Steckers %s", result->settings.steckers);
+    assertIntEquals     (1, found);
+
+    // One Stecker missing: path 2: no stecker2, find stecker1
+    strncpy(result->settings.steckers           ,"CR DI EJ GH KW MT OS PX UZ", MAX_STECKER_STRING-1);
+    found=turingFindRemainingCribSteckers(result);
+    logInfo("Steckers %s", result->settings.steckers);
+    assertIntEquals     (1, found);
+
+    // One Stecker missing: path 3: already stecker 2
+    strncpy(result->settings.steckers           ,"BQ CR DI EJ GH MT OS PX UZ", MAX_STECKER_STRING-1);
+    found=turingFindRemainingCribSteckers(result);
+    logInfo("Steckers %s", result->settings.steckers);
+    assertIntEquals     (1, found);
+
+    // One Stecker missing: path 4: already stecker 1
+    strncpy(result->settings.steckers           ,"BQ CR DI EJ KW MT OS PX UZ", MAX_STECKER_STRING-1);
+    found=turingFindRemainingCribSteckers(result);
+    logInfo("Steckers %s", result->settings.steckers);
+    assertIntEquals     (1, found);
+
+    // One Stecker missing: path 5: no stecker 1 and 2
+    strncpy(result->settings.steckers           ,"BQ DI EJ GH MT OS PX UZ", MAX_STECKER_STRING-1);
+    found=turingFindRemainingCribSteckers(result);
+    logInfo("Steckers %s", result->settings.steckers);
+    assertIntEquals     (1, found);
+
+    // 3 Steckers missing
+    strncpy(result->settings.steckers           ,"BQ CR DI EJ GH KW OS", MAX_STECKER_STRING-1);
+    found=turingFindRemainingCribSteckers(result);
+    logInfo("Steckers %s", result->settings.steckers);
+    assertIntEquals     (1, found);
+
+    // 6 Steckers missing
+    strncpy(result->settings.steckers           ,"BQ CR DI EJ", MAX_STECKER_STRING-1);
+    found=turingFindRemainingCribSteckers(result);
+    logInfo("Steckers %s", result->settings.steckers);
+    assertIntEquals     (1, found);
+
+    // 8 Steckers missing
+    strncpy(result->settings.steckers           ,"BQ CR", MAX_STECKER_STRING-1);
+    found=turingFindRemainingCribSteckers(result);
+    logInfo("Steckers %s", result->settings.steckers);
+    assertIntEquals     (1, found);
+
+    // All Steckers missing
+    strncpy(result->settings.steckers           ,"", MAX_STECKER_STRING-1);
+    found=turingFindRemainingCribSteckers(result);
+    logInfo("Steckers %s", result->settings.steckers);
+    assertIntEquals     (1, found);
+ 
+    free(result);
+    testWrapUp();
+}  
+
 
 /**************************************************************************************************\
 * 
@@ -853,6 +948,7 @@ void testTuring()
     testTuringBombe4_4();
     testTuringBombe4_5();
     testTuringCribFit();
+    testTuringFindRemainingSteckers();
 
     moduleTestWrapUp();
 }
