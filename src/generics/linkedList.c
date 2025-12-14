@@ -418,3 +418,38 @@ int linkedListHasNext(LinkedList* list)
     }
     return linkedListHasNext;
 }
+
+/**************************************************************************************************\
+* 
+* Remove last element from LinkedList and destroy it
+* 
+\**************************************************************************************************/
+void linkedListDestroyLastElement(LinkedList* list, bool destroyObject)
+{
+    LinkedListElement* last         =list->lastElement;
+    if (last!=NULL)
+    {
+        LinkedListElement* beforeLast   =last->previous;
+        if (beforeLast!=NULL)
+        {
+            list->lastElement   =beforeLast;
+            beforeLast->next    =NULL;
+            list->length--;
+        }
+        else
+        {
+            list->firstElement  =NULL;
+            list->lastElement   =NULL;
+            list->length--;
+        }
+        if (destroyObject)
+        {
+            free(last->object);
+        }
+        free(last);
+    }
+    else
+    {
+        logWarning("Removing last element from list: list is empty, nothing removed");
+    }
+}

@@ -261,7 +261,6 @@ void assertLinkedList(LinkedList* list, int expected[10])
     {
         assertIntEquals(expected[i], *(int*)(readElements[9-i]->object));
     }
-
 }
 
 
@@ -377,6 +376,7 @@ void testLinkedListNext()
             count++;
         }
     }
+    linkedListDestroy(list, false);
     testWrapUp();
 }
 
@@ -422,6 +422,65 @@ void testLinkedListNextReverse()
             count++;
         }
     }
+    linkedListDestroy(list, false);
+    testWrapUp();
+}
+
+/**************************************************************************************************\
+* 
+* Test appending of elements, reverse order
+* 
+\**************************************************************************************************/
+void testLinkedListDestroyLastElement()
+{
+    testStart("destroy last");
+    int         objects[5]={0, 1, 2, 3, 4};
+   
+    // Linked list
+    LinkedList* list=linkedListCreate();
+    assertIntEquals(0, linkedListLength(list));
+    linkedListDestroyLastElement(list, false);
+    assertIntEquals(0, linkedListLength(list));
+
+    for (int i=0; i<5; i++)
+    {
+        linkedListAppendObject(list, (void*)(objects+i));
+    }
+    assertIntEquals(5, linkedListLength(list));
+
+    linkedListDestroyLastElement(list, false);
+    assertIntEquals(4, linkedListLength(list));
+
+    linkedListReset(list);
+    int count=0;
+    while (linkedListHasNext(list))
+    {
+        LinkedListElement* e=linkedListNext(list);
+        assertIntEquals(objects[count], *((int*)e->object));
+        count++;
+    }
+    assertIntEquals(4, count);
+
+    linkedListDestroyLastElement(list, false);
+    linkedListDestroyLastElement(list, false);
+    linkedListDestroyLastElement(list, false);
+    assertIntEquals(1, linkedListLength(list));
+    linkedListReset(list);
+    count=0;
+    while (linkedListHasNext(list))
+    {
+        LinkedListElement* e=linkedListNext(list);
+        assertIntEquals(objects[count], *((int*)e->object));
+        count++;
+    }
+    assertIntEquals(1, count);
+
+    linkedListDestroyLastElement(list, false);
+    assertIntEquals(0, linkedListLength(list));
+    linkedListReset(list);
+    assertIntEquals(0, linkedListHasNext(list));
+
+    linkedListDestroy(list, false);
     testWrapUp();
 }
 
@@ -439,5 +498,6 @@ void testLinkedList()
     testLinkedListNext();
     testLinkedListNextReverse();
     testLinkedListSwap();
+    testLinkedListDestroyLastElement();
     moduleTestWrapUp();
 }
