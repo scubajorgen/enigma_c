@@ -190,7 +190,6 @@ int encodeCharacter(Enigma* enigma, int theCharacter)
 {
     // Via switchboard
     int intermediate=enigma->steckerBrett[theCharacter];
-    
     // right to left through the Walzen
     for (int walze=0; walze<enigma->numberOfWalzen; walze++)
     {
@@ -241,7 +240,6 @@ int encodeCharacter(Enigma* enigma, int theCharacter)
             intermediate+=MAX_POSITIONS;
         }
     }
-
     // Via switchboard
     intermediate=enigma->steckerBrett[intermediate];
     return intermediate;

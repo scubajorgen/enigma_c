@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include "enigma.h"
 
-#define MAX_CIRCLES         2048
+#define MAX_CIRCLES         4096
 #define MAX_CIRCLE_SIZE     26 
 #define MAX_CRIB_SIZE       50
 #define TURING_MAX_RESULTS  1024
