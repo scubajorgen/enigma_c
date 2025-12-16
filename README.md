@@ -23,6 +23,9 @@ It delivers a few executable files:
 * **test**, which execute module tests for the software
 * **testPerformanceEngima** This runs the performance test of the software by executing 1.000.000 encodes/decodes for various cipher lengths. It takes various minutes, depending on your PC. It returns csv output to be processed, for example in MS Excel.
 * **testPerformanceIoc** This performs an effectiveness test of the James Gillogly IoC method. It takes various hours. It returns the data to generate a similar diagram as is presented in the Gillogly whitepaper as csv output.
+* **testPerformanceTuring** This performs some iterative testing of the turingBombe() function and crib circle finding to generate statistics
+* **crack** Example code to show crack a Enigma cipher.
+
 
 ## Running
 Run the tests as 
@@ -38,6 +41,7 @@ INFO    # Tests Failed       : 0
 INFO    # Assertions executed: 1449
 INFO    ###############################################################################
 ```
+(note that a few tests depend on the random number generator and might fail on other machines; I have to repair this)
 
 Run the program as 
 ```
@@ -164,33 +168,69 @@ Up till 4 threads performance increases linearly with the number of threads (4 t
 
 ## Cracking ciphers: Turing method
 ### Principle
-The software implements the method used by Alan Turing to crack the German encoded messages using 'the Bombe'. It assumes a piece of plain text (the crib) that corresponds to part of the cipher text. The software creates the letter links (the menu) and finds all loops in it (crib circles). It then finds the rotor settings and start position that fullfills the loops.
-Refer to http://www.rutherfordjournal.org/article030108.html for a good description.
+The software implements the method used by Alan Turing to crack the German encoded messages using 'the Bombe'. The Enigma has a vulnerability, inherrent to its inner working: a letter is mapped onto any other letter *except onto itself*, no matter how the Enigma is set up. The Turing method exploits this vulnerability.
+
+It assumes a piece of known plain text (called the **crib**) that corresponds to part of the cipher text. The software creates the letter links (the menu) and finds all loops in it (crib circles). A crib circle is a loop of letters in which the first and final letter are identical. Next example shows this principle
+
+```
+Position: 123456789
+Cipher  : IHBCEGCBG
+Crib    : CRIB
+```
+
+At position 1 C maps on I, at position 3 I maps on B and on position 4 B maps on C again. This results in the loop: C-I-B-C. The principle of the Turing method is to cycle through all Rotor permutations and Rotor settings and find a letter that has this loop characteristic. If so, we found the right rotor permutation. If the letter differs from the letter in the crib, we also have found a Stecker/plug.
+
+Refer to http://www.rutherfordjournal.org/article030108.html for a good and more extensive description.
+
+In practice a single, small loop like this has a lot of solutions (false positives). So we need a longer crib resulting in more and longer crib circles to end up at only the right solution. The article mentions there should be at least 3 crib circles. See [Inner workings of the sofware](#inner-workings-of-the-software).
+
 
 ### Using the software for cracking ciphers
-The Turing Bombe can be use to crack Enigma ciphers, if you have a guess of some plain text that matches part of the cipher.
+The Turing Bombe can be use to crack Enigma ciphers, if you have a guess of some plain text that matches part of the cipher. Next is the example ```turingExample()``` in ```exampleTuring.c```:
+
 ```
-    char* cipher                ="JKFDGNHJFHWGGBEFOEFB";
-    char* crib                  ="SOMECRIBTEXT"
+    char* cipher                ="RPVPZILDGRNOPPLOFZNRUALUGCBJFXYNJCFDCOIUMGABPODMHQGVRFW";
+    char* crib                  ="WETTERVORHERSAGEBISKAYA"
     TuringRecipe* recipe        =createDefaultTuringRecipe(cipher, crib, 0, 4);
     LinkedList* results         =linkedListCreate();
-    turingBombe(recipe, results);
-    // process results
+    turingBombe(recipe, results, NULL);
+    turingReport(MESSAGEFORMAT_TEXT);
+
+    // do some other nifty stuff with the results
+
     linkedListDestroy(results);
+    destroyTuringRecipe(recipe);
 ```
+This prints the result
+
+```
+---------------------- Solution 1 ------------------------
+ UKW B   I  II III - R  1  1  3 G 22 20 12, Steckers BQ CR DI EJ GH KW MT OS PX UZ
+IoC 0.065320
+WETTERVORHERSAGEBISKAYAXHEUTEGIBTESBLITZUNDDONNERWETTER
+
+```
+
+If you know a piece of plain text but you do not know the exact location in the cipher, just pass -1 to the position parameter when generate the recipe. The software tries all valid positions (i.e. positions in which no letter of the crib maps to itself in the cipher, because that is impossible on the engima):
+
+```
+    TuringRecipe* recipe        =createDefaultTuringRecipe(cipher, crib, -1, 4);
+```
+
+
 The software looks for the Rotor combination, the Grundstellungen and Ringstellung R3 (fastest Rotor) that results in the solution that fulfill Crib Cricles. Ringstellung R1 has no effect on decryption, so it is fixed. 
-In most situations (short cribs) Ringstellung R2 has no effect, since the chance of movement of Rotor 1 is small. However in some situations it might. In these situations also take Ringstellung R2 into account:
+In most situations (short cribs) Ringstellung R2 has no effect, since the chance of movement of Rotor 1 is small. However in some situations it might. In these situations also take Ringstellung R2 into account (takes 26x more time to execute):
 
 ```
     TuringRecipe* recipe        =createDefaultTuringRecipe(cipher, crib, 0, 4);
     recipe->startR2='A';
-    recipe=>endR2='Z';
+    recipe=>endR2  ='Z';
 ```
 
 Note:
 * Pass the cipher text and the crib as uppercase! 
 * Crib length shall not exceed cipher text length. 
-* Crib size should not exceed 26 characters or the loop number will explode. Space is not allocated dynamically, so arrays will get out of bounds
+* Crib size should be between 25-36. Smaller cribs might result in false positives or long execution times, longer cribs result in an explosion of the number of circles resulting in overflow.
 * The crib start must correspond to position of the cipher. If you know the position, enter it (in the example it is 0), if you do not know it, pass -1 and all positions that are valid are processed 
 * Pass the number of threads to use (in the example 4) to distribute work over processor cores
 
@@ -206,7 +246,7 @@ Cipher      RPVPZILDGRNOPPLOFZNRUALUGCBJFXYNJC...
 Crib        WETTERVORHERSAGEBISKAYA
 ```
 
-First the software creates all letter links with ```turingGenerateLetterLinks()```. For each letter it generates a list with the letters it links to including the position in the crib. For example there is a link at position 14 between A and P.
+First the software creates all letter links with ```turingGenerateLetterLinks()```. For each letter it generates a list with the letters it links to, including the position in the crib. For example there is a link at position 14 between A and P.
 
 ```
 Link A: 4 - P (14) U (21) Y (22) L (23)
@@ -258,13 +298,13 @@ This is deliberate, because in this way the same circle contributes to all sets 
 
 Now it is simply finding a solution for Rotors, Ringstellungen and Grundstellungen for each set of crib circles has a solution. A solution for a set ideally is one and only one letter that maps to itself when cycling through all its cribcircles (the letter fullfills the hypothesis). The function ```turingFind()``` cycles through all possibilities and for each possibility delegates to ```turingValidateHypotheses()``` to find a solution.
 
-If for the letter A a letter A is found that fulfills are circles, we know that the A is not steckered. If another letter is found, we now that this letter is steckered to A. When following the loops, using the found letter, we find in the same way the steckered counterparts of these letters. Doing this for all sets, this results in this example in next list of found counterparts:
+If for the letter A a letter A is found that fulfills are circles, we know that the A is not steckered. If another letter is found, we know that this letter is steckered to A. When following the loops, using the found letter, we find in the same way the steckered counterparts of these letters. Doing this for all sets, this results in this example in next list of found counterparts:
 
 ```
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
 A???J?H?D??L?NSX?COM?V???U
 ```
-We see that A isn't steckered, E is steckered to J, G to H, etc. The Steckers we find are: EJ GH ID OS PX RC TM ZU.
+We see that A isn't steckered, E is steckered to J, G to H, etc. The Steckers we find are 8 out of 10: EJ GH ID OS PX RC TM ZU.
 
 Applying this solution (Rotor combination, Ringstellungen, Grundstellungen, Steckers) to the cipher results in:
 
@@ -283,29 +323,92 @@ Plaintext   WETTERVORHERSAGEBISKAYAXHEUTEGIBTESBLITZUNDDONNERWETTER
 
 The total solution is: UKW B - I II III, R 1 3 3, G 22 22 12, BQ CR DI EJ GH KW MT OS PX UZ
 
+### Ringstellung R2
+You might remember that the Ringstellungen define when a rotating Walze triggers the next Walze to go to the next letter. Walze 3 rotates at each letter entry, Ringstellung R3 defines when Walze 2 rotates, R2 defines when Walze 1 rotates. R1 has no effect on the rotation.
+
+The software cycles through all Walzen permutations, all Grundstellungen and Ringstellung R3. This is because if you have crib circle that spans say 26 positions you definitely will encounter a rotation of the second Walze. This would break the solution.
+
+Not taking into account R2 means that occasionally you might miss a rotation of the slowest Walze 1, leading to no solution. You can do two things when you do not find a solution when you expect one:
+1. Try another R2 value and repeat (making the code breaking twice as long and not always lead to a solution)
+1. Also cycle through all R2 settings (making the code breaking 27x as long but alwas lead to a solution). Note that this might give you multiple identical solutions.
+
+You can manage this configuration by modifying the recipe. See [Using the software for cracking ciphers](#using-the-software-for-cracking-ciphers).
 
 ### Findings: Crib size and false positives
 The software generated the Crib Circles for each letter: a set of crib circles for the letter 'A', a set for 'B', etc.
 
 A solutions is created by finding the Rotors, Grundstellungen and Ringstellungen for which all Crib Circle Sets give an output that is consistent with the crib circles. To test this, for each set the software looks for a letter that result in it self when passing through all circles in the set.
 
-It is not unusual to have false positives. 
+It is not unusual to have false positives. Two factors are:
 
-* Short Cribs often lead to false positives in large number (thousands). Small Cribs may result in sets with only a few Crib Circles and/or short Crib Circles (e.g. A-V-A, E-I-E, K-M-K). Short circles have a lot of solutions.
-* Large Cribs lead to exploding number of Crib Circles, terminating the software.
-* The sweet spot lies around 20-30 characters. This results in some large crib circles of minimum length ~10.
+1. Crib circle length  
+   Short Cribs often lead to false positives in large number (thousands). Small Cribs may result in sets with only a few Crib Circles and/or short Crib Circles (e.g. A-V-A, E-I-E, K-M-K). Short circles have a lot of solutions.
+1. Number of crib circles  
+   A small number of crib circles tend to have more solutions than a large number. The article referenced mentions there should at least be 3 crib circles.
+
+Both the number of crib cirlces and the crib circle size depend on the crib length, as is show by next charts (based on 30 iterations per crib length).
+
+The first chart shows the number of unique crib circles as function of the crib length.
+
+![](images/turing02.png)
+
+The number of crib circles grows exponentially with the crib length. At a crib lenght of 37 characters, the number easily surpasses 2048 which is the maximum supported for one letter in the software. The error bars shows the standard deviation. The standard deviation is quite large, shows that even for large cribs there may be few circles.
+
+Next graph shows the average crib circle length as function of crib size.
+
+![](images/turing01.png)
+
+The average crib circle size varies linearly with the crib length. The sweet spot for the crib length lies between **28-35**.
+
 
 Two functions have been made to detect and eliminate false positives.
 
-* ```turingValidateTheSteckeredValues()```
-  This function validates the found solution (the list of steckers). If there are inconsistencies, it means the found solution is a false positive. This is a quick check and is performed first.
-* ```turingFindRemainingCribSteckers()```
-  Only steckers are found for letters that are part of crib loops. This function tries to find steckers for the remaining letters in the crib. Basically this should succeed. If not, we have a false positive. Unfortunately this function can take a long time to execute.
+* ```turingValidateTheSteckeredValues()```  
+  This function validates the found solution (the list of steckers). If there are inconsistencies (e.g. two letters are steckered to the same other letter), it means the found solution is a false positive. This is a quick check and is performed first and gives pretty good results. Though it reduces the number of false positives, it may not eliminate all.
+* ```turingFindRemainingCribSteckers()```  
+  Only steckers are found for letters that are part of crib loops. This function tries to find steckers for the remaining letters in the crib. Basically this should succeed. If not, we have a false positive. This function is a recursive function that cycles through all possible solutions using all the knowledge we have about the cipher, decoded plaintext and crib.
 
 
 ### Performance
-TBD
+For the crib size of 21 to 35 the ```turingBombe()``` was executed with the default recipe and a random WWII Enigma text excerpt of 100 characters. For each cribsize the procedure was iterated 30 times. The default recipe results in 1 pass at R2='A' (87% succeeded in this one pass, independent of crib length). A fixed crib position 0 was chosen. If no solution were found a 2nd pass was executed with R2='M' (7% succeeded in 2 passes). If that too did not give a result, a 3rd pass was executed with R2='A' to 'Z' (6% required 3 passes). 
 
+Next chart shows the average execution time of 1 pass on i5-9600k (6 cores) using 6 threads. At reduced crib size occasionally the processing time increases enormously. After 27 iteration at 21, the 28th took days so I stoped the program here.
+
+![](images/turing03.png)
+
+Next scatter plot shows the number of candidates that fulfill the crib circles and the number of solutions left after validating the solutions.
+
+![](images/turing05.png)
+
+As is visible, short cribs sometimes give rise to a large number of candidates. Howerver, after validation only 1, 2 or 3 solutions are left. Especially the finding of the remaining Steckers based on the crib (```turingFindRemainingCribSteckers()```) is very effective of filtering out the false positives. This is something not possible using the original Turing bombe.
+
+For example the 28 size crib iteration 20 gave rise to 81129 candidates. The number of crib circles used were 34 (of which a number were double) and the average crib loop size was 6.3 letters.
+
+```
+INFO    Plain : LNUOFLUECHTLIKGEMARSBHWARNEMUENDENACHJNYBORGJJNYBORZNNANNIBRUNOBESETZTKOMXADMXUUUBOOTEYFDUUUAUSBXYFD
+INFO    Crib  : LNUOFLUECHTLIKGEMARSBHWARNEM
+INFO    Cipher: KTHCSIJQKGPXSWVXHPVCEUVLYWBJAYWKRSDUMXMSZULHGVBMTZLUHRSWGGQBLTKWTBYNNKICDSQTGGVTJCZTVJNHRNOYVKJASTQW
+```
+
+Next chart shows the percentage of 30 tries that resulted in a solution (red). It shows the average overlap between the best solution found and the orginal plaintext. If it is not 100% for the longer cribs (>23 letters), it is due to the Ringstellung 2 issue. For lower cribsizes sometimes no solution is found.
+
+![](images/turing04.png)
+
+
+
+### Known issues
+* **Not all steckers may be found**  
+  Steckers are found for the letters in the crib circle as is inherent to the Turing method. This has been extended by ```turingFindRemainingCribSteckers()```. However it is thinkable that not all Steckers are found in this way, though I never encountered this for sufficiently long ciphers.
+* **Ringstellung 2**  
+  A simplificatation has been made by setting Ringstellung 2 fixed. Most of the time this results in a solution. Sometimes it may result in a solution in which the Ringstellung isn't quite right. Sometimes it results in no solution. In this case the ```turingBombe()``` should be repeated with taking into account Ringstellung 2 as well. Next shows a solution in which R2 is not okay (after position 49 the R2 is no longer correct resulting in garbage). Of course this can easily be corrected manually
+
+```
+POS    0        1         2         3        4         5          6         7         8         9         0
+       1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+PLAIN: VONVONCHEFVIERTEUUDFLOTTXSWGNEMUENDEANKERAUFXMARSCHNACHHOERUPYYHAFFANGETRETENXSTELLENYNSWINEMUENDEHA
+FOUND: VONVONCHEFVIERTEUUDFLOTTXSWGNEMUENDEANKERAUFXMAXBRPUAQHKTBIHJMEWECJGRAPFTIUTMWELBJQFGZRFCDOODPMTXTWH
+CRIB : VONVONCHEFVIERTEUUDFLOTTXSWG
+```
 
 ## Cracking ciphertext-only ciphers: Index of Coincidence - James Gillogly
 ### The method
