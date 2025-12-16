@@ -11,10 +11,11 @@ typedef enum
 } LogLevel_t;
 
 void setLogLevel(LogLevel_t logLevel);
-void logDebug(char* message, ...);
-void logInfo(char* message, ...);
-void logWarning(char* message, ...);
-void logError(char* message, ...);
-void logFatal(char* message, ...);
+void logDebug   (char* message, ...);
+void logInfo    (char* message, ...);
+void logWarning (char* message, ...);
+void logError   (char* message, ...);
+void logFatal   (char* message, ...);
+void logReport  (char* message, ...);
 
 #endif

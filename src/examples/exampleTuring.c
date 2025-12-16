@@ -58,7 +58,7 @@ EnigmaSettings turingTestSettings2=
 
 // EXAMPLE SET 3
 char turingCrib3[]       ="XOBERSTESGEHEIMNISX";
-char turingCribPosition3 =0;
+char turingCribPosition3 =21;
 EnigmaSettings turingTestSettings3=
 {
     3,
@@ -170,27 +170,17 @@ void turingProve()
 \**************************************************************************************************/
 void turingExample()
 {
-    TuringStats statistics;
     printEnigmaSettings(&turingTestSettings, "TURING BOMBE EXAMPLE 1");
-    printf("# Crib                      : %s\n",        turingCrib);
-    printf("# Crib position             : %d\n",        turingCribPosition);
-    printf("#####################################################################################\n");
+    logReport("# Crib                      : %s",        turingCrib);
+    logReport("# Crib position             : %d",        turingCribPosition);
+    logReport("#####################################################################################");
 
-    TuringRecipe* recipe=createDefaultTuringRecipe(turingTestSettings.cipher, turingCrib, turingCribPosition, 4);
-    LinkedList* results=linkedListCreate();
+    TuringRecipe*   recipe      =createDefaultTuringRecipe(turingTestSettings.cipher, turingCrib, turingCribPosition, 4);
+    LinkedList*     results     =linkedListCreate();
+    TuringStats     statistics;
     turingBombe(*recipe, results, &statistics);
     turingReport(MESSAGEFORMAT_TEXT);
-
-    logInfo("Statistics :");
-    logInfo("Time                       : %.0f ms", statistics.milliseconds);
-    logInfo("Candidates                 : %d", statistics.candidates);
-    logInfo("Valid Candidates           : %d", statistics.validCandidates);
-    logInfo("Solutions                  : %d", statistics.solutions);
-    logInfo("Number of crib circles     : %d", statistics.numberOfCribCircles);
-    logInfo("Min Crib circle length     : %d", statistics.minCribCircleSize);
-    logInfo("Max Crib circle length     : %d", statistics.maxCribCircleSize);
-    logInfo("Average Crib circle length : %.1f", statistics.aveCribCircleSize);
-
+    turingReportBombeStatistics(&statistics);
     linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);
 }
@@ -204,35 +194,41 @@ void turingExample2()
 {
     // II IV I, UKW C, R 1 3 21 G 3 11 5, bd cv el gn iz jo kw mt pr sx
     printEnigmaSettings(&turingTestSettings2, "TURING BOMBE EXAMPLE 2");
-    printf("# Crib                      : %s\n",        turingCrib2);
-    printf("# Crib position             : %d\n",        turingCribPosition2);
-    printf("#####################################################################################\n");
+    logReport("# Crib                      : %s",        turingCrib2);
+    logReport("# Crib position             : %d",        turingCribPosition2);
+    logReport("#####################################################################################");
     TuringRecipe* recipe=createDefaultTuringRecipe(turingTestSettings2.cipher, turingCrib2, turingCribPosition2, 4);
     recipe->startR2='A';
     recipe->endR2='E';
     LinkedList* results=linkedListCreate();
-    turingBombe(*recipe, results, NULL);
+    TuringStats statistics;
+    turingBombe(*recipe, results, &statistics);
     turingReport(MESSAGEFORMAT_TEXT);
+    turingReportBombeStatistics(&statistics);
     linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);
 }
 
 /**************************************************************************************************\
 * 
-* Another example. Does not work
+* Another example with short crib (19 letters); only 9 out of 10 steckers are found.
 * 
 \**************************************************************************************************/
 void turingExample3()
 {
     // II IV I, UKW C, R 1 3 21 G 3 11 5, bd cv el gn iz jo kw mt pr sx
     printEnigmaSettings(&turingTestSettings3, "TURING BOMBE EXAMPLE 3");
-    printf("# Crib                      : %s\n",        turingCrib3);
-    printf("# Crib position             : %d\n",        turingCribPosition3);
-    printf("#####################################################################################\n");
-    TuringRecipe* recipe=createDefaultTuringRecipe(turingTestSettings3.cipher, turingCrib3, turingCribPosition3, 3);
-    LinkedList* results=linkedListCreate();
-    turingBombe(*recipe, results, NULL);
+    logReport("# Crib                      : %s",        turingCrib3);
+    logReport("# Crib position             : %d",        turingCribPosition3);
+    logReport("#####################################################################################");
+    TuringRecipe*   recipe      =createDefaultTuringRecipe(turingTestSettings3.cipher, turingCrib3, turingCribPosition3, 4);
+    recipe->startR2='M';
+    recipe->endR2='M';
+    LinkedList*     results     =linkedListCreate();
+    TuringStats     statistics;
+    turingBombe(*recipe, results, &statistics);
     turingReport(MESSAGEFORMAT_TEXT);
+    turingReportBombeStatistics(&statistics);
     linkedListDestroy(results, true);
     destroyTuringRecipe(recipe);
 }

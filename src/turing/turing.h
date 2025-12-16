@@ -130,3 +130,4 @@ TuringRecipe*   createDefaultTuringRecipe       (char* cipher, char* crib, int c
 void            destroyTuringRecipe             (TuringRecipe* recipe);
 void            turingBombe                     (TuringRecipe recipe, LinkedList* results, TuringStats* statistics);
 void            turingReport                    (MessageFormat_t format);
+void            turingReportBombeStatistics     (TuringStats* statistics);

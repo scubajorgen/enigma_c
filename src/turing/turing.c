@@ -68,21 +68,22 @@ void turingReport(MessageFormat_t format)
         {
             TuringResult*   r=linkedListNextObject(theResults);
             EnigmaSettings* s=&r->settings;
-            printf("---------------------- Solution %d ------------------------\n", count);
-            printf("%6s %3s %3s %3s - R %2d %2d %2d G %2d %2d %2d, Steckers %s\n",
-                    s->ukw, s->walzen[0]      , s->walzen[1]              , s->walzen[2]              ,
-                    s->ringStellungen[0]      , s->ringStellungen[1]      , s->ringStellungen[2],
-                    s->grundStellungen[0]     , s->grundStellungen[1]     , s->grundStellungen[2]     ,
-                    s->steckers);
-            printf("IoC %f\n", r->score);
+            logReport("---------------------- Solution %d ------------------------", count);
+            logReport("%6s %3s %3s %3s - R %2d %2d %2d G %2d %2d %2d, Steckers %s",
+                     s->ukw, s->walzen[0]      , s->walzen[1]              , s->walzen[2]              ,
+                     s->ringStellungen[0]      , s->ringStellungen[1]      , s->ringStellungen[2],
+                     s->grundStellungen[0]     , s->grundStellungen[1]     , s->grundStellungen[2]     ,
+                     s->steckers);
+            logReport("Steckers: initial %d, final %d", r->initialSteckers, r->finalSteckers);
+            logReport("IoC %f", r->score);
             displayEnigmaMessage(r->decoded, format);
             count++;
         }
     }
     else
     {
-        printf("-----------------------------------------------------------\n");
-        printf("Turing Bombe: no solutions found\n");
+        logReport("-----------------------------------------------------------");
+        logReport("Turing Bombe: no solutions found");
     }
 }
 
@@ -94,15 +95,33 @@ void turingReport(MessageFormat_t format)
 void turingPrintSolution(TuringResult* result)
 {
     EnigmaSettings* settings=&result->settings;
-    logInfo("Solution found: %s - %s %s %s R %d %d %d, G %d %d %d, %s Score %f",
+    logReport("Solution found: %s - %s %s %s R %d %d %d, G %d %d %d, %s Score %f",
             settings->ukw,
             settings->walzen[0], settings->walzen[1], settings->walzen[2],
             settings->ringStellungen[0], settings->ringStellungen[1], settings->ringStellungen[2],
             settings->grundStellungen[0], settings->grundStellungen[1], settings->grundStellungen[2],
             settings->steckers, result->score);
-    logInfo("Solution: %s", result->decoded);
+    logReport("Solution: %s", result->decoded);
 }
 
+
+/**************************************************************************************************\
+* 
+* Helper: Print a found solution
+* 
+\**************************************************************************************************/
+void turingReportBombeStatistics(TuringStats* statistics)
+{
+    logReport("Statistics :");
+    logReport("Time                       : %.0f ms"  , statistics->milliseconds);
+    logReport("Candidates                 : %d"       , statistics->candidates);
+    logReport("Valid Candidates           : %d"       , statistics->validCandidates);
+    logReport("Solutions                  : %d"       , statistics->solutions);
+    logReport("Number of crib circles     : %d"       , statistics->numberOfCribCircles);
+    logReport("Min Crib circle length     : %d"       , statistics->minCribCircleSize);
+    logReport("Max Crib circle length     : %d"       , statistics->maxCribCircleSize);
+    logReport("Average Crib circle length : %.1f"     , statistics->aveCribCircleSize);
+}
 
 /**************************************************************************************************\
 * 

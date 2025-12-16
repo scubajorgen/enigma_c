@@ -540,16 +540,19 @@ void dumpDecoded(EnigmaSettings* settings)
 * 
 \**************************************************************************************************/
 // TO DO: improve
+char enigmaMessage[MAX_TEXT];
+
 void displayEnigmaMessage(char* message, MessageFormat_t type)
 {
     switch (type)
     {
-        default:
+        default:    
         case MESSAGEFORMAT_TEXT:
-            printf("%s", message);
+            logReport("%s", message);
             break;
         // X=. XX=: ZZ=, FRAGE=? FRAQ=? 
-        case MESSAGEFORMAT_WEHRMACHT: 
+        case MESSAGEFORMAT_WEHRMACHT:
+            int length=0; 
             for (int i=0;i<strlen(message);i++)
             {
                 char c=message[i];
@@ -557,49 +560,51 @@ void displayEnigmaMessage(char* message, MessageFormat_t type)
                 {
                     if ((i<strlen(message)-1) && (message[i+1]=='X' || message[i+1]=='x'))
                     {
-                        printf(": ");
+                        length+=sprintf(enigmaMessage+length, ": ");
                         i++;
                     }
                     else
                     {
-                        printf(". ");
+                        length+=sprintf(enigmaMessage+length, ". ");
                     }
                 }
                 else if (c=='Q')
                 {
-                    printf("CH");
+                    length+=sprintf(enigmaMessage+length, "CH");
                 }
                 else if (c=='q')
                 {
-                    printf("ch");
+                    length+=sprintf(enigmaMessage+length, "ch");
                 }
                 else 
                 {
-                    printf("%c", c);
+                    length+=sprintf(enigmaMessage+length, "%c", c);
                 }
             }
+            logReport(enigmaMessage);
             break;
         // X=. Y=, UD=? Q=ch CENTA=00 MILLE=000 MYRIA=0000
         case MESSAGEFORMAT_KRIEGSMARINE:
+            length=0;
             for (int i=0;i<strlen(message);i++)
             {
                 char c=message[i];
                 if (c=='X' || c=='x')
                 {
-                    printf(". ");
+                    length+=sprintf(enigmaMessage+length, ". ");
                 }
                 else if (c=='y' || c=='Y')
                 {
-                    printf(", ");
+                    length+=sprintf(enigmaMessage+length, ", ");
                 }
                 else 
                 {
-                    printf("%c", c);
+                    length+=sprintf(enigmaMessage+length, "%c", c);
                 }
             }
+            logReport(enigmaMessage);
             break;
     }
-    printf("\n");
 }
 
 /**************************************************************************************************\

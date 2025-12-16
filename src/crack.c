@@ -1,7 +1,8 @@
 /**************************************************************************************************\
 *
-* test.c
-* Module tests
+* crack.c
+* Example enigma cipher crack, using Turing method. 
+* Geocaching 'Engima Nano' https://www.geocaching.com/geocache/GC6ZZBB
 *
 \**************************************************************************************************/
 #include <stdio.h>
@@ -30,18 +31,32 @@ char* testTuringCipher6    =
                             "VXDAWBIMEDLQSLQKLFHATDCUGFPOYSBKPBSFLRHUPXDMM"
                             "TTDPRKZCOCNZDSULIHEJGLCLVQWXVAZZPWMOOKPPFWDSQ"
                             "VW";      
-char* testTuringCrib6_1    ="NORDZWEIUNDFUNFZIGGRADEIN";
-char* testTuringCrib6_2    ="DREIUNDFUNFZIGGRADEINUNDZWANZ";
-char* testTuringCrib6_3    ="NORDXFUNFXDREIXGRADXZWEIXEINS";
-char* testTuringCrib6_4    ="NORDFUNFDREIGRADZWEIXEINSPUNKT";
-char* testTuringCrib6_5    ="FUNFDREIGRADZWEIEINSPUNKTVIER";
 
-char* testTuringCrib6_6    ="DERCACHEBEFINDETSICHANDER"; //!
-char* testTuringCrib6_7    ="DERCACHEBEFINDETSICHAUFDEM";
-char* testTuringCrib6_8    ="DERCACHEBEFINDETSICHAUFDER";
-char* testTuringCrib6_9    ="DERCACHEBEFINDETSICHAM";
 
-void testTuringBombe6()
+char tries[17][MAX_CRIB_SIZE]=
+{
+//   123456789012345678901234567890
+    "NORDDREIUNDFUNFZIGGRADEINUND",
+    "DREIUNDFUNFZIGGRADEINUNDZWANZIG",
+    "NORDXFUNFXDREIXGRADXZWEIXEINS",
+    "NORDFUNFDREIGRADZWEIXEINSPUNKT",
+    "FUNFDREIGRADZWEIEINSPUNKTVIER",
+    "NULNULSIEBENEINSNULFUNF",
+    "NULNULSIEBENEINSNULVIER",
+    "DERCACHEBEFINDETSICHANDER", //!
+    "DERCACHEBEFINDETSICHAUFDEM",
+    "DERCACHEBEFINDETSICHAUFDER",
+    "DERCACHEBEFINDETSICHAM",
+    "MANKANNDENCACHEFINDEN",
+    "SIEWERDENDENCACHEFINDEN",
+    "DukannstdenCacheloggen",
+    "DIEKOORDINATEN",
+    "DiesenCachedarfmanloggen",
+    "NORTHFIFTYTHREEDEGREESTWENTYONE"
+};
+
+
+void testTuringBombeCrack()
 {
     testStart("Turing Bombe++");
 
@@ -54,35 +69,48 @@ void testTuringBombe6()
     LinkedList* permutations=combinePermutations(ukws, 1, walzen, 3);
     linkedListDestroy(walzen, true);
     linkedListDestroy(ukws, true);
-
     logInfo("Number of permutations: %d", linkedListLength(permutations));
 
+
     // Request scanning
-    TuringRecipe* recipe        =createDefaultTuringRecipe(testTuringCipher6, testTuringCrib6_6, -1, 1);
+    TuringRecipe* recipe        =createDefaultTuringRecipe(testTuringCipher6, tries[0], -1, 1);
     recipe->R1                  ='A'; // we now Ringstellungen used are all 1
     recipe->startR2             ='A';
-    recipe->endR2               ='A';
+    recipe->endR2               ='B';
     recipe->startR3             ='A';
     recipe->endR3               ='A';
-//    recipe->startCribPosition   =0;
-//    recipe->endCribPosition     =10;
     recipe->customPermutations  =permutations;
-    LinkedList* results         =linkedListCreate();
-    turingBombe(*recipe, results, NULL);
-    assertIntEquals(2, linkedListLength(results));
 
-    turingReport(MESSAGEFORMAT_TEXT);
 
-    linkedListDestroy(results, true);
+logInfo("MAX CRIB SIZE %d %d", MAX_CRIB_SIZE, strlen(recipe->crib));
+    TuringStats statistics;
+    bool found=false;
+    for(int i=0; i<sizeof(tries)/MAX_CRIB_SIZE && !found; i++)
+    {
+        logInfo("_____________________________________________________________________");
+        logInfo("Trying %s", tries[i]);
+        memcpy(recipe->crib, tries[i], MAX_CRIB_SIZE);
+        LinkedList* results         =linkedListCreate();
+        turingBombe(*recipe, results, &statistics);
+        assertIntEquals(2, linkedListLength(results));
+        turingReport(MESSAGEFORMAT_TEXT);
+        turingReportBombeStatistics(&statistics);
+        if (statistics.solutions>0)
+        {
+            found=true;
+        }
+        linkedListDestroy(results, true);
+    }
     destroyPermutations(recipe->customPermutations);
     destroyTuringRecipe(recipe);
+
     testWrapUp();
 }
 
 
 void testTuringBombe6test()
 {
-    turingFindCribCircles(testTuringCipher6, testTuringCrib6_1, 92, false);
+    turingFindCribCircles(testTuringCipher6, tries[5], 92, false);
     dumpSets();
 
     // UKW B - I II III R 1 1 1, G 1 7 20, FO NX RS
@@ -104,7 +132,7 @@ int main()
     setLogLevel(LOGLEVEL_INFO);
     testSessionStart("CRACK");
 
-    testTuringBombe6();
+    testTuringBombeCrack();
 
     testSessionWrapUp();
     return 0;

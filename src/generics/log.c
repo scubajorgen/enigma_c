@@ -106,3 +106,15 @@ void logFatal(char* message, ...)
     printLogMessage(message, args, "FATAL");
     exit(0);
 }
+
+/**************************************************************************************************\
+*
+* Reporting, always show
+*
+\**************************************************************************************************/
+void logReport(char* message, ...)
+{
+    va_list args;
+    va_start(args, message);
+    printLogMessage(message, args, "REPORT");
+}
