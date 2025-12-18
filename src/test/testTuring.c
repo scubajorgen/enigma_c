@@ -252,7 +252,7 @@ void testTuringValidateHypothesis()
     SteckeredChars* chars;
     int             found;
     chars   =createSteckeredChars();
-    found   =turingValidateHypotheses(enigma, 5, 20, 12, chars, 0);
+    found   =turingValidateHypotheses(enigma, 5, 20, 12, chars, 0, 0);
     assertIntEquals     (1, found);
 
     found=turingValidateTheSteckeredValues(chars);
@@ -261,7 +261,7 @@ void testTuringValidateHypothesis()
     free(chars);
 
     chars   =createSteckeredChars();
-    found   =turingValidateHypotheses(enigma, 5, 20, 1, chars,0);
+    found   =turingValidateHypotheses(enigma, 5, 20, 1, chars, 0, 0);
     assertIntEquals     (1, found);
 
     found=turingValidateTheSteckeredValues(chars);
@@ -303,7 +303,7 @@ void testTuringValidateHypothesis2()
     SteckeredChars* chars;
     int             found;
     chars   =createSteckeredChars();
-    found   =turingValidateHypotheses(enigma, 22, 17, 12, chars, 0);
+    found   =turingValidateHypotheses(enigma, 22, 17, 12, chars, 0, 0);
     assertIntEquals     (1, found);
 
     found=turingValidateTheSteckeredValues(chars);
@@ -711,7 +711,7 @@ void testTuringValidateHypothesis3()
     SteckeredChars* chars;
     int             found;
     chars   =createSteckeredChars();
-    found   =turingValidateHypotheses(enigma, 17, 21, 1, chars, 0);
+    found   =turingValidateHypotheses(enigma, 17, 21, 1, chars, 0, 0);
     assertIntEquals     (1, found);
 
     found=turingValidateTheSteckeredValues(chars);

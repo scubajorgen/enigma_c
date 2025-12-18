@@ -8,3 +8,4 @@ void    turingProve     ();
 void    turingExample   ();
 void    turingExample2  ();
 void    turingExample3  ();
+void    turingExample4  ();

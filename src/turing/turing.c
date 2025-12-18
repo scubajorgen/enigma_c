@@ -39,7 +39,6 @@ typedef struct
 // Thread stuff
 ThreadWork          work[MAX_WORKITEMS];
 
-time_t              startTime;
 struct  timeval     turingStopTime, turingStartTime, turingLapTime;
 
 LinkedList*         tPermutations;
@@ -222,7 +221,7 @@ bool processIntermediateChars(Enigma* enigma, int g1, int g2, int g3, CribCircle
 * 3.0 times as fast as previous version :-)
 *
 \**************************************************************************************************/
-int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredChars* chars, int minCribCircleSize)
+int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredChars* chars, int minCribCircles, int minCribCircleSize)
 {
     bool atLeastOneFound=false;
     // Clear steckers
@@ -239,7 +238,7 @@ int turingValidateHypotheses(Enigma* enigma, int g1, int g2, int g3, SteckeredCh
     for (int set=0; set<MAX_POSITIONS && found; set++)
     {
         CribCircleSet*  theSet=&cribCircleSet[set];
-        if (theSet->numOfCircles>0 && maxSetCribCircleSize(theSet)>=minCribCircleSize)
+        if (theSet->numOfCircles>minCribCircles && maxSetCribCircleSize(theSet)>=minCribCircleSize)
         {
             // Try the circles. If one circle fails
             // hypothesis is rejected, proceed to next char
@@ -494,6 +493,28 @@ void removeStecker(int* steckerBrett, int s1, int s2)
 
 /**************************************************************************************************\
 * 
+* Helper: Check if the crib still matches the decoded cipher up to indicated position
+\**************************************************************************************************/
+bool soFarDecodeStillValid(Enigma* enigma, TuringResult* result, char* crib, int upToPos)
+{
+    bool valid=true;
+    setGrundStellung(enigma, 1, result->settings.grundStellungen[0]);
+    setGrundStellung(enigma, 2, result->settings.grundStellungen[1]);
+    setGrundStellung(enigma, 3, result->settings.grundStellungen[2]);
+    encodeDecode(enigma);
+    char* decoded=toString(enigma);
+    for(int i=0; i<upToPos && valid; i++)
+    {
+        if (crib[i]!=decoded[result->cribPosition+i])
+        {
+            valid=false;
+        }
+    }
+    return valid;
+}
+
+/**************************************************************************************************\
+* 
 * Recursive procedure trying to find steckers so that all characters in the decoded text
 * correspond one-to-one to the characters in the crib.
 * For characters to correspond there are three posibilities:
@@ -553,10 +574,18 @@ bool turingFindRemainingNext(TuringResult* result, Enigma* enigma, int nextCharI
             {
                 logDebug("Path 1, pos %d (%d): Potential Stecker 2 %c-%c", nextChar, cipherPos, x+'A', cipherChar+'A');
                 placeStecker(sb, x, cipherChar);
-                found=turingFindRemainingNext(result, enigma, nextChar+1);
+                found=soFarDecodeStillValid(enigma, result, crib, nextChar);
                 if (found)
                 {
-                    logDebug("Path 1, pos %d (%d): validated!", nextChar, cipherPos);
+                    found=turingFindRemainingNext(result, enigma, nextChar+1);
+                    if (found)
+                    {
+                        logDebug("Path 1, pos %d (%d): validated!", nextChar, cipherPos);
+                    }
+                    else
+                    {
+                        removeStecker(sb, x, cipherChar);
+                    }
                 }
                 else
                 {
@@ -577,10 +606,19 @@ bool turingFindRemainingNext(TuringResult* result, Enigma* enigma, int nextCharI
             {
                 logDebug("Path 2, pos %d (%d): Potential Stecker 1 %c-%c", nextChar, cipherPos, y+'A', cribChar+'A');
                 placeStecker(sb, y, cribChar);
-                found=turingFindRemainingNext(result, enigma, nextChar+1);
+                found=soFarDecodeStillValid(enigma, result, crib, nextChar);
                 if (found)
                 {
-                    logDebug("Path 2, pos %d (%d): validated!", nextChar, cipherPos);
+                    found=turingFindRemainingNext(result, enigma, nextChar+1);
+
+                    if (found)
+                    {
+                        logDebug("Path 2, pos %d (%d): validated!", nextChar, cipherPos);
+                    }
+                    else
+                    {
+                        removeStecker(sb, y, cribChar);
+                    }
                 }
                 else
                 {
@@ -604,10 +642,18 @@ bool turingFindRemainingNext(TuringResult* result, Enigma* enigma, int nextCharI
                     logDebug("Path 3, pos %d (%d): Potential Stecker 1 %c %c, Given Stecker 2 %c %c", 
                             nextChar, cipherPos, y+'A', cribChar+'A', cipherChar+'A', sb[cipherChar]+'A');
                     placeStecker(sb, y, cribChar);
-                    found=turingFindRemainingNext(result, enigma, nextChar+1);
+                    found=soFarDecodeStillValid(enigma, result, crib, nextChar);
                     if (found)
                     {
-                        logDebug("Path 3, pos %d (%d): validated!", nextChar, cipherPos);
+                        found=turingFindRemainingNext(result, enigma, nextChar+1);
+                        if (found)
+                        {
+                            logDebug("Path 3, pos %d (%d): validated!", nextChar, cipherPos);
+                        }
+                        else
+                        {
+                            removeStecker(sb, y, cribChar);
+                        }
                     }
                     else
                     {
@@ -623,10 +669,18 @@ bool turingFindRemainingNext(TuringResult* result, Enigma* enigma, int nextCharI
                     logDebug("Path 4, pos %d (%d): Potential Stecker 1 %c %c, Given Stecker 1 %c %c",
                             nextChar, cipherPos, x+'A', cipherChar+'A', cribChar+'A', sb[cribChar]+'A');
                     placeStecker(sb, x, cipherChar);
-                    found=turingFindRemainingNext(result, enigma, nextChar+1);
+                    found=soFarDecodeStillValid(enigma, result, crib, nextChar);
                     if (found)
                     {
-                        logDebug("Path 4, pos %d (%d): validated!", nextChar, cipherPos);
+                        found=turingFindRemainingNext(result, enigma, nextChar+1);
+                        if (found)
+                        {
+                            logDebug("Path 4, pos %d (%d): validated!", nextChar, cipherPos);
+                        }
+                        else
+                        {
+                            removeStecker(sb, x, cipherChar);
+                        }
                     }
                     else
                     {
@@ -654,15 +708,24 @@ bool turingFindRemainingNext(TuringResult* result, Enigma* enigma, int nextCharI
                                     nextChar, cipherPos, y+'A', cribChar+'A', cipherChar+'A', s2b+'A');
                             placeStecker(sb, y         , cribChar);
                             placeStecker(sb, cipherChar, s2b);
-                            found=turingFindRemainingNext(result, enigma, nextChar+1);
+                            found=soFarDecodeStillValid(enigma, result, crib, nextChar);
                             if (found)
                             {
-                                logDebug("Path 5, pos %d (%d): validated!", nextChar, cipherPos);
+                                found=turingFindRemainingNext(result, enigma, nextChar+1);
+                                if (found)
+                                {
+                                    logDebug("Path 5, pos %d (%d): validated!", nextChar, cipherPos);
+                                }
+                                else
+                                {
+                                    removeStecker(sb, cipherChar, s2b);
+                                    removeStecker(sb, y         , cribChar);
+                                }
                             }
                             else
                             {
                                 removeStecker(sb, cipherChar, s2b);
-                                removeStecker(sb, y         , cribChar);
+                                removeStecker(sb, y         , cribChar);                                
                             }
                         }
                     }
@@ -733,26 +796,10 @@ bool turingFindRemainingCribSteckers(TuringResult *result)
 \**************************************************************************************************/
 bool processResult(TuringResult* result)
 {
-/*    
-    Enigma* enigma=createEnigmaM3();
-    setEnigma(enigma, &result->settings);
-    encodeDecode(enigma);
-    strncpy(result->decoded, toString(enigma), MAX_TEXT-1);
-    turingPrintSolution(result);
-    destroyEnigma(enigma);
-*/
-
     logDebug("Candidate found, validating...");
     // Second check for false positives: find remaining steckers
     // This should succeed
     bool found=turingFindRemainingCribSteckers(result);
-/*
-bool found=true;
-Enigma* enigma=createEnigmaM3();
-setEnigma(enigma, &result->settings);
-encodeDecode(enigma);
-strncpy(result->decoded, toString(enigma), MAX_TEXT-1);
-*/
     result->finalSteckers             =(strlen(result->settings.steckers)+1)/3;
 
     if (theResults!=NULL && found)
@@ -811,7 +858,8 @@ void turingFind(int worker, int permutationStart, int permutationEnd, int cribPo
     char            walzenString[80];
     int             g1, g2, g3, r1, r2, r3;
     struct timeval  stop, start;
-    int             totalPermutations=linkedListLength(tPermutations);
+    int             totalPermutations   =linkedListLength(tPermutations);
+    int             numberOfResults     =0;
     
     logInfo("Worker %d: permutations [%d-%d)", worker, permutationStart, permutationEnd);
 
@@ -822,7 +870,8 @@ void turingFind(int worker, int permutationStart, int permutationEnd, int cribPo
     clearSteckerBrett(enigma);
   
     // Parse the Walze permutations
-    for (int w=permutationStart; w<permutationEnd; w++)
+    // Until all permutations finsihed or a result has been found (provided terminateAtFirstSolution=true)
+    for (int w=permutationStart; w<permutationEnd && !(theRecipe.terminateAtFirstSolution && numberOfResults>0); w++)
     {
         int* permutation=(int*)linkedListObjectAt(tPermutations, w);
         
@@ -869,7 +918,7 @@ void turingFind(int worker, int permutationStart, int permutationEnd, int cribPo
                             for (r3=theRecipe.startR3; r3<=theRecipe.endR3; r3++)
                             {
                                 setRingStellung(enigma, 3, r3);
-                                bool found=turingValidateHypotheses(enigma, g1, g2, g3, steckeredChars, theRecipe.minCribCircleSize);
+                                bool found=turingValidateHypotheses(enigma, g1, g2, g3, steckeredChars, theRecipe.minCribCircles, theRecipe.minCribCircleSize);
                                 // First check for false positives: validate consistency of steckered counterparts
                                 if (found)
                                 {
@@ -909,7 +958,7 @@ void turingFind(int worker, int permutationStart, int permutationEnd, int cribPo
                 }
             }
             mutexLock();
-            int numberOfResults=linkedListLength(theResults);
+            numberOfResults=linkedListLength(theResults);
             totalCounts         +=counting;
             totalCandidates     +=candidates;
             totalValidCandidates+=validCandidates;
@@ -977,8 +1026,7 @@ void bombeProcess(int cribPosition)
         dispatcherPushWorkItem(turingWorkerFunction, &work[w]);
     }
 
-    // Start the time, start the threads and wait till finished
-    startTime=time(NULL); 
+    // Start the threads and wait till finished
     dispatcherStartWork(numOfThreads, turingFinishFunction, NULL, true);
 
 }
@@ -1182,22 +1230,24 @@ TuringRecipe* createDefaultTuringRecipe(char* cipher, char* crib, int cribPositi
         logFatal("Create default recipe: crib exceeds ciphersize");
     }
 
-    recipe                      =malloc(sizeof(TuringRecipe));
+    recipe                          =malloc(sizeof(TuringRecipe));
     strncpy(recipe->cipher, cipher, MAX_TEXT-1);
     strncpy(recipe->crib  , crib  , MAX_CRIB_SIZE-1);
-    recipe->cribPosition        =cribPosition;
-    recipe->startCribPosition   =0;
-    recipe->endCribPosition     =MAX_TEXT;
-    recipe->minCribCircleSize   =3;
-    recipe->numberOfThreads     =numberOfThreads;
-    recipe->R1                  ='A';
-    recipe->startR2             ='A';
-    recipe->endR2               ='A';
-    recipe->startR3             ='A';
-    recipe->endR3               ='Z';
-    recipe->customPermutations  =NULL;
-    recipe->enigmaType          =ENIGMATYPE_M3;
-    recipe->walzeSet            =M3_ARMY_1938;
+    recipe->cribPosition            =cribPosition;
+    recipe->startCribPosition       =0;
+    recipe->endCribPosition         =MAX_TEXT;
+    recipe->minCribCircles          =0;
+    recipe->minCribCircleSize       =3;
+    recipe->numberOfThreads         =numberOfThreads;
+    recipe->terminateAtFirstSolution=false;
+    recipe->R1                      ='A';
+    recipe->startR2                 ='A';
+    recipe->endR2                   ='A';
+    recipe->startR3                 ='A';
+    recipe->endR3                   ='Z';
+    recipe->customPermutations      =NULL;
+    recipe->enigmaType              =ENIGMATYPE_M3;
+    recipe->walzeSet                =M3_ARMY_1938;
     return recipe;
 }
 

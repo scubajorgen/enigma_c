@@ -18,21 +18,23 @@
 
 typedef struct
 {
-    char            cipher[MAX_TEXT];   // Cipher as string
-    char            crib[MAX_CRIB_SIZE];// Crib as string
-    int             cribPosition;       // Position of the start of the Crib in the Cipher; -1 if not known (=scan)
-    int             startCribPosition;  // If a scan is required, this defines the start
-    int             endCribPosition;    // If a scan is required, this defines the end; use MAX_TEXT for the end
-    int             minCribCircleSize;  // Few, short cribs may result in false positives; minimum crib size for a set; smaller sized sets are omitted
-    int             numberOfThreads;    // Number of threads to use
-    int             R1;                 // Value or Ringstellung 1, has no use  
-    int             startR2;            // Min R3 to use, usually A
-    int             endR2;              // Max R3 to use, usually A gives good result
-    int             startR3;            // Min R2 to use, usually A
-    int             endR3;              // Max R2 to use, usually Z
-    Enigma_t        enigmaType;         // Type of Enigma
-    WalzeSet_t      walzeSet;           // Walze set to choose Walzen from
-    LinkedList*     customPermutations; // Custom Walze/UKW permutations; NULL for automatic generation of permutations
+    char            cipher[MAX_TEXT];           // Cipher as string
+    char            crib[MAX_CRIB_SIZE];        // Crib as string
+    int             cribPosition;               // Position of the start of the Crib in the Cipher; -1 if not known (=scan)
+    int             startCribPosition;          // If a scan is required, this defines the start
+    int             endCribPosition;            // If a scan is required, this defines the end; use MAX_TEXT for the end
+    int             minCribCircles;             // Minimum number of crib circles for processing
+    int             minCribCircleSize;          // Few, short cribs may result in false positives; minimum crib size for a set; smaller sized sets are omitted
+    int             numberOfThreads;            // Number of threads to use
+    bool            terminateAtFirstSolution;   // If true, stop at first solution; If false, continue looking for more
+    int             R1;                         // Value or Ringstellung 1, has no use  
+    int             startR2;                    // Min R3 to use, usually A
+    int             endR2;                      // Max R3 to use, usually A gives good result
+    int             startR3;                    // Min R2 to use, usually A
+    int             endR3;                      // Max R2 to use, usually Z
+    Enigma_t        enigmaType;                 // Type of Enigma
+    WalzeSet_t      walzeSet;                   // Walze set to choose Walzen from
+    LinkedList*     customPermutations;         // Custom Walze/UKW permutations; NULL for automatic generation of permutations
 } TuringRecipe;
 
 typedef struct
@@ -110,7 +112,7 @@ extern TuringRecipe        theRecipe;
 void            dumpSets                        ();
 void            dumpMenu                        ();
 SteckeredChars* createSteckeredChars            ();
-int             turingValidateHypotheses        (Enigma* enigma, int g1, int g2, int g3, SteckeredChars* chars, int minCribCircleSize);
+int             turingValidateHypotheses        (Enigma* enigma, int g1, int g2, int g3, SteckeredChars* chars, int minCribCircles, int minCribCircleSize);
 int             turingValidateTheSteckeredValues(SteckeredChars* chars);
 bool            turingIsEqual                   (CribCircle* loop1, CribCircle* loop2);
 void            turingGenerateLetterLinks       (char* cipher, char* crib, int cribStartPosition);

@@ -28,7 +28,7 @@ int main()
     printf(" 3.     Enigma M4 \"Shark\" example - random settings   \n");
 
     printf("10.     Turing crib circles/loops                       \n");
-    printf("11-13.  Turing examples                                 \n");
+    printf("11-14.  Turing examples                                 \n");
 
     printf("20.     Gillogly IoC example 0  - original example 7 st - IOC     \n");
     printf("21.     Gillogly IoC example 1  - 8 steckers            - IOC     \n");
@@ -88,6 +88,10 @@ int main()
         case 13: 
             // The Turing method
             turingExample3();
+            break;    
+        case 14: 
+            // The Turing method, 13 steckers
+            turingExample4();
             break;    
 
         case 20: 

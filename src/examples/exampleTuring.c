@@ -175,9 +175,10 @@ void turingExample()
     logReport("# Crib position             : %d",        turingCribPosition);
     logReport("#####################################################################################");
 
-    TuringRecipe*   recipe      =createDefaultTuringRecipe(turingTestSettings.cipher, turingCrib, turingCribPosition, 4);
-    LinkedList*     results     =linkedListCreate();
+    TuringRecipe*   recipe          =createDefaultTuringRecipe(turingTestSettings.cipher, turingCrib, turingCribPosition, 4);
+    LinkedList*     results         =linkedListCreate();
     TuringStats     statistics;
+    recipe->terminateAtFirstSolution=true;
     turingBombe(*recipe, results, &statistics);
     turingReport(MESSAGEFORMAT_TEXT);
     turingReportBombeStatistics(&statistics);
@@ -233,6 +234,25 @@ void turingExample3()
     destroyTuringRecipe(recipe);
 }
 
+/**************************************************************************************************\
+* 
+* Test Enigma NANO, the reply
+* 
+\**************************************************************************************************/
+extern char replyGC6ZZBB[];
+
+void turingExample4()
+{
+    TuringStats     statistics;
+    TuringRecipe*   recipe          =createDefaultTuringRecipe(replyGC6ZZBB, "whenthiscachecameonlineitimmediately", 0, 4);
+    LinkedList*     results         =linkedListCreate();
+    recipe->terminateAtFirstSolution=true;
+    turingBombe(*recipe, results, &statistics);
+    turingReport(MESSAGEFORMAT_TEXT);
+    turingReportBombeStatistics(&statistics);
+    linkedListDestroy(results, true);
+    destroyTuringRecipe(recipe);
+}
 
 
 
